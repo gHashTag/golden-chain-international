@@ -1,0 +1,13 @@
+{
+  "drips": {
+    "ethereum": {
+      "ownedBy": "0x0A91540efd651E8fbeb91FA5c6c31D7c20897C18"
+    }
+  },
+  "maintainer": {
+    "name": "Dmitrii Vasilev",
+    "affiliation": "Trinity S3AI",
+    "orcid": "0009-0008-4294-6159",
+    "email": "admin@t27.ai"
+  }
+}

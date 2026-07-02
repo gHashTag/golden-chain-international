@@ -1,0 +1,26 @@
+name: hard-rules
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  banned-words:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: banned vocab scan
+        run: |
+          set -e
+          PATTERN='breakthrough|revolutionary|first-ever|nobel|world-first|industry-leading|pseudoscience|crank|numerology'
+          if grep -rniE "$PATTERN" paper/ audits/ research/ plan/ README.md 2>/dev/null; then
+            echo "::error::banned vocabulary found"; exit 1
+          fi
+          echo "banned-words gate: OK"
+      - name: non-ASCII scan (paper/ only)
+        run: |
+          set -e
+          if find paper/ -type f \( -name '*.md' -o -name '*.tex' \) -exec grep -lP '[^\x00-\x7F]' {} \; 2>/dev/null | grep -q .; then
+            echo "::error::non-ASCII characters found in paper/"; exit 1
+          fi
+          echo "ascii-only gate: OK"
