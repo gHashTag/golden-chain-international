@@ -1113,45 +1113,43 @@ Action.
 
 Closes when the entry cites an artefact that contains the result it asserts.
 
-## W-INTL-42  Two catalog entries carry a corrupted bias
+## W-INTL-42  Two catalog entries carry a corrupted bias  [RETRACTED 2026-07-30]
 
-Severity: medium. It is a data defect in the single source of truth, it is
-mechanical to detect, and it has already been noticed once without being fixed.
+The entry was wrong. The catalog is correct and the defect was in the check.
 
-The catalog derives each format's exponent bias by the field rule, two to the
-power of one less than the exponent width, minus one. Checked across the
-rule-derived entries:
+What was reported: that gf512 and gf1024 record a bias of 2 where the field rule
+gives 2^194-1 and 2^390-1, and that a published erratum had identified the cause
+without the catalog being repaired.
 
-| Entry | Exponent bits | Bias recorded | Bias by the rule |
-|---|---|---|---|
-| gf128 | 49 | 281474976710655 | correct |
-| gf256 | 97 | 79228162514264337593543950335 | correct |
-| gf512 | 195 | 2 | 2^194 - 1 |
-| gf1024 | 391 | 2 | 2^390 - 1 |
+What is actually there: `bias=2^194-1` and `bias=2^390-1`, written as expressions
+precisely because the values exceed a 64-bit integer, which is exactly what the
+erratum said the repaired generator would do. The generator was fixed and so was
+the catalog. The hand check that reported otherwise extracted the value with a
+digits-only pattern, which kept the leading 2 of the expression and discarded the
+rest.
 
-The two wrong entries are exactly the two whose correct value exceeds a 64-bit
-integer. A published erratum in the same account already identifies this: it
-records that an earlier code generator dropped these two formats because their
-bias overflowed, and that the generator was fixed to carry them as a formula with
-an overflow sentinel. The generator was repaired. The catalog was not, and still
-shows a bias of 2 for both.
+So the finding was an artefact of reading the file with an instrument too narrow
+for its contents. Eighth time in this audit that the instrument rather than the
+subject was at fault, and the second time the mistake was made against a value
+whose correct form was documented in an erratum I had already read.
 
-Consequence. The catalog is cited as the single source of truth for the count of
-83, and that count is correct. Two of those 83 rows carry a value that is wrong by
-roughly fifty-eight orders of magnitude in one case. Anyone generating conformance
-vectors from those rows produces vectors for a format that does not exist.
+The standing rule from W-INTL-32 covers assertions of absence. This extends it:
+an assertion that a recorded value is wrong must state how the value was read.
+A pattern that cannot represent the value's format will always report it as
+malformed.
 
-Action.
+What came out of it. scripts/check_catalog.py now parses the expression form, so
+the two entries are genuinely checked rather than skipped, and the rule is applied
+by whitelist to the four clusters that use a fixed binary layout. Building that
+whitelist was itself instructive: applying the field rule to every entry flagged
+thirty-six correct ones - VAX excess-128, Cray's bias, tapered posits and takums,
+IEEE decimal's different bias convention, composite double-double rows, and
+logarithmic systems with no bias at all. Every one was the checker being wrong
+about the format. A rule applied outside its domain produces noise, and noise
+trains a reader to ignore the checker.
 
-1. Correct both entries, storing the bias as a formula rather than a literal, which
-   is what the repaired generator already does.
-2. Add a rule check to whatever validates the catalog: bias must equal two to the
-   power of one less than the exponent width, minus one, for every entry claiming
-   the standard field layout. Four lines, and it would have caught this.
-3. Check whether any published conformance vector was generated from the corrupted
-   rows.
-
-Closes when both entries satisfy the field rule and a check enforces it.
+The entry is retained rather than deleted for the same reason W-INTL-36 was: it
+was published, and the record of it being wrong is worth more than a tidy file.
 
 ---
 
@@ -1196,4 +1194,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
 | W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |
 | W-INTL-41 | open, high; a verified catalog entry cites an archive without the result |
-| W-INTL-42 | open, medium; two catalog entries carry a corrupted bias |
+| W-INTL-42 | retracted; the catalog is correct and the check was too narrow |
