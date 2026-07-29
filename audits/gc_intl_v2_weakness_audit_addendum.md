@@ -37,11 +37,22 @@ a catalog row. Canonical size is therefore 83.
 No action remains. Reopens if a direct count of the SSOT returns a number other
 than 83, or if any public artefact outside an erratum asserts a different size.
 
-## W-INTL-17  Settlement requires device signatures that do not exist
+## W-INTL-17  Settlement requires device signatures that do not exist  [RESTATED 2026-07-29]
 
-Severity: critical. Blocks the entire economic layer, not one component.
+Severity: still critical, but the object of the finding was wrong and is corrected
+here. This entry and W-INTL-30 were carrying two accounts of one thing, which the
+audit is not allowed to do.
 
-The settlement contract requires device signatures and a unique hardware
+The correction. This entry says the settlement contract requires device
+signatures. W-INTL-30 established that no settlement contract exists in source.
+Both cannot be true of one object. What is true: the requirement lives in a design
+note, not in code. So the blockage described below is a property of the design, and
+the design is not yet implemented - which makes this entry a constraint on work not
+started rather than a bug in work delivered. The severity stays critical because
+the constraint is real and shapes what can be built; the framing changes because a
+reviewer told that a contract requires something will look for the contract.
+
+The design note requires device signatures and a unique hardware
 fingerprint among its checks. A design note states that any reward path
 settling without a valid device signature is a protocol violation. Together
 these mean that no proof type can settle on mainnet until dies exist - including
@@ -439,10 +450,25 @@ Action, revised after reading the source.
    contract source as its artefact and there is none. The four-proof economics is
    currently a design, and describing a design as an implementation is the same
    error as W-INTL-29, in the area where it will be checked hardest.
-4. Reconcile with W-INTL-17. That entry says settlement is blocked because the
-   contract requires device signatures that do not exist. This entry says the
-   contract itself was not found. Both cannot be describing the same object, and
-   the audit should not carry two accounts of one thing.
+4. Reconcile with W-INTL-17. Done on 2026-07-29: that entry has been restated to
+   say the device-signature requirement lives in a design note rather than in a
+   contract, which is consistent with the contract not existing.
+
+Two smaller observations from the same read, recorded because they explain where
+two published numbers came from.
+
+Seven checks. The claim of a settlement contract with seven checks has no
+settlement contract behind it, but the token contract contains exactly seven
+require statements: five zero-address validations in the constructor, one guard
+against claiming nothing, and one asserting the phi identity to within a tolerance.
+The coincidence of the count is suggestive - the number may have been taken from
+the wrong contract - but it is an observation, not an established provenance.
+
+Nine halvings. The emission schedule of nine halvings over forty years does not
+appear in the deployed contract, which implements linear vesting and nothing else.
+Halving logic is present in the chain sources written in Zig. So the schedule is
+specified, in a component that is not the deployed instrument, and the application
+should say where it lives rather than implying the token enforces it.
 
 Closes when the allocation described externally matches the deployed artefact, and
 when the settlement contract either exists or is described as unbuilt.

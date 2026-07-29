@@ -92,22 +92,28 @@ no timing report exists to support it.
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
 
-Economics, designed. Four proof types, one settlement contract, seven checks, and
-nine halvings over forty years. This is a design. The settlement contract has not
-been written: the only contract deployed under this project is a token, and the
-one script that pays anything calls a vesting withdrawal on it rather than
-settling a proof. Stated this way because W-INTL-29 in the audit records what
-happens when a design is described as an implementation.
+Economics. One token is deployed, to Sepolia, and its allocation is fixed in the
+contract rather than in a configuration file:
 
-[CLAIM-HELD] A sentence claiming no premine, no venture allocation and no
-treasury stood here. It is refuted as of 2026-07-29 and must not be restored.
-TrinityToken.sol fixes the split in hardcoded constants - founder 20 percent,
-node rewards 40, community 20, treasury 10, liquidity 10 - with founder tokens
-vesting over 48 months behind a 12 month cliff and treasury over 60 months behind
-a 6 month cliff. There is no other instrument to point at. What belongs here
-instead is an accurate description of that allocation: a vested founder share is
-ordinary and defensible in this market, and it is only the denial of it that is
-not survivable. See audit W-INTL-30.
+  node rewards   40 percent, vesting over 120 months
+  founder        20 percent, vesting over 48 months behind a 12 month cliff
+  community      20 percent, vesting over 36 months
+  treasury       10 percent, vesting over 60 months behind a 6 month cliff
+  liquidity      10 percent, minted at deployment
+
+For comparison, a leading physical-infrastructure network allocates 40 percent to
+contributors, 20 percent to investors and 20 percent to its team. This project
+matches that contributor share and carries no investor allocation at all. The
+founder share is vested over four years behind a one-year cliff. We state the
+allocation rather than claim its absence, because the contract is public and the
+claim would not survive a reader opening it.
+
+The four-proof settlement layer is a design, not an implementation. No settlement
+contract has been written: the only contract under this project is the token
+above, and the single script that pays anything calls a vesting withdrawal on it.
+The nine-halving emission schedule is likewise specified in the chain sources and
+absent from the deployed contract. We separate these because an application that
+describes a design as a running system is checkable and fails the check.
 
 Energy. Naive comparison against a general-purpose baseline suggests a large
 multiplier; the honest figure, accounting for memory traffic and system

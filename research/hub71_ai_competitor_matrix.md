@@ -99,12 +99,32 @@ parties.
 | Attestation | device identification through vendor serials and capability benchmarks | device secret plus sampled re-execution |
 | Failure mode addressed | operator misrepresenting hardware | operator misrepresenting work performed |
 | Connectivity assumption | node has an internet connection | node provides connectivity to others |
-| Token allocation | commonly includes founder, investor and treasury allocation | claim under review, see below |
+| Token allocation | contributor, investor and team shares, see below | contributor share matched, no investor share |
 
-The allocation row is withdrawn from use pending W-INTL-30. A token deployed to
-Sepolia under this account carries a five-entry allocation block including keys
-named founder and treasury. Until it is established whether that token is the
-instrument the economics describe, this comparison cannot be made.
+The allocation row, restated 2026-07-29 after the deployed contract was read.
+
+An earlier draft of this file claimed no founder, investor or treasury allocation.
+That was wrong and is withdrawn; see audit W-INTL-30. The deployed contract fixes
+the split in hardcoded constants. The honest comparison is better than the claim
+it replaces:
+
+| Share | Hivemapper | This work |
+|---|---|---|
+| Contributors / node rewards | 40 percent | 40 percent, vesting over 120 months |
+| Investors | 20 percent | none |
+| Team / founder | 20 percent | 20 percent, vesting over 48 months behind a 12 month cliff |
+| Treasury | not stated in the source used | 10 percent, vesting over 60 months behind a 6 month cliff |
+| Community | not stated in the source used | 20 percent, vesting over 36 months |
+| Liquidity | not stated in the source used | 10 percent, minted at deployment |
+
+Hivemapper figures are as reported in public write-ups of its allocation and are
+used here only for the three shares those sources state; the blanks are blanks in
+the source, not zeros. The comparison that survives is narrow and real: the same
+contributor share as an established network, and no investor allocation.
+
+A caution against over-reading it. Absence of an investor allocation is a fact
+about a project that has not raised, not a governance commitment. It becomes a
+commitment only if it survives a round.
 
 The connectivity row is the differentiator most likely to be missed. Every
 comparable network assumes its nodes are already connected. This one is the
