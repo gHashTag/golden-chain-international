@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-40
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-42
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1078,6 +1078,81 @@ Action.
 Closes when the arm is re-run with the corrected implementation and the published
 result is updated in whichever direction the re-run lands.
 
+## W-INTL-41  A catalog entry marked verified cites an archive that does not contain the result
+
+Severity: high. It is in the single source of truth, it carries a verified status,
+and the artefact it names is one click away from any reviewer.
+
+The gf16 entry in specs/numeric/formats_catalog.t27 reads, in its standard field,
+that the format is verified with FPGA results of 35 out of 35 at 323 MHz on
+Artix-7, and cites a persistent identifier described as a hardware archive.
+
+Fetched 2026-07-30. The record behind that identifier is a two-kilobyte software
+description stub about vector-symbolic operations over balanced-ternary
+hypervectors. It contains one markdown file. It reports no FPGA frequency, no
+timing figure, no device, and no hardware results of any kind.
+
+So a frequency claim carrying verified status in the catalog names an archive that
+does not support it. Whether 323 MHz was measured is not established either way by
+this; what is established is that the artefact cited for it is the wrong one.
+
+This is the same defect as W-INTL-29, which found a 309 MHz claim recorded at the
+strongest evidence level against a timing report that does not exist. That one was
+in a downstream document. This one is in the file every other document defers to,
+and it is marked verified.
+
+Action.
+
+1. Establish whether a timing report for gf16 on Artix-7 exists. If it does, cite
+   it. The 35 of 35 conformance figure and the frequency are separable claims and
+   should be cited separately.
+2. If it does not, remove the frequency from the standard field and reduce the
+   status. A conformance pass is a conformance pass; it is not a clock rate.
+3. Audit the other verified entries for the same pattern. This one was found by
+   following a link, which is not a method that scales by hand.
+
+Closes when the entry cites an artefact that contains the result it asserts.
+
+## W-INTL-42  Two catalog entries carry a corrupted bias
+
+Severity: medium. It is a data defect in the single source of truth, it is
+mechanical to detect, and it has already been noticed once without being fixed.
+
+The catalog derives each format's exponent bias by the field rule, two to the
+power of one less than the exponent width, minus one. Checked across the
+rule-derived entries:
+
+| Entry | Exponent bits | Bias recorded | Bias by the rule |
+|---|---|---|---|
+| gf128 | 49 | 281474976710655 | correct |
+| gf256 | 97 | 79228162514264337593543950335 | correct |
+| gf512 | 195 | 2 | 2^194 - 1 |
+| gf1024 | 391 | 2 | 2^390 - 1 |
+
+The two wrong entries are exactly the two whose correct value exceeds a 64-bit
+integer. A published erratum in the same account already identifies this: it
+records that an earlier code generator dropped these two formats because their
+bias overflowed, and that the generator was fixed to carry them as a formula with
+an overflow sentinel. The generator was repaired. The catalog was not, and still
+shows a bias of 2 for both.
+
+Consequence. The catalog is cited as the single source of truth for the count of
+83, and that count is correct. Two of those 83 rows carry a value that is wrong by
+roughly fifty-eight orders of magnitude in one case. Anyone generating conformance
+vectors from those rows produces vectors for a format that does not exist.
+
+Action.
+
+1. Correct both entries, storing the bias as a formula rather than a literal, which
+   is what the repaired generator already does.
+2. Add a rule check to whatever validates the catalog: bias must equal two to the
+   power of one less than the exponent width, minus one, for every entry claiming
+   the standard field layout. Four lines, and it would have caught this.
+3. Check whether any published conformance vector was generated from the corrupted
+   rows.
+
+Closes when both entries satisfy the field rule and a check enforces it.
+
 ---
 
 ## Priority order
@@ -1120,3 +1195,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
 | W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |
+| W-INTL-41 | open, high; a verified catalog entry cites an archive without the result |
+| W-INTL-42 | open, medium; two catalog entries carry a corrupted bias |
