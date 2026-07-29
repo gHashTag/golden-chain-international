@@ -171,6 +171,12 @@ EmissionController implements the halving curve directly, with an era of four
 years, so the emission schedule is enforced by the contract rather than described
 in a document.
 
+What has not happened yet, stated because a deployment invites the assumption. No
+proof has been submitted and no chip registered: the registry and the prover show
+zero transactions since deployment. The contracts are a bring-up rather than a
+running network, and the first settled proof will be the cheapest piece of
+outside-verifiable evidence we can produce.
+
 One correction we make ourselves. An earlier token of ours, TrinityToken, was
 deployed to Ethereum Sepolia in February 2026 with a conventional split including
 a founder and a treasury share. It is superseded by the above and is not the

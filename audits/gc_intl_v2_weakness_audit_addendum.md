@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-37
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-38
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -846,6 +846,48 @@ re-run once the identity gate is real.
 Remaining to close: define one unit of verified work with its compute content and
 its price.
 
+## W-INTL-38  The deployment has never been used
+
+Severity: medium for the technical case, high for the wording around it.
+
+Checked on the block explorer 2026-07-29, 72 days after deployment. ChipRegistry
+and JobProver each show zero transactions and zero balance. No chip has ever been
+registered. No proof has ever been submitted. MiningPool holds the entire token
+supply, which is the state it is left in by deployment rather than evidence of
+activity.
+
+So the five contracts are a bring-up, not a running network. That is a perfectly
+ordinary state for a testnet deployment two months old, and nothing in the design
+is contradicted by it. What it does contradict is any phrasing that lets a reader
+infer operation from deployment.
+
+This sharpens W-INTL-34 rather than duplicating it. That entry found the identity
+gate is not enforced. This one finds it has also never been exercised - the
+scaffold is not merely permissive, it is untouched. A registry that has accepted
+zero registrations has not been tested against even the weak check it does have.
+
+Consequences for wording.
+
+Three proof types are said to operate today. They are produced by the node daemon;
+nothing settles them, and nothing has ever tried. The application now says
+produced rather than settled, which is right, and this entry is the evidence for
+why that distinction was necessary rather than pedantic.
+
+Any figure derived from network operation - throughput, operator earnings, uptime
+- has no observations behind it and must not appear.
+
+Action.
+
+1. Submit one proof end to end on the testnet. It exercises the settlement path,
+   produces the first real transaction, and turns deployed into demonstrated. The
+   contracts are already there; this is an afternoon.
+2. Until then, describe the deployment as what it is: written, deployed, and
+   unexercised.
+3. Record the first settled transaction hash when it exists. It is the single
+   cheapest piece of third-party-verifiable evidence available to this project.
+
+Closes when at least one proof has settled on chain and its transaction is cited.
+
 ---
 
 ## Priority order
@@ -885,3 +927,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |
 | W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
 | W-INTL-37 | partly closed; computed as far as the missing unit price allows |
+| W-INTL-38 | open, medium; deployment is real and has never been exercised |
