@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-30
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-31
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -422,102 +422,74 @@ runs to 206 of 206 passing, and an independent Xilinx-targeted synthesis emits n
 DSP primitive. That claim is now stronger than it was, by the same method that
 refuted the frequency. The method is not biased toward negative findings.
 
-## W-INTL-30  A deployed token contradicts the allocation claim
+## W-INTL-30  Two tokens exist and the superseded one is easier to find  [CORRECTED 2026-07-29]
 
-Severity: critical, and the most exposed item in this file. The claim it
-contradicts is used as a differentiator in both the application and the
-competitor matrix, and the contradicting artefact is public, on a public chain,
-and reachable from this account.
+Severity: medium. The original entry rated this critical and was substantially
+wrong. The correction is recorded in full because the error is instructive.
 
-The claim, stated in three places: no premine, no venture allocation, no
-treasury. The competitor matrix goes further and contrasts this against networks
-that "commonly include founder, investor and treasury allocation" with the entry
-"none of the three".
+What this entry claimed. That the allocation claim - no premine, no venture
+allocation, no treasury - was refuted by a deployed contract carrying a 20 percent
+founder share and a 10 percent treasury share, and that no settlement contract
+existed to point at instead.
 
-The artefact. deploy/contracts/deployment-sepolia.json in gHashTag/trinity
-records a token deployed to Sepolia, chain id 11155111, at address
-0xef368e29FA3aB2eaf02BccD05438ED3bafE9f469, dated 2026-02-16, with a total supply
-of 10,460,353,203 tokens. It carries an allocations block with five entries:
-founder, nodeRewards, community, treasury and liquidity. Every one of the five is
-set to the same address, which is also the deployer.
+What is actually true. The claim holds, of the instrument it describes.
+gHashTag/trinity-contracts is public and contains TriToken, MiningPool,
+EmissionController, ChipRegistry and JobProver, all deployed to Base Sepolia on
+2026-05-18 with addresses and deploy transactions recorded. TriToken mints its
+entire supply to MiningPool in the constructor and renounces ownership in the same
+transaction: there is no allocation mechanism to any founder, investor, treasury
+or liquidity address, and the supply cannot be inflated afterwards. That is a
+stronger form of the claim than the one the application was making.
 
-Two of those keys are named exactly what the claim denies. The falsification
-condition written into the ledger row was "any allocation found in the deployed
-bytecode". That test has now been run against a deployment this account
-published, and the claim did not survive it.
+How the error happened, since the method is the point of this file. The search
+that concluded absence was `deploy/contracts/src` in one repository plus a code
+search for contracts named for rewards, proofs or settlement. The first is the
+wrong directory and the second returned nothing because the settlement contract is
+called MiningPool. Absence was then reported with confidence, and two ledger rows
+were downgraded on it. The repository was linked from the mesh roadmap the whole
+time. Concluding absence from a failed search is the exact failure this audit
+exists to catch, and it went uncaught for three passes.
 
-The benign reading was tested on 2026-07-29 by reading the source, and it does
-not hold.
+What survives, and it is real. Two tokens exist under this project. The superseded
+one, TrinityToken on Ethereum Sepolia from February 2026, does carry a founder and
+treasury split, and it is still public. A reviewer searching for the project's
+token may find that one first and conclude the allocation claim is false, exactly
+as this audit did. The risk is not that the claim is wrong; it is that the
+disproof is easier to find than the proof.
 
-TrinityToken.sol does not take its split from a config file. The percentages are
-hardcoded constants: founder 20 percent, node rewards 40, community 20, treasury
-10, liquidity 10. The constructor sets up vesting for four of them - founder over
-48 months behind a 12 month cliff, treasury over 60 months behind a 6 month cliff,
-node rewards over 120 months, community over 36 - and mints liquidity outright.
-This is not an artefact of a throwaway deployment. It is a designed allocation
-with a vesting schedule, and it is the structure the claim says does not exist.
+Action.
 
-The second half of the benign reading also fails. There is no other instrument to
-point at. deploy/contracts/src contains exactly one file, the token. A search
-across the account for any contract named for rewards, proofs or settlement
-returns nothing. The one rewards script calls claimVested on the token, which is
-a vesting withdrawal, not a proof settlement. Caveat on method: this covers what
-is reachable and indexed from this account; a contract in an unindexed or
-unreachable place would not have been seen.
+1. Name the instrument explicitly wherever the economics are described - contract
+   names, chain, addresses - so the right artefact is the one a reader reaches.
+2. Say plainly that the February token is superseded. Pointing at it is cheaper
+   than being shown it.
+3. Consider marking the old repository's contract directory as superseded, since
+   a deprecation note costs nothing and removes the ambiguity at source.
 
-That has a second consequence, recorded as its own change to the ledger. E21
-claims four proof types settling through one contract with seven checks and names
-contract source as its artefact. That source was not found. E21 moves to not
-built, and E25, which claims three proof types operate today, can now mean only
-that the node daemon produces proofs - not that anything settles them.
+Closes when the application names the deployed instrument by address and the
+superseded one is labelled as such.
 
-Why this outranks the rest. Every other finding in this file concerns a figure
-that was overstated or an artefact that was missing. This one is a live
-contradiction between a published artefact and a headline differentiator, in the
-subject area of the programme most likely to be chosen as the host, assessed by
-people who read token allocation tables for a living.
+## W-INTL-31  The register bank admits twenty-seven proof types, not four
 
-Action, revised after reading the source.
+Severity: low, but it is a discrepancy between a contract and every document
+describing it.
 
-1. Stop repeating the allocation claim. It is refuted, not merely unsupported,
-   and it is the most checkable sentence in the application.
-2. Decide which is true and say it plainly. Either the token with the 20 percent
-   founder allocation is the instrument, in which case describe the allocation and
-   the vesting honestly - a vested founder allocation is ordinary and defensible,
-   and only the denial of it is not - or that token is abandoned, in which case say
-   so publicly and point at what replaces it.
-3. Write the settlement contract or stop describing it as written. E21 names
-   contract source as its artefact and there is none. The four-proof economics is
-   currently a design, and describing a design as an implementation is the same
-   error as W-INTL-29, in the area where it will be checked hardest.
-4. Reconcile with W-INTL-17. Done on 2026-07-29: that entry has been restated to
-   say the device-signature requirement lives in a design note rather than in a
-   contract, which is consistent with the contract not existing.
+MiningPool defines MAX_REGISTER as 26, so proof types 0 to 26 are accepted, and
+the named constants visible include a zero-knowledge job register and a Bittensor
+register. Every external document describes four proof types: transport,
+coverage, sensing and inference.
 
-Two smaller observations from the same read, recorded because they explain where
-two published numbers came from.
+Both may be true - four registers used out of a bank of twenty-seven - but no
+document says so, and a reader who opens the contract finds a wider surface than
+the prose implies.
 
-Seven checks. The claim of a settlement contract with seven checks has no
-settlement contract behind it, but the token contract contains exactly seven
-require statements: five zero-address validations in the constructor, one guard
-against claiming nothing, and one asserting the phi identity to within a tolerance.
-The coincidence of the count is suggestive - the number may have been taken from
-the wrong contract - but it is an observation, not an established provenance.
-
-Nine halvings. The emission schedule of nine halvings over forty years does not
-appear in the deployed contract, which implements linear vesting and nothing else.
-Halving logic is present in the chain sources written in Zig. So the schedule is
-specified, in a component that is not the deployed instrument, and the application
-should say where it lives rather than implying the token enforces it.
-
-Closes when the allocation described externally matches the deployed artefact, and
-when the settlement contract either exists or is described as unbuilt.
+Action: state which registers are in use and that the bank is larger. Closes when
+the mapping from the four named arms to their register indices is written down.
 
 ---
 
 ## Priority order
 
-1. W-INTL-30  a published artefact contradicts a headline differentiator
 2. W-INTL-29  settled: a projection was published as a measurement
 3. W-INTL-28  a reviewer checks it first and, on present evidence, it fails
 4. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
@@ -545,4 +517,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-27 | partly closed, host programme still to choose |
 | W-INTL-28 | closed by artefact search; score removed, withdrawal record substituted |
 | W-INTL-29 | open, critical, refuted as stated; figure removed from the application |
-| W-INTL-30 | open, critical, deployed artefact contradicts the allocation claim |
+| W-INTL-30 | corrected; the claim holds and this entry was wrong |
+| W-INTL-31 | open, low; register bank wider than the prose |

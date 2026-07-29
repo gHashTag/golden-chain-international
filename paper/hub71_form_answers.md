@@ -90,27 +90,32 @@ true part.
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
 
-Economics. One token is deployed, to Sepolia, and its allocation is fixed in the
-contract rather than in a configuration file:
+Economics, deployed and checkable. Five contracts run on Base Sepolia since
+2026-05-18, each with a public address and deploy transaction: TriToken,
+MiningPool, EmissionController, ChipRegistry and JobProver.
 
-  node rewards   40 percent, vesting over 120 months
-  founder        20 percent, vesting over 48 months behind a 12 month cliff
-  community      20 percent, vesting over 36 months
-  treasury       10 percent, vesting over 60 months behind a 6 month cliff
-  liquidity      10 percent, minted at deployment
+The allocation is the part worth checking first. TriToken mints its entire supply
+to MiningPool at deployment and renounces ownership in the same transaction. There
+is no founder allocation, no investor allocation, no treasury and no liquidity
+carve-out, because there is no allocation mechanism at all: every token has to be
+earned through the pool. Supply cannot be inflated afterwards, since ownership is
+already gone.
 
-For comparison, a leading physical-infrastructure network allocates 40 percent to
-contributors, 20 percent to investors and 20 percent to its team. This project
-matches that contributor share and carries no investor allocation at all. The
-founder share is vested over four years behind a one-year cliff. We state the
-allocation rather than claim its absence, because the contract is public and the
-claim would not survive a reader opening it.
+MiningPool settles a claim only when every check passes: a valid proof type, a
+non-empty proof, a chip signature of the right form, a matching emission era, a
+chip registered in ChipRegistry, a nullifier that has not been used before, a
+non-zero reward, and a register cap that still has room. The replay check and the
+chip-registration check are the two that carry the weight.
 
-The four-proof settlement layer is a design, not an implementation. No settlement
-contract has been written: the only contract under this project is the token
-above, and the single script that pays anything calls a vesting withdrawal on it.
-The nine-halving emission schedule is likewise specified in the chain sources and
-absent from the deployed contract.
+EmissionController implements the halving curve directly, with an era of four
+years, so the emission schedule is enforced by the contract rather than described
+in a document.
+
+One correction we make ourselves. An earlier token of ours, TrinityToken, was
+deployed to Ethereum Sepolia in February 2026 with a conventional split including
+a founder and a treasury share. It is superseded by the above and is not the
+instrument this application describes, but it is still public and a reader could
+find it first. We would rather point at it than have it found.
 
 Energy. A naive comparison against a general-purpose baseline gives 20x, from
 1 pJ per multiply-accumulate against 0.05 pJ per add. We do not use that number.

@@ -78,9 +78,9 @@ the level was lowered rather than the artefact restated.
 
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
-| E21 | Four proof types settle through one contract with seven checks | not built | the named artefact is contract source, and no such source was found. The only Solidity contract under this account is a token; a search for any contract named for rewards, proofs or settlement returns nothing, and the one rewards script calls claimVested on that token, which is a vesting withdrawal and not a proof settlement | already falsified unless the source is produced. See audit W-INTL-30 |
-| E22 | No premine, no venture allocation, no treasury | refuted | the contract source settles it. TrinityToken.sol fixes the split in hardcoded constants: founder 20 percent, node rewards 40, community 20, treasury 10, liquidity 10, of a 10,460,353,203 token supply, with founder tokens vesting over 48 months behind a 12 month cliff and treasury over 60 months behind a 6 month cliff. The Sepolia deployment record assigns all five to the deployer's address | already falsified. Not resolvable by pointing at a different instrument, because no other contract exists under this account. See audit W-INTL-30 |
-| E23 | Contracts deployed to testnet | confirmed, third-party verifiable | token deployed to Sepolia, chain id 11155111, address 0xef368e29FA3aB2eaf02BccD05438ED3bafE9f469, recorded 2026-02-16 in deploy/contracts/deployment-sepolia.json in gHashTag/trinity; a second record exists for a local chain | the address returning no code on Sepolia. Note that this row and E22 describe the same artefact and disagree; see W-INTL-30 |
+| E21 | Proof types settle through one contract with a fixed check sequence | confirmed, third-party verifiable | MiningPool.sol in gHashTag/trinity-contracts, 370 lines, deployed to Base Sepolia at 0xAe28EDd6c13fd8B3b5C217fd705488B30683c45E on 2026-05-18. Its settle path requires a valid proof type, non-empty proof data, a 65-byte chip signature, a matching era, a chip registered in ChipRegistry, an unused nullifier, a non-zero reward and remaining register capacity | any settlement path bypassing a check. Note: the register bank admits 27 proof types, not four; the application should say which four are used |
+| E22 | No premine, no venture allocation, no treasury | confirmed, third-party verifiable | TriToken.sol mints its entire supply to MiningPool in the constructor and renounces ownership in the same transaction. There is no allocation mechanism to a founder, investor, treasury or liquidity address, and supply cannot be inflated afterwards. Deployed at 0x7D3ECaB5c467bd86050f9160B15c002a57249c59 | any allocation found in the deployed bytecode. An earlier and superseded token of the same project, TrinityToken on Ethereum Sepolia, does carry a founder and treasury split; it is not this instrument. See audit W-INTL-30 |
+| E23 | Contracts deployed to testnet | confirmed, third-party verifiable | five contracts on Base Sepolia, chain id 84532, deployed 2026-05-18 across seven transactions in blocks 41,674,689 to 41,674,694: TriToken, MiningPool, EmissionController, ChipRegistry and JobProver, each with its address and deploy transaction recorded | any of the addresses returning no code on Base Sepolia |
 | E24 | Mainnet settlement operates | conjecture | blocked: settlement requires device signatures that do not yet exist | see audit W-INTL-17; falsified or resolved by a transitional signing mode |
 | E25 | Three proof types operate today | written, software-signed | node daemon | the contract does not accept software signatures; see W-INTL-17 |
 
@@ -98,18 +98,18 @@ the level was lowered rather than the artefact restated.
 
 ## Summary
 
-  written       8 rows   (of which 3 external, 1 software-signed, 1 by design)
+  written       7 rows   (of which 3 external, 1 software-signed)
   hw            5 rows   (of which 1 reproduced, 1 loopback only, 1 negative)
-  refuted       3 rows
+  confirmed     3 rows   (all three third-party verifiable on a public chain)
   sim           3 rows
+  conjecture    2 rows
   modelled      2 rows
-  not built     2 rows
+  refuted       2 rows
   test          2 rows   (1 of them independently reproduced by execution)
-  confirmed     1 row    (third-party verifiable on a public chain)
-  conjecture    1 row
+  not built     1 row
   not measured  1 row
-  undefined     1 row
   partial       1 row
+  undefined     1 row
   total        30 rows
 
 The economics section is the weakest part of this table and was the last to be
@@ -119,15 +119,23 @@ on the one that is not built, and one describes a daemon rather than a settlemen
 That section should be rewritten as a design before it is shown to anyone who
 reads token structures professionally.
 
-Movement since the first draft of this ledger. E10 from hardware to refuted, its
-named artefact having turned out not to exist. E13 rewritten entirely: the score
-it asserted was not in the submission history, and what the search did find - a
-record of submissions withdrawn by their own author on stated technical grounds -
-is both true and more useful. E19 from inconsistent to verified. E14 strengthened,
-having been reproduced by execution rather than read.
+Movement since the first draft. E10 from hardware to refuted, its named artefact
+having turned out not to exist. E13 rewritten: the score it asserted was not in
+the submission history, and the withdrawal record that was there is both true and
+more useful. E14 strengthened by reproduction. E19 from inconsistent to verified.
+E26 from written to conjecture, the attestation root having a published bypass
+whose fix status is unchecked.
 
-Three rows moved down, two moved up, and one changed into a different claim. A
-ledger that only ever moves upward is not being checked.
+E21, E22 and E23 moved up, and that movement was a correction of this ledger
+rather than of the project. All three had been downgraded on 2026-07-29 on the
+finding that no settlement contract existed. It does exist, deployed, with
+addresses; the search that concluded otherwise looked in one repository and used
+the wrong names. The rows are now the strongest in the table, and the audit entry
+that caused the error records how it happened.
+
+The lesson is recorded rather than quietly fixed: absence reported from a failed
+search is a claim like any other, and this ledger made it three times before
+checking it.
 
 The counts above are derived from the table by parsing the level column, not
 written by hand. A ledger whose own arithmetic does not reconcile has no claim
