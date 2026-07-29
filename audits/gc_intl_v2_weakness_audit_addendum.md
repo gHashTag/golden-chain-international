@@ -1262,52 +1262,64 @@ Action.
 
 Closes when the coincidence is stated in every document that introduces gf16.
 
-## W-INTL-45  The pool holding the entire supply is owned by a key the project calls disposable
+## W-INTL-45  Ownership is renounced everywhere, which freezes a known defect  [CORRECTED 2026-07-30]
 
-Severity: critical for any move to a value-bearing network, and it is a custody
-decision rather than a code change.
+Severity: critical for this deployment, and it is the opposite of what this entry
+first said.
 
-Found by reading the deployed contracts while answering a question about launch
-readiness, not by working through a checklist.
+What was written, hours earlier. That MiningPool is Ownable, takes its owner from
+the deployer, and therefore has an administrative function controlled by a key the
+deployment record calls ephemeral - with two failure modes depending on whether
+that key still exists.
 
-MiningPool is Ownable and takes its owner from the deployer. It exposes
-setChipRegistry, owner-only, which replaces the registry that decides which chips
-may claim rewards. MiningPool holds the entire token supply. The deployment record
-describes the deployer as an ephemeral, deploy-only key.
+What is actually the case. The deployment script renounces MiningPool's ownership
+explicitly at the end of the run, on the line after the token is deployed, with a
+comment saying so. TriToken renounces in its own constructor. So there is no
+owner and no key. The second failure mode does not exist.
 
-Two failure modes, pointing opposite ways.
+Method, and its limit. This was read from the deployment script in the contracts
+repository, which is the script whose broadcast produced the recorded addresses.
+It was not confirmed by reading owner() from the chain, because the sandbox this
+was run in blocks the public RPC endpoints and the block explorer's contract
+reads are unavailable for unverified contracts. Verifying the contracts, which is
+W-INTL-35, would also make this directly checkable by anyone.
 
-If the key no longer exists, the registry can never be replaced. Since the current
-registry accepts any self-declared identity per W-INTL-34, an unreplaceable
-registry is a permanent defect rather than an immutability guarantee.
+The first failure mode survives and is now certain rather than conditional. The
+registry can never be replaced. ChipRegistry accepts any self-declared key, per
+W-INTL-34, so this deployment has a permanently unfixable identity gate. Nothing
+can repair it, and nothing can pause it.
 
-If the key exists and is compromised, its holder redirects the pool to a registry
-they control and claims against a contract holding every token.
+That reframes the problem. It is not that custody is undecided. Custody is
+decided, in the direction that freezes a defect the project already knows about.
 
-Neither is acceptable on a network carrying value, and the two cannot both be
-mitigated by doing nothing.
+For this deployment there is no remedy, and none is needed: it is a testnet, it
+has never been used, and the correct response is to treat it as disposable, which
+is what a testnet is for. The finding matters for what comes next.
 
-The contrast with TriToken is worth stating because it shows the choice was made
-deliberately somewhere. TriToken renounces ownership in its constructor: supply
-can never be inflated and nothing can ever be repaired. That trade is defensible
-for a token and it raises the bar on the audit rather than lowering it, since
-there is no path to fix a defect after deployment. MiningPool went the other way
-and kept an owner, which is also defensible - but then the owner has to be
-somebody, and right now it is a deploy key.
+For a value-bearing deployment. Renouncing everything at deployment is the strongest
+possible statement about supply and the weakest possible position on defects,
+because it forecloses every response to one. The two contracts here made opposite
+choices for the token and the pool and then converged on the same outcome by the
+end of the script, which suggests the outcome was inherited rather than chosen.
+
+The defensible sequence is to renounce late rather than early: hold administrative
+functions in a multi-signature wallet behind a timelock while the system is being
+exercised, and renounce once it has been. That keeps the ability to fix a defect
+during the period when defects are found, and still ends where a renounced
+contract ends. Renouncing at deployment buys the same final property while paying
+for it during exactly the window when it costs most.
 
 Action.
 
-1. Decide custody and say so publicly. Either move ownership to a multi-signature
-   wallet with named signers, or state that the key is destroyed and accept that
-   the registry is frozen. Both are positions. Silence is not.
-2. If ownership is retained, put setChipRegistry behind a timelock. An
-   administrative action that changes who gets paid should be visible before it
-   takes effect.
-3. Until one of those is done, do not describe the economics as production-ready
-   in any external document.
+1. Record, in the external documents, that this deployment is permanently frozen
+   with a registry that does not verify. It is a testnet and that is acceptable;
+   what is not acceptable is describing it as though it could be corrected.
+2. For the next deployment, decide the ownership schedule deliberately: what is
+   held, by whom, behind what delay, and on what condition it is given up.
+3. Do not repeat the current arrangement by default. It was almost certainly not
+   chosen.
 
-Closes when the owner of MiningPool is a multi-signature wallet or is provably
-nobody, and the external documents say which.
+Closes when the ownership schedule for a value-bearing deployment is written down.
 
 ---
 
@@ -1355,4 +1367,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-42 | retracted; the catalog is correct and the check was too narrow |
 | W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |
 | W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |
-| W-INTL-45 | open, critical for mainnet; the pool's owner is a deploy key |
+| W-INTL-45 | corrected; ownership is renounced everywhere, freezing a known defect |
