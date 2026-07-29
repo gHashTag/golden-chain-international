@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-28
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-29
 
 Status: Wave-intl-2 draft, extends `audits/gc_intl_v1_weakness_audit.md`
 Rule basis: hard rule 10 - every unproven claim tagged with a falsification path.
@@ -294,17 +294,62 @@ Action, in order.
 Closes when either an artefact is attached to the row, or the claim is removed
 from every external document.
 
+## W-INTL-29  A modelling parameter was published as a hardware measurement
+
+Severity: critical. Same class as W-INTL-28 and found the same way, but this one
+is settled rather than merely unsupported.
+
+The claim. An inference core running at 309 MHz on Artix-7, recorded at the
+strongest evidence level available, with a timing report named as its artefact.
+
+What was found on 2026-07-29.
+
+- The project's own comparison document states, in its list of honest
+  limitations, that all cell counts come from yosys and not from a vendor flow,
+  and that there is no timing or Fmax data.
+- The synthesis bench notes record place and route as blocked on a toolchain
+  problem, list extracting Fmax from a timing report as an outstanding task that
+  blocks completion, and instruct the author to document honestly that place and
+  route was not run.
+- The number 309 appears in the performance model as one of three clock values
+  swept for a projection, alongside 50 and 150. The same model uses 150 MHz, not
+  309, when it states a compute ceiling.
+- Synthesis without place and route cannot produce an Fmax. The named artefact
+  therefore cannot exist in the state the repositories describe.
+
+The finding is not that the number is implausible. It is that a swept parameter
+in a projection was promoted to a measurement, and an artefact was named for it
+that the project's own notes say does not exist.
+
+What makes this worse than an ordinary overstatement: the underlying documents
+are honest. The performance model marks every projected figure as an estimate and
+states in its own output that the throughput figure is a ceiling and not a
+benchmark. The overstatement was introduced downstream of careful work.
+
+Action. Taken in part: the figure has been removed from the application, and the
+ledger row is now recorded as refuted with the reason. Remaining: either complete
+place and route and publish a real Fmax, or state a clock only as a projection
+with its assumption attached. Closes when no external document states a frequency
+without saying whether it was measured or assumed.
+
+Counterweight, recorded here because the same pass produced it. The ternary tile
+claim was tested by execution rather than by reading, and it held: the testbench
+runs to 206 of 206 passing, and an independent Xilinx-targeted synthesis emits no
+DSP primitive. That claim is now stronger than it was, by the same method that
+refuted the frequency. The method is not biased toward negative findings.
+
 ---
 
 ## Priority order
 
-1. W-INTL-28  a reviewer checks it first and, on present evidence, it fails
-2. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
-3. W-INTL-17  blocks the economics entirely
-4. W-INTL-23  largest credibility gain, hardware already present
-5. W-INTL-25  requires a third party, so start earliest
-6. W-INTL-26  cheap, high visibility, partly closed
-7. W-INTL-18  vocabulary discipline, no artefact change required
+1. W-INTL-29  settled: a projection was published as a measurement
+2. W-INTL-28  a reviewer checks it first and, on present evidence, it fails
+3. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
+4. W-INTL-17  blocks the economics entirely
+5. W-INTL-23  largest credibility gain, hardware already present
+6. W-INTL-25  requires a third party, so start earliest
+7. W-INTL-26  cheap, high visibility, partly closed
+8. W-INTL-18  vocabulary discipline, no artefact change required
 
 W-INTL-16 was third in the previous order and is now closed; see its entry above.
 
@@ -322,3 +367,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-26 | partly closed, README corrected |
 | W-INTL-27 | partly closed, host programme still to choose |
 | W-INTL-28 | open, critical, claim pulled from the application pending an artefact |
+| W-INTL-29 | open, critical, refuted as stated; figure removed from the application |

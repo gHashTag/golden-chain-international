@@ -36,11 +36,11 @@ Verification levels, in decreasing strength:
 
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
-| E10 | Inference core runs at 309 MHz on Artix-7 | hw | bench board, timing report | a timing report below the stated frequency |
+| E10 | Inference core runs at 309 MHz on Artix-7 | refuted | as stated. No timing report exists; 309 is one of three clock values swept in a performance model, and the project's own synthesis notes record that place and route was not run and that there is no Fmax data | already falsified on 2026-07-29; see audit W-INTL-29. A real Fmax requires place and route, which is blocked on toolchain |
 | E11 | Three compute boards connected over USB | hw | inventory | fewer than three enumerated |
 | E12 | Quantisation-aware training pipeline for 1.58-bit weights | test | training runs reproducible from repository | a run that does not converge to the reported metric |
 | E13 | Top-5 placement at 0.9650 bits per byte | unverified | no supporting artefact found; see below and audit W-INTL-28 | the falsification test was run on 2026-07-29 and the claim did not survive it in the form stated |
-| E14 | Multiplier-free ternary tile, zero DSP | test | RTL plus self-checking testbench, 206 directed and random vectors against a golden model | any synthesis report allocating a DSP, or any vector mismatch |
+| E14 | Multiplier-free ternary tile, zero DSP | test, independently reproduced | RTL plus self-checking testbench; reproduced from a clean checkout on 2026-07-29: the testbench compiles and runs to 206 tests, 206 pass, 0 fail, measured lane density 1563/3200; separately, Xilinx-targeted synthesis of the tile emits no DSP primitive of any kind, only LUT, CARRY4, FDCE and MUXF cells | any synthesis report allocating a DSP, or any vector mismatch. Neither occurred when the check was run |
 | E15 | End-to-end language model inference | not built | no attention, no key-value cache, no normalisation or quantisation units | this row exists to prevent comparison against full-system baselines |
 | E16 | Throughput and power figures for the compute node | not measured | ceiling estimated from memory bandwidth only | measure on device; the estimate must not be quoted as a benchmark |
 
@@ -78,18 +78,23 @@ Verification levels, in decreasing strength:
 ## Summary
 
   written       9 rows   (of which 2 external, 1 software-signed, 1 by design)
-  hw            7 rows   (of which 1 loopback only, 1 negative)
+  hw            6 rows   (of which 1 loopback only, 1 negative)
   sim           3 rows
   modelled      2 rows
-  test          2 rows
+  test          2 rows   (1 of them independently reproduced by execution)
+  refuted       2 rows
   not built     1 row
   not measured  1 row
   conjecture    1 row
-  refuted       1 row
   undefined     1 row
   partial       1 row
   unverified    1 row
   total        30 rows
+
+Movement since the first draft of this ledger, all of it downward except one row:
+E13 from hardware-and-third-party to unverified, E10 from hardware to refuted,
+E19 from inconsistent to verified, E14 strengthened by reproduction. A ledger that
+only ever moves upward is not being checked.
 
 The counts above are derived from the table by parsing the level column, not
 written by hand. A ledger whose own arithmetic does not reconcile has no claim
@@ -123,12 +128,26 @@ Weakened or contradicted:
   weakest evidence type in an otherwise artefact-backed table and should be
   upgraded before submission.
 
-Figures asserted elsewhere that this pass could not confirm: a 309 MHz inference
-core, 206 test vectors for the ternary tile, and 4,463 lines of Rust. The first
-two were not found in any public artefact reachable on 2026-07-29; for the third,
-the public mesh repository contains 6,181 lines under src and 18,708 in total, so
-4,463 corresponds to nothing currently visible and is presumed to be a stale count
-of a repository that is not public.
+Reproduced by execution rather than by reading:
+
+- E14, vector count. The ternary tile testbench was compiled and run from a clean
+  checkout on 2026-07-29. It reports 206 tests, 206 pass, 0 fail, and a measured
+  active-lane density of 1563 out of 3200. The figure of 206 is therefore not an
+  assertion in a document; it is what the testbench prints when anyone runs it.
+- E14, zero DSP. The tile was synthesised against a Xilinx target in the same
+  pass. The resulting cell list contains BUFG, CARRY4, FDCE, IBUF, INV, LUT2 to
+  LUT6, MUXF7, MUXF8 and OBUF, and no DSP primitive of any kind. The claim holds
+  under an independent synthesis, not only under the project's own assertion.
+- Incidental. That synthesis emits 441 LUTs for the tile, where the project's
+  performance model estimates about 380. The model is optimistic by roughly a
+  sixth. This does not affect any claim made externally, but the estimate should
+  be corrected before it is used in a projection.
+
+Not confirmed: 4,463 lines of Rust. The public mesh repository contains 6,181
+lines under src and 18,708 in total, so the figure matches nothing currently
+visible and is presumed to be a stale count of a repository that is not public.
+
+Refuted: see E10 and audit W-INTL-29.
 
 Two rows are deliberately negative (E15, E16) and one is deliberately refuted
 (E28). A ledger that contains only supporting rows is a marketing document.

@@ -105,7 +105,38 @@ The connectivity row is the differentiator most likely to be missed. Every
 comparable network assumes its nodes are already connected. This one is the
 connection.
 
-## 5. What to claim, and what not to
+## 5. Adjacent field: constrained-budget model compression
+
+Added 2026-07-29 after checking the field directly rather than citing it.
+
+The OpenAI Parameter Golf challenge asks for the best language model inside a
+16 MB artefact trained in under ten minutes on eight accelerators, scored by
+tokenizer-agnostic bits per byte on a fixed validation set. Lower is better. It is
+the closest public benchmark to the low-precision compression thesis argued here.
+
+| Entry | Score, bits per byte | Note |
+|---|---|---|
+| Best entry on the live leaderboard | 1.0565 | the bar the field currently clears |
+| Best ternary entry, third-party | 1.1565 | 74M ternary model, published record directory |
+| Same author, binary, unconstrained | 1.1239 | outside the compute limit, listed as non-record |
+| Stated baseline | 1.2244 | reference point published with the challenge |
+
+Two things follow, and both matter more than the table.
+
+A third party has already published a ternary entry in this challenge. The
+ternary-under-a-parameter-budget position is occupied, by someone else, with a
+public artefact and a reproducible record directory. Any claim to novelty in that
+specific framing should be checked against that entry first.
+
+The gap between the ternary entry and the leaderboard leader is about 0.1 bits
+per byte. That is the honest size of the penalty currently paid for ternary
+weights in this setting - not a fatal gap, and not a free lunch either. It is a
+better number to quote than any internal estimate, because a reviewer can check
+it in one click.
+
+This section asserts no figure for this project. Nothing here was produced by it.
+
+## 6. What to claim, and what not to
 
 Claim:
 - six devices assembled, with cryptography and radio verified on-device
