@@ -727,10 +727,21 @@ from that source. A reviewer who checks - and on a digital-assets track someone
 will - finds an unverified contract holding 7.6 trillion tokens. The honest
 explanation and the dishonest one look identical from outside.
 
-Action: verify all five contracts on the explorer. It requires the compiler
-version, optimisation settings and the source, all of which exist. This converts
-every economic claim in the application from trust-us to check-it, and it is an
-afternoon.
+Action: verify all five contracts on the explorer. The settings are already in
+the repository's foundry configuration - solc 0.8.24, optimizer enabled at 200
+runs, via_ir off - and the explorer endpoint is configured there too. With a
+BASESCAN_API_KEY the command per contract is:
+
+    forge verify-contract --chain base-sepolia \
+        --compiler-version 0.8.24 --num-of-optimizations 200 \
+        <address> src/<Name>.sol:<Name>
+
+Constructor arguments are needed for TriToken, MiningPool and any contract taking
+addresses; they are recoverable from the deploy transactions recorded in
+deployments/base-sepolia.md.
+
+This converts every economic claim in the application from trust-us to check-it,
+and it is an afternoon.
 
 Closes when each of the five addresses shows verified source matching the
 repository.

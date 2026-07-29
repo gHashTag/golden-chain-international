@@ -31,3 +31,7 @@ jobs:
             echo "::error::non-ASCII characters found in paper/"; exit 1
           fi
           echo "ascii-only gate: OK"
+      - name: document consistency
+        run: |
+          set -e
+          python3 scripts/check_consistency.py

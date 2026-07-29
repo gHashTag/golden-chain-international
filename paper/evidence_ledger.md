@@ -102,11 +102,11 @@ the level was lowered rather than the artefact restated.
   hw            5 rows   (of which 1 reproduced, 1 loopback only, 1 negative)
   confirmed     3 rows   (all three third-party verifiable on a public chain)
   sim           3 rows
-  conjecture    2 rows
+  conjecture    1 row
   modelled      2 rows
   refuted       2 rows
   test          2 rows   (1 of them independently reproduced by execution)
-  not built     1 row
+  not built     2 rows
   not measured  1 row
   partial       1 row
   undefined     1 row
