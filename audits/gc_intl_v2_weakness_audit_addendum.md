@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-32
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-33
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -545,15 +545,14 @@ document duplicated the work.
 | W16, W21, W26 | verifiability-per-dollar not operationalised in numbers | not carried forward; the international edition inherits the same gap |
 | W17 | competitive landscape not shown | answered by the competitor matrix |
 | W20 | reproducibility without an artefact protocol | answered in part: two claims are now reproducible by command |
-| W25 | verifiable arithmetic is not verifiable inference - hallucination and adversarial behaviour sit above the arithmetic | not carried forward, and it is the sharpest entry in either registry. Nothing in this addendum addresses it |
+| W25 | verifiable arithmetic is not verifiable inference - hallucination and adversarial behaviour sit above the arithmetic | carried forward and answered as W-INTL-33 |
 | W28 | ternary energy efficiency is a 49x projection with no mechanism | see below |
 
 Two consequences.
 
-W25 should be carried into the international edition. It is a threat to the thesis
-rather than to a claim, and neither this addendum nor the application answers it.
-An accelerator committee assessing an AI-infrastructure application is entitled to
-ask why arithmetic that can be checked implies inference that can be trusted.
+W25 has been carried into the international edition and answered as W-INTL-33. It
+was a threat to the thesis rather than to a claim, and it deserved an answer
+rather than a hedge.
 
 W28 changes the energy picture. The naive energy figure has now been stated as at
 least four different values across the project's own documents: 49x in this
@@ -562,6 +561,52 @@ and 20 to 30x from a second pair of figures in it. The honest figure of 4x to 8x
 is quoted against a naive number that does not have one value. Hard rule 7 asks
 for the naive and honest calculations to be paired; pairing requires the naive one
 to be singular first.
+
+## W-INTL-33  Verifiable arithmetic is not verifiable inference  [ANSWERED 2026-07-29]
+
+Severity when opened: the highest in either registry, because it threatens the
+thesis rather than a claim. Carried forward from the predecessor registry, entry
+W25, where it had been raised and left unanswered.
+
+The objection. Proving that arithmetic executed correctly says nothing about
+whether the model's output is true. Hallucination and adversarial behaviour sit
+above the arithmetic, so an application selling verifiable AI compute may be
+selling a guarantee that does not reach the thing a buyer cares about.
+
+The objection is correct, and the answer is not to deny it.
+
+Answer, part one: concede the scope. Execution verification does not make output
+true, unbiased or non-hallucinated. Those are properties of the model and are
+addressed by evaluation. Any document of ours implying otherwise is wrong and
+should be corrected.
+
+Answer, part two: the conceded part is not where the money is. An operator paid to
+run inference gains nothing by faking a matrix multiply - it is expensive to fake
+and cheap to check. The profitable attacks are at the edges: substitute a smaller
+model and bill for the larger, tamper with the input, alter the sampling policy,
+or return a cached answer without computing. The zero-knowledge literature on
+verifiable inference makes this point against itself, noting that proving the
+forward pass over an unverified model identity and unverified input establishes
+very little. See the survey literature on zero-knowledge verifiable machine
+learning and the recent work on agent-execution transcripts, IACR eprint 2026/199.
+
+Answer, part three: that is the gap this design addresses, and it addresses it
+without a vendor enclave. Device identity binds the work to a specific piece of
+hardware. A nullifier makes each claim single-use. Sampled re-execution with stake
+forfeiture makes substitution unprofitable rather than impossible. The result is
+assurance with published parameters, not a cryptographic absolute.
+
+Why this strengthens rather than weakens the position. The field's own critique of
+zero-knowledge inference is that the hard cryptography is aimed at the attack
+nobody is running, while identity and input integrity - the attacks that pay - are
+left assumed. A design that starts from identity and economics is aimed at the
+right target, and can say so with a citation rather than an assertion.
+
+Residual, and it stays open. Sampled re-execution assumes the work is
+deterministic enough to re-run and compare. Sampling policy, temperature and
+hardware non-determinism all weaken that assumption, and no document here has
+specified how a re-execution is judged to match. That is the next real question,
+and it should be written down before anyone asks it.
 
 ---
 
@@ -597,3 +642,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-30 | corrected; the claim holds and this entry was wrong |
 | W-INTL-31 | open, low; register bank wider than the prose |
 | W-INTL-32 | open, high; four false negatives from failed searches, method rule adopted |
+| W-INTL-33 | answered; scope conceded, target defended, one residual open |

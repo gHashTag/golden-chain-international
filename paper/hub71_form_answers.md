@@ -61,6 +61,31 @@ node is built on a part that carries a bitstream signature scheme; the compute
 boards are a bench tier and are not used as the trust anchor. That separation is
 deliberate and documented.
 
+What verification does and does not buy, stated plainly because it is the
+objection we expect first. Verifying execution is not verifying judgement. Nothing
+here makes a model's output true, unbiased or free of hallucination; those are
+properties of the model and are addressed by evaluation, not by arithmetic.
+
+What it does buy is narrower and, we think, the part that is actually unsolved. An
+operator paid to run inference has no incentive to fake a matrix multiply, which
+is expensive to fake and cheap to check. The profitable attacks sit at the edges:
+substitute a smaller model and bill for the larger one, tamper with the input,
+quietly change the sampling policy, or return a cached answer without computing
+anything. The zero-knowledge literature has concentrated on proving the forward
+pass because it is the hardest problem, and observes that a proof of correct
+execution over an unverified model identity and an unverified input establishes
+very little.
+
+That is the gap this work addresses. Device identity binds the computation to a
+specific piece of hardware; a nullifier makes each claim single-use so a result
+cannot be billed twice; sampled re-execution with stake at risk makes
+substitution unprofitable rather than impossible. It is assurance, not proof, and
+the parameters are published: one percent sampling at one hundred times the unit
+reward.
+
+The honest boundary is that this defends the buyer against the operator. It does
+not defend anyone against the model.
+
 ## Product
 
 Mesh, on hardware. Three nodes assembled, powered, and passing verified
