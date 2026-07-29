@@ -1,6 +1,11 @@
 # Weakness Audit Addendum: W-INTL-16 .. W-INTL-30
 
-Status: Wave-intl-2 draft, extends `audits/gc_intl_v1_weakness_audit.md`
+Status: Wave-intl-2. Named an addendum because it was drafted as one, but the file
+it says it extends, `audits/gc_intl_v1_weakness_audit.md`, does not exist and was
+never written. The numbering therefore starts at 16 for historical reasons only.
+Fifteen findings were not invented to fill the gap; the reference is recorded as
+dangling instead. See `plan/wave_intl_decomposed_plan.md`.
+
 Rule basis: hard rule 10 - every unproven claim tagged with a falsification path.
 
 Each entry states the weakness, where a reviewer will find it, the severity, and

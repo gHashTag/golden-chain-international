@@ -51,7 +51,7 @@ Verification levels, in decreasing strength:
 | E17 | GoldenFloat format family published | written, external | arXiv:2606.05017 | withdrawal of the preprint |
 | E18 | Numeric format catalog published | written, external | arXiv:2606.09686 | withdrawal of the preprint |
 | E19 | Catalog size is 83 formats in 13 families | written, external | arXiv:2606.09686v2 of 2026-06-22 states 83 in title and abstract; SSOT specs/numeric/formats_catalog.t27 in gHashTag/t27 counts 83 records with no duplicate ids; public READMEs of gHashTag/trinity-fpga and gHashTag/t27 both state 83; the superseded count 84 survives only inside the two published errata, which is where it belongs | a direct count of the SSOT returning a number other than 83, or any public artefact outside an erratum asserting a different size |
-| E20 | Energy advantage over a general-purpose baseline | modelled | naive and honest calculations published side by side; honest figure 4x to 8x, 95% CI [3, 10] | a measured end-to-end comparison falling outside the interval |
+| E20 | Energy advantage over a general-purpose baseline | modelled, artefact not located | the row names naive and honest calculations published side by side, honest figure 4x to 8x with 95 percent CI [3, 10]. A search on 2026-07-29 did not find either calculation in any reachable repository. The figure may be sound; what is missing is the working | a measured end-to-end comparison falling outside the interval, or the calculations not being produced. This is now the only externally quoted number in the application with no locatable derivation |
 
 ## 4. Economics
 
@@ -154,6 +154,19 @@ Reproduced by execution rather than by reading:
   performance model estimates about 380. The model is optimistic by roughly a
   sixth. This does not affect any claim made externally, but the estimate should
   be corrected before it is used in a projection.
+- E19, by direct count rather than by citation. The single source of truth
+  specs/numeric/formats_catalog.t27 was fetched and counted on 2026-07-29: 83
+  catalog records, and 13 distinct clusters whose members sum to exactly 83.
+  GoldenFloat 22, HistoricalVendor 10, PositUnumIII 8, IntegerFixed 8,
+  MlLowPrecision 7, Ieee754Binary 5, Theoretical 4, Lns 4, CompressionTrick 4,
+  Microscaling 3, Ieee754Decimal 3, ExtendedFloat 3, QuantTuned 2. Both published
+  numbers hold.
+- A note on method, since this ledger asks others to check it. The first count of
+  clusters run here returned 12, not 13. The pattern used had truncated
+  Ieee754Binary and Ieee754Decimal to a common prefix and merged two clusters into
+  one. The instrument was wrong, not the claim. It is recorded because a checker
+  who makes the same mistake will otherwise conclude that the catalog is
+  misdescribed.
 
 Not confirmed: 4,463 lines of Rust. The public mesh repository contains 6,181
 lines under src and 18,708 in total, so the figure matches nothing currently

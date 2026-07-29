@@ -37,16 +37,19 @@ Status is stated per file so that a reader is never sent to something that is no
 - `audits/gc_intl_v2_weakness_audit_addendum.md` — W-INTL-16..27, each with a falsification path
 - `research/hub71_ai_competitor_matrix.md` — AI-track competitor picture, published figures separated from estimates
 
-**Wave-intl-1 — planned, not yet written.** These files are referenced by the Wave-intl-2
-documents but do not exist in this repository yet. The Russian-language origin repository
-they were to be derived from is not reachable (see Cross-references below), so they will be
-written directly rather than translated.
+- `plan/submission_checklist.md` — what is ready, what is design, what is needed from the applicant
+- `plan/wave_intl_decomposed_plan.md` — sixteen gates, each with the check that closes it
 
-- `paper/golden_chain_international.md` — 8-section international edition
-- `paper/hub71_compliance.md` — 6-section compliance whitepaper
-- `audits/gc_intl_v1_weakness_audit.md` — weakness audit (W-INTL-1..W-INTL-15)
-- `research/gc_intl_research.md` — competitor + ecosystem research
-- `plan/wave_intl_1_decomposed_plan.md` — 15-gate roadmap across Wave-intl-1/2/3
+**Wave-intl-1 — never written, and not being reconstructed.** The five files this
+README used to list as deliverables do not exist. The Russian-language origin repository
+they were to be derived from returns 404 to an external reader (see Cross-references
+below), so there is nothing to translate. Rather than invent their content, the two that
+were genuinely needed have been written directly and are listed above; the rest are
+withdrawn from the list.
+
+- `paper/golden_chain_international.md` — not written. An 8-section international edition needs source material that does not exist in this repository.
+- `paper/hub71_compliance.md` — not written. Its intended content now lives in `paper/hub71_form_answers.md` and `plan/submission_checklist.md`; writing a third document that says the same thing would create a fourth place for the numbers to disagree.
+- `audits/gc_intl_v1_weakness_audit.md` — not written. The Wave-intl-2 addendum names it as the file it extends; that reference is dangling and is marked as such in the addendum itself.
 
 ## Hard rules
 
