@@ -170,8 +170,46 @@ which is also why W-INTL-30 has to be settled before this route is chosen: a
 Digital Assets committee reads allocation tables for a living and would find the
 Sepolia deployment first.
 
-Both close 21 August 2026. The choice determines which narrative leads, so it
-should be made before the remaining sections are written, not after.
+Both close 21 August 2026. The choice determines which narrative leads. Both
+openings are drafted below so the decision is one word rather than a rewrite.
+Whichever is chosen replaces the Startup overview at the top of this file; the
+rest of the document is unchanged either way.
+
+### Opening if Access Programme is chosen
+
+Trinity builds infrastructure for verifiable AI compute at the edge. Six devices
+run on the bench today: three Zynq-7020 mesh nodes and three Artix-7 compute
+boards. On the mesh side, authenticated encryption has run on the node processors
+twice, on two boards, with recorded binary hashes and a zero exit code, and a
+5.8 GHz radio front end is verified in digital loopback - loopback, not over the
+air, and we mark it that way everywhere. On the compute side, a multiplier-free
+ternary tile passes 206 of 206 self-checking vectors against a golden model and
+synthesises with no DSP primitive allocated; both results reproduce from the
+repository in minutes. Our numeric work is published as two preprints and the
+catalog behind it is a single source of truth of 83 formats in 13 families, which
+counts to 83 when you count it. What is not built is marked as not built:
+multi-hop routing is in simulation, nothing has been transmitted over the air, and
+there is no end-to-end language model. Every claim we make carries the level of
+evidence that supports it, and a public ledger records which ones failed checking.
+
+### Opening if Hub71+ Digital Assets is chosen
+
+Trinity is building a network that pays operators for physical contribution it can
+verify - transport, coverage, sensing and low-precision inference - on hardware
+obtainable under any export regime. The distinctive problem we work on is that
+proving where a computation ran currently requires a trusted execution environment
+from one of four processor vendors, which for a buyer reducing vendor dependence
+reproduces the problem one layer down. Our answer is device identity plus sampled
+re-execution with stake at risk, on parts that carry no such dependence. On
+allocation we state rather than claim: 40 percent to node rewards vesting over ten
+years, 20 percent to the founder vesting over four years behind a one-year cliff,
+20 percent community, 10 percent treasury, 10 percent liquidity, all fixed in the
+deployed contract. That contributor share matches a leading physical-infrastructure
+network, and unlike it we carry no investor allocation - a fact about a company
+that has not raised, and one we would expect to be held to. The settlement layer
+itself is a design, not a running system, and we say so: one token is deployed to
+a public testnet, the four-proof contract is not written, and we would rather be
+asked why than be found out.
 
 ## Plans for Abu Dhabi
 

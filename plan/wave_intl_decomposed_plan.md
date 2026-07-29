@@ -26,7 +26,7 @@ that cannot be checked is not a gate.
 
 | # | Gate | Check that will close it | Blocked on |
 |---|---|---|---|
-| G9 | Energy figure sourced or dropped | the naive and honest calculations exist in the repository, or the number is gone from every external document | nothing; it is a search that has already failed once and then a decision |
+| G9 | Energy figure sourced or dropped | the honest derivation exists in the repository, or the number is gone from every external document | half resolved 2026-07-29. The naive side was found: a document dividing 1 pJ per multiply-accumulate by 0.05 pJ per add to reach 20x, while also stating 10 to 20x and 20 to 30x elsewhere in the same file. The honest side that reduces this to 4x to 8x was not found. The pairing hard rule 7 requires is currently one-sided, with only the overclaiming half written down |
 | G10 | Settlement layer described consistently | no external document describes the four-proof economics as implemented | nothing |
 | G11 | Silicon vocabulary split | no external document uses an unqualified "silicon" to span shuttle tile and custom die | nothing |
 | G12 | Public cross-references resolve | every link in the README returns content to an anonymous reader | publishing or replacing two repositories |
