@@ -11,8 +11,10 @@
 
 ## Scope
 
-This repository holds the **international, ASCII-only, English-first, state-rhetoric-free** derivative of the
-Russia 3.0 "Troica" project (`paper3-rossiya30-troica`). It packages the trust-first computing thesis
+This repository holds the **international, ASCII-only, English-first, state-rhetoric-free** edition of the
+trust-first computing work. An earlier draft described it as a derivative of a Russian-language origin
+repository; that repository is not public and the derivation cannot be checked, so the claim is withdrawn
+and this edition stands on its own sources. It packages the trust-first computing thesis
 (GoldenFloat + TRI-27 + Trinity Provenance) as an international policy chapter and as a compliance whitepaper
 for a Hub71 Cohort 20 submission.
 
@@ -34,7 +36,7 @@ Status is stated per file so that a reader is never sent to something that is no
 
 - `paper/evidence_ledger.md` — 30 claims, each mapped to its artefact and verification level
 - `paper/hub71_form_answers.md` — application answers, ASCII-only
-- `audits/gc_intl_v2_weakness_audit_addendum.md` — W-INTL-16..27, each with a falsification path
+- `audits/gc_intl_v2_weakness_audit_addendum.md` — W-INTL-16..30, each with a falsification path
 - `research/hub71_ai_competitor_matrix.md` — AI-track competitor picture, published figures separated from estimates
 
 - `plan/submission_checklist.md` — what is ready, what is design, what is needed from the applicant
@@ -42,8 +44,7 @@ Status is stated per file so that a reader is never sent to something that is no
 
 **Wave-intl-1 — never written, and not being reconstructed.** The five files this
 README used to list as deliverables do not exist. The Russian-language origin repository
-they were to be derived from returns 404 to an external reader (see Cross-references
-below), so there is nothing to translate. Rather than invent their content, the two that
+they were to be derived from is not public, so there is nothing to translate. Rather than invent their content, the two that
 were genuinely needed have been written directly and are listed above; the rest are
 withdrawn from the list.
 
@@ -69,11 +70,10 @@ withdrawn from the list.
 Reachability checked anonymously on 2026-07-29, which is what an external reviewer sees.
 
 - `gHashTag/paper3-methodology` — arXiv:2606.09686 (83-format numeric catalog) — reachable
-- `gHashTag/tt-trinity-corona` — ROM silicon (TTGF26a shuttle) — reachable
+- `gHashTag/tt-trinity-corona` — shuttle tile, TTGF26a run — reachable. Shuttle tile, not custom die; the two are kept distinct throughout this repository
 - `gHashTag/t27` — TRI-27 language + numeric SSOT — reachable
 - `gHashTag/trios-mcp-rag` — render pipeline — reachable
-- `gHashTag/goldenfloat-preprint` — arXiv:2606.05017 (GoldenFloat) — **private, returns 404 to an external reader.** Cite the arXiv identifier instead of this link, or make the repository public.
-- `gHashTag/paper3-rossiya30-troica` — Russian-language origin — **does not exist, returns 404.** Either the name is wrong or the repository was never published; the derivation claim in Scope above rests on it.
+- [arXiv:2606.05017](https://arxiv.org/abs/2606.05017) — GoldenFloat. Cited by identifier rather than by repository: the repository is private and returns 404 to an external reader, while the preprint resolves for anyone.
 
 The canonical catalog size is 83 formats in 13 families (arXiv:2606.09686v2, 2026-06-22).
 The superseded count 84 appears only in the two published errata, which is correct.

@@ -29,8 +29,10 @@ sensing, and low-precision inference. Six devices run on the bench today: three
 Zynq-7020 mesh nodes with cryptography verified on-device and a 5.8 GHz
 software-defined radio front end, and three Artix-7 compute boards. Our numeric
 work is published (arXiv:2606.05017, arXiv:2606.09686) and the stack is
-Apache-2.0. Every unverified figure in our repositories carries a simulation
-marker.
+Apache-2.0. We mark unverified figures in our repositories with a simulation
+marker, and where that discipline failed we have said so: an audit in this
+repository records six externally quoted claims that did not survive checking,
+and what replaced them.
 
 ## Problem
 
@@ -52,8 +54,7 @@ timing routes traffic through a self-healing mesh, so a group of nodes shares a
 single uplink. The same node runs low-precision inference on multiplier-free
 arithmetic that maps onto mature, freely exportable process nodes. The design pays
 operators for four proof types settling through one contract with seven
-independent checks; that contract is specified and not yet written, and the
-distinction is kept everywhere it appears in this document.
+independent checks. That contract is specified and not yet written.
 
 Attestation is rooted in the device rather than in a vendor enclave. The mesh
 node is built on a part that carries a bitstream signature scheme; the compute
@@ -73,7 +74,7 @@ Compute, on hardware. Three Artix-7 boards, a multiplier-free ternary tile
 verified against a golden model with zero DSP allocated, a quantisation-aware
 training pipeline for 1.58-bit weights, and a published numeric format family.
 
-Research conduct, and this is offered in place of a score. We entered OpenAI's
+Research conduct. We entered OpenAI's
 Parameter Golf challenge and made five public submissions. Three of them we
 withdrew ourselves. The first was a leading entry that would have topped the
 board; we closed it after finding that our own scoring path violated the
@@ -83,12 +84,8 @@ that the metric was not measuring real compression. The other two we closed duri
 a public discussion about per-byte versus per-token measurement bases. What remains
 open is a non-record run and a reproduction of another team's stack.
 
-We report this rather than a placement because it is the more useful fact about
-how we work. Every figure elsewhere in this application is stated at the level of
-evidence that supports it, and where a figure did not survive checking it has been
-removed rather than softened. The clock frequency previously quoted for the
-inference core was removed on the same basis: place and route has not been run, so
-no timing report exists to support it.
+We report the withdrawals rather than a placement because the withdrawals are the
+true part.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
@@ -113,13 +110,15 @@ The four-proof settlement layer is a design, not an implementation. No settlemen
 contract has been written: the only contract under this project is the token
 above, and the single script that pays anything calls a vesting withdrawal on it.
 The nine-halving emission schedule is likewise specified in the chain sources and
-absent from the deployed contract. We separate these because an application that
-describes a design as a running system is checkable and fails the check.
+absent from the deployed contract.
 
-Energy. Naive comparison against a general-purpose baseline suggests a large
-multiplier; the honest figure, accounting for memory traffic and system
-overhead, is 4x to 8x with a 95% confidence interval of 3 to 10. We publish the
-honest figure and show the naive calculation beside it.
+Energy. A naive comparison against a general-purpose baseline gives 20x, from
+1 pJ per multiply-accumulate against 0.05 pJ per add. We do not use that number.
+Our working figure is 4x to 8x, with a 95% confidence interval of 3 to 10, once
+memory traffic and system overhead are counted. We flag this one honestly: the
+naive calculation is written down and the derivation behind the smaller figure is
+not, so the smaller figure is currently a projection rather than a result, and it
+is tagged that way in our roadmap.
 
 What is not done. Multi-hop routing, throughput across two hops, and the
 three-node shared-uplink demonstration are in simulation and marked as such. No
@@ -140,9 +139,8 @@ Operators acquire nodes and earn for verified contribution; the network charges
 for delivered service. Three of the four proof types are produced today by the
 node daemon at software-signed level - produced, not settled, since the contract
 that would settle them is not written. Near-term revenue is node sales and paid
-pilots with operators who need
-connectivity and local inference in the same enclosure - infrastructure, remote
-industry, and civil resilience.
+pilots with operators who need connectivity and local inference in the same
+enclosure - infrastructure, remote industry, and civil resilience.
 
 ## Traction
 
@@ -184,6 +182,31 @@ offering? Yes.
 
 Which category best describes your focus? AI infrastructure - verifiable
 low-precision inference at the edge and the network that delivers it.
+
+## Plans for Abu Dhabi
+
+I am establishing the legal vessel at ADGM and relocating to Abu Dhabi in
+[MONTH] to build the core team there. Abu Dhabi is a product decision rather
+than a funding one. The network pays operators for verified physical
+contribution, and ADGM is among the few jurisdictions where that settlement
+layer can be built inside a clear regulatory framework rather than around one.
+The region also matches our demand profile: appetite for sovereign AI capability,
+real gaps in terrestrial connectivity, and a strategic interest in reducing
+single-vendor dependence in both. In the first year I intend to run a mesh pilot
+with a government or infrastructure partner, hire two engineers locally, and
+reach mainnet from Abu Dhabi.
+
+---
+
+# NOT FOR SUBMISSION - working material below this line
+
+Everything above this line is application text. Everything below it is the
+applicant's working material: the programme decision, the two drafted openings,
+and the notes on which is which. It must be cut before the form is filled in,
+along with the comment block at the top of this file.
+
+A reader from the committee should never see a document reasoning about how to
+present itself to them.
 
 ## Host programme
 
@@ -238,16 +261,3 @@ that has not raised, and one we would expect to be held to. The settlement layer
 itself is a design, not a running system, and we say so: one token is deployed to
 a public testnet, the four-proof contract is not written, and we would rather be
 asked why than be found out.
-
-## Plans for Abu Dhabi
-
-I am establishing the legal vessel at ADGM and relocating to Abu Dhabi in
-[MONTH] to build the core team there. Abu Dhabi is a product decision rather
-than a funding one. The network pays operators for verified physical
-contribution, and ADGM is among the few jurisdictions where that settlement
-layer can be built inside a clear regulatory framework rather than around one.
-The region also matches our demand profile: appetite for sovereign AI capability,
-real gaps in terrestrial connectivity, and a strategic interest in reducing
-single-vendor dependence in both. In the first year I intend to run a mesh pilot
-with a government or infrastructure partner, hire two engineers locally, and
-reach mainnet from Abu Dhabi.
