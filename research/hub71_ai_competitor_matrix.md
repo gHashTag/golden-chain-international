@@ -172,7 +172,27 @@ it in one click.
 
 This section asserts no figure for this project. Nothing here was produced by it.
 
-## 6. What to claim, and what not to
+## 6. Prior art on the numeric side
+
+Added 2026-07-30 after reading our own benchmark artefact, which names the format
+under test as DLFloat-6:9.
+
+| Format | Layout | Origin |
+|---|---|---|
+| IBM DLFloat | 1 sign, 6 exponent, 9 mantissa | published 2019 for deep learning training and inference |
+| GF16 | 1 sign, 6 exponent, 9 mantissa | this work, as the 16-bit member of a rule-generated family |
+
+The layouts are identical, and the stated design rationale is the same one: deep
+learning is more sensitive to dynamic range than to precision, so spend a bit from
+the mantissa on the exponent relative to IEEE half precision.
+
+This is prior art for the 16-bit member and it should be cited rather than
+discovered by a reviewer. It does not touch the family claim: a rule that
+generates field widths across widths from 4 bits to 1024, whose 16-bit member
+coincides with a format IBM arrived at independently, is a reasonable thing to
+find interesting. It is a weaker claim than novelty and a much safer one.
+
+## 7. What to claim, and what not to
 
 Claim:
 - six devices assembled, with cryptography and radio verified on-device

@@ -152,8 +152,17 @@ only because per-row scaling removes the dynamic range that the exponent bit wou
 have earned.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
-numeric catalog (arXiv:2606.09686), with an open reference implementation. The
-contribution here is registry filling: a vendor-neutral reference with bit-exact
+numeric catalog (arXiv:2606.09686), with an open reference implementation.
+
+One thing we state rather than let a reader find. Our 16-bit format has the same
+field layout as IBM's DLFloat, published in 2019: one sign bit, six exponent bits,
+nine mantissa bits, chosen for the same reason. Our own benchmark file already
+calls it DLFloat-6:9. We do not claim that layout as new. What is ours is the rule
+that generates field widths across a family from 4 bits to 1024, whose 16-bit
+member happens to land where IBM landed independently. That is a weaker claim than
+novelty and it is the one the evidence supports.
+
+The contribution here is registry filling: a vendor-neutral reference with bit-exact
 conformance vectors, so that a format named in a datasheet means the same thing in
 two places. We do not claim our format family beats posit or microscaling formats,
 and we have not shown that it does. Our one controlled comparison turned out to
