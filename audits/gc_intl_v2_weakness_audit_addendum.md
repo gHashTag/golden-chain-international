@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-35
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-37
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -539,10 +539,10 @@ document duplicated the work.
 | Predecessor | Says | Relation to this addendum |
 |---|---|---|
 | W1 | silicon not measured; all energy-efficiency figures are projections | anticipates E16 and E20 |
-| W3 | advantage over posit and MX formats not proven | not carried forward here; still open |
+| W3 | advantage over posit and MX formats not proven | carried forward as W-INTL-36, where a measurement now runs against it |
 | W6 | export control and foreign fabrication left unsaid | anticipates W-INTL-24 and the shuttle-tile question in W-INTL-18 |
 | W15 | single author, bus factor not addressed | is W-INTL-25 |
-| W16, W21, W26 | verifiability-per-dollar not operationalised in numbers | not carried forward; the international edition inherits the same gap |
+| W16, W21, W26 | verifiability-per-dollar not operationalised in numbers | carried forward as W-INTL-37 |
 | W17 | competitive landscape not shown | answered by the competitor matrix |
 | W20 | reproducibility without an artefact protocol | answered in part: two claims are now reproducible by command |
 | W25 | verifiable arithmetic is not verifiable inference - hallucination and adversarial behaviour sit above the arithmetic | carried forward and answered as W-INTL-33 |
@@ -746,6 +746,79 @@ and it is an afternoon.
 Closes when each of the five addresses shows verified source matching the
 repository.
 
+## W-INTL-36  The format's advantage over established alternatives is not demonstrated, and one measurement runs against it
+
+Severity: high for a submission whose numeric work is its published foundation.
+Carried forward from predecessor entry W3, which recorded that advantage over
+posit and microscaling formats was unproven. It is worse than unproven: there is
+now a measurement pointing the other way.
+
+The evidence, from this project's own ablation. In quantisation-aware training on
+a 29.4M-parameter model over 2000 steps, three seeds, disjoint train and
+validation shards, with a significance threshold of 0.005 BPB fixed in advance:
+
+| Arm | Median BPB | Delta against FP32 |
+|---|---|---|
+| FP32 baseline | 2.8279 | - |
+| FP8 E4M3 with per-row scaling | 2.8280 | +0.0001, below threshold |
+| GoldenFloat 8-bit | 3.0474 | +0.2196, about 44x threshold |
+| E2M5 | 3.0944 | +0.2666, about 53x threshold |
+
+An industry-standard 8-bit format is indistinguishable from full precision in this
+setting. The project's own 8-bit format is not. The ablation also records the
+mechanism hypothesis - that a narrow exponent range restricts weight dynamics
+under straight-through estimation, so range matters more than grid density during
+training - and marks it as hypothesis rather than result.
+
+Why this is not fatal, and how it should be said. The catalog's stated purpose is
+registry filling rather than superiority: a vendor-neutral reference with
+bit-exact conformance vectors. That claim is intact and is supported by the
+83-format single source of truth. The format family is a separate claim, and on
+the one controlled comparison available it loses at 8 bits during training.
+
+The application currently avoids claiming format superiority, which is correct.
+The risk is a reviewer inferring it from the prominence the numeric work is given.
+
+Action.
+
+1. Never claim the format beats posit or microscaling formats. On the evidence
+   available it does not, at 8 bits, in training.
+2. Lead the numeric work as a registry contribution, which is what it is and what
+   the preprint says.
+3. Publish the negative result rather than leaving it in a research directory. It
+   is already written, already controlled, and disclosing it is worth more than
+   the claim it costs.
+4. If the ternary case is where the advantage lives, run the same ablation there.
+   The 8-bit result says nothing about 1.58-bit weights either way.
+
+Closes when the external documents state the registry claim and no superiority
+claim, and when a ternary ablation exists or its absence is stated.
+
+## W-INTL-37  The central metric is named but never computed
+
+Severity: medium, rising the moment anyone asks for a number.
+
+Carried forward from predecessor entries W16, W21 and W26, which recorded across
+two review passes that verifiability-per-dollar is asserted as the organising
+metric and never operationalised. Neither this addendum nor the application has
+improved on that.
+
+The thesis is that a buyer should be able to obtain verification per unit of
+spend, and that this project offers more of it per dollar than a trusted-execution
+alternative. No document defines the numerator, the denominator, or a single
+worked example.
+
+What would close it, and it is an afternoon of arithmetic rather than research.
+Define one unit of verified work - a settled proof of a stated type. Define its
+cost - node amortisation, energy, and the sampling overhead at the published one
+percent with stake at one hundred times the unit reward. Then state the same for
+the alternative being displaced, which is a trusted execution environment on
+rented hardware. The comparison does not need to be favourable to be worth
+publishing; it needs to exist, because a metric quoted without a number reads as
+a slogan and the predecessor registry says so in three separate entries.
+
+Action: compute it once, publish the working, and let the figure be what it is.
+
 ---
 
 ## Priority order
@@ -783,3 +856,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-33 | answered; scope conceded, target defended, one residual open |
 | W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
 | W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |
+| W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
+| W-INTL-37 | open, medium; the central metric is named but never computed |

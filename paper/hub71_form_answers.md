@@ -140,7 +140,15 @@ while our 8-bit arm degraded by roughly forty-four times the threshold. We
 published that.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
-numeric catalog (arXiv:2606.09686), with an open reference implementation.
+numeric catalog (arXiv:2606.09686), with an open reference implementation. The
+contribution here is registry filling: a vendor-neutral reference with bit-exact
+conformance vectors, so that a format named in a datasheet means the same thing in
+two places. We do not claim our format family beats posit or microscaling formats,
+and on the one controlled comparison we have run it does not - see the ablation
+above, where a standard 8-bit format matched full precision and ours did not. That
+result is about 8-bit training and says nothing either way about the ternary case,
+which is where the design actually operates and which we have not yet measured the
+same way.
 
 Economics, deployed and checkable. Five contracts run on Base Sepolia since
 2026-05-18, each with a public address and deploy transaction: TriToken,
