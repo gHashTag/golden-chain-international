@@ -92,16 +92,22 @@ no timing report exists to support it.
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
 
-Economics, written and audited. Four proof types, one settlement contract, seven
-checks. Nine halvings over forty years.
+Economics, designed. Four proof types, one settlement contract, seven checks, and
+nine halvings over forty years. This is a design. The settlement contract has not
+been written: the only contract deployed under this project is a token, and the
+one script that pays anything calls a vesting withdrawal on it rather than
+settling a proof. Stated this way because W-INTL-29 in the audit records what
+happens when a design is described as an implementation.
 
 [CLAIM-HELD] A sentence claiming no premine, no venture allocation and no
-treasury stood here. It is held back as of 2026-07-29 pending W-INTL-30: a token
-deployed to Sepolia under this account on 2026-02-16 carries a five-entry
-allocation block whose keys include founder and treasury. Either that token is
-not the instrument these economics describe, in which case say which one is, or
-the sentence is wrong. It is the most checkable sentence in this application and
-must not be restored until the artefact and the claim agree.
+treasury stood here. It is refuted as of 2026-07-29 and must not be restored.
+TrinityToken.sol fixes the split in hardcoded constants - founder 20 percent,
+node rewards 40, community 20, treasury 10, liquidity 10 - with founder tokens
+vesting over 48 months behind a 12 month cliff and treasury over 60 months behind
+a 6 month cliff. There is no other instrument to point at. What belongs here
+instead is an accurate description of that allocation: a vested founder share is
+ordinary and defensible in this market, and it is only the denial of it that is
+not survivable. See audit W-INTL-30.
 
 Energy. Naive comparison against a general-purpose baseline suggests a large
 multiplier; the honest figure, accounting for memory traffic and system

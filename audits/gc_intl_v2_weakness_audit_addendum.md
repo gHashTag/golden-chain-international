@@ -395,12 +395,30 @@ condition written into the ledger row was "any allocation found in the deployed
 bytecode". That test has now been run against a deployment this account
 published, and the claim did not survive it.
 
-The benign reading, which may well be the correct one. This may be an early
-prototype token unrelated to the four-proof settlement instrument the economics
-describe, deployed in February on a throwaway testnet and never intended to be
-the thing. Nothing found so far rules that out. But nothing found so far says it
-either, and a reviewer will not assume it: they will find one deployed token
-under this account, read its allocation block, and stop.
+The benign reading was tested on 2026-07-29 by reading the source, and it does
+not hold.
+
+TrinityToken.sol does not take its split from a config file. The percentages are
+hardcoded constants: founder 20 percent, node rewards 40, community 20, treasury
+10, liquidity 10. The constructor sets up vesting for four of them - founder over
+48 months behind a 12 month cliff, treasury over 60 months behind a 6 month cliff,
+node rewards over 120 months, community over 36 - and mints liquidity outright.
+This is not an artefact of a throwaway deployment. It is a designed allocation
+with a vesting schedule, and it is the structure the claim says does not exist.
+
+The second half of the benign reading also fails. There is no other instrument to
+point at. deploy/contracts/src contains exactly one file, the token. A search
+across the account for any contract named for rewards, proofs or settlement
+returns nothing. The one rewards script calls claimVested on the token, which is
+a vesting withdrawal, not a proof settlement. Caveat on method: this covers what
+is reachable and indexed from this account; a contract in an unindexed or
+unreachable place would not have been seen.
+
+That has a second consequence, recorded as its own change to the ledger. E21
+claims four proof types settling through one contract with seven checks and names
+contract source as its artefact. That source was not found. E21 moves to not
+built, and E25, which claims three proof types operate today, can now mean only
+that the node daemon produces proofs - not that anything settles them.
 
 Why this outranks the rest. Every other finding in this file concerns a figure
 that was overstated or an artefact that was missing. This one is a live
@@ -408,19 +426,26 @@ contradiction between a published artefact and a headline differentiator, in the
 subject area of the programme most likely to be chosen as the host, assessed by
 people who read token allocation tables for a living.
 
-Action, in order.
+Action, revised after reading the source.
 
-1. Establish which contract the economic claims actually describe, and say so
-   explicitly wherever the claim appears. If the Sepolia token is not it, name
-   the instrument that is and state that the February token is superseded.
-2. If the Sepolia token is the instrument, the claim is false as written and must
-   be replaced by an accurate description of the allocation.
-3. Until one of those is done, do not repeat "no premine, no venture allocation,
-   no treasury" in any external document. It is the single most checkable
-   sentence in the application and it currently fails its own check.
+1. Stop repeating the allocation claim. It is refuted, not merely unsupported,
+   and it is the most checkable sentence in the application.
+2. Decide which is true and say it plainly. Either the token with the 20 percent
+   founder allocation is the instrument, in which case describe the allocation and
+   the vesting honestly - a vested founder allocation is ordinary and defensible,
+   and only the denial of it is not - or that token is abandoned, in which case say
+   so publicly and point at what replaces it.
+3. Write the settlement contract or stop describing it as written. E21 names
+   contract source as its artefact and there is none. The four-proof economics is
+   currently a design, and describing a design as an implementation is the same
+   error as W-INTL-29, in the area where it will be checked hardest.
+4. Reconcile with W-INTL-17. That entry says settlement is blocked because the
+   contract requires device signatures that do not exist. This entry says the
+   contract itself was not found. Both cannot be describing the same object, and
+   the audit should not carry two accounts of one thing.
 
-Closes when the deployed artefact and the claim agree, or when the claim is
-withdrawn.
+Closes when the allocation described externally matches the deployed artefact, and
+when the settlement contract either exists or is described as unbuilt.
 
 ---
 

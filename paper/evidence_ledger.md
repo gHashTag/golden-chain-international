@@ -57,8 +57,8 @@ Verification levels, in decreasing strength:
 
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
-| E21 | Four proof types settle through one contract with seven checks | written | contract source | a settlement path that bypasses any check |
-| E22 | No premine, no venture allocation, no treasury | contradicted by a deployed artefact | the falsification test stated in this row was run on 2026-07-29 and the claim did not survive it. The token deployment record published at deploy/contracts/deployment-sepolia.json in gHashTag/trinity lists five allocations - founder, nodeRewards, community, treasury and liquidity - every one of them assigned to the deployer's own address, against a total supply of 10,460,353,203 tokens | already falsified against that artefact. It is resolved only by showing that the deployed token is not the settlement instrument this claim describes, or by a deployment whose allocation set is empty. See audit W-INTL-30 |
+| E21 | Four proof types settle through one contract with seven checks | not built | the named artefact is contract source, and no such source was found. The only Solidity contract under this account is a token; a search for any contract named for rewards, proofs or settlement returns nothing, and the one rewards script calls claimVested on that token, which is a vesting withdrawal and not a proof settlement | already falsified unless the source is produced. See audit W-INTL-30 |
+| E22 | No premine, no venture allocation, no treasury | refuted | the contract source settles it. TrinityToken.sol fixes the split in hardcoded constants: founder 20 percent, node rewards 40, community 20, treasury 10, liquidity 10, of a 10,460,353,203 token supply, with founder tokens vesting over 48 months behind a 12 month cliff and treasury over 60 months behind a 6 month cliff. The Sepolia deployment record assigns all five to the deployer's address | already falsified. Not resolvable by pointing at a different instrument, because no other contract exists under this account. See audit W-INTL-30 |
 | E23 | Contracts deployed to testnet | confirmed, third-party verifiable | token deployed to Sepolia, chain id 11155111, address 0xef368e29FA3aB2eaf02BccD05438ED3bafE9f469, recorded 2026-02-16 in deploy/contracts/deployment-sepolia.json in gHashTag/trinity; a second record exists for a local chain | the address returning no code on Sepolia. Note that this row and E22 describe the same artefact and disagree; see W-INTL-30 |
 | E24 | Mainnet settlement operates | conjecture | blocked: settlement requires device signatures that do not yet exist | see audit W-INTL-17; falsified or resolved by a transitional signing mode |
 | E25 | Three proof types operate today | written, software-signed | node daemon | the contract does not accept software signatures; see W-INTL-17 |
@@ -77,20 +77,26 @@ Verification levels, in decreasing strength:
 
 ## Summary
 
-  written       8 rows   (of which 3 external, 1 software-signed, 1 by design)
+  written       7 rows   (of which 3 external, 1 software-signed, 1 by design)
   hw            6 rows   (of which 1 loopback only, 1 negative)
+  refuted       3 rows
   sim           3 rows
   modelled      2 rows
-  refuted       2 rows
+  not built     2 rows
   test          2 rows   (1 of them independently reproduced by execution)
   confirmed     1 row    (third-party verifiable on a public chain)
-  contradicted  1 row    (by a deployed artefact; see W-INTL-30)
-  not built     1 row
-  not measured  1 row
   conjecture    1 row
+  not measured  1 row
   undefined     1 row
   partial       1 row
   total        30 rows
+
+The economics section is the weakest part of this table and was the last to be
+checked. Of its five rows, one is confirmed on a public chain, one is refuted by
+the contract that confirms it, one is not built, one is a conjecture that depends
+on the one that is not built, and one describes a daemon rather than a settlement.
+That section should be rewritten as a design before it is shown to anyone who
+reads token structures professionally.
 
 Movement since the first draft of this ledger. E10 from hardware to refuted, its
 named artefact having turned out not to exist. E13 rewritten entirely: the score
