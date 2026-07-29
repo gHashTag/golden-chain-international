@@ -11,18 +11,47 @@
 
 ## Scope
 
-This repository holds the **international, ASCII-only, English-first, state-rhetoric-free** derivative of the
-Russia 3.0 "Troica" project (`paper3-rossiya30-troica`). It packages the trust-first computing thesis
+This repository holds the **international, ASCII-only, English-first, state-rhetoric-free** edition of the
+trust-first computing work, derived from the Russian-language `paper3-rossiya30-troica` edition, which lives
+as a directory inside [`gHashTag/trinity-papers-ru`](https://github.com/gHashTag/trinity-papers-ru) rather than
+as a repository of its own. An earlier draft of this README withdrew the derivation claim after searching for a
+repository of that name and finding none; the search was wrong, not the claim. It packages the trust-first computing thesis
 (GoldenFloat + TRI-27 + Trinity Provenance) as an international policy chapter and as a compliance whitepaper
-for Hub71+ AI Cohort 20 (deadline 2 Aug 2026).
+for a Hub71 Cohort 20 submission.
 
-## Deliverables (Wave-intl-1)
+**Submission route (verified against hub71.com on 2026-07-29).** Hub71+ AI is not a
+standalone application track. It is a specialist ecosystem entered by answering the AI
+question inside whichever programme form is chosen (Access Programme, Hub71+ Digital
+Assets, Hub71+ ClimateTech, Hub71+ Life Sciences, Initiate, SAVI, Sandbox, ECA Anjal Z).
+The programme still has to be picked; that decision is open. Cohort 20 closes
+**21 August 2026** and the programme starts February 2027 — the Access Programme and
+Hub71+ Digital Assets pages both state 21 August. An earlier draft of this README gave
+2 Aug 2026; that date is superseded. Applications submitted after a deadline are rolled
+into the next cohort rather than discarded.
 
-- `paper/golden_chain_international.md` — 8-section international edition
-- `paper/hub71_compliance.md` — 6-section compliance whitepaper for Hub71+ AI
-- `audits/gc_intl_v1_weakness_audit.md` — weakness audit (W-INTL-1..W-INTL-15)
-- `research/gc_intl_research.md` — competitor + ecosystem research
-- `plan/wave_intl_1_decomposed_plan.md` — 15-gate roadmap across Wave-intl-1/2/3
+## Deliverables
+
+Status is stated per file so that a reader is never sent to something that is not there.
+
+**Wave-intl-2 — landed.**
+
+- `paper/evidence_ledger.md` — 30 claims, each mapped to its artefact and verification level
+- `paper/hub71_form_answers.md` — application answers, ASCII-only
+- `audits/gc_intl_v2_weakness_audit_addendum.md` — W-INTL-16..30, each with a falsification path
+- `research/hub71_ai_competitor_matrix.md` — AI-track competitor picture, published figures separated from estimates
+
+- `plan/submission_checklist.md` — what is ready, what is design, what is needed from the applicant
+- `plan/wave_intl_decomposed_plan.md` — sixteen gates, each with the check that closes it
+
+**Wave-intl-1 — never written, and not being reconstructed.** The five files this
+README used to list as deliverables do not exist. The Russian-language origin does exist, as a
+directory inside `trinity-papers-ru`, so translation is possible; it has simply not been done. Rather than invent their content, the two that
+were genuinely needed have been written directly and are listed above; the rest are
+withdrawn from the list.
+
+- `paper/golden_chain_international.md` — not written. An 8-section international edition needs source material that does not exist in this repository.
+- `paper/hub71_compliance.md` — not written. Its intended content now lives in `paper/hub71_form_answers.md` and `plan/submission_checklist.md`; writing a third document that says the same thing would create a fourth place for the numbers to disagree.
+- `audits/gc_intl_v1_weakness_audit.md` — not written under this name, and not needed. The predecessor it stands for exists: `paper3-rossiya30-troica/research/weak_spots_registry.md` in `trinity-papers-ru`, a Russian-language registry of W1..W18. That is why the addendum numbering starts at 16.
 
 ## Hard rules
 
@@ -34,14 +63,18 @@ for Hub71+ AI Cohort 20 (deadline 2 Aug 2026).
 6. Trinity Languages 3-tier (6 LLM + 15 MT + 35 preservation), never "56 LLM".
 7. Naive vs honest calculation always paired.
 8. Sponsored-research outreach (Stream C) gated on live arXiv ID of phi-paper.
-9. No hype words: breakthrough / revolutionary / first-ever / Nobel / world-first / industry-leading.
+9. No hype words: breakthrough / revolutionary / first-ever / Nobel / world-first / industry-leading. <!-- hard-rules:allow -->
 10. Every unproven claim tagged `[Open conjecture]` with falsification path.
 
 ## Cross-references
 
-- `gHashTag/goldenfloat-preprint` — arXiv:2606.05017 (GoldenFloat, Hunhold-endorsed)
-- `gHashTag/paper3-methodology` — arXiv:2606.09686 (83-format numeric catalog)
-- `gHashTag/tt-trinity-corona` — 80-format ROM silicon (TTGF26a shuttle)
-- `gHashTag/t27` — TRI-27 language + numeric SSOT
-- `gHashTag/trios-mcp-rag` — render pipeline
-- `gHashTag/paper3-rossiya30-troica` — Russian-language origin (this is its international derivative)
+Reachability checked anonymously on 2026-07-29, which is what an external reviewer sees.
+
+- `gHashTag/paper3-methodology` — arXiv:2606.09686 (83-format numeric catalog) — reachable
+- `gHashTag/tt-trinity-corona` — shuttle tile, TTGF26a run — reachable. Shuttle tile, not custom die; the two are kept distinct throughout this repository
+- `gHashTag/t27` — TRI-27 language + numeric SSOT — reachable
+- `gHashTag/trios-mcp-rag` — render pipeline — reachable
+- [arXiv:2606.05017](https://arxiv.org/abs/2606.05017) — GoldenFloat. Cited by identifier rather than by repository: the repository is private and returns 404 to an external reader, while the preprint resolves for anyone.
+
+The canonical catalog size is 83 formats in 13 families (arXiv:2606.09686v2, 2026-06-22).
+The superseded count 84 appears only in the two published errata, which is correct.
