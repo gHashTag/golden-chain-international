@@ -64,9 +64,17 @@ radio front end is tuned to 5.8 GHz with a verified digital loopback at 108.6 dB
 over the noise floor - loopback only, not over the air, and marked that way
 everywhere it appears.
 
-Compute, on hardware. Three Artix-7 boards, a 309 MHz inference core, a
-quantisation-aware training pipeline for 1.58-bit weights, and a published
-numeric format family. Top-5 in OpenAI's Parameter Golf at 0.9650 bits per byte.
+Compute, on hardware. Three Artix-7 boards, a multiplier-free ternary tile
+verified against a golden model with zero DSP allocated, a quantisation-aware
+training pipeline for 1.58-bit weights, and a published numeric format family.
+
+[CLAIM-PULLED] A line claiming a Top-5 placement in OpenAI's Parameter Golf at
+0.9650 bits per byte stood here. It was removed on 2026-07-29 because a
+verification pass found no artefact supporting it and found that the live
+leaderboard's best entry is 1.0565 bits per byte, on a metric where lower is
+better. See audit W-INTL-28. Restore the line only with a pull request number,
+leaderboard entry or dated run log attached. The clock frequency of the inference
+core was also removed from this paragraph pending an artefact.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
@@ -99,7 +107,9 @@ industry, and civil resilience.
 - Six devices assembled and connected: three mesh nodes, three compute boards
 - On-device verified cryptography with recorded artefacts and hashes
 - 5.8 GHz radio front end verified in digital loopback
-- 110 test blocks, 4,463 lines of Rust, no unsafe code
+- 118 Rust test blocks in the public mesh repository, reproducible with
+  `grep -rE '^\s*#\[test\]' src tests`; the crate carries forbid(unsafe_code)
+  and no unsafe block exists in it
 - Settlement contracts written and deployed to testnet
 - Two arXiv preprints; a peer-reviewed track underway
 - Apache-2.0 for code, CC-BY 4.0 for text, publicly auditable

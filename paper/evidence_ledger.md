@@ -39,7 +39,7 @@ Verification levels, in decreasing strength:
 | E10 | Inference core runs at 309 MHz on Artix-7 | hw | bench board, timing report | a timing report below the stated frequency |
 | E11 | Three compute boards connected over USB | hw | inventory | fewer than three enumerated |
 | E12 | Quantisation-aware training pipeline for 1.58-bit weights | test | training runs reproducible from repository | a run that does not converge to the reported metric |
-| E13 | Top-5 placement at 0.9650 bits per byte | hw, third-party | public leaderboard entry | leaderboard record showing otherwise |
+| E13 | Top-5 placement at 0.9650 bits per byte | unverified | no supporting artefact found; see below and audit W-INTL-28 | the falsification test was run on 2026-07-29 and the claim did not survive it in the form stated |
 | E14 | Multiplier-free ternary tile, zero DSP | test | RTL plus self-checking testbench, 206 directed and random vectors against a golden model | any synthesis report allocating a DSP, or any vector mismatch |
 | E15 | End-to-end language model inference | not built | no attention, no key-value cache, no normalisation or quantisation units | this row exists to prevent comparison against full-system baselines |
 | E16 | Throughput and power figures for the compute node | not measured | ceiling estimated from memory bandwidth only | measure on device; the estimate must not be quoted as a benchmark |
@@ -77,8 +77,8 @@ Verification levels, in decreasing strength:
 
 ## Summary
 
-  hw            8 rows   (of which 1 loopback only, 1 negative, 1 third-party)
   written       9 rows   (of which 2 external, 1 software-signed, 1 by design)
+  hw            7 rows   (of which 1 loopback only, 1 negative)
   sim           3 rows
   modelled      2 rows
   test          2 rows
@@ -88,11 +88,47 @@ Verification levels, in decreasing strength:
   refuted       1 row
   undefined     1 row
   partial       1 row
+  unverified    1 row
   total        30 rows
 
 The counts above are derived from the table by parsing the level column, not
 written by hand. A ledger whose own arithmetic does not reconcile has no claim
 on a reviewer's trust.
+
+## Verification pass, 2026-07-29
+
+Rows were tested against live artefacts rather than against the documents that
+assert them. Method and outcome are recorded so the pass can be repeated.
+
+Confirmed, and stronger than the row claimed:
+
+- E1. The authenticated-encryption smoke test has two independent on-device runs,
+  2026-07-01 on a P201Mini and 2026-07-04 on board-1, each with its own binary
+  hash and RC=0, recorded in smoke/M1_RESULTS.md in gHashTag/tri-net. Two runs on
+  two boards is reproduction, not a single lucky success.
+- E2, E3. LO 5.8 GHz, FFT peak +0.999 MHz and SNR 108.6 dB are recorded in
+  tri-net at radio/README.md and repeated in its README and ROADMAP. The source
+  repository already marks the figure as digital loopback and not over the air,
+  and links its own regulatory-status note. The caveat is upstream of this ledger.
+- E5 to E8. The sim and undefined levels assigned here match the status table
+  published in tri-net independently, including M5 being undefined.
+- Absence of unsafe Rust. The crate carries forbid(unsafe_code); the only two
+  textual occurrences of the word are comments explaining that fact.
+
+Weakened or contradicted:
+
+- E13. See audit W-INTL-28. No artefact supports the stated placement or score.
+- E4. The evidence recorded upstream for three connected boards is an operator
+  confirmation rather than a photograph or an inventory artefact. That is the
+  weakest evidence type in an otherwise artefact-backed table and should be
+  upgraded before submission.
+
+Figures asserted elsewhere that this pass could not confirm: a 309 MHz inference
+core, 206 test vectors for the ternary tile, and 4,463 lines of Rust. The first
+two were not found in any public artefact reachable on 2026-07-29; for the third,
+the public mesh repository contains 6,181 lines under src and 18,708 in total, so
+4,463 corresponds to nothing currently visible and is presumed to be a stale count
+of a repository that is not public.
 
 Two rows are deliberately negative (E15, E16) and one is deliberately refuted
 (E28). A ledger that contains only supporting rows is a marketing document.

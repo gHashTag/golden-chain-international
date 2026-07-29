@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-27
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-28
 
 Status: Wave-intl-2 draft, extends `audits/gc_intl_v1_weakness_audit.md`
 Rule basis: hard rule 10 - every unproven claim tagged with a falsification path.
@@ -238,16 +238,73 @@ optional. A letter of intent from one operator converts the submission from a
 technology case into a commercial one and is the highest-value item obtainable
 before the deadline.
 
+## W-INTL-28  A leaderboard placement is asserted that no artefact supports
+
+Severity: critical, and higher than anything else in this file. It is the one
+claim in the application that an AI-track reviewer can check in about a minute,
+and the check is the first one such a reviewer would run.
+
+The claim. Top-5 placement in OpenAI's Parameter Golf at 0.9650 bits per byte.
+
+What was checked on 2026-07-29, and what was found.
+
+- The live leaderboard in openai/parameter-golf lists its best entry at 1.0565
+  bits per byte. Lower is better on this metric. A score of 0.9650 would not be a
+  top-five placement; it would lead the board by a wide margin.
+- The string 0.9650 does not appear in that leaderboard.
+- No entry on that leaderboard is attributed to this author, this project, or any
+  of the account names associated with it.
+- The local checkout of the challenge is a fork. A fork is not a submission.
+- The one record directory in that checkout concerning ternary models is authored
+  by a different person and reports 1.1565 bits per byte for its best valid
+  ternary result, not 0.9650.
+- The only places the value 0.9650 was found anywhere in the account are two
+  documents in gHashTag/trinity-fpga, neither about this challenge: a training
+  loss in a report where the same table annotates the run as having been made
+  worse by refinement, and an arithmetic coincidence in an unrelated document,
+  where 94 divided by pi to the fourth power evaluates to 0.9650. Neither is a
+  bits-per-byte score, and a training loss and a compression metric are not
+  interchangeable.
+
+What this does not establish. It does not prove the claim false. An artefact may
+exist that is not reachable from here - a specific pull request, a private
+submission, a leaderboard snapshot from a different date. The finding is that no
+such artefact was found, and that the number matches an unrelated figure in the
+author's own documents.
+
+Why it is rated above W-INTL-17. W-INTL-17 is an unbuilt thing honestly described.
+This is a built-sounding thing that a reviewer will try to verify and, on the
+evidence available, will fail to verify. The asymmetry matters: an application
+that under-claims survives scrutiny, and one superlative that does not check out
+puts every other figure in the document under suspicion, including the ones that
+are solid - and E1 through E3 are solid.
+
+Action, in order.
+
+1. Do not submit the claim in its current form. This is not a stylistic
+   preference; it is the difference between a document that survives checking and
+   one that does not.
+2. Produce the artefact if it exists: the pull request number, the leaderboard
+   entry, or the run log with the score and the date. Then restate the row with
+   that artefact and reinstate it.
+3. If no artefact exists, remove the line. Nothing else in the application depends
+   on it. The compute story stands on the ternary tile and the numeric catalog,
+   both of which have artefacts.
+
+Closes when either an artefact is attached to the row, or the claim is removed
+from every external document.
+
 ---
 
 ## Priority order
 
-1. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
-2. W-INTL-17  blocks the economics entirely
-3. W-INTL-23  largest credibility gain, hardware already present
-4. W-INTL-25  requires a third party, so start earliest
-5. W-INTL-26  cheap, high visibility, partly closed
-6. W-INTL-18  vocabulary discipline, no artefact change required
+1. W-INTL-28  a reviewer checks it first and, on present evidence, it fails
+2. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
+3. W-INTL-17  blocks the economics entirely
+4. W-INTL-23  largest credibility gain, hardware already present
+5. W-INTL-25  requires a third party, so start earliest
+6. W-INTL-26  cheap, high visibility, partly closed
+7. W-INTL-18  vocabulary discipline, no artefact change required
 
 W-INTL-16 was third in the previous order and is now closed; see its entry above.
 
@@ -264,3 +321,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-25 | open, requires a third party |
 | W-INTL-26 | partly closed, README corrected |
 | W-INTL-27 | partly closed, host programme still to choose |
+| W-INTL-28 | open, critical, claim pulled from the application pending an artefact |
