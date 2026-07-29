@@ -993,13 +993,35 @@ Measured 2026-07-30, research/quantiser_emulation_check.py. Deriving the format'
 geometry from the ablation's own constants exposed a third defect, larger than the
 two this entry opened with.
 
-The constants describe a format with bias 3, exponent field 1 to 6 and 4 mantissa
-bits. Its largest representable value is therefore 15.5. The ablation scales every
-row so its largest weight maps to 31. That is exactly twice what the format can
-hold, so every row's extreme values saturate by construction before any
-quantisation error is considered. The same derivation shows the MV constant equals
-the format's smallest subnormal precisely, which confirms the format was designed
-with subnormals that the implementation then discards.
+The defect is an internal inconsistency rather than a wrong constant, and getting
+this right took two attempts.
+
+First reading, and it was wrong. The catalog records gf8 as sign 1, exponent 3,
+mantissa 4, bias 3, status verified. Reading that in the IEEE convention - highest
+exponent field reserved for infinities - gives a largest representable value of
+15.5, against which the ablation's scaling target of 31 looks like a factor of two
+error. That is what this entry said.
+
+Second reading, after checking the project's other quantiser. It uses the fn
+convention, where the highest exponent field is an ordinary normal and there are
+no infinities, exactly as the reference format e4m3fn does. Under fn the largest
+representable value is 31.0, and its source comments say so. So 31 is not wrong;
+it is the fn reading, and it is the consistent choice given the reference arm.
+
+What is actually wrong. The ablation scales to the fn maximum of 31 while clamping
+the exponent field to the IEEE range, one to six. Two conventions in one function.
+Everything between 15.5 and 31 is therefore scaled into existence and then clamped
+away, so each row's largest weights saturate. Add the mantissa reconstructed from
+the unclamped exponent, and the subnormals dropped - the MV constant is exactly the
+format's smallest subnormal under either convention, so they were designed in.
+
+Checked for convention dependence, because the first reading was wrong about
+exactly that. A correct implementation was measured under both conventions and the
+results are indistinguishable: 0.01314 against 0.01314 on normal input, 0.02061
+against 0.02075 on t-distributed. Per-row absolute-maximum scaling normalises to
+whatever the format maximum is, so the choice cancels. The conclusion below does
+not depend on which convention is intended, which makes it stronger than when this
+entry claimed a factor-of-two error.
 
 The same tensors quantised through four paths, three input distributions, 512 by
 512, one seed:
@@ -1014,8 +1036,7 @@ The same tensors quantised through four paths, three input distributions, 512 by
 The result reverses. A correct implementation of the format reconstructs about
 twice as accurately as the reference cast on every distribution tested. The arm as
 written is roughly twenty-five times worse than the same format implemented
-correctly, and the scaling defect alone accounts for about ninety-five percent of
-that.
+correctly.
 
 So the ablation did not measure the format. It measured an implementation that
 saturates every row by construction, and the conclusion drawn from it - recorded
@@ -1039,15 +1060,15 @@ advisable, because the published negative result rests on a defect.
 Action.
 
 1. Separate emulation error from format error. Done: essentially all of the gap is
-   emulation. The scaling target alone accounts for about ninety-five percent.
+   emulation, and the result holds under either format convention.
 2. Fix the saturation path so the mantissa is recomputed from the clamped
    exponent, and decide explicitly whether the format has subnormals.
 3. Re-run the arm afterwards. Until then W-INTL-36 should say the format lost a
    comparison whose implementation was not symmetric, which is a weaker and truer
    statement.
 
-2. Fix the scaling target first. It is one constant, 15.5 rather than 31, and it
-   is the whole finding.
+2. Fix the convention mismatch first. Either scale to 31 and let the exponent
+   field reach 7, or scale to 15.5 and clamp at 6. Both work; mixing them does not.
 3. Re-run the ablation. The published negative result about this format is not
    safe and should be marked as under revision until the re-run exists.
 4. Do not replace it with a positive claim on the strength of this measurement.
