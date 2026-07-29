@@ -743,6 +743,30 @@ deployments/base-sepolia.md.
 This converts every economic claim in the application from trust-us to check-it,
 and it is an afternoon.
 
+Prepared 2026-07-30. scripts/verify_contracts.sh carries everything except the
+key. The compiler settings come from the repository's foundry configuration -
+solc 0.8.24, optimizer at 200 runs - and the addresses and constructor arguments
+come from the recorded deployment broadcast rather than from memory, so they are
+the values actually used:
+
+| Contract | Constructor arguments |
+|---|---|
+| ChipRegistry | none |
+| JobProver | none |
+| EmissionController | genesis 1779117650 |
+| MiningPool | TriToken address, ChipRegistry address, genesis 1779117650 |
+| TriToken | MiningPool address |
+
+Worth knowing before reading those: the last two name each other. MiningPool was
+deployed against TriToken's predicted address and TriToken then received
+MiningPool's. That is ordinary with a deterministic deployment and it is the kind
+of thing that looks alarming if discovered rather than stated.
+
+The script refuses to run without an API key and refuses to run outside a
+checkout of the contracts repository, because a bytecode mismatch from the wrong
+checkout is the failure mode that wastes the most time. The broadcast record
+names commit b8410a0.
+
 Closes when each of the five addresses shows verified source matching the
 repository.
 
