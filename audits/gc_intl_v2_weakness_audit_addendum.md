@@ -266,11 +266,45 @@ What was checked on 2026-07-29, and what was found.
   bits-per-byte score, and a training loss and a compression metric are not
   interchangeable.
 
-What this does not establish. It does not prove the claim false. An artefact may
-exist that is not reachable from here - a specific pull request, a private
-submission, a leaderboard snapshot from a different date. The finding is that no
-such artefact was found, and that the number matches an unrelated figure in the
-author's own documents.
+Artefact search completed 2026-07-29 with account access. Five submissions to the
+challenge exist and were found. None of them reports 0.9650.
+
+| Submission | Reported score | State |
+|---|---|---|
+| Trinity v7+skip | 0.22311 | closed by the author |
+| Trinity SLOT v3 + Pre-Quant TTT | 0.65802 | closed by the author |
+| SP8192 + NN base + byte-PPM mixer | 0.99145 | closed by the author |
+| Trinity Ternary CPU v3, non-record | 1.5042 | open, and below the baseline |
+| Canonical top-stack reproduction | 1.05985 | open, and a reproduction of another entry |
+
+So the claim is settled on its own terms: there is a real submission history, it
+does not contain 0.9650, and it does not contain a top-five placement.
+
+The reason the three strongest numbers are closed is the important part, and it
+runs the other way from what an auditor usually finds. Each was withdrawn by the
+author, with a stated technical reason: the first for violating the full-vocabulary
+normalisation condition, the second and third in light of a public discussion about
+per-byte versus per-token measurement bases. On the first, the author added a
+retroactive note observing that a score that far below the Shannon-floor estimate
+for the corpus is by itself proof that the metric was not measuring real lossless
+compression. That is an author supplying the mathematical argument against their own
+leading record and then acting on it.
+
+Two consequences follow.
+
+First, by the author's own published reasoning, any score materially below about
+1.0 bits per byte on this corpus should be treated as an artefact of a broken
+measurement rather than as a result. 0.9650 is below 1.0. The claim should not be
+reinstated even if a run log turns up showing that number; what would need to turn
+up is a run log plus a demonstration that the measurement condition holds.
+
+Second, and this is the actionable part: the withdrawal history is a stronger
+credential than the score ever was. A committee that reads applications all day
+sees claimed records constantly and almost never sees someone retract their own
+number-one result on a public leaderboard, in public, with the reasoning attached.
+That is precisely the disposition this evidence ledger is meant to demonstrate, and
+unlike the score, it is fully documented and checkable. It belongs in the
+application. The score does not.
 
 Why it is rated above W-INTL-17. W-INTL-17 is an unbuilt thing honestly described.
 This is a built-sounding thing that a reviewer will try to verify and, on the
@@ -279,20 +313,19 @@ that under-claims survives scrutiny, and one superlative that does not check out
 puts every other figure in the document under suspicion, including the ones that
 are solid - and E1 through E3 are solid.
 
-Action, in order.
+Action, revised after the artefact search.
 
-1. Do not submit the claim in its current form. This is not a stylistic
-   preference; it is the difference between a document that survives checking and
-   one that does not.
-2. Produce the artefact if it exists: the pull request number, the leaderboard
-   entry, or the run log with the score and the date. Then restate the row with
-   that artefact and reinstate it.
-3. If no artefact exists, remove the line. Nothing else in the application depends
-   on it. The compute story stands on the ternary tile and the numeric catalog,
-   both of which have artefacts.
+1. Remove the score claim permanently rather than pending an artefact. The search
+   is complete and the account's own submission history settles it.
+2. Replace it with the withdrawal record, which is verifiable and stronger:
+   submissions made to a public challenge, three of them retracted by the author
+   on stated technical grounds, including a leading record retracted with the
+   argument for why the measurement was invalid.
+3. Leave the compute story resting on the ternary tile and the numeric catalog.
+   Both have artefacts, and the tile has now been reproduced by execution.
 
-Closes when either an artefact is attached to the row, or the claim is removed
-from every external document.
+Closes when the score appears in no external document and the withdrawal record
+appears in the application.
 
 ## W-INTL-29  A modelling parameter was published as a hardware measurement
 

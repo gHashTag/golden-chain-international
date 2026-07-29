@@ -39,7 +39,7 @@ Verification levels, in decreasing strength:
 | E10 | Inference core runs at 309 MHz on Artix-7 | refuted | as stated. No timing report exists; 309 is one of three clock values swept in a performance model, and the project's own synthesis notes record that place and route was not run and that there is no Fmax data | already falsified on 2026-07-29; see audit W-INTL-29. A real Fmax requires place and route, which is blocked on toolchain |
 | E11 | Three compute boards connected over USB | hw | inventory | fewer than three enumerated |
 | E12 | Quantisation-aware training pipeline for 1.58-bit weights | test | training runs reproducible from repository | a run that does not converge to the reported metric |
-| E13 | Top-5 placement at 0.9650 bits per byte | unverified | no supporting artefact found; see below and audit W-INTL-28 | the falsification test was run on 2026-07-29 and the claim did not survive it in the form stated |
+| E13 | Five public submissions to a constrained-budget compression challenge, three of them withdrawn by the author on stated technical grounds | written, external, third-party visible | pull requests on the challenge repository, with the withdrawal reasoning in their comment threads; the leading entry was retracted by the author together with the argument for why its measurement was invalid | any of the submissions or their closing comments being absent from the public record. The earlier form of this row asserted a Top-5 placement at 0.9650 bits per byte; the artefact search found no such score in the submission history and it was removed. See audit W-INTL-28 |
 | E14 | Multiplier-free ternary tile, zero DSP | test, independently reproduced | RTL plus self-checking testbench; reproduced from a clean checkout on 2026-07-29: the testbench compiles and runs to 206 tests, 206 pass, 0 fail, measured lane density 1563/3200; separately, Xilinx-targeted synthesis of the tile emits no DSP primitive of any kind, only LUT, CARRY4, FDCE and MUXF cells | any synthesis report allocating a DSP, or any vector mismatch. Neither occurred when the check was run |
 | E15 | End-to-end language model inference | not built | no attention, no key-value cache, no normalisation or quantisation units | this row exists to prevent comparison against full-system baselines |
 | E16 | Throughput and power figures for the compute node | not measured | ceiling estimated from memory bandwidth only | measure on device; the estimate must not be quoted as a benchmark |
@@ -77,24 +77,28 @@ Verification levels, in decreasing strength:
 
 ## Summary
 
-  written       9 rows   (of which 2 external, 1 software-signed, 1 by design)
+  written      10 rows   (of which 3 external, 1 software-signed, 1 by design)
   hw            6 rows   (of which 1 loopback only, 1 negative)
   sim           3 rows
   modelled      2 rows
-  test          2 rows   (1 of them independently reproduced by execution)
   refuted       2 rows
+  test          2 rows   (1 of them independently reproduced by execution)
   not built     1 row
   not measured  1 row
   conjecture    1 row
   undefined     1 row
   partial       1 row
-  unverified    1 row
   total        30 rows
 
-Movement since the first draft of this ledger, all of it downward except one row:
-E13 from hardware-and-third-party to unverified, E10 from hardware to refuted,
-E19 from inconsistent to verified, E14 strengthened by reproduction. A ledger that
-only ever moves upward is not being checked.
+Movement since the first draft of this ledger. E10 from hardware to refuted, its
+named artefact having turned out not to exist. E13 rewritten entirely: the score
+it asserted was not in the submission history, and what the search did find - a
+record of submissions withdrawn by their own author on stated technical grounds -
+is both true and more useful. E19 from inconsistent to verified. E14 strengthened,
+having been reproduced by execution rather than read.
+
+Three rows moved down, two moved up, and one changed into a different claim. A
+ledger that only ever moves upward is not being checked.
 
 The counts above are derived from the table by parsing the level column, not
 written by hand. A ledger whose own arithmetic does not reconcile has no claim

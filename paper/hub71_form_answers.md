@@ -15,6 +15,10 @@
 #   [ASK]        no funding amount stated
 #   [HIRING]     named hiring plan required by W-INTL-25, currently unnamed
 # Each is a fact only the applicant holds. None are invented here.
+#
+# CLOSED 2026-07-29: the Parameter Golf placement claim. The artefact search is
+# complete; see audit W-INTL-28. The submission history is now reported in place
+# of a score, and it is the stronger of the two.
 
 ## Startup overview
 
@@ -68,13 +72,22 @@ Compute, on hardware. Three Artix-7 boards, a multiplier-free ternary tile
 verified against a golden model with zero DSP allocated, a quantisation-aware
 training pipeline for 1.58-bit weights, and a published numeric format family.
 
-[CLAIM-PULLED] A line claiming a Top-5 placement in OpenAI's Parameter Golf at
-0.9650 bits per byte stood here. It was removed on 2026-07-29 because a
-verification pass found no artefact supporting it and found that the live
-leaderboard's best entry is 1.0565 bits per byte, on a metric where lower is
-better. See audit W-INTL-28. Restore the line only with a pull request number,
-leaderboard entry or dated run log attached. The clock frequency of the inference
-core was also removed from this paragraph pending an artefact.
+Research conduct, and this is offered in place of a score. We entered OpenAI's
+Parameter Golf challenge and made five public submissions. Three of them we
+withdrew ourselves. The first was a leading entry that would have topped the
+board; we closed it after finding that our own scoring path violated the
+challenge's full-vocabulary normalisation condition, and we recorded, in the same
+thread, that a result that far below the corpus Shannon floor is by itself proof
+that the metric was not measuring real compression. The other two we closed during
+a public discussion about per-byte versus per-token measurement bases. What remains
+open is a non-record run and a reproduction of another team's stack.
+
+We report this rather than a placement because it is the more useful fact about
+how we work. Every figure elsewhere in this application is stated at the level of
+evidence that supports it, and where a figure did not survive checking it has been
+removed rather than softened. The clock frequency previously quoted for the
+inference core was removed on the same basis: place and route has not been run, so
+no timing report exists to support it.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
