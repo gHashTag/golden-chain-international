@@ -57,7 +57,7 @@ the level was lowered rather than the artefact restated.
 
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
-| E10 | Inference core runs at 309 MHz on Artix-7 | refuted | as stated. No timing report exists; 309 is one of three clock values swept in a performance model, and the project's own synthesis notes record that place and route was not run and that there is no Fmax data | already falsified on 2026-07-29; see audit W-INTL-29. A real Fmax requires place and route, which is blocked on toolchain |
+| E10 | Inference core runs at 309 MHz on Artix-7 | refuted | re-examined 2026-07-29 with a wider search. Timing data does exist, contrary to an earlier pass here: a synthesis target table records the ternary module at 4,267 LUT, 2,449 FF, zero DSP and an Fmax of at least 92 MHz, marked measured, and a separate hardware debug report records a place-and-route result of 239.46 MHz for a trivial counter design on a 50 MHz part. Neither is 309 MHz, and neither is the inference core. The measured figure for the relevant module is at least 92 MHz | already falsified. The refutation is now stronger than when it rested on absence: a measured number for the module exists and it is far below the claim. Publishing 309 would require a timing report for that core |
 | E11 | Three compute boards connected over USB | hw | inventory | fewer than three enumerated |
 | E12 | Quantisation-aware training pipeline for 1.58-bit weights | test | training runs reproducible from repository | a run that does not converge to the reported metric |
 | E13 | Five public submissions to a constrained-budget compression challenge, three of them withdrawn by the author on stated technical grounds | written, external, third-party visible | pull requests on the challenge repository, with the withdrawal reasoning in their comment threads; the leading entry was retracted by the author together with the argument for why its measurement was invalid | any of the submissions or their closing comments being absent from the public record. The earlier form of this row asserted a Top-5 placement at 0.9650 bits per byte; the artefact search found no such score in the submission history and it was removed. See audit W-INTL-28 |
@@ -72,7 +72,7 @@ the level was lowered rather than the artefact restated.
 | E17 | GoldenFloat format family published | written, external | arXiv:2606.05017 | withdrawal of the preprint |
 | E18 | Numeric format catalog published | written, external | arXiv:2606.09686 | withdrawal of the preprint |
 | E19 | Catalog size is 83 formats in 13 families | written, external | arXiv:2606.09686v2 of 2026-06-22 states 83 in title and abstract; SSOT specs/numeric/formats_catalog.t27 in gHashTag/t27 counts 83 records with no duplicate ids; public READMEs of gHashTag/trinity-fpga and gHashTag/t27 both state 83; the superseded count 84 survives only inside the two published errata, which is where it belongs | a direct count of the SSOT returning a number other than 83, or any public artefact outside an erratum asserting a different size |
-| E20 | Energy advantage over a general-purpose baseline | modelled, half the artefact located | the naive calculation exists and is 20x: a document divides 1 pJ per multiply-accumulate by 0.05 pJ per add. The same document also states 10 to 20x in its opening and 20 to 30x from a second pair of figures, so it carries three answers. The honest derivation that reduces this to 4x to 8x with 95 percent CI [3, 10] was not found; the mesh roadmap carries the figure marked projected and tagged as an open conjecture, which is the correct handling but is not a derivation | a measured end-to-end comparison falling outside the interval. The pairing required by hard rule 7 is currently one-sided: the overclaiming half is written down and the restraining half is not |
+| E20 | Energy advantage over a general-purpose baseline | modelled, naive side not singular | the naive figure has been stated as at least four different values across this project's own documents: 49x in the predecessor weakness registry, 20x from dividing 1 pJ per multiply-accumulate by 0.05 pJ per add, 10 to 20x in that same document's opening, and 20 to 30x from a second pair of figures in it. The honest figure of 4x to 8x with 95 percent CI [3, 10] is therefore quoted against a baseline that has no single value, and its own derivation was not found by a search across the account under five formulations | a measured end-to-end comparison falling outside the interval. Hard rule 7 asks the naive and honest calculations to be paired, which requires the naive one to be singular first |
 
 ## 4. Economics
 
@@ -204,7 +204,10 @@ lines under src, excluding blank and comment-only lines - the mesh repository
 gives 4,370. The claim is sound and the earlier check used the wrong instrument;
 see audit W-INTL-32.
 
-Refuted: see E10 and audit W-INTL-29.
+Refuted: see E10 and audit W-INTL-29. Note that the earlier form of that finding
+claimed no timing data existed at all. It does; the wider search found it. The
+conclusion survived the correction and improved, because a measured 92 MHz for the
+module refutes 309 more firmly than an absent report ever did.
 
 Two rows are deliberately negative (E15, E16) and one is deliberately refuted
 (E28). A ledger that contains only supporting rows is a marketing document.

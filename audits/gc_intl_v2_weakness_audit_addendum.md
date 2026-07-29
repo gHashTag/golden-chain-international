@@ -521,8 +521,47 @@ Where that record is missing from an earlier entry, the entry states absence
 weakly - not found by this method - rather than as fact.
 
 Directly affected and already corrected: W-INTL-30, and ledger rows E21, E22, E23.
-Still resting on absence and therefore still to be re-examined with a better
-method: W-INTL-29 on the timing report, and E20 on the energy derivation.
+Re-examined since: W-INTL-29, whose absence claim was too strong and is corrected
+above; the finding survived and improved. Still resting on absence: E20 on the
+energy derivation, searched across the account under five formulations on
+2026-07-29 with no result. That is recorded as not found by this method rather
+than as fact.
+
+## Predecessor registry, and what it already knew
+
+Located 2026-07-29 in gHashTag/trinity-papers-ru, at
+`paper3-rossiya30-troica/research/weak_spots_registry.md`. It is Russian-language
+and runs W1 to W28, not W1 to W15 as the numbering here assumed. Several of its
+entries anticipate findings this addendum arrived at independently, which is worth
+recording because it means the project had already identified them and this
+document duplicated the work.
+
+| Predecessor | Says | Relation to this addendum |
+|---|---|---|
+| W1 | silicon not measured; all energy-efficiency figures are projections | anticipates E16 and E20 |
+| W3 | advantage over posit and MX formats not proven | not carried forward here; still open |
+| W6 | export control and foreign fabrication left unsaid | anticipates W-INTL-24 and the shuttle-tile question in W-INTL-18 |
+| W15 | single author, bus factor not addressed | is W-INTL-25 |
+| W16, W21, W26 | verifiability-per-dollar not operationalised in numbers | not carried forward; the international edition inherits the same gap |
+| W17 | competitive landscape not shown | answered by the competitor matrix |
+| W20 | reproducibility without an artefact protocol | answered in part: two claims are now reproducible by command |
+| W25 | verifiable arithmetic is not verifiable inference - hallucination and adversarial behaviour sit above the arithmetic | not carried forward, and it is the sharpest entry in either registry. Nothing in this addendum addresses it |
+| W28 | ternary energy efficiency is a 49x projection with no mechanism | see below |
+
+Two consequences.
+
+W25 should be carried into the international edition. It is a threat to the thesis
+rather than to a claim, and neither this addendum nor the application answers it.
+An accelerator committee assessing an AI-infrastructure application is entitled to
+ask why arithmetic that can be checked implies inference that can be trusted.
+
+W28 changes the energy picture. The naive energy figure has now been stated as at
+least four different values across the project's own documents: 49x in this
+registry, 20x from a picojoule division, 10 to 20x in the same document's opening,
+and 20 to 30x from a second pair of figures in it. The honest figure of 4x to 8x
+is quoted against a naive number that does not have one value. Hard rule 7 asks
+for the naive and honest calculations to be paired; pairing requires the naive one
+to be singular first.
 
 ---
 
