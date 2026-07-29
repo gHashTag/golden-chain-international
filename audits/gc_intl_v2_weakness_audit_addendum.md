@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-34
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-35
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -681,11 +681,59 @@ Action.
 3. Write the off-chain challenge and response, or state what gates registration in
    its absence. Until then MiningPool's chip check is a formality and should be
    described as one.
+
+   Drafted gate, offered as a specification rather than as code. A signature check
+   with a subtle error is a hole rather than a gate, so this should be reviewed and
+   tested before it is written into a contract that holds the supply.
+
+   > registerChip takes an additional signature over a message binding four
+   > things: the chip public key, the registrant address, the registry's own
+   > address, and a nonce the registry issues and consumes. The contract recovers
+   > the signer from that signature and requires it to equal the chip public key
+   > being registered. Binding the registrant prevents a captured signature being
+   > replayed by a third party; binding the registry address prevents it being
+   > replayed onto a different deployment; consuming the nonce prevents it being
+   > replayed at all. The phi-anchor equality check is kept but demoted to a
+   > format assertion, since a public constant cannot gate anything.
+   >
+   > This still only proves possession of a private key at registration time. It
+   > does not prove the key lives on a die. Proving that needs the challenge to be
+   > answered by the hardware under a timing or physical constraint, which is
+   > W-INTL-21's territory and remains partial.
+
+   The honest description while this is unbuilt: registration is open, and the
+   security of the arms that settle rests on the nullifier, the register cap and
+   sampled re-execution, not on chip identity.
 4. Replace the placeholder verifying key before any external party is invited to
    submit a zero-knowledge proof.
 
 Closes when each deployed contract is described at the level it actually operates,
 and the identity gate either exists or is stated as absent.
+
+## W-INTL-35  The deployed contracts are not source-verified on the explorer
+
+Severity: high for a submission that leads with the economics, and the cheapest
+item on this list to fix.
+
+Checked 2026-07-29. The MiningPool address holds contract bytecode, is not an
+externally owned account, and holds a balance matching the token's total supply
+constant exactly, which corroborates the deployment record. The explorer also
+shows the contract source is unverified and invites the creator to publish it.
+
+Why it matters more than it looks. Everything this audit now says about the
+economics rests on reading source in one place and a deployment record in another.
+Nobody outside the project can confirm that the bytecode at that address was built
+from that source. A reviewer who checks - and on a digital-assets track someone
+will - finds an unverified contract holding 7.6 trillion tokens. The honest
+explanation and the dishonest one look identical from outside.
+
+Action: verify all five contracts on the explorer. It requires the compiler
+version, optimisation settings and the source, all of which exist. This converts
+every economic claim in the application from trust-us to check-it, and it is an
+afternoon.
+
+Closes when each of the five addresses shows verified source matching the
+repository.
 
 ---
 
@@ -723,3 +771,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-32 | open, high; four false negatives from failed searches, method rule adopted |
 | W-INTL-33 | answered; scope conceded, target defended, one residual open |
 | W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
+| W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |

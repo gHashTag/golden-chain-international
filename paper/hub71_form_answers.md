@@ -123,6 +123,15 @@ open is a non-record run and a reproduction of another team's stack.
 We report the withdrawals rather than a placement because the withdrawals are the
 true part.
 
+The same habit shows in our published ablation on quantisation-aware training:
+three seeds with the median reported, disjoint training and validation shards, a
+significance threshold fixed in advance, and a limits section naming what the run
+does not support - including that an earlier anomaly was traced to data leakage
+in our own setup and fixed. The headline result is against our own format. An
+industry-standard 8-bit format came out indistinguishable from full precision,
+while our 8-bit arm degraded by roughly forty-four times the threshold. We
+published that.
+
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
 
