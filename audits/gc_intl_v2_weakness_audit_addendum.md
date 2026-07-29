@@ -794,7 +794,7 @@ Action.
 Closes when the external documents state the registry claim and no superiority
 claim, and when a ternary ablation exists or its absence is stated.
 
-## W-INTL-37  The central metric is named but never computed
+## W-INTL-37  The central metric is named but never computed  [PARTLY CLOSED 2026-07-29]
 
 Severity: medium, rising the moment anyone asks for a number.
 
@@ -818,6 +818,33 @@ publishing; it needs to exist, because a metric quoted without a number reads as
 a slogan and the predecessor registry says so in three separate entries.
 
 Action: compute it once, publish the working, and let the figure be what it is.
+
+Done in part, at research/verifiability_per_dollar.md. What the computation
+produced:
+
+- An attested node-hour costs about 0.025 USD, from a hardware listing midpoint
+  amortised over three years plus energy at a mid industrial rate. The range
+  across the listing is 0.017 to 0.033.
+- The attestation premium alone on a small confidential cloud instance is about
+  0.021 USD per hour, on top of the instance.
+- So the rented price of the attestation property is within the same order as the
+  owned price of the whole device providing it. That is the comparison that
+  survives, and it is narrower than the metric it replaces.
+
+What the computation could not produce, and this is the finding. The composite
+metric needs a unit of verified work priced in currency. No document defines one.
+The assurance parameters are published as ratios - one percent sampling, one
+hundred times stake - and a ratio cannot be costed. The carrying cost of stake,
+which is the only economically significant term in the overhead, therefore has no
+value.
+
+Two consequences. The metric must not be quoted as though a number stood behind
+it until the unit exists. And the price comparison above compares against an
+attestation this project does not yet enforce, per W-INTL-34, so it should be
+re-run once the identity gate is real.
+
+Remaining to close: define one unit of verified work with its compute content and
+its price.
 
 ---
 
@@ -857,4 +884,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
 | W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |
 | W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
-| W-INTL-37 | open, medium; the central metric is named but never computed |
+| W-INTL-37 | partly closed; computed as far as the missing unit price allows |
