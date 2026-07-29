@@ -199,6 +199,12 @@ zero transactions since deployment. The contracts are a bring-up rather than a
 running network, and the first settled proof will be the cheapest piece of
 outside-verifiable evidence we can produce.
 
+This is a testnet and we do not describe it as a launch. Mainnet is gated on three
+things we can name: an identity gate that actually verifies, a real verifying key
+in place of the placeholder we deployed, and an external audit. Custody of the
+pool's administrative function has to move to a multi-signature wallet before any
+of that matters. We would rather state the gate than a date.
+
 One correction we make ourselves. An earlier token of ours, TrinityToken, was
 deployed to Ethereum Sepolia in February 2026 with a conventional split including
 a founder and a treasury share. It is superseded by the above and is not the

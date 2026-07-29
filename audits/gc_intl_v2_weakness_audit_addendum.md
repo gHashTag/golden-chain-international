@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-44
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-45
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1262,6 +1262,53 @@ Action.
 
 Closes when the coincidence is stated in every document that introduces gf16.
 
+## W-INTL-45  The pool holding the entire supply is owned by a key the project calls disposable
+
+Severity: critical for any move to a value-bearing network, and it is a custody
+decision rather than a code change.
+
+Found by reading the deployed contracts while answering a question about launch
+readiness, not by working through a checklist.
+
+MiningPool is Ownable and takes its owner from the deployer. It exposes
+setChipRegistry, owner-only, which replaces the registry that decides which chips
+may claim rewards. MiningPool holds the entire token supply. The deployment record
+describes the deployer as an ephemeral, deploy-only key.
+
+Two failure modes, pointing opposite ways.
+
+If the key no longer exists, the registry can never be replaced. Since the current
+registry accepts any self-declared identity per W-INTL-34, an unreplaceable
+registry is a permanent defect rather than an immutability guarantee.
+
+If the key exists and is compromised, its holder redirects the pool to a registry
+they control and claims against a contract holding every token.
+
+Neither is acceptable on a network carrying value, and the two cannot both be
+mitigated by doing nothing.
+
+The contrast with TriToken is worth stating because it shows the choice was made
+deliberately somewhere. TriToken renounces ownership in its constructor: supply
+can never be inflated and nothing can ever be repaired. That trade is defensible
+for a token and it raises the bar on the audit rather than lowering it, since
+there is no path to fix a defect after deployment. MiningPool went the other way
+and kept an owner, which is also defensible - but then the owner has to be
+somebody, and right now it is a deploy key.
+
+Action.
+
+1. Decide custody and say so publicly. Either move ownership to a multi-signature
+   wallet with named signers, or state that the key is destroyed and accept that
+   the registry is frozen. Both are positions. Silence is not.
+2. If ownership is retained, put setChipRegistry behind a timelock. An
+   administrative action that changes who gets paid should be visible before it
+   takes effect.
+3. Until one of those is done, do not describe the economics as production-ready
+   in any external document.
+
+Closes when the owner of MiningPool is a multi-signature wallet or is provably
+nobody, and the external documents say which.
+
 ---
 
 ## Priority order
@@ -1308,3 +1355,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-42 | retracted; the catalog is correct and the check was too narrow |
 | W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |
 | W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |
+| W-INTL-45 | open, critical for mainnet; the pool's owner is a deploy key |
