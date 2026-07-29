@@ -753,11 +753,15 @@ Carried forward from predecessor entry W3, which recorded that advantage over
 posit and microscaling formats was unproven. It is worse than unproven: there is
 now a measurement pointing the other way.
 
-Qualification added 2026-07-29: per W-INTL-40 the comparison below is not
-implementation-symmetric. The reference arm uses a native cast; the project's arm
-uses a hand-rolled emulation with a saturation defect and no subnormals. Part of
-the gap may be emulation error. The finding stands as a reason not to claim
-superiority, and no longer as a measured defeat.
+RETRACTED 2026-07-30. The measurement this entry rested on is an artefact of a
+defective implementation, and the direction of the result reverses when the defect
+is removed. See W-INTL-40, which now carries the measurement. This entry is left
+in place rather than deleted because it was acted on: the application was rewritten
+around it, and the record of that being wrong is worth more than a clean file.
+
+What survives of it: do not claim superiority on the strength of one reconstruction
+benchmark either. The correct statement is that the format has not been shown to
+lose, and the reason it appeared to lose is now understood.
 
 The evidence, from this project's own ablation. In quantisation-aware training on
 a 29.4M-parameter model over 2000 steps, three seeds, disjoint train and
@@ -985,19 +989,94 @@ results below a floor, added after an earlier data-leakage bug produced an
 impossible score. The gate can only discard implausibly good results, which is the
 conservative direction, and its existence is disclosed in the published record.
 
+Measured 2026-07-30, research/quantiser_emulation_check.py. Deriving the format's
+geometry from the ablation's own constants exposed a third defect, larger than the
+two this entry opened with.
+
+The defect is an internal inconsistency rather than a wrong constant, and getting
+this right took two attempts.
+
+First reading, and it was wrong. The catalog records gf8 as sign 1, exponent 3,
+mantissa 4, bias 3, status verified. Reading that in the IEEE convention - highest
+exponent field reserved for infinities - gives a largest representable value of
+15.5, against which the ablation's scaling target of 31 looks like a factor of two
+error. That is what this entry said.
+
+Second reading, after checking the project's other quantiser. It uses the fn
+convention, where the highest exponent field is an ordinary normal and there are
+no infinities, exactly as the reference format e4m3fn does. Under fn the largest
+representable value is 31.0, and its source comments say so. So 31 is not wrong;
+it is the fn reading, and it is the consistent choice given the reference arm.
+
+What is actually wrong. The ablation scales to the fn maximum of 31 while clamping
+the exponent field to the IEEE range, one to six. Two conventions in one function.
+Everything between 15.5 and 31 is therefore scaled into existence and then clamped
+away, so each row's largest weights saturate. Add the mantissa reconstructed from
+the unclamped exponent, and the subnormals dropped - the MV constant is exactly the
+format's smallest subnormal under either convention, so they were designed in.
+
+Checked for convention dependence, because the first reading was wrong about
+exactly that. A correct implementation was measured under both conventions and the
+results are indistinguishable: 0.01314 against 0.01314 on normal input, 0.02061
+against 0.02075 on t-distributed. Per-row absolute-maximum scaling normalises to
+whatever the format maximum is, so the choice cancels. The conclusion below does
+not depend on which convention is intended, which makes it stronger than when this
+entry claimed a factor-of-two error.
+
+The same tensors quantised through four paths, three input distributions, 512 by
+512, one seed:
+
+| Path | rmse, normal | rmse, heavy tail | rmse, t-distributed |
+|---|---|---|---|
+| Reference native cast | 0.0264 | 0.0704 | 0.0415 |
+| Project arm as written | 0.3281 | 0.8705 | 0.5604 |
+| Scaling target repaired only | 0.0170 | 0.0456 | 0.2309 |
+| Correct implementation | 0.0131 | 0.0351 | 0.0210 |
+
+The result reverses. A correct implementation of the format reconstructs about
+twice as accurately as the reference cast on every distribution tested. The arm as
+written is roughly twenty-five times worse than the same format implemented
+correctly.
+
+So the ablation did not measure the format. It measured an implementation that
+saturates every row by construction, and the conclusion drawn from it - recorded
+here as W-INTL-36 and repeated in the application - was wrong.
+
+Why the correct implementation wins, stated so the result is not over-read. The
+reference format spends four bits on exponent and three on mantissa; this one
+spends three and four. Per-row absolute-maximum scaling normalises dynamic range
+away, which is precisely the condition under which the extra mantissa bit pays and
+the extra exponent bit does not. On data whose range survives scaling the ordering
+would reverse. This is a result about weight tensors under per-row scaling, not
+about the two formats in general, and it must not be quoted as the latter.
+
+Scope limit, unchanged and now more important. Reconstruction error is not
+training outcome. Straight-through training can behave differently from static
+reconstruction, and the ablation's own mechanism hypothesis - that narrow exponent
+range restricts weight dynamics - is about training rather than reconstruction and
+is untouched by this measurement. The re-run is now necessary rather than merely
+advisable, because the published negative result rests on a defect.
+
 Action.
 
-1. Separate emulation error from format error. Quantise a fixed tensor with the
-   hand-rolled path and with a reference implementation of the same format, and
-   report the difference. If it is small the result stands as published.
+1. Separate emulation error from format error. Done: essentially all of the gap is
+   emulation, and the result holds under either format convention.
 2. Fix the saturation path so the mantissa is recomputed from the clamped
    exponent, and decide explicitly whether the format has subnormals.
 3. Re-run the arm afterwards. Until then W-INTL-36 should say the format lost a
    comparison whose implementation was not symmetric, which is a weaker and truer
    statement.
 
-Closes when the emulation is validated against a reference or the arm is re-run
-with a corrected one.
+2. Fix the convention mismatch first. Either scale to 31 and let the exponent
+   field reach 7, or scale to 15.5 and clamp at 6. Both work; mixing them does not.
+3. Re-run the ablation. The published negative result about this format is not
+   safe and should be marked as under revision until the re-run exists.
+4. Do not replace it with a positive claim on the strength of this measurement.
+   Reconstruction is not training, and the tradeoff explanation above bounds what
+   the result can mean.
+
+Closes when the arm is re-run with the corrected implementation and the published
+result is updated in whichever direction the re-run lands.
 
 ---
 
@@ -1036,8 +1115,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-33 | answered; scope conceded, target defended, one residual open |
 | W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
 | W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |
-| W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
+| W-INTL-36 | retracted; the measurement it rested on was an implementation artefact |
 | W-INTL-37 | partly closed; computed as far as the missing unit price allows |
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
-| W-INTL-40 | open, medium; the ablation may be biased against our own format |
+| W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |
