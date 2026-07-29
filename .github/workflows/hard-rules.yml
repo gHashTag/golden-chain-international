@@ -35,3 +35,7 @@ jobs:
         run: |
           set -e
           python3 scripts/check_consistency.py
+      - name: catalog rules
+        run: |
+          set -e
+          python3 scripts/check_catalog.py

@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-40
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-42
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1078,6 +1078,83 @@ Action.
 Closes when the arm is re-run with the corrected implementation and the published
 result is updated in whichever direction the re-run lands.
 
+## W-INTL-41  A catalog entry marked verified cites an archive that does not contain the result
+
+Severity: high. It is in the single source of truth, it carries a verified status,
+and the artefact it names is one click away from any reviewer.
+
+The gf16 entry in specs/numeric/formats_catalog.t27 reads, in its standard field,
+that the format is verified with FPGA results of 35 out of 35 at 323 MHz on
+Artix-7, and cites a persistent identifier described as a hardware archive.
+
+Fetched 2026-07-30. The record behind that identifier is a two-kilobyte software
+description stub about vector-symbolic operations over balanced-ternary
+hypervectors. It contains one markdown file. It reports no FPGA frequency, no
+timing figure, no device, and no hardware results of any kind.
+
+So a frequency claim carrying verified status in the catalog names an archive that
+does not support it. Whether 323 MHz was measured is not established either way by
+this; what is established is that the artefact cited for it is the wrong one.
+
+This is the same defect as W-INTL-29, which found a 309 MHz claim recorded at the
+strongest evidence level against a timing report that does not exist. That one was
+in a downstream document. This one is in the file every other document defers to,
+and it is marked verified.
+
+Action.
+
+1. Establish whether a timing report for gf16 on Artix-7 exists. If it does, cite
+   it. The 35 of 35 conformance figure and the frequency are separable claims and
+   should be cited separately.
+2. If it does not, remove the frequency from the standard field and reduce the
+   status. A conformance pass is a conformance pass; it is not a clock rate.
+3. Audit the other verified entries for the same pattern. This one was found by
+   following a link, which is not a method that scales by hand.
+
+Closes when the entry cites an artefact that contains the result it asserts.
+
+## W-INTL-42  Two catalog entries carry a corrupted bias  [RETRACTED 2026-07-30]
+
+Severity: none. The finding was withdrawn on the day it was raised. It is kept
+here at zero severity rather than deleted, because it was published and the record
+of it being wrong is the useful part.
+
+The entry was wrong. The catalog is correct and the defect was in the check.
+
+What was reported: that gf512 and gf1024 record a bias of 2 where the field rule
+gives 2^194-1 and 2^390-1, and that a published erratum had identified the cause
+without the catalog being repaired.
+
+What is actually there: `bias=2^194-1` and `bias=2^390-1`, written as expressions
+precisely because the values exceed a 64-bit integer, which is exactly what the
+erratum said the repaired generator would do. The generator was fixed and so was
+the catalog. The hand check that reported otherwise extracted the value with a
+digits-only pattern, which kept the leading 2 of the expression and discarded the
+rest.
+
+So the finding was an artefact of reading the file with an instrument too narrow
+for its contents. Eighth time in this audit that the instrument rather than the
+subject was at fault, and the second time the mistake was made against a value
+whose correct form was documented in an erratum I had already read.
+
+The standing rule from W-INTL-32 covers assertions of absence. This extends it:
+an assertion that a recorded value is wrong must state how the value was read.
+A pattern that cannot represent the value's format will always report it as
+malformed.
+
+What came out of it. scripts/check_catalog.py now parses the expression form, so
+the two entries are genuinely checked rather than skipped, and the rule is applied
+by whitelist to the four clusters that use a fixed binary layout. Building that
+whitelist was itself instructive: applying the field rule to every entry flagged
+thirty-six correct ones - VAX excess-128, Cray's bias, tapered posits and takums,
+IEEE decimal's different bias convention, composite double-double rows, and
+logarithmic systems with no bias at all. Every one was the checker being wrong
+about the format. A rule applied outside its domain produces noise, and noise
+trains a reader to ignore the checker.
+
+The entry is retained rather than deleted for the same reason W-INTL-36 was: it
+was published, and the record of it being wrong is worth more than a tidy file.
+
 ---
 
 ## Priority order
@@ -1120,3 +1197,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
 | W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |
+| W-INTL-41 | open, high; a verified catalog entry cites an archive without the result |
+| W-INTL-42 | retracted; the catalog is correct and the check was too narrow |
