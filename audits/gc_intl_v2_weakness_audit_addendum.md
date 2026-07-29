@@ -985,19 +985,56 @@ results below a floor, added after an earlier data-leakage bug produced an
 impossible score. The gate can only discard implausibly good results, which is the
 conservative direction, and its existence is disclosed in the published record.
 
+Measured 2026-07-30, research/quantiser_emulation_check.py. The same tensors are
+quantised through four paths - the reference native cast, the project's arm as
+written, the arm with the saturation defect repaired, and the arm with both
+defects repaired - and reconstruction error is compared. Three input
+distributions, 512 by 512, one seed.
+
+| Path | rmse, normal | rmse, heavy tail | rmse, t-distributed |
+|---|---|---|---|
+| Reference native cast | 0.0264 | 0.0704 | 0.0415 |
+| Project arm as written | 0.3281 | 0.8705 | 0.5604 |
+| Saturation repaired | 0.2976 | 0.7973 | 5.4896 |
+| Both repaired | 0.1875 | 0.4967 | 0.4827 |
+
+Two results, and they point in opposite directions.
+
+The emulation defects are real and material. Repairing both cuts reconstruction
+error by about 43 percent on well-behaved inputs and about 14 percent on
+heavy-tailed ones, almost all of it from restoring subnormals rather than from the
+saturation path. The concern raised in this entry was justified.
+
+The conclusion of W-INTL-36 nevertheless survives. Even with both defects
+repaired, the format reconstructs roughly seven times worse than the reference at
+the same width. The gap is smaller than the ablation implied and it does not close.
+
+A defect in this check, recorded rather than hidden. The saturation-only variant
+is worse than the unrepaired arm on t-distributed input, by a wide margin. That is
+not a property of the format; it means the repair written here is itself wrong for
+heavy tails, because it reconstructs from the true exponent where the original
+compresses through the clamped one. So the middle row of that table is not
+evidence of anything, and only the first, second and fourth rows should be read.
+The instrument was faulty in exactly the way this audit keeps finding, and the
+finding survives because the other rows do not depend on it.
+
+Scope limit. Reconstruction error is not training outcome. It is what training
+amplifies, which is why it is informative here, but a re-run remains the only way
+to settle the ablation itself.
+
 Action.
 
-1. Separate emulation error from format error. Quantise a fixed tensor with the
-   hand-rolled path and with a reference implementation of the same format, and
-   report the difference. If it is small the result stands as published.
+1. Separate emulation error from format error. Done in part, above: about 40
+   percent of the gap is emulation, and the remainder is the format.
 2. Fix the saturation path so the mantissa is recomputed from the clamped
    exponent, and decide explicitly whether the format has subnormals.
 3. Re-run the arm afterwards. Until then W-INTL-36 should say the format lost a
    comparison whose implementation was not symmetric, which is a weaker and truer
    statement.
 
-Closes when the emulation is validated against a reference or the arm is re-run
-with a corrected one.
+Closes when the arm is re-run in training with subnormals restored and a
+correct saturation path. On present evidence the re-run will narrow the reported
+gap by roughly a third and will not reverse it.
 
 ---
 
@@ -1040,4 +1077,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-37 | partly closed; computed as far as the missing unit price allows |
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
-| W-INTL-40 | open, medium; the ablation may be biased against our own format |
+| W-INTL-40 | measured; about 40 percent of the gap is emulation, the rest is the format |
