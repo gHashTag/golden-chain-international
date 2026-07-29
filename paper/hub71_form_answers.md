@@ -52,14 +52,19 @@ is not a solution; it reproduces the problem one layer down.
 One node does all three. A Zynq-7020 with a software-defined radio and GPS
 timing routes traffic through a self-healing mesh, so a group of nodes shares a
 single uplink. The same node runs low-precision inference on multiplier-free
-arithmetic that maps onto mature, freely exportable process nodes. The design pays
-operators for four proof types settling through one contract with seven
-independent checks. That contract is specified and not yet written.
+arithmetic that maps onto mature, freely exportable process nodes. Operators are paid for
+four proof types settling through one contract. That contract is written and
+deployed to Base Sepolia; four of its checks are enforced and two are not yet -
+see Economics.
 
-Attestation is rooted in the device rather than in a vendor enclave. The mesh
-node is built on a part that carries a bitstream signature scheme; the compute
-boards are a bench tier and are not used as the trust anchor. That separation is
-deliberate and documented.
+Attestation is designed to be rooted in the device rather than in a vendor
+enclave, and we are careful with the tense. The mesh node is built on a part that
+carries a bitstream signature scheme, and the compute boards are a bench tier that
+is never the trust anchor. What is not yet true: the deployed registry accepts a
+self-declared key without a challenge, and the signature scheme on the mesh part
+has a published bypass whose fix status on our boot loader we have not confirmed.
+The architecture is settled; the enforcement is not built. We would rather say
+that than let a deployed interface read as a working guarantee.
 
 What verification does and does not buy, stated plainly because it is the
 objection we expect first. Verifying execution is not verifying judgement. Nothing
@@ -107,8 +112,10 @@ over the noise floor - loopback only, not over the air, and marked that way
 everywhere it appears.
 
 Compute, on hardware. Three Artix-7 boards, a multiplier-free ternary tile
-verified against a golden model with zero DSP allocated, a quantisation-aware
-training pipeline for 1.58-bit weights, and a published numeric format family.
+verified against a golden model with zero DSP allocated, and a published numeric
+format family. A quantisation-aware training pipeline exists and is described
+below; its published ablation covers 8-bit formats, so we do not claim it as
+evidence for 1.58-bit weights.
 
 Research conduct. We entered OpenAI's
 Parameter Golf challenge and made five public submissions. Three of them we
