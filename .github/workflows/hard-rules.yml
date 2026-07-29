@@ -13,7 +13,14 @@ jobs:
         run: |
           set -e
           PATTERN='breakthrough|revolutionary|first-ever|nobel|world-first|industry-leading|pseudoscience|crank|numerology'
-          if grep -rniE "$PATTERN" paper/ audits/ research/ plan/ README.md 2>/dev/null; then
+          # A line carrying the sentinel below is exempt. This exists so that the
+          # one place allowed to enumerate the forbidden vocabulary - the statement
+          # of hard rule 9 itself - does not trip the gate that enforces it. Any
+          # other line is scanned. Keep the sentinel off content lines.
+          HITS=$(grep -rniE "$PATTERN" paper/ audits/ research/ plan/ README.md 2>/dev/null \
+                 | grep -v 'hard-rules:allow' || true)
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
             echo "::error::banned vocabulary found"; exit 1
           fi
           echo "banned-words gate: OK"

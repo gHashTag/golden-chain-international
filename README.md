@@ -14,12 +14,36 @@
 This repository holds the **international, ASCII-only, English-first, state-rhetoric-free** derivative of the
 Russia 3.0 "Troica" project (`paper3-rossiya30-troica`). It packages the trust-first computing thesis
 (GoldenFloat + TRI-27 + Trinity Provenance) as an international policy chapter and as a compliance whitepaper
-for Hub71+ AI Cohort 20 (deadline 2 Aug 2026).
+for a Hub71 Cohort 20 submission.
 
-## Deliverables (Wave-intl-1)
+**Submission route (verified against hub71.com on 2026-07-29).** Hub71+ AI is not a
+standalone application track. It is a specialist ecosystem entered by answering the AI
+question inside whichever programme form is chosen (Access Programme, Hub71+ Digital
+Assets, Hub71+ ClimateTech, Hub71+ Life Sciences, Initiate, SAVI, Sandbox, ECA Anjal Z).
+The programme still has to be picked; that decision is open. Cohort 20 closes
+**21 August 2026** and the programme starts February 2027 — the Access Programme and
+Hub71+ Digital Assets pages both state 21 August. An earlier draft of this README gave
+2 Aug 2026; that date is superseded. Applications submitted after a deadline are rolled
+into the next cohort rather than discarded.
+
+## Deliverables
+
+Status is stated per file so that a reader is never sent to something that is not there.
+
+**Wave-intl-2 — landed.**
+
+- `paper/evidence_ledger.md` — 30 claims, each mapped to its artefact and verification level
+- `paper/hub71_form_answers.md` — application answers, ASCII-only
+- `audits/gc_intl_v2_weakness_audit_addendum.md` — W-INTL-16..27, each with a falsification path
+- `research/hub71_ai_competitor_matrix.md` — AI-track competitor picture, published figures separated from estimates
+
+**Wave-intl-1 — planned, not yet written.** These files are referenced by the Wave-intl-2
+documents but do not exist in this repository yet. The Russian-language origin repository
+they were to be derived from is not reachable (see Cross-references below), so they will be
+written directly rather than translated.
 
 - `paper/golden_chain_international.md` — 8-section international edition
-- `paper/hub71_compliance.md` — 6-section compliance whitepaper for Hub71+ AI
+- `paper/hub71_compliance.md` — 6-section compliance whitepaper
 - `audits/gc_intl_v1_weakness_audit.md` — weakness audit (W-INTL-1..W-INTL-15)
 - `research/gc_intl_research.md` — competitor + ecosystem research
 - `plan/wave_intl_1_decomposed_plan.md` — 15-gate roadmap across Wave-intl-1/2/3
@@ -34,14 +58,19 @@ for Hub71+ AI Cohort 20 (deadline 2 Aug 2026).
 6. Trinity Languages 3-tier (6 LLM + 15 MT + 35 preservation), never "56 LLM".
 7. Naive vs honest calculation always paired.
 8. Sponsored-research outreach (Stream C) gated on live arXiv ID of phi-paper.
-9. No hype words: breakthrough / revolutionary / first-ever / Nobel / world-first / industry-leading.
+9. No hype words: breakthrough / revolutionary / first-ever / Nobel / world-first / industry-leading. <!-- hard-rules:allow -->
 10. Every unproven claim tagged `[Open conjecture]` with falsification path.
 
 ## Cross-references
 
-- `gHashTag/goldenfloat-preprint` — arXiv:2606.05017 (GoldenFloat, Hunhold-endorsed)
-- `gHashTag/paper3-methodology` — arXiv:2606.09686 (83-format numeric catalog)
-- `gHashTag/tt-trinity-corona` — 80-format ROM silicon (TTGF26a shuttle)
-- `gHashTag/t27` — TRI-27 language + numeric SSOT
-- `gHashTag/trios-mcp-rag` — render pipeline
-- `gHashTag/paper3-rossiya30-troica` — Russian-language origin (this is its international derivative)
+Reachability checked anonymously on 2026-07-29, which is what an external reviewer sees.
+
+- `gHashTag/paper3-methodology` — arXiv:2606.09686 (83-format numeric catalog) — reachable
+- `gHashTag/tt-trinity-corona` — ROM silicon (TTGF26a shuttle) — reachable
+- `gHashTag/t27` — TRI-27 language + numeric SSOT — reachable
+- `gHashTag/trios-mcp-rag` — render pipeline — reachable
+- `gHashTag/goldenfloat-preprint` — arXiv:2606.05017 (GoldenFloat) — **private, returns 404 to an external reader.** Cite the arXiv identifier instead of this link, or make the repository public.
+- `gHashTag/paper3-rossiya30-troica` — Russian-language origin — **does not exist, returns 404.** Either the name is wrong or the repository was never published; the derivation claim in Scope above rests on it.
+
+The canonical catalog size is 83 formats in 13 families (arXiv:2606.09686v2, 2026-06-22).
+The superseded count 84 appears only in the two published errata, which is correct.

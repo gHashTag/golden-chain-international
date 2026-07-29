@@ -1,7 +1,20 @@
-# Hub71+ AI Cohort 20 - form answers
+# Hub71 Cohort 20 - form answers
 # Golden Chain / Trinity - ASCII-only, hard-rules compliant
 # Rules honoured: ASCII only (R1), no state rhetoric (R2), ADGM vessel (R3),
 # naive vs honest paired (R7), no hype words (R9), [Open conjecture] tagged (R10).
+#
+# Submission route, verified against hub71.com on 2026-07-29. Hub71+ AI is not a
+# standalone track; it is an ecosystem entered by answering the AI question inside
+# a chosen programme's form. Cohort 20 closes 21 August 2026, programme starts
+# February 2027. HOST PROGRAMME NOT YET CHOSEN - see the section below.
+#
+# OPEN ITEMS, must be resolved before submission:
+#   [PROGRAMME]  which Hub71 programme form hosts this application
+#   [MONTH]      relocation month, section "Plans for Abu Dhabi"
+#   [TEAM]       no team section written; single founder, see audit W-INTL-25
+#   [ASK]        no funding amount stated
+#   [HIRING]     named hiring plan required by W-INTL-25, currently unnamed
+# Each is a fact only the applicant holds. None are invented here.
 
 ## Startup overview
 
@@ -91,13 +104,30 @@ industry, and civil resilience.
 - Two arXiv preprints; a peer-reviewed track underway
 - Apache-2.0 for code, CC-BY 4.0 for text, publicly auditable
 
-## Hub71+ AI question
+## Hub71+ AI ecosystem question
+
+These two questions appear inside the chosen programme's application form and are
+what grants access to the Hub71+ AI ecosystem. They are not a separate form.
 
 Is your startup utilizing or building AI solutions as part of its core product
 offering? Yes.
 
 Which category best describes your focus? AI infrastructure - verifiable
 low-precision inference at the edge and the network that delivers it.
+
+## Host programme
+
+[PROGRAMME] - not yet chosen. The two candidates that fit this work:
+
+Access Programme. The general route for pre-seed to Series A. Fits the framing used
+throughout this document, which leads with hardware and verifiable compute.
+
+Hub71+ Digital Assets. Fits the settlement layer, the four proof types and the
+allocation structure with no premine, no venture allocation and no treasury. It
+would foreground the economics rather than the hardware.
+
+Both close 21 August 2026. The choice determines which narrative leads, so it
+should be made before the remaining sections are written, not after.
 
 ## Plans for Abu Dhabi
 

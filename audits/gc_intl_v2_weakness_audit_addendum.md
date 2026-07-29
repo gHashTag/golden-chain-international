@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-25
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-27
 
 Status: Wave-intl-2 draft, extends `audits/gc_intl_v1_weakness_audit.md`
 Rule basis: hard rule 10 - every unproven claim tagged with a falsification path.
@@ -56,16 +56,97 @@ mainnet is gated on silicon and treat that gate as a funding requirement.
 Closes when a settlement path exists that is both accepted by the contract and
 executable on present hardware, or when the gate is documented as intentional.
 
-## W-INTL-18  A fabrication date appears in a public roadmap without funding
+Drafted formulation for option (a), offered so the decision has something concrete
+to accept or reject. It is not yet adopted.
 
-Severity: high. The link goes into the application.
+> Settlement accepts two signer classes. A class-1 signer is a die-resident key
+> and is required for any reward whose proof type asserts a hardware property that
+> only a die can hold. A class-2 signer is a mesh-node key held in the node's own
+> bitstream signature scheme, is enrolled once against per-device secret material
+> rather than a factory serial, and may settle transport, coverage and sensing
+> proofs only. Inference proofs remain class-1. The contract records the signer
+> class on every settled reward, so the boundary is auditable after the fact and a
+> later migration to class-1 does not rewrite history.
 
-A public repository status table carries a fabrication date, and a roadmap phase
-is built on returned dies. The funding position behind that date has changed.
+Why this shape. It lets the three arms that genuinely run today settle without
+asserting anything about silicon, keeps the one arm that does depend on a die
+behind the gate, and leaves an on-chain record of which class paid for what. It
+also removes the contradiction between the settlement contract and the claim that
+three proof types operate today, which is currently the sharpest inconsistency an
+external reviewer can find between two of these documents.
 
-Action: remove the date, restate the phase without one, and tag every dependent
-claim as an open conjecture per rule 10. Rule 10 would have caught this had it
-been applied outside this repository.
+The alternative, option (b), is to state that mainnet is gated on silicon and treat
+that gate as a funding requirement. That is cheaper to write and harder to sell,
+because it moves the entire economic layer behind an unfunded milestone.
+
+## W-INTL-18  Silicon status is two different things under one word  [REVISED 2026-07-29]
+
+Severity: revised down from high to medium, and the finding is restated. The
+original wording claimed a public status table carries a dead fabrication date.
+Direct inspection on 2026-07-29 does not support that wording.
+
+What the public artefacts actually say. The status table in gHashTag/tt-trinity-gamma
+marks GDS / TAPEOUT as submitted and awaiting fabrication, not as fabricated. The
+date it carries, 2026-05-17, is labelled as a submission entry, and the file states
+in terms that the row moves to complete only once the shuttle confirms fabrication.
+That is careful reporting, and the original finding overstated it.
+
+The real exposure is a word collision. Tiny Tapeout on an open multi-project shuttle
+and a funded custom die are both called silicon in different documents. A reviewer
+who reads a submitted Tiny Tapeout tile as evidence of a funded tape-out will have
+been misled by the vocabulary rather than by any single false sentence. The
+application text already says silicon remains an open item, which is correct.
+
+Action: use two distinct terms in every external document - shuttle tile for the
+Tiny Tapeout work, custom die for the funded path - and never let a claim about one
+carry over to the other. Closes when no external document uses an unqualified
+silicon to span both.
+
+## W-INTL-26  Two of six public cross-references are unreachable to a reviewer
+
+Severity: high. Costs a reviewer thirty seconds to find and reads as carelessness.
+
+The Cross-references section of the public README listed six repositories. Checked
+anonymously on 2026-07-29, which is the view an external reader gets:
+
+- gHashTag/paper3-methodology, tt-trinity-corona, t27, trios-mcp-rag - reachable.
+- gHashTag/goldenfloat-preprint - private, returns 404 to an external reader,
+  while being cited as the home of arXiv:2606.05017.
+- gHashTag/paper3-rossiya30-troica - does not exist, returns 404.
+
+The second of these carries weight beyond a broken link. The Scope section defines
+this repository as the international derivative of that Russian-language origin. If
+the origin is not public, the derivation cannot be checked, and the four Wave-intl-1
+deliverables that were to be derived from it have no source.
+
+Action: taken in part. The README now marks both as unreachable and states that
+Wave-intl-1 will be written directly rather than translated. Closes fully when
+either the repositories are published under the stated names, or the references are
+replaced by artefacts that resolve - the arXiv identifier in place of the preprint
+repository, and a plain statement of origin in place of the missing one.
+
+## W-INTL-27  The submission target was misdescribed and the deadline was wrong
+
+Severity: critical for scheduling. Found by reading hub71.com rather than the repository.
+
+Two premises behind this work were wrong, and both were load-bearing.
+
+Hub71+ AI is not a standalone application track. It is a specialist ecosystem
+entered by answering an AI question inside whichever programme form is chosen -
+Access Programme, Hub71+ Digital Assets, Hub71+ ClimateTech, Hub71+ Life Sciences,
+Initiate, SAVI, Sandbox, or ECA Anjal Z. Documents headed as answers to a Hub71+ AI
+track therefore describe a form that does not exist on its own. The two AI questions
+they contain are real and correctly reproduced; what is missing is the choice of
+host programme, which is still open and is a decision for the applicant.
+
+The deadline in the README was 2 August 2026. The Access Programme page and the
+Hub71+ Digital Assets page both state 21 August 2026 for Cohort 20, with the
+programme starting February 2027. Checked 2026-07-29. Planning built on 2 August
+compressed a twenty-three day runway into four.
+
+Action: taken. The README now states the verified deadline and the ecosystem model.
+Remaining: choose the host programme, and re-title the answers file once chosen.
+Closes when one programme is named and the answers are aligned to that form.
 
 ## W-INTL-19  Bench-tier part has no bitstream signature scheme and broken encryption
 
@@ -161,9 +242,25 @@ before the deadline.
 
 ## Priority order
 
-1. W-INTL-17  blocks the economics entirely
-2. W-INTL-23  largest credibility gain, hardware already present
-3. W-INTL-18  one line, public, in the submission path
+1. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
+2. W-INTL-17  blocks the economics entirely
+3. W-INTL-23  largest credibility gain, hardware already present
 4. W-INTL-25  requires a third party, so start earliest
+5. W-INTL-26  cheap, high visibility, partly closed
+6. W-INTL-18  vocabulary discipline, no artefact change required
 
-W-INTL-16 was third in this order and is now closed; see its entry above.
+W-INTL-16 was third in the previous order and is now closed; see its entry above.
+
+## Status at 2026-07-29
+
+| Entry | State |
+|---|---|
+| W-INTL-16 | closed, verified |
+| W-INTL-17 | open, formulation drafted, decision required |
+| W-INTL-18 | revised, severity lowered, restated |
+| W-INTL-19 .. W-INTL-22 | open, unchanged |
+| W-INTL-23 | open, hardware present, gate not run |
+| W-INTL-24 | open, unchanged |
+| W-INTL-25 | open, requires a third party |
+| W-INTL-26 | partly closed, README corrected |
+| W-INTL-27 | partly closed, host programme still to choose |
