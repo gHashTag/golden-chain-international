@@ -107,9 +107,12 @@ honestly is worth more than one that settles every job ambiguously.
 Mesh, on hardware. Three nodes assembled, powered, and passing verified
 cryptographic traffic. X25519 with ChaCha20-Poly1305 confirmed on-device: a
 534,604-byte static ARM binary, hash recorded, exit code zero, 2026-07-01. The
-radio front end is tuned to 5.8 GHz with a verified digital loopback at 108.6 dB
-over the noise floor - loopback only, not over the air, and marked that way
-everywhere it appears.
+radio front end is tuned to 5.8 GHz and passes a digital loopback self-test: a
+commanded 1 MHz tone appears at +0.999 MHz with clean quadrature and no image.
+The capture also shows 108.6 dB of peak-to-median spectral dynamic range, which
+we name carefully because it is not a signal-to-noise ratio - there is no radio
+path in a digital loopback and therefore no noise floor to measure against. It is
+a path-integrity check. Nothing has been radiated.
 
 Compute, on hardware. Three Artix-7 boards, a multiplier-free ternary tile
 verified against a golden model with zero DSP allocated, and a published numeric
@@ -140,7 +143,19 @@ while our 8-bit arm degraded by roughly forty-four times the threshold. We
 published that.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
-numeric catalog (arXiv:2606.09686), with an open reference implementation.
+numeric catalog (arXiv:2606.09686), with an open reference implementation. The
+contribution here is registry filling: a vendor-neutral reference with bit-exact
+conformance vectors, so that a format named in a datasheet means the same thing in
+two places. We do not claim our format family beats posit or microscaling formats,
+and on the one controlled comparison we have run it does not - see the ablation
+above, where a standard 8-bit format matched full precision and ours did not. We
+have since found that comparison is not implementation-symmetric: the reference arm
+uses a native cast while ours is emulated, so part of the gap may be our emulation
+rather than our format. We are separating the two before we say anything more
+about it, and we are not claiming the gap away in the meantime. That
+result is about 8-bit training and says nothing either way about the ternary case,
+which is where the design actually operates and which we have not yet measured the
+same way.
 
 Economics, deployed and checkable. Five contracts run on Base Sepolia since
 2026-05-18, each with a public address and deploy transaction: TriToken,
@@ -162,6 +177,12 @@ chip-registration check are the two that carry the weight.
 EmissionController implements the halving curve directly, with an era of four
 years, so the emission schedule is enforced by the contract rather than described
 in a document.
+
+What has not happened yet, stated because a deployment invites the assumption. No
+proof has been submitted and no chip registered: the registry and the prover show
+zero transactions since deployment. The contracts are a bring-up rather than a
+running network, and the first settled proof will be the cheapest piece of
+outside-verifiable evidence we can produce.
 
 One correction we make ourselves. An earlier token of ours, TrinityToken, was
 deployed to Ethereum Sepolia in February 2026 with a conventional split including

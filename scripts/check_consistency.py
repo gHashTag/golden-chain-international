@@ -14,7 +14,19 @@ long document will miss again. Each check is cheap and deterministic.
   5. Figures that must be identical everywhere are checked across all four
      documents, because a figure cited two ways is how the catalog count went
      wrong.
-  6. Internal file references resolve.
+  6. Internal file references resolve, unless the line naming them says they do
+     not exist - the documents deliberately name unwritten files in order to stop
+     promising them.
+  7. Structural checks on the audit: entries in numeric order, each with a
+     severity line, and a status table listing every entry.
+  8. Structural checks on the competitor matrix: every quantitative row carries a
+     provenance marker, and every [PUB] row names a citation that can be chased.
+
+A note on testing this file. Negative controls must be written with the same care
+as the checks. Two of them here failed to fire not because a check was weak but
+because the control was: hard-wrapped documents defeat line-based editing, so a
+planted fault applied with sed silently did nothing. Plant faults with a
+whitespace-insensitive edit, or the test proves only that the test is broken.
 
 Exit code 1 on any failure. Intended to run in CI.
 """
@@ -29,6 +41,8 @@ LEDGER = ROOT / "paper" / "evidence_ledger.md"
 APPLICATION = ROOT / "paper" / "hub71_form_answers.md"
 AUDIT = ROOT / "audits" / "gc_intl_v2_weakness_audit_addendum.md"
 MATRIX = ROOT / "research" / "hub71_ai_competitor_matrix.md"
+README = ROOT / "README.md"
+CHECKLIST = ROOT / "plan" / "submission_checklist.md"
 
 # Placeholders that must never reach a submitted form. Each stands for a fact
 # only the applicant holds; none may be invented to make a check pass.
@@ -47,9 +61,9 @@ SHARED_FIGURES = {
     "radio SNR":               r"([\d.]+) dB over the noise floor",
     "catalog size":            r"(\d+)[- ]format numeric catalog|catalog (?:size is |of )(\d+) formats?|(\d+) formats in 13",
     "catalog families":        r"(\d+) (?:families|clusters)",
-    "tile vectors":            r"(\d+) of \d+ self-checking vectors",
-    "cohort deadline":         r"closes \*{0,2}(\d+ August 2026)",
-    "leaderboard best":        r"leaderboard'?s? best (?:entry )?is ([\d.]+)|Best entry on the live leaderboard \| ([\d.]+)",
+    "tile vectors":            r"(\d+) of \d+ self-checking vectors|runs to (\d+) tests, \d+ pass|(\d+) of 206",
+    "cohort deadline":         r"closes \*{0,2}(\d+ August 2026)|Cohort 20 closes \*{0,2}(\d+ August 2026)",
+    "leaderboard best":        r"best entry[^.]{0,30}?([\d.]+) bits per byte|Best entry on the live leaderboard \| ([\d.]+)",
 }
 
 NON_SUPPORTING = (
@@ -188,10 +202,92 @@ def check_figures_agree(docs):
             failures.append(f"figure '{name}' stated more than one way: {detail}")
 
 
+ACKNOWLEDGED = ("not written", "does not exist", "never written", "dangling")
+
+
+def check_audit_structure(audit_text):
+    entries = re.findall(r"^## W-INTL-(\d+)\b(.*)$", audit_text, re.M)
+    if not entries:
+        failures.append("audit: no entries parsed")
+        return
+    numbers = [int(n) for n, _ in entries]
+    if numbers != sorted(numbers):
+        out_of_place = [n for n, s in zip(numbers, sorted(numbers)) if n != s]
+        failures.append(
+            f"audit: entries out of numeric order, first divergence at {out_of_place[:3]}"
+        )
+    if len(numbers) != len(set(numbers)):
+        dupes = [n for n, c in collections.Counter(numbers).items() if c > 1]
+        failures.append(f"audit: duplicate entry numbers {dupes}")
+
+    # Every entry must state a severity, since the file ranks by it.
+    blocks = re.split(r"(?m)^(?=## W-INTL-)", audit_text)
+    for block in blocks:
+        m = re.match(r"## W-INTL-(\d+)", block)
+        if m and not re.search(r"^Severity", block, re.M):
+            failures.append(f"audit: W-INTL-{m.group(1)} has no severity line")
+
+    # The status table at the end must account for every entry.
+    listed = set(re.findall(r"^\| W-INTL-(\d+)", audit_text, re.M))
+    ranges = re.findall(r"^\| W-INTL-(\d+) \.\. W-INTL-(\d+)", audit_text, re.M)
+    for lo, hi in ranges:
+        listed |= {str(i) for i in range(int(lo), int(hi) + 1)}
+    missing = sorted(set(str(n) for n in numbers) - listed, key=int)
+    if missing:
+        notes.append(
+            "audit: status table does not list W-INTL-" + ", W-INTL-".join(missing)
+        )
+
+
+def check_matrix_markers(matrix_text):
+    """Rows in the competitor tables quote figures for third parties and for this
+    project. Each such figure must carry a provenance marker, and a [PUB] marker
+    must name a source that can be chased. An unmarked figure in a comparison
+    table is how a competitor came to be understated by a fifth."""
+    markers = ("[PUB]", "[EST]", "[UNVERIFIED]")
+    in_table = False
+    for line in matrix_text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            in_table = False
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) < 4:
+            continue
+        if set("".join(cells)) <= set("-: "):
+            in_table = True          # separator row: the table has begun
+            continue
+        if not in_table:
+            continue
+        # A throughput or power figure is a cell holding a number with a unit.
+        quantitative = [c for c in cells
+                        if re.search(r"\d", c) and re.search(r"tok/s|\bW\b|mW|bits per byte|percent", c)]
+        if not quantitative:
+            continue
+        if not any(m in stripped for m in markers):
+            notes.append(
+                f"matrix: quantitative row without a provenance marker: "
+                f"{cells[0][:44]!r}"
+            )
+        if "[PUB]" in stripped and not re.search(r"arXiv:\d|ISSCC|TerEffic|\d{4}", stripped):
+            notes.append(
+                f"matrix: [PUB] row without a chaseable citation: {cells[0][:44]!r}"
+            )
+
+
 def check_references_resolve(paths):
+    """A reference to a file that does not exist is a defect unless the same
+    line says so. Documents here deliberately name unwritten files in order to
+    stop promising them, and flagging that as a fault would train the reader to
+    ignore the checker."""
     for path in paths:
-        for ref in set(re.findall(r"`([a-z]+/[a-z0-9_]+\.md)`", path.read_text())):
-            if not (ROOT / ref).exists():
+        text = path.read_text()
+        for line in text.splitlines():
+            for ref in set(re.findall(r"`([a-z]+/[a-z0-9_]+\.md)`", line)):
+                if (ROOT / ref).exists():
+                    continue
+                if any(a in line.lower() for a in ACKNOWLEDGED):
+                    continue
                 notes.append(f"reference: {path.name} points at missing {ref}")
 
 
@@ -206,13 +302,19 @@ def main():
         failures.append("ledger: no claim rows parsed")
 
     app_text = APPLICATION.read_text()
-    docs = [(p, p.read_text()) for p in (LEDGER, APPLICATION, AUDIT, MATRIX) if p.exists()]
+    docs = [(p, p.read_text())
+            for p in (LEDGER, APPLICATION, AUDIT, MATRIX, README, CHECKLIST)
+            if p.exists()]
 
     check_summary_reconciles(ledger_text, rows)
     check_legend_covers_levels(ledger_text, rows)
     check_application_against_ledger(app_text, rows)
     check_no_placeholders_in_submitted(app_text)
     check_figures_agree(docs)
+    if AUDIT.exists():
+        check_audit_structure(AUDIT.read_text())
+    if MATRIX.exists():
+        check_matrix_markers(MATRIX.read_text())
     check_references_resolve([p for p, _ in docs])
 
     for note in notes:

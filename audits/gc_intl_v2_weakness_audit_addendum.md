@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-35
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-40
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -539,10 +539,10 @@ document duplicated the work.
 | Predecessor | Says | Relation to this addendum |
 |---|---|---|
 | W1 | silicon not measured; all energy-efficiency figures are projections | anticipates E16 and E20 |
-| W3 | advantage over posit and MX formats not proven | not carried forward here; still open |
+| W3 | advantage over posit and MX formats not proven | carried forward as W-INTL-36, where a measurement now runs against it |
 | W6 | export control and foreign fabrication left unsaid | anticipates W-INTL-24 and the shuttle-tile question in W-INTL-18 |
 | W15 | single author, bus factor not addressed | is W-INTL-25 |
-| W16, W21, W26 | verifiability-per-dollar not operationalised in numbers | not carried forward; the international edition inherits the same gap |
+| W16, W21, W26 | verifiability-per-dollar not operationalised in numbers | carried forward as W-INTL-37 |
 | W17 | competitive landscape not shown | answered by the competitor matrix |
 | W20 | reproducibility without an artefact protocol | answered in part: two claims are now reproducible by command |
 | W25 | verifiable arithmetic is not verifiable inference - hallucination and adversarial behaviour sit above the arithmetic | carried forward and answered as W-INTL-33 |
@@ -746,6 +746,259 @@ and it is an afternoon.
 Closes when each of the five addresses shows verified source matching the
 repository.
 
+## W-INTL-36  The format's advantage over established alternatives is not demonstrated, and one measurement runs against it
+
+Severity: high for a submission whose numeric work is its published foundation.
+Carried forward from predecessor entry W3, which recorded that advantage over
+posit and microscaling formats was unproven. It is worse than unproven: there is
+now a measurement pointing the other way.
+
+Qualification added 2026-07-29: per W-INTL-40 the comparison below is not
+implementation-symmetric. The reference arm uses a native cast; the project's arm
+uses a hand-rolled emulation with a saturation defect and no subnormals. Part of
+the gap may be emulation error. The finding stands as a reason not to claim
+superiority, and no longer as a measured defeat.
+
+The evidence, from this project's own ablation. In quantisation-aware training on
+a 29.4M-parameter model over 2000 steps, three seeds, disjoint train and
+validation shards, with a significance threshold of 0.005 BPB fixed in advance:
+
+| Arm | Median BPB | Delta against FP32 |
+|---|---|---|
+| FP32 baseline | 2.8279 | - |
+| FP8 E4M3 with per-row scaling | 2.8280 | +0.0001, below threshold |
+| GoldenFloat 8-bit | 3.0474 | +0.2196, about 44x threshold |
+| E2M5 | 3.0944 | +0.2666, about 53x threshold |
+
+An industry-standard 8-bit format is indistinguishable from full precision in this
+setting. The project's own 8-bit format is not. The ablation also records the
+mechanism hypothesis - that a narrow exponent range restricts weight dynamics
+under straight-through estimation, so range matters more than grid density during
+training - and marks it as hypothesis rather than result.
+
+Why this is not fatal, and how it should be said. The catalog's stated purpose is
+registry filling rather than superiority: a vendor-neutral reference with
+bit-exact conformance vectors. That claim is intact and is supported by the
+83-format single source of truth. The format family is a separate claim, and on
+the one controlled comparison available it loses at 8 bits during training.
+
+The application currently avoids claiming format superiority, which is correct.
+The risk is a reviewer inferring it from the prominence the numeric work is given.
+
+Action.
+
+1. Never claim the format beats posit or microscaling formats. On the evidence
+   available it does not, at 8 bits, in training.
+2. Lead the numeric work as a registry contribution, which is what it is and what
+   the preprint says.
+3. Publish the negative result rather than leaving it in a research directory. It
+   is already written, already controlled, and disclosing it is worth more than
+   the claim it costs.
+4. If the ternary case is where the advantage lives, run the same ablation there.
+   The 8-bit result says nothing about 1.58-bit weights either way.
+
+Closes when the external documents state the registry claim and no superiority
+claim, and when a ternary ablation exists or its absence is stated.
+
+## W-INTL-37  The central metric is named but never computed  [PARTLY CLOSED 2026-07-29]
+
+Severity: medium, rising the moment anyone asks for a number.
+
+Carried forward from predecessor entries W16, W21 and W26, which recorded across
+two review passes that verifiability-per-dollar is asserted as the organising
+metric and never operationalised. Neither this addendum nor the application has
+improved on that.
+
+The thesis is that a buyer should be able to obtain verification per unit of
+spend, and that this project offers more of it per dollar than a trusted-execution
+alternative. No document defines the numerator, the denominator, or a single
+worked example.
+
+What would close it, and it is an afternoon of arithmetic rather than research.
+Define one unit of verified work - a settled proof of a stated type. Define its
+cost - node amortisation, energy, and the sampling overhead at the published one
+percent with stake at one hundred times the unit reward. Then state the same for
+the alternative being displaced, which is a trusted execution environment on
+rented hardware. The comparison does not need to be favourable to be worth
+publishing; it needs to exist, because a metric quoted without a number reads as
+a slogan and the predecessor registry says so in three separate entries.
+
+Action: compute it once, publish the working, and let the figure be what it is.
+
+Done in part, at research/verifiability_per_dollar.md. What the computation
+produced:
+
+- An attested node-hour costs about 0.025 USD, from a hardware listing midpoint
+  amortised over three years plus energy at a mid industrial rate. The range
+  across the listing is 0.017 to 0.033.
+- The attestation premium alone on a small confidential cloud instance is about
+  0.021 USD per hour, on top of the instance.
+- So the rented price of the attestation property is within the same order as the
+  owned price of the whole device providing it. That is the comparison that
+  survives, and it is narrower than the metric it replaces.
+
+What the computation could not produce, and this is the finding. The composite
+metric needs a unit of verified work priced in currency. No document defines one.
+The assurance parameters are published as ratios - one percent sampling, one
+hundred times stake - and a ratio cannot be costed. The carrying cost of stake,
+which is the only economically significant term in the overhead, therefore has no
+value.
+
+Two consequences. The metric must not be quoted as though a number stood behind
+it until the unit exists. And the price comparison above compares against an
+attestation this project does not yet enforce, per W-INTL-34, so it should be
+re-run once the identity gate is real.
+
+Remaining to close: define one unit of verified work with its compute content and
+its price.
+
+## W-INTL-38  The deployment has never been used
+
+Severity: medium for the technical case, high for the wording around it.
+
+Checked on the block explorer 2026-07-29, 72 days after deployment. ChipRegistry
+and JobProver each show zero transactions and zero balance. No chip has ever been
+registered. No proof has ever been submitted. MiningPool holds the entire token
+supply, which is the state it is left in by deployment rather than evidence of
+activity.
+
+So the five contracts are a bring-up, not a running network. That is a perfectly
+ordinary state for a testnet deployment two months old, and nothing in the design
+is contradicted by it. What it does contradict is any phrasing that lets a reader
+infer operation from deployment.
+
+This sharpens W-INTL-34 rather than duplicating it. That entry found the identity
+gate is not enforced. This one finds it has also never been exercised - the
+scaffold is not merely permissive, it is untouched. A registry that has accepted
+zero registrations has not been tested against even the weak check it does have.
+
+Consequences for wording.
+
+Three proof types are said to operate today. They are produced by the node daemon;
+nothing settles them, and nothing has ever tried. The application now says
+produced rather than settled, which is right, and this entry is the evidence for
+why that distinction was necessary rather than pedantic.
+
+Any figure derived from network operation - throughput, operator earnings, uptime
+- has no observations behind it and must not appear.
+
+Action.
+
+1. Submit one proof end to end on the testnet. It exercises the settlement path,
+   produces the first real transaction, and turns deployed into demonstrated. The
+   contracts are already there; this is an afternoon.
+2. Until then, describe the deployment as what it is: written, deployed, and
+   unexercised.
+3. Record the first settled transaction hash when it exists. It is the single
+   cheapest piece of third-party-verifiable evidence available to this project.
+
+Closes when at least one proof has settled on chain and its transaction is cited.
+
+## W-INTL-39  The radio figure is labelled as a signal-to-noise ratio and is not one
+
+Severity: high with a radio-literate reviewer, low with anyone else, which is the
+worst combination: it survives casual reading and fails expert reading.
+
+Found by opening the analysis script rather than the result it produced.
+
+What the number is. The script captures interleaved integer IQ, windows it,
+transforms it, and computes the reported figure as the magnitude of the peak bin
+minus the median of the entire magnitude spectrum, in decibels. The capture is
+taken through the transceiver's internal digital loopback, which the bring-up
+script states explicitly: transmit to receive, nothing radiated.
+
+Why that is not a signal-to-noise ratio. With no radio path there is no thermal
+noise. The median of the spectrum is the numerical floor of the transform, the
+quantisation floor of the integer capture, and window leakage. A guard term is
+added inside the logarithm to avoid negative infinity on empty bins, which sets
+how deep that floor can appear. So 108.6 dB is the spectral dynamic range of a
+clean digital path, and it would move if the window, the capture length or the
+guard term changed - none of which are properties of a radio.
+
+Why it matters. The documents already say digital loopback and not over the air,
+which is honest about the path. They are not honest about the quantity. A reader
+who knows radio will read 108.6 dB over the noise floor as a receiver figure,
+where it would be extraordinary, and will then discover it is peak-to-median of a
+noiseless loopback. The gap between those two readings is where credibility is
+lost, and it is lost with exactly the reviewer best placed to judge the rest of
+the work.
+
+What the measurement does establish, and it is worth keeping. The transmit chain,
+the digital loopback path and the receive chain carry a single-sideband tone at
+the commanded offset with no visible image, at the commanded local oscillator
+frequency. That is a real bring-up result and the right thing to claim.
+
+Action.
+
+1. Rename the quantity. Peak-to-median spectral dynamic range, digital loopback.
+   Not SNR.
+2. State the tone placement as the result, since that is what the capture proves:
+   commanded 1 MHz, observed +0.999 MHz, clean quadrature.
+3. Keep the figure if it is useful as a path-integrity check, with its definition
+   attached.
+4. Do not compare it with any published receiver sensitivity or link budget.
+
+Closes when no external document calls this figure a signal-to-noise ratio.
+
+## W-INTL-40  The ablation that disfavours our own format may be biased against it
+
+Severity: medium, and it runs the opposite way from every other entry in this
+file. Recorded with the same weight regardless.
+
+W-INTL-36 reports that the project's 8-bit format lost a controlled comparison
+against an industry-standard one. Reading the ablation source rather than its
+result shows the comparison is not symmetric, and the asymmetry disadvantages the
+project's own arm.
+
+All three quantised arms share the same per-row absolute-maximum scaling, which is
+fair. What differs is how the format itself is applied.
+
+The reference arm casts to a native 8-bit floating-point type provided by the
+framework. That cast does correct round-to-nearest-even and handles subnormal
+values in hardware or in a tested library path.
+
+The project's arm and the third arm are hand-rolled emulations built from a
+floor-of-log2, a mantissa rounded on a fixed grid, an exponent clamped into range,
+and a flush of small magnitudes to zero. Two consequences follow that the native
+cast does not suffer.
+
+First, on saturation the exponent is clamped while the mantissa is computed from
+the unclamped exponent, so the reconstructed value no longer corresponds to either.
+A correct implementation saturates to the format maximum; this one produces a value
+that is neither the input nor the saturated representable.
+
+Second, there are no subnormals. Magnitudes below the smallest normal are set to
+zero, while the reference format represents them. Near zero is exactly where
+weights concentrate, and straight-through training is sensitive there.
+
+So part of the reported degradation may be emulation error rather than format
+error, and the size of that part is unknown because it has not been separated.
+
+This does not overturn W-INTL-36. The result may survive a correct implementation,
+and the mechanism hypothesis offered in the ablation - that a narrow exponent range
+restricts weight dynamics during training - is plausible and independent of the
+defects above. What it does mean is that the negative result is not yet safe to
+lean on in either direction.
+
+Also noted, and it is sound. The run carries an anomaly gate that quarantines
+results below a floor, added after an earlier data-leakage bug produced an
+impossible score. The gate can only discard implausibly good results, which is the
+conservative direction, and its existence is disclosed in the published record.
+
+Action.
+
+1. Separate emulation error from format error. Quantise a fixed tensor with the
+   hand-rolled path and with a reference implementation of the same format, and
+   report the difference. If it is small the result stands as published.
+2. Fix the saturation path so the mantissa is recomputed from the clamped
+   exponent, and decide explicitly whether the format has subnormals.
+3. Re-run the arm afterwards. Until then W-INTL-36 should say the format lost a
+   comparison whose implementation was not symmetric, which is a weaker and truer
+   statement.
+
+Closes when the emulation is validated against a reference or the arm is re-run
+with a corrected one.
+
 ---
 
 ## Priority order
@@ -783,3 +1036,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-33 | answered; scope conceded, target defended, one residual open |
 | W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
 | W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |
+| W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
+| W-INTL-37 | partly closed; computed as far as the missing unit price allows |
+| W-INTL-38 | open, medium; deployment is real and has never been exercised |
+| W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
+| W-INTL-40 | open, medium; the ablation may be biased against our own format |
