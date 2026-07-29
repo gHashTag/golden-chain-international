@@ -9,17 +9,33 @@ reviewer encounters it, not by how difficult it is to fix.
 
 ---
 
-## W-INTL-16  Numeric catalog cited with three different counts
+## W-INTL-16  Numeric catalog cited with three different counts  [CLOSED 2026-07-29]
 
-Severity: high. Found by reading any two public repositories in sequence.
+Severity when opened: high. Found by reading any two public repositories in
+sequence. Re-verified on 2026-07-29 and closed: the divergence no longer exists
+in any live artefact.
 
-The numeric format catalog is referred to with three different counts across
-three public repositories under the same account. A reviewer comparing the
-mesh repository, this repository, and the ROM silicon repository will see three
-numbers for what reads as one corpus.
+The finding as originally written is superseded. Verification performed:
 
-Action: reconcile against the preprint, then propagate one number everywhere.
-Closes when a text search across all public repositories returns a single count.
+- arXiv:2606.09686 carries a v2 dated 2026-06-22. The live title and abstract
+  read 83 formats spanning 13 families. The v1 count of 84 is superseded.
+- The canonical SSOT specs/numeric/formats_catalog.t27 in gHashTag/t27 counts
+  83 catalog records with no duplicate ids, and 13 families.
+- The public README of gHashTag/trinity-fpga states an 83-entry catalog and
+  points at fpga/CATALOG_MATRIX_83.md as the live SSOT.
+- The public README of gHashTag/t27 states an 83-format SSOT.
+- The README of this repository states an 83-format numeric catalog.
+- A code search across the account for the string 84-Format returns exactly two
+  files, and both are the published errata that record the correction. That is
+  the correct place for a superseded number to survive.
+
+Root cause of the original delta, per the errata: E8M0 block scale was counted
+as a standalone format in v1. It is the shared-exponent component of the
+Microscaling family, covered by its own conformance pack but not enumerated as
+a catalog row. Canonical size is therefore 83.
+
+No action remains. Reopens if a direct count of the SSOT returns a number other
+than 83, or if any public artefact outside an erratum asserts a different size.
 
 ## W-INTL-17  Settlement requires device signatures that do not exist
 
@@ -147,6 +163,7 @@ before the deadline.
 
 1. W-INTL-17  blocks the economics entirely
 2. W-INTL-23  largest credibility gain, hardware already present
-3. W-INTL-16  cheapest fix, found fastest by a reviewer
-4. W-INTL-18  one line, public, in the submission path
-5. W-INTL-25  requires a third party, so start earliest
+3. W-INTL-18  one line, public, in the submission path
+4. W-INTL-25  requires a third party, so start earliest
+
+W-INTL-16 was third in this order and is now closed; see its entry above.

@@ -50,7 +50,7 @@ Verification levels, in decreasing strength:
 |---|---|---|---|---|
 | E17 | GoldenFloat format family published | written, external | arXiv:2606.05017 | withdrawal of the preprint |
 | E18 | Numeric format catalog published | written, external | arXiv:2606.09686 | withdrawal of the preprint |
-| E19 | Catalog size | inconsistent | cited as three different counts across three public repositories | reconcile against the preprint before submission; see audit W-INTL-16 |
+| E19 | Catalog size is 83 formats in 13 families | written, external | arXiv:2606.09686v2 of 2026-06-22 states 83 in title and abstract; SSOT specs/numeric/formats_catalog.t27 in gHashTag/t27 counts 83 records with no duplicate ids; public READMEs of gHashTag/trinity-fpga and gHashTag/t27 both state 83; the superseded count 84 survives only inside the two published errata, which is where it belongs | a direct count of the SSOT returning a number other than 83, or any public artefact outside an erratum asserting a different size |
 | E20 | Energy advantage over a general-purpose baseline | modelled | naive and honest calculations published side by side; honest figure 4x to 8x, 95% CI [3, 10] | a measured end-to-end comparison falling outside the interval |
 
 ## 4. Economics
@@ -77,14 +77,22 @@ Verification levels, in decreasing strength:
 
 ## Summary
 
-  hw          9 rows
-  test        3 rows
-  written     9 rows
-  sim         3 rows
-  conjecture  1 row
-  refuted     1 row
-  not built   2 rows
-  inconsistent 1 row
+  hw            8 rows   (of which 1 loopback only, 1 negative, 1 third-party)
+  written       9 rows   (of which 2 external, 1 software-signed, 1 by design)
+  sim           3 rows
+  modelled      2 rows
+  test          2 rows
+  not built     1 row
+  not measured  1 row
+  conjecture    1 row
+  refuted       1 row
+  undefined     1 row
+  partial       1 row
+  total        30 rows
+
+The counts above are derived from the table by parsing the level column, not
+written by hand. A ledger whose own arithmetic does not reconcile has no claim
+on a reviewer's trust.
 
 Two rows are deliberately negative (E15, E16) and one is deliberately refuted
 (E28). A ledger that contains only supporting rows is a marketing document.

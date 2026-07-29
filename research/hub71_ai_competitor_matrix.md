@@ -15,7 +15,7 @@ may be presented as a result.
 
 | System | Platform | Decode throughput | Power | Per watt | Source |
 |---|---|---|---|---|---|
-| Reference edge accelerator v1 | mid-range edge board | 9.51 tok/s [PUB] | under 7 W | 1.36 | arXiv:2504.16266 |
+| Reference edge accelerator v1 | AMD Kria KV260, Zynq UltraScale+ XCK26 | 9.51 tok/s [PUB] | under 7 W | 1.36 | arXiv:2504.16266 |
 | Reference edge accelerator v2 | same board | 25 tok/s [PUB] | 5 W | 5.00 | arXiv:2510.15926 |
 | High-end FPGA, small model | datacentre-class board | 16,300 tok/s [PUB] | 46 W | 354 | TerEffic, 2025 |
 | High-end FPGA, larger model | same, with high-bandwidth memory | 727 tok/s [PUB] | 46 W | 15.8 | TerEffic, 2025 |
@@ -35,6 +35,17 @@ The reference edge accelerator states its own limitation plainly: its decode
 gap is architectural rather than algorithmic, arising from external memory
 bandwidth, and the remedy it proposes is a higher-bandwidth platform - a
 high-bandwidth-memory FPGA or custom silicon.
+
+Verified against the source on 2026-07-29. The v1 paper attributes its decode
+throughput gap to the board's limited external memory bandwidth and states that
+"this limitation is architectural rather than algorithmic" (arXiv:2504.16266),
+proposing HBM-enabled FPGAs or custom ASICs as the scaling path. The 9.51 tok/s
+figure appears in the contributions list and the evaluation section of the same
+paper, not only in the abstract, where the rounded form 9 tok/s is used. The v2
+figures of 25 tok/s under 5 W are confirmed in arXiv:2510.15926.
+
+This matters because the argument of this section rests on the cited work
+diagnosing the bottleneck itself. That diagnosis is quoted, not inferred.
 
 That remedy costs roughly forty times the board price, an order of magnitude
 more power, and a process node that a buyer concerned with supply-chain
