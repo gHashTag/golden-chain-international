@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-38
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-39
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -888,6 +888,52 @@ Action.
 
 Closes when at least one proof has settled on chain and its transaction is cited.
 
+## W-INTL-39  The radio figure is labelled as a signal-to-noise ratio and is not one
+
+Severity: high with a radio-literate reviewer, low with anyone else, which is the
+worst combination: it survives casual reading and fails expert reading.
+
+Found by opening the analysis script rather than the result it produced.
+
+What the number is. The script captures interleaved integer IQ, windows it,
+transforms it, and computes the reported figure as the magnitude of the peak bin
+minus the median of the entire magnitude spectrum, in decibels. The capture is
+taken through the transceiver's internal digital loopback, which the bring-up
+script states explicitly: transmit to receive, nothing radiated.
+
+Why that is not a signal-to-noise ratio. With no radio path there is no thermal
+noise. The median of the spectrum is the numerical floor of the transform, the
+quantisation floor of the integer capture, and window leakage. A guard term is
+added inside the logarithm to avoid negative infinity on empty bins, which sets
+how deep that floor can appear. So 108.6 dB is the spectral dynamic range of a
+clean digital path, and it would move if the window, the capture length or the
+guard term changed - none of which are properties of a radio.
+
+Why it matters. The documents already say digital loopback and not over the air,
+which is honest about the path. They are not honest about the quantity. A reader
+who knows radio will read 108.6 dB over the noise floor as a receiver figure,
+where it would be extraordinary, and will then discover it is peak-to-median of a
+noiseless loopback. The gap between those two readings is where credibility is
+lost, and it is lost with exactly the reviewer best placed to judge the rest of
+the work.
+
+What the measurement does establish, and it is worth keeping. The transmit chain,
+the digital loopback path and the receive chain carry a single-sideband tone at
+the commanded offset with no visible image, at the commanded local oscillator
+frequency. That is a real bring-up result and the right thing to claim.
+
+Action.
+
+1. Rename the quantity. Peak-to-median spectral dynamic range, digital loopback.
+   Not SNR.
+2. State the tone placement as the result, since that is what the capture proves:
+   commanded 1 MHz, observed +0.999 MHz, clean quadrature.
+3. Keep the figure if it is useful as a path-integrity check, with its definition
+   attached.
+4. Do not compare it with any published receiver sensitivity or link budget.
+
+Closes when no external document calls this figure a signal-to-noise ratio.
+
 ---
 
 ## Priority order
@@ -928,3 +974,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
 | W-INTL-37 | partly closed; computed as far as the missing unit price allows |
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
+| W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |

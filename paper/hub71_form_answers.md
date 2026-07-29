@@ -107,9 +107,12 @@ honestly is worth more than one that settles every job ambiguously.
 Mesh, on hardware. Three nodes assembled, powered, and passing verified
 cryptographic traffic. X25519 with ChaCha20-Poly1305 confirmed on-device: a
 534,604-byte static ARM binary, hash recorded, exit code zero, 2026-07-01. The
-radio front end is tuned to 5.8 GHz with a verified digital loopback at 108.6 dB
-over the noise floor - loopback only, not over the air, and marked that way
-everywhere it appears.
+radio front end is tuned to 5.8 GHz and passes a digital loopback self-test: a
+commanded 1 MHz tone appears at +0.999 MHz with clean quadrature and no image.
+The capture also shows 108.6 dB of peak-to-median spectral dynamic range, which
+we name carefully because it is not a signal-to-noise ratio - there is no radio
+path in a digital loopback and therefore no noise floor to measure against. It is
+a path-integrity check. Nothing has been radiated.
 
 Compute, on hardware. Three Artix-7 boards, a multiplier-free ternary tile
 verified against a golden model with zero DSP allocated, and a published numeric
