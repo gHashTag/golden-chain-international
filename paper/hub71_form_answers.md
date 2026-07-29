@@ -50,9 +50,10 @@ is not a solution; it reproduces the problem one layer down.
 One node does all three. A Zynq-7020 with a software-defined radio and GPS
 timing routes traffic through a self-healing mesh, so a group of nodes shares a
 single uplink. The same node runs low-precision inference on multiplier-free
-arithmetic that maps onto mature, freely exportable process nodes. Operators are
-paid for four proof types, settling through one contract with seven independent
-checks.
+arithmetic that maps onto mature, freely exportable process nodes. The design pays
+operators for four proof types settling through one contract with seven
+independent checks; that contract is specified and not yet written, and the
+distinction is kept everywhere it appears in this document.
 
 Attestation is rooted in the device rather than in a vendor enclave. The mesh
 node is built on a part that carries a bitstream signature scheme; the compute
@@ -122,29 +123,56 @@ honest figure and show the naive calculation beside it.
 
 What is not done. Multi-hop routing, throughput across two hops, and the
 three-node shared-uplink demonstration are in simulation and marked as such. No
-radio has transmitted over the air pending an amplifier and a licence. Silicon
-remains an open item; every claim that depends on returned dies is tagged
-[Open conjecture] with its falsification path stated.
+radio has transmitted over the air pending an amplifier and a licence.
+
+On silicon we use two terms and never let one stand for the other. A shuttle tile
+is our design submitted to an open multi-project run, which has been done and is
+awaiting fabrication; the status table that records it marks the row complete only
+once the shuttle confirms, and it has not. A custom die is a funded run of our own,
+which does not exist and is not funded. Everything downstream of a custom die is
+tagged [Open conjecture] with its falsification path stated. Conflating the two
+would let a submitted tile read as a funded tape-out, which is why the words are
+kept apart.
 
 ## Business model
 
 Operators acquire nodes and earn for verified contribution; the network charges
-for delivered service. Three of the four proof types run today at software-signed
-level. Near-term revenue is node sales and paid pilots with operators who need
+for delivered service. Three of the four proof types are produced today by the
+node daemon at software-signed level - produced, not settled, since the contract
+that would settle them is not written. Near-term revenue is node sales and paid
+pilots with operators who need
 connectivity and local inference in the same enclosure - infrastructure, remote
 industry, and civil resilience.
 
 ## Traction
 
-- Six devices assembled and connected: three mesh nodes, three compute boards
-- On-device verified cryptography with recorded artefacts and hashes
-- 5.8 GHz radio front end verified in digital loopback
+Each line names what a reader can open. Where the artefact is weaker than the
+claim, the line says so.
+
+- Six devices on the bench: three Zynq-7020 mesh nodes, three Artix-7 compute
+  boards. The three mesh nodes being connected rests on an operator confirmation
+  dated 2026-07-04 rather than on a photograph or an inventory record, and that is
+  the weakest evidence in this list.
+- Authenticated encryption running on the node processors. Two on-device runs,
+  2026-07-01 and 2026-07-04, on two different boards, each with its own recorded
+  binary hash and a zero exit code. Two runs on two boards rather than one.
+- 5.8 GHz radio front end verified in digital loopback. Loopback, not over the
+  air. Nothing has been transmitted; that needs an amplifier and a licence.
+- Multiplier-free ternary tile: 206 of 206 self-checking vectors pass against a
+  golden model, and synthesis against a Xilinx target allocates no DSP primitive.
+  Both reproduce from the repository in minutes.
 - 118 Rust test blocks in the public mesh repository, reproducible with
   `grep -rE '^\s*#\[test\]' src tests`; the crate carries forbid(unsafe_code)
-  and no unsafe block exists in it
-- Settlement contracts written and deployed to testnet
-- Two arXiv preprints; a peer-reviewed track underway
-- Apache-2.0 for code, CC-BY 4.0 for text, publicly auditable
+  and contains no unsafe block.
+- Numeric catalog of 83 formats in 13 families, counted directly from its single
+  source of truth rather than cited.
+- One token deployed to a public testnet, with its allocation fixed in the
+  contract. The four-proof settlement contract is not written; see Economics.
+- Two arXiv preprints, the second at v2 after we published an erratum correcting
+  our own catalog count downward.
+- Five submissions to a public model-compression challenge, three of them
+  withdrawn by us after we found the measurement invalid.
+- Apache-2.0 for code, CC-BY 4.0 for text, publicly auditable.
 
 ## Hub71+ AI ecosystem question
 

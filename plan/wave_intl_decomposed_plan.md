@@ -27,8 +27,8 @@ that cannot be checked is not a gate.
 | # | Gate | Check that will close it | Blocked on |
 |---|---|---|---|
 | G9 | Energy figure sourced or dropped | the honest derivation exists in the repository, or the number is gone from every external document | half resolved 2026-07-29. The naive side was found: a document dividing 1 pJ per multiply-accumulate by 0.05 pJ per add to reach 20x, while also stating 10 to 20x and 20 to 30x elsewhere in the same file. The honest side that reduces this to 4x to 8x was not found. The pairing hard rule 7 requires is currently one-sided, with only the overclaiming half written down |
-| G10 | Settlement layer described consistently | no external document describes the four-proof economics as implemented | nothing |
-| G11 | Silicon vocabulary split | no external document uses an unqualified "silicon" to span shuttle tile and custom die | nothing |
+| G10 | Settlement layer described consistently | no external document describes the four-proof economics as implemented | CLOSED 2026-07-29. Four places corrected: the solution paragraph, the business model, the traction list and the host-programme note. The traction line claiming settlement contracts written and deployed was the sharpest and is gone |
+| G11 | Silicon vocabulary split | no external document uses an unqualified "silicon" to span shuttle tile and custom die | CLOSED 2026-07-29. The application now defines both terms and states that the shuttle tile is submitted and awaiting fabrication while the custom die is neither funded nor existing |
 | G12 | Public cross-references resolve | every link in the README returns content to an anonymous reader | publishing or replacing two repositories |
 
 ## Gates that need the applicant
