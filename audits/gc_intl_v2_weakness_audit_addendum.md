@@ -1115,6 +1115,10 @@ Closes when the entry cites an artefact that contains the result it asserts.
 
 ## W-INTL-42  Two catalog entries carry a corrupted bias  [RETRACTED 2026-07-30]
 
+Severity: none. The finding was withdrawn on the day it was raised. It is kept
+here at zero severity rather than deleted, because it was published and the record
+of it being wrong is the useful part.
+
 The entry was wrong. The catalog is correct and the defect was in the check.
 
 What was reported: that gf512 and gf1024 record a bias of 2 where the field rule
