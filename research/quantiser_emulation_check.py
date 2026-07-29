@@ -5,11 +5,16 @@ Audit entry W-INTL-40 observes that the ablation's arms are not
 implementation-symmetric: the reference arm casts to a native 8-bit float type,
 while the project's own arm is a hand-rolled emulation carrying two defects.
 
-  1. On saturation the exponent is clamped while the mantissa is computed from
+  1. The per-row scaling target is 31, while the largest value the format can
+     represent is 15.5. Every row's extreme values therefore saturate by
+     construction, before any quantisation error is considered.
+  2. On saturation the exponent is clamped while the mantissa is computed from
      the unclamped exponent, so the result is neither the input nor the saturated
      representable value.
-  2. There are no subnormals: magnitudes below the smallest normal are flushed to
-     zero, where the reference format represents them.
+  3. There are no subnormals: magnitudes below the smallest normal are flushed to
+     zero. The MV constant in the ablation is exactly the smallest subnormal of
+     the format its other constants describe, so the format was designed with
+     them and the implementation drops them.
 
 This script measures how much of the reported gap those two defects account for.
 It does not re-run training. It quantises the same tensors through four paths and
@@ -53,44 +58,48 @@ def gf8_as_written(w):
     return torch.clamp(sim, -MX, MX) * s
 
 
-def gf8_saturation_fixed(w):
-    """Defect 1 repaired: saturate to the representable maximum instead of
-    reconstructing from a mismatched mantissa."""
-    MX, B, EM, MV, ms = 31.0, 3, 7, 2.0 ** (1 - 3 - 4), 16.0
-    s = scale_rows(w, MX)
+# Format geometry derived from the constants in the ablation rather than assumed.
+# Bias 3, exponent field 1..6 normal, 4 mantissa bits. The largest representable
+# value is therefore (1 + 15/16) * 2^3 = 15.5, and the smallest subnormal is
+# 2^-2 / 16 = 2^-6 - which is exactly the MV constant the ablation uses, so the
+# format was designed with subnormals and the implementation drops them.
+GF8_B, GF8_EM, GF8_MS = 3, 7, 16.0
+GF8_MAX = (1 + (GF8_MS - 1) / GF8_MS) * 2.0 ** ((GF8_EM - 1) - GF8_B)   # 15.5
+GF8_MIN_NORMAL = 2.0 ** (1 - GF8_B)                                     # 0.25
+GF8_SUB_STEP = GF8_MIN_NORMAL / GF8_MS                                  # 2^-6
+
+
+def gf8_scale_fixed(w):
+    """Defect 3 repaired only: scale rows to the value the format can actually
+    represent, 15.5, instead of 31. Everything else as written."""
+    s = scale_rows(w, GF8_MAX)
     ws = w / s
     sg = torch.sign(ws)
-    a = torch.abs(ws).clamp(min=MV)
+    a = torch.abs(ws).clamp(min=GF8_SUB_STEP)
     e = torch.floor(torch.log2(a))
-    ef = e + B
-    in_range = (ef >= 1) & (ef <= EM - 1)
     ff = a / (2.0 ** e)
-    normal = sg * (1 + torch.round((ff - 1) * ms) / ms) * (2.0 ** (e))
-    max_repr = (1 + (ms - 1) / ms) * (2.0 ** (EM - 1 - B))
-    sim = torch.where(in_range, normal, sg * max_repr)
-    sim = torch.where(torch.abs(ws) < MV, torch.zeros_like(sim), sim)
-    return torch.clamp(sim, -max_repr, max_repr) * s
+    ef = torch.clamp(e + GF8_B, 1, GF8_EM - 1)
+    sim = sg * (1 + torch.round((ff - 1) * GF8_MS) / GF8_MS) * (2.0 ** (ef - GF8_B))
+    sim = torch.where(torch.abs(ws) < GF8_SUB_STEP, torch.zeros_like(sim), sim)
+    return torch.clamp(sim, -GF8_MAX, GF8_MAX) * s
 
 
-def gf8_both_fixed(w):
-    """Defects 1 and 2 repaired: saturation as above, plus subnormals - values
-    below the smallest normal are quantised on the subnormal grid instead of
-    being flushed to zero."""
-    MX, B, EM, MV, ms = 31.0, 3, 7, 2.0 ** (1 - 3 - 4), 16.0
-    s = scale_rows(w, MX)
+def gf8_correct(w):
+    """A correct implementation of the format the constants describe: right
+    scaling target, saturation to the representable maximum, and subnormals."""
+    s = scale_rows(w, GF8_MAX)
     ws = w / s
     sg = torch.sign(ws)
     a = torch.abs(ws)
+
     e = torch.floor(torch.log2(a.clamp(min=1e-30)))
-    ef = e + B
     ff = a / (2.0 ** e)
-    normal = sg * (1 + torch.round((ff - 1) * ms) / ms) * (2.0 ** e)
-    max_repr = (1 + (ms - 1) / ms) * (2.0 ** (EM - 1 - B))
-    sub_step = MV / ms
-    subnormal = sg * torch.round(a / sub_step) * sub_step
-    sim = torch.where(ef < 1, subnormal,
-                      torch.where(ef > EM - 1, sg * max_repr, normal))
-    return torch.clamp(sim, -max_repr, max_repr) * s
+    normal = (1 + torch.round((ff - 1) * GF8_MS) / GF8_MS) * (2.0 ** e)
+    subnormal = torch.round(a / GF8_SUB_STEP) * GF8_SUB_STEP
+
+    out = torch.where(a < GF8_MIN_NORMAL, subnormal, normal)
+    out = torch.where(a > GF8_MAX, torch.full_like(a, GF8_MAX), out)
+    return sg * out * s
 
 
 def error(w, q):
@@ -112,8 +121,8 @@ def main():
     paths = {
         "FP8 native (reference arm)": fp8_native,
         "GF8 as written (project arm)": gf8_as_written,
-        "GF8, saturation fixed": gf8_saturation_fixed,
-        "GF8, saturation + subnormals": gf8_both_fixed,
+        "GF8, scaling target fixed": gf8_scale_fixed,
+        "GF8, correct implementation": gf8_correct,
     }
 
     print(f"{ROWS}x{COLS} tensors, seed {SEED}, per-row absmax scaling\n")

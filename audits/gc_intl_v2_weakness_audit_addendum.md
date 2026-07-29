@@ -753,11 +753,15 @@ Carried forward from predecessor entry W3, which recorded that advantage over
 posit and microscaling formats was unproven. It is worse than unproven: there is
 now a measurement pointing the other way.
 
-Qualification added 2026-07-29: per W-INTL-40 the comparison below is not
-implementation-symmetric. The reference arm uses a native cast; the project's arm
-uses a hand-rolled emulation with a saturation defect and no subnormals. Part of
-the gap may be emulation error. The finding stands as a reason not to claim
-superiority, and no longer as a measured defeat.
+RETRACTED 2026-07-30. The measurement this entry rested on is an artefact of a
+defective implementation, and the direction of the result reverses when the defect
+is removed. See W-INTL-40, which now carries the measurement. This entry is left
+in place rather than deleted because it was acted on: the application was rewritten
+around it, and the record of that being wrong is worth more than a clean file.
+
+What survives of it: do not claim superiority on the strength of one reconstruction
+benchmark either. The correct statement is that the format has not been shown to
+lose, and the reason it appeared to lose is now understood.
 
 The evidence, from this project's own ablation. In quantisation-aware training on
 a 29.4M-parameter model over 2000 steps, three seeds, disjoint train and
@@ -985,56 +989,73 @@ results below a floor, added after an earlier data-leakage bug produced an
 impossible score. The gate can only discard implausibly good results, which is the
 conservative direction, and its existence is disclosed in the published record.
 
-Measured 2026-07-30, research/quantiser_emulation_check.py. The same tensors are
-quantised through four paths - the reference native cast, the project's arm as
-written, the arm with the saturation defect repaired, and the arm with both
-defects repaired - and reconstruction error is compared. Three input
-distributions, 512 by 512, one seed.
+Measured 2026-07-30, research/quantiser_emulation_check.py. Deriving the format's
+geometry from the ablation's own constants exposed a third defect, larger than the
+two this entry opened with.
+
+The constants describe a format with bias 3, exponent field 1 to 6 and 4 mantissa
+bits. Its largest representable value is therefore 15.5. The ablation scales every
+row so its largest weight maps to 31. That is exactly twice what the format can
+hold, so every row's extreme values saturate by construction before any
+quantisation error is considered. The same derivation shows the MV constant equals
+the format's smallest subnormal precisely, which confirms the format was designed
+with subnormals that the implementation then discards.
+
+The same tensors quantised through four paths, three input distributions, 512 by
+512, one seed:
 
 | Path | rmse, normal | rmse, heavy tail | rmse, t-distributed |
 |---|---|---|---|
 | Reference native cast | 0.0264 | 0.0704 | 0.0415 |
 | Project arm as written | 0.3281 | 0.8705 | 0.5604 |
-| Saturation repaired | 0.2976 | 0.7973 | 5.4896 |
-| Both repaired | 0.1875 | 0.4967 | 0.4827 |
+| Scaling target repaired only | 0.0170 | 0.0456 | 0.2309 |
+| Correct implementation | 0.0131 | 0.0351 | 0.0210 |
 
-Two results, and they point in opposite directions.
+The result reverses. A correct implementation of the format reconstructs about
+twice as accurately as the reference cast on every distribution tested. The arm as
+written is roughly twenty-five times worse than the same format implemented
+correctly, and the scaling defect alone accounts for about ninety-five percent of
+that.
 
-The emulation defects are real and material. Repairing both cuts reconstruction
-error by about 43 percent on well-behaved inputs and about 14 percent on
-heavy-tailed ones, almost all of it from restoring subnormals rather than from the
-saturation path. The concern raised in this entry was justified.
+So the ablation did not measure the format. It measured an implementation that
+saturates every row by construction, and the conclusion drawn from it - recorded
+here as W-INTL-36 and repeated in the application - was wrong.
 
-The conclusion of W-INTL-36 nevertheless survives. Even with both defects
-repaired, the format reconstructs roughly seven times worse than the reference at
-the same width. The gap is smaller than the ablation implied and it does not close.
+Why the correct implementation wins, stated so the result is not over-read. The
+reference format spends four bits on exponent and three on mantissa; this one
+spends three and four. Per-row absolute-maximum scaling normalises dynamic range
+away, which is precisely the condition under which the extra mantissa bit pays and
+the extra exponent bit does not. On data whose range survives scaling the ordering
+would reverse. This is a result about weight tensors under per-row scaling, not
+about the two formats in general, and it must not be quoted as the latter.
 
-A defect in this check, recorded rather than hidden. The saturation-only variant
-is worse than the unrepaired arm on t-distributed input, by a wide margin. That is
-not a property of the format; it means the repair written here is itself wrong for
-heavy tails, because it reconstructs from the true exponent where the original
-compresses through the clamped one. So the middle row of that table is not
-evidence of anything, and only the first, second and fourth rows should be read.
-The instrument was faulty in exactly the way this audit keeps finding, and the
-finding survives because the other rows do not depend on it.
-
-Scope limit. Reconstruction error is not training outcome. It is what training
-amplifies, which is why it is informative here, but a re-run remains the only way
-to settle the ablation itself.
+Scope limit, unchanged and now more important. Reconstruction error is not
+training outcome. Straight-through training can behave differently from static
+reconstruction, and the ablation's own mechanism hypothesis - that narrow exponent
+range restricts weight dynamics - is about training rather than reconstruction and
+is untouched by this measurement. The re-run is now necessary rather than merely
+advisable, because the published negative result rests on a defect.
 
 Action.
 
-1. Separate emulation error from format error. Done in part, above: about 40
-   percent of the gap is emulation, and the remainder is the format.
+1. Separate emulation error from format error. Done: essentially all of the gap is
+   emulation. The scaling target alone accounts for about ninety-five percent.
 2. Fix the saturation path so the mantissa is recomputed from the clamped
    exponent, and decide explicitly whether the format has subnormals.
 3. Re-run the arm afterwards. Until then W-INTL-36 should say the format lost a
    comparison whose implementation was not symmetric, which is a weaker and truer
    statement.
 
-Closes when the arm is re-run in training with subnormals restored and a
-correct saturation path. On present evidence the re-run will narrow the reported
-gap by roughly a third and will not reverse it.
+2. Fix the scaling target first. It is one constant, 15.5 rather than 31, and it
+   is the whole finding.
+3. Re-run the ablation. The published negative result about this format is not
+   safe and should be marked as under revision until the re-run exists.
+4. Do not replace it with a positive claim on the strength of this measurement.
+   Reconstruction is not training, and the tradeoff explanation above bounds what
+   the result can mean.
+
+Closes when the arm is re-run with the corrected implementation and the published
+result is updated in whichever direction the re-run lands.
 
 ---
 
@@ -1073,8 +1094,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-33 | answered; scope conceded, target defended, one residual open |
 | W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
 | W-INTL-35 | open, high, cheap; deployed contracts not source-verified on the explorer |
-| W-INTL-36 | open, high; format advantage unproven and one measurement runs against it |
+| W-INTL-36 | retracted; the measurement it rested on was an implementation artefact |
 | W-INTL-37 | partly closed; computed as far as the missing unit price allows |
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
-| W-INTL-40 | measured; about 40 percent of the gap is emulation, the rest is the format |
+| W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |

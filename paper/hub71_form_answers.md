@@ -136,25 +136,29 @@ true part.
 The same habit shows in our published ablation on quantisation-aware training:
 three seeds with the median reported, disjoint training and validation shards, a
 significance threshold fixed in advance, and a limits section naming what the run
-does not support - including that an earlier anomaly was traced to data leakage
-in our own setup and fixed. The headline result is against our own format. An
-industry-standard 8-bit format came out indistinguishable from full precision,
-while our 8-bit arm degraded by roughly forty-four times the threshold. We
-published that.
+does not support - including that an earlier anomaly was traced to data leakage in
+our own setup and fixed. The headline result was against our own format, and we
+published it.
+
+We have since found that result was not about the format. Our quantiser scaled
+each row so its largest weight mapped to a value twice what the format can
+represent, so every row saturated by construction. Corrected, the same format
+reconstructs about twice as accurately as the reference rather than worse; the
+defective implementation was about twenty-five times off. The published negative
+result is therefore under revision and we are re-running it. We are not replacing
+it with a positive claim: reconstruction is not training, and the advantage we
+measured comes from spending a bit on mantissa instead of exponent, which pays
+only because per-row scaling removes the dynamic range that the exponent bit would
+have earned.
 
 Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation. The
 contribution here is registry filling: a vendor-neutral reference with bit-exact
 conformance vectors, so that a format named in a datasheet means the same thing in
 two places. We do not claim our format family beats posit or microscaling formats,
-and on the one controlled comparison we have run it does not - see the ablation
-above, where a standard 8-bit format matched full precision and ours did not. We have since found that comparison was not implementation-symmetric - the
-reference arm uses a native cast while ours was emulated with two defects - and we
-measured how much that accounted for. About forty percent of the gap was our
-emulation, almost all of it from flushing small values to zero instead of
-representing them. The remaining sixty percent is the format, which still
-reconstructs several times worse than the reference at the same width. We report
-the corrected figure rather than the flattering half of it. That
+and we have not shown that it does. Our one controlled comparison turned out to
+measure our quantiser rather than our format, as described above, and its
+replacement does not exist yet. That
 result is about 8-bit training and says nothing either way about the ternary case,
 which is where the design actually operates and which we have not yet measured the
 same way.
