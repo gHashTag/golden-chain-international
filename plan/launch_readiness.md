@@ -21,41 +21,41 @@ source. `scripts/verify_contracts.sh` closes the second down to one command.
 
 ## 2. The blocker, found in the contracts rather than in a checklist
 
-MiningPool is `Ownable` and takes its owner from the deployer. It exposes
-`setChipRegistry`, which is owner-only and replaces the registry that decides
-which chips may claim rewards. MiningPool holds the entire token supply.
+MiningPool is `Ownable` and exposes `setChipRegistry`, which replaces the registry
+deciding which chips may claim rewards. MiningPool holds the entire token supply.
+TriToken renounces ownership in its constructor.
 
-The deployment record describes the deployer as an ephemeral, deploy-only key.
+The deployment script renounces MiningPool's ownership too, explicitly, on the
+line after the token is deployed. So there is no owner and no administrative key
+anywhere in the deployed set.
 
-So the contract holding every token has an administrative function that can
-redirect who is permitted to claim from it, and that function is controlled by a
-key the project itself describes as disposable. Two failure modes follow, and
-they point in opposite directions:
+That is not the reassurance it first appears to be. The registry can never be
+replaced, and the registry currently accepts any self-declared key (audit
+W-INTL-34). This deployment therefore has a permanently unfixable identity gate:
+nothing can repair it, nothing can pause it, and no key exists that could.
 
-- If the key is gone, the registry can never be replaced. Given that the current
-  registry accepts any self-declared identity (audit W-INTL-34), being unable to
-  replace it is a permanent defect rather than a safety property.
-- If the key exists and is compromised, an attacker points the pool at a registry
-  they control and claims against it.
+For this deployment that is acceptable, because it is a testnet and it has never
+been used. Treat it as disposable, which is what a testnet is for.
 
-Neither is acceptable on a network carrying value. This is the first thing to fix
-and it is not a code change - it is a custody decision.
-
-TriToken has the opposite shape: ownership is renounced in the constructor, so
-supply can never be inflated and nothing can ever be fixed. That trade is
-defensible for a token and it should be a deliberate, stated choice rather than a
-side effect. It also means the token cannot be upgraded out of a bug, which
-raises the bar on the audit rather than lowering it.
+For a value-bearing deployment it is the central design question, and it is worth
+stating plainly. Renouncing everything at deployment is the strongest possible
+statement about supply and the weakest possible position on defects, because it
+forecloses every response to one. The defensible sequence is to renounce late
+rather than early: hold administrative functions in a multi-signature wallet
+behind a timelock while the system is being exercised, and give them up once it
+has been. That reaches the same end state, and keeps the ability to fix a defect
+during precisely the window in which defects are found.
 
 ## 3. What a production launch requires, mapped to what exists
 
 Ordered by what blocks what, not by importance in the abstract.
 
 **Custody before anything else.** Administrative functions on a value-bearing
-contract belong to a multi-signature wallet with named signers, not to an
-externally owned account and never to a deploy key. Where an administrative
-action can change who gets paid, it belongs behind a timelock as well, so that
-the change is visible before it takes effect. Neither exists today.
+contract belong to a multi-signature wallet with named signers, behind a timelock
+where the action can change who gets paid, so the change is visible before it
+takes effect. Neither exists in the current set - not because the keys are held
+badly but because they were given up at deployment, which is the other way to
+have no custody policy.
 
 **The identity gate has to be real.** MiningPool's chip check currently passes for
 any key someone previously registered, because ChipRegistry has no signature
@@ -93,9 +93,11 @@ build time, not after.
 
 ## 4. Sequence
 
-1. Move MiningPool ownership to a multi-signature wallet, or state publicly that
-   the key is destroyed and accept that the registry is frozen. Either is a
-   position; silence is not.
+1. Write down the ownership schedule for the next deployment: what is held, by
+   whom, behind what delay, and on what condition it is given up. The current
+   arrangement - everything renounced at deployment - was almost certainly
+   inherited from the script rather than chosen, and should not be repeated by
+   default.
 2. Write the ChipRegistry gate. Have it reviewed by someone who did not write it.
 3. Replace the JobProver verifying key, or remove that register from the
    published set until it is real.
