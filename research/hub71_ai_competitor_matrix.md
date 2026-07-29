@@ -99,7 +99,12 @@ parties.
 | Attestation | device identification through vendor serials and capability benchmarks | device secret plus sampled re-execution |
 | Failure mode addressed | operator misrepresenting hardware | operator misrepresenting work performed |
 | Connectivity assumption | node has an internet connection | node provides connectivity to others |
-| Token allocation | commonly includes founder, investor and treasury allocation | none of the three |
+| Token allocation | commonly includes founder, investor and treasury allocation | claim under review, see below |
+
+The allocation row is withdrawn from use pending W-INTL-30. A token deployed to
+Sepolia under this account carries a five-entry allocation block including keys
+named founder and treasury. Until it is established whether that token is the
+instrument the economics describe, this comparison cannot be made.
 
 The connectivity row is the differentiator most likely to be missed. Every
 comparable network assumes its nodes are already connected. This one is the

@@ -58,8 +58,8 @@ Verification levels, in decreasing strength:
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
 | E21 | Four proof types settle through one contract with seven checks | written | contract source | a settlement path that bypasses any check |
-| E22 | No premine, no venture allocation, no treasury | written | contract source, deployable and auditable | any allocation found in the deployed bytecode |
-| E23 | Contracts deployed to testnet | written | testnet deployment | absence of the deployment |
+| E22 | No premine, no venture allocation, no treasury | contradicted by a deployed artefact | the falsification test stated in this row was run on 2026-07-29 and the claim did not survive it. The token deployment record published at deploy/contracts/deployment-sepolia.json in gHashTag/trinity lists five allocations - founder, nodeRewards, community, treasury and liquidity - every one of them assigned to the deployer's own address, against a total supply of 10,460,353,203 tokens | already falsified against that artefact. It is resolved only by showing that the deployed token is not the settlement instrument this claim describes, or by a deployment whose allocation set is empty. See audit W-INTL-30 |
+| E23 | Contracts deployed to testnet | confirmed, third-party verifiable | token deployed to Sepolia, chain id 11155111, address 0xef368e29FA3aB2eaf02BccD05438ED3bafE9f469, recorded 2026-02-16 in deploy/contracts/deployment-sepolia.json in gHashTag/trinity; a second record exists for a local chain | the address returning no code on Sepolia. Note that this row and E22 describe the same artefact and disagree; see W-INTL-30 |
 | E24 | Mainnet settlement operates | conjecture | blocked: settlement requires device signatures that do not yet exist | see audit W-INTL-17; falsified or resolved by a transitional signing mode |
 | E25 | Three proof types operate today | written, software-signed | node daemon | the contract does not accept software signatures; see W-INTL-17 |
 
@@ -77,12 +77,14 @@ Verification levels, in decreasing strength:
 
 ## Summary
 
-  written      10 rows   (of which 3 external, 1 software-signed, 1 by design)
+  written       8 rows   (of which 3 external, 1 software-signed, 1 by design)
   hw            6 rows   (of which 1 loopback only, 1 negative)
   sim           3 rows
   modelled      2 rows
   refuted       2 rows
   test          2 rows   (1 of them independently reproduced by execution)
+  confirmed     1 row    (third-party verifiable on a public chain)
+  contradicted  1 row    (by a deployed artefact; see W-INTL-30)
   not built     1 row
   not measured  1 row
   conjecture    1 row

@@ -93,8 +93,15 @@ Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
 numeric catalog (arXiv:2606.09686), with an open reference implementation.
 
 Economics, written and audited. Four proof types, one settlement contract, seven
-checks. No premine, no venture allocation, no treasury. Nine halvings over forty
-years.
+checks. Nine halvings over forty years.
+
+[CLAIM-HELD] A sentence claiming no premine, no venture allocation and no
+treasury stood here. It is held back as of 2026-07-29 pending W-INTL-30: a token
+deployed to Sepolia under this account on 2026-02-16 carries a five-entry
+allocation block whose keys include founder and treasury. Either that token is
+not the instrument these economics describe, in which case say which one is, or
+the sentence is wrong. It is the most checkable sentence in this application and
+must not be restored until the artefact and the claim agree.
 
 Energy. Naive comparison against a general-purpose baseline suggests a large
 multiplier; the honest figure, accounting for memory traffic and system
@@ -146,8 +153,10 @@ Access Programme. The general route for pre-seed to Series A. Fits the framing u
 throughout this document, which leads with hardware and verifiable compute.
 
 Hub71+ Digital Assets. Fits the settlement layer, the four proof types and the
-allocation structure with no premine, no venture allocation and no treasury. It
-would foreground the economics rather than the hardware.
+allocation structure. It would foreground the economics rather than the hardware,
+which is also why W-INTL-30 has to be settled before this route is chosen: a
+Digital Assets committee reads allocation tables for a living and would find the
+Sepolia deployment first.
 
 Both close 21 August 2026. The choice determines which narrative leads, so it
 should be made before the remaining sections are written, not after.

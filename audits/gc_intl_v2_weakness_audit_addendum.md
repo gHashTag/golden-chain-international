@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-29
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-30
 
 Status: Wave-intl-2 draft, extends `audits/gc_intl_v1_weakness_audit.md`
 Rule basis: hard rule 10 - every unproven claim tagged with a falsification path.
@@ -371,18 +371,70 @@ runs to 206 of 206 passing, and an independent Xilinx-targeted synthesis emits n
 DSP primitive. That claim is now stronger than it was, by the same method that
 refuted the frequency. The method is not biased toward negative findings.
 
+## W-INTL-30  A deployed token contradicts the allocation claim
+
+Severity: critical, and the most exposed item in this file. The claim it
+contradicts is used as a differentiator in both the application and the
+competitor matrix, and the contradicting artefact is public, on a public chain,
+and reachable from this account.
+
+The claim, stated in three places: no premine, no venture allocation, no
+treasury. The competitor matrix goes further and contrasts this against networks
+that "commonly include founder, investor and treasury allocation" with the entry
+"none of the three".
+
+The artefact. deploy/contracts/deployment-sepolia.json in gHashTag/trinity
+records a token deployed to Sepolia, chain id 11155111, at address
+0xef368e29FA3aB2eaf02BccD05438ED3bafE9f469, dated 2026-02-16, with a total supply
+of 10,460,353,203 tokens. It carries an allocations block with five entries:
+founder, nodeRewards, community, treasury and liquidity. Every one of the five is
+set to the same address, which is also the deployer.
+
+Two of those keys are named exactly what the claim denies. The falsification
+condition written into the ledger row was "any allocation found in the deployed
+bytecode". That test has now been run against a deployment this account
+published, and the claim did not survive it.
+
+The benign reading, which may well be the correct one. This may be an early
+prototype token unrelated to the four-proof settlement instrument the economics
+describe, deployed in February on a throwaway testnet and never intended to be
+the thing. Nothing found so far rules that out. But nothing found so far says it
+either, and a reviewer will not assume it: they will find one deployed token
+under this account, read its allocation block, and stop.
+
+Why this outranks the rest. Every other finding in this file concerns a figure
+that was overstated or an artefact that was missing. This one is a live
+contradiction between a published artefact and a headline differentiator, in the
+subject area of the programme most likely to be chosen as the host, assessed by
+people who read token allocation tables for a living.
+
+Action, in order.
+
+1. Establish which contract the economic claims actually describe, and say so
+   explicitly wherever the claim appears. If the Sepolia token is not it, name
+   the instrument that is and state that the February token is superseded.
+2. If the Sepolia token is the instrument, the claim is false as written and must
+   be replaced by an accurate description of the allocation.
+3. Until one of those is done, do not repeat "no premine, no venture allocation,
+   no treasury" in any external document. It is the single most checkable
+   sentence in the application and it currently fails its own check.
+
+Closes when the deployed artefact and the claim agree, or when the claim is
+withdrawn.
+
 ---
 
 ## Priority order
 
-1. W-INTL-29  settled: a projection was published as a measurement
-2. W-INTL-28  a reviewer checks it first and, on present evidence, it fails
-3. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
-4. W-INTL-17  blocks the economics entirely
-5. W-INTL-23  largest credibility gain, hardware already present
-6. W-INTL-25  requires a third party, so start earliest
-7. W-INTL-26  cheap, high visibility, partly closed
-8. W-INTL-18  vocabulary discipline, no artefact change required
+1. W-INTL-30  a published artefact contradicts a headline differentiator
+2. W-INTL-29  settled: a projection was published as a measurement
+3. W-INTL-28  a reviewer checks it first and, on present evidence, it fails
+4. W-INTL-27  everything else is scheduled against it; partly closed, one decision left
+5. W-INTL-17  blocks the economics entirely
+6. W-INTL-23  largest credibility gain, hardware already present
+7. W-INTL-25  requires a third party, so start earliest
+8. W-INTL-26  cheap, high visibility, partly closed
+9. W-INTL-18  vocabulary discipline, no artefact change required
 
 W-INTL-16 was third in the previous order and is now closed; see its entry above.
 
@@ -399,5 +451,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-25 | open, requires a third party |
 | W-INTL-26 | partly closed, README corrected |
 | W-INTL-27 | partly closed, host programme still to choose |
-| W-INTL-28 | open, critical, claim pulled from the application pending an artefact |
+| W-INTL-28 | closed by artefact search; score removed, withdrawal record substituted |
 | W-INTL-29 | open, critical, refuted as stated; figure removed from the application |
+| W-INTL-30 | open, critical, deployed artefact contradicts the allocation claim |
