@@ -8,13 +8,34 @@ Purpose. A reviewer should not have to trust a summary. Each row states what is
 claimed, where the evidence lives, and what would falsify it. Rows that cannot
 be supported are listed as such rather than omitted.
 
-Verification levels, in decreasing strength:
+Verification levels. Every level used in the table below is defined here; an
+earlier version of this legend listed five while the table used twelve, which
+left a reader meeting terms that were never explained.
 
-  hw          measured on physical hardware, artefact recorded
-  test        passing automated test, reproducible from the repository
-  sim         simulation or model only, not run on hardware
-  written     specified or implemented but not executed in its target context
-  conjecture  [Open conjecture] per hard rule 10, falsification path stated
+Supporting, in decreasing strength:
+
+  hw            measured on physical hardware, artefact recorded
+  confirmed     verifiable by a third party without the applicant's cooperation
+  test          passing automated test, reproducible from the repository
+  written       specified or implemented but not executed in its target context
+  modelled      derived from a model whose assumptions are stated
+  sim           simulation only, not run on hardware
+
+Non-supporting, and deliberately kept in the table:
+
+  not built     the thing described does not exist yet
+  not measured  it exists but the quoted figure was estimated, not measured
+  partial       holds under some conditions and fails under others, both named
+  undefined     the claim has no metric, so it cannot yet be true or false
+  conjecture    [Open conjecture] per hard rule 10, falsification path stated
+  refuted       the falsification test written into the row was run, and the
+                claim failed it
+
+Qualifiers may follow a level after a comma - "hw, loopback only", "hw, negative",
+"test, independently reproduced" - and narrow it rather than change it.
+
+A row may carry only the level its artefact supports. Where the two disagreed,
+the level was lowered rather than the artefact restated.
 
 ---
 
@@ -22,10 +43,10 @@ Verification levels, in decreasing strength:
 
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
-| E1 | Authenticated encryption runs on the node CPU | hw | 534,604-byte static ARM binary, sha256 recorded, exit code 0, 2026-07-01 | rebuild from source produces a different hash, or a non-zero exit on device |
+| E1 | Authenticated encryption runs on the node CPU | hw, reproduced | two on-device runs on two different boards: 2026-07-01 on a P201Mini with a 534,604-byte static ARM binary, and 2026-07-04 on board-1 with its own binary. Each has its sha256 recorded and exited zero | rebuild from source produces a different hash, or a non-zero exit on device. A single passing run would not have been enough for this level |
 | E2 | Radio front end tunes to 5.8 GHz | hw | LO 5.8 GHz, FFT peak +0.999 MHz, 30.72 MHz sample rate, 65,536 samples | re-run of the capture fails to place the tone within tolerance |
 | E3 | Signal is 108.6 dB over the noise floor | hw, loopback only | digital loopback capture | any restatement of this figure as an over-the-air result is a claim error, not a measurement error |
-| E4 | Three mesh nodes are physically connected | hw | assembled and powered, 2026-07-04 | photograph or inventory showing fewer than three |
+| E4 | Three mesh nodes are physically connected | written | the upstream status table records this as hardware, but the evidence it cites is an operator confirmation dated 2026-07-04, not a photograph, an inventory record or a device enumeration. An operator confirmation is the applicant asserting it, which is what every other row in this table avoids | a photograph or inventory showing fewer than three. Upgrades to hw the moment a dated photograph with the three boards visible exists, which is five minutes of work |
 | E5 | Multi-hop IP routing with link-cost metric | sim | Rust unit tests | not yet falsifiable on hardware; run M2 on device |
 | E6 | Throughput sustained across two hops | sim | not run | run M3 with bench attenuators |
 | E7 | Three-node triangle shares one uplink | sim | not run | this is the P2 gate; run M4 |
@@ -77,8 +98,8 @@ Verification levels, in decreasing strength:
 
 ## Summary
 
-  written       7 rows   (of which 3 external, 1 software-signed, 1 by design)
-  hw            6 rows   (of which 1 loopback only, 1 negative)
+  written       8 rows   (of which 3 external, 1 software-signed, 1 by design)
+  hw            5 rows   (of which 1 reproduced, 1 loopback only, 1 negative)
   refuted       3 rows
   sim           3 rows
   modelled      2 rows

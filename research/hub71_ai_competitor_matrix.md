@@ -5,9 +5,11 @@ Scope: the AI-infrastructure landscape this application competes in. The mesh
 and decentralised-infrastructure competitor work lives in the mesh repository;
 this file covers the compute and verification axes that an AI track will weigh.
 
-Figures marked [PUB] are taken from the cited publication. Figures marked [EST]
-are derived from device data and design structure, not measured. No [EST] figure
-may be presented as a result.
+Figures marked [PUB] are taken from the cited publication and the citation has
+been chased to an identifier. Figures marked [EST] are derived from device data
+and design structure, not measured; no [EST] figure may be presented as a result.
+Figures marked [UNVERIFIED] carry a citation that was not resolved to a paper, and
+must not be quoted outside this file until it is.
 
 ---
 
@@ -17,14 +19,23 @@ may be presented as a result.
 |---|---|---|---|---|---|
 | Reference edge accelerator v1 | AMD Kria KV260, Zynq UltraScale+ XCK26 | 9.51 tok/s [PUB] | under 7 W | 1.36 | arXiv:2504.16266 |
 | Reference edge accelerator v2 | same board | 25 tok/s [PUB] | 5 W | 5.00 | arXiv:2510.15926 |
-| High-end FPGA, small model | datacentre-class board | 16,300 tok/s [PUB] | 46 W | 354 | TerEffic, 2025 |
-| High-end FPGA, larger model | same, with high-bandwidth memory | 727 tok/s [PUB] | 46 W | 15.8 | TerEffic, 2025 |
-| Dedicated silicon | custom die | not comparable | 4.69 mW [PUB] | n/a | ISSCC 2025 |
+| High-end FPGA, small model, fully on-chip | datacentre-class board | 16,300 tok/s [PUB] | about 36 W, implied | 455 [PUB] | arXiv:2502.16473 |
+| High-end FPGA, larger model | same, with high-bandwidth memory | 727 tok/s [PUB] | 46 W [PUB] | 16 [PUB] | arXiv:2502.16473 |
+| Dedicated silicon | custom die | not comparable | 4.69 mW [UNVERIFIED] | n/a | ISSCC 2025, no identifier recorded |
 | Trinity, one node | mature-node bench board | 13.7 tok/s [EST] ceiling | 6 W [EST] | 2.29 | this work |
 
+Correction, 2026-07-29. An earlier version of this table cited the on-chip
+TerEffic row at 46 W and computed 354 tok/s per watt for it. The paper reports
+455 tok/s per watt for that configuration; 46 W belongs to the other row, the
+HBM-assisted one. The error understated a competitor by about a fifth, in the
+direction that flattered this project, and it was found only when the citation
+was chased to its identifier. Both rows now carry arXiv:2502.16473 so the figures
+can be checked rather than taken from a bare name and a year.
+
 Reading. On throughput per watt Trinity is below the current edge state of the
-art by more than a factor of two, and the figure quoted is a memory-bandwidth
-ceiling rather than a benchmark, so a measured result will be lower.
+art by more than a factor of two, and two orders of magnitude below the on-chip
+datacentre-class design. The figure quoted for Trinity is a memory-bandwidth
+ceiling rather than a benchmark, so a measured result will be lower still.
 
 The application must not claim an efficiency advantage. The numbers do not
 support it and the comparison is public.
