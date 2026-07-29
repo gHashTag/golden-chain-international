@@ -197,9 +197,12 @@ Reproduced by execution rather than by reading:
   who makes the same mistake will otherwise conclude that the catalog is
   misdescribed.
 
-Not confirmed: 4,463 lines of Rust. The public mesh repository contains 6,181
-lines under src and 18,708 in total, so the figure matches nothing currently
-visible and is presumed to be a stale count of a repository that is not public.
+Confirmed on re-examination: 4,463 lines of Rust. An earlier pass here reported
+that the figure matched nothing visible, having counted raw lines including blanks
+and generated code. Counted the way such a figure is normally stated - source
+lines under src, excluding blank and comment-only lines - the mesh repository
+gives 4,370. The claim is sound and the earlier check used the wrong instrument;
+see audit W-INTL-32.
 
 Refuted: see E10 and audit W-INTL-29.
 

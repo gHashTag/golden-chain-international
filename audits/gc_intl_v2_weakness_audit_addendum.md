@@ -1,14 +1,14 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-31
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-32
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
 through 25 after them.
 
-Status: Wave-intl-2. Named an addendum because it was drafted as one, but the file
-it says it extends, `audits/gc_intl_v1_weakness_audit.md`, does not exist and was
-never written. The numbering therefore starts at 16 for historical reasons only.
-Fifteen findings were not invented to fill the gap; the reference is recorded as
-dangling instead. See `plan/wave_intl_decomposed_plan.md`.
+Status: Wave-intl-2. The predecessor this extends is
+`paper3-rossiya30-troica/research/weak_spots_registry.md` in gHashTag/trinity-papers-ru,
+a Russian-language registry running W1 to W18. That is why the numbering here
+starts at 16. An earlier version of this header said the predecessor had never
+been written; that was wrong, and W-INTL-32 records why the search missed it.
 
 Rule basis: hard rule 10 - every unproven claim tagged with a falsification path.
 
@@ -486,6 +486,44 @@ the prose implies.
 Action: state which registers are in use and that the bank is larger. Closes when
 the mapping from the four named arms to their register indices is written down.
 
+## W-INTL-32  Four claims in this audit were false, all from the same method error
+
+Severity: high, and it is a finding about this document rather than about the
+project.
+
+On 2026-07-29 four separate conclusions in this audit turned out to be wrong. Each
+was an assertion of absence, and each came from a search that failed rather than
+from a thing that was missing.
+
+| Claim made here | What is actually true |
+|---|---|
+| No settlement contract exists | gHashTag/trinity-contracts holds MiningPool, EmissionController, ChipRegistry, JobProver and TriToken, deployed to Base Sepolia with recorded addresses |
+| The allocation claim is refuted by a deployed token | TriToken mints its whole supply to MiningPool and renounces ownership; the token that carries a founder split is a superseded one |
+| The figure of 4,463 lines of Rust matches nothing visible | tri-net's src directory is 4,370 lines once blanks and comment-only lines are excluded, which is the convention such a figure normally uses |
+| The v1 weakness audit was never written | it exists as a Russian-language registry of W1 to W18 in gHashTag/trinity-papers-ru |
+
+The common shape. In every case a search was run, returned nothing, and the
+nothing was reported as a fact. The searches failed for ordinary reasons: the
+wrong directory, a contract named MiningPool rather than anything containing the
+word settlement, a line count taken raw when the claim used source lines, and a
+repository name searched for when the content was a directory inside another
+repository.
+
+Why it matters more than the individual corrections. This audit's authority rests
+on the idea that a claim without a locatable artefact should be distrusted. That
+principle is sound, but it silently assumes the search was competent. Four times
+it was not, and the resulting false negatives were stated with the same confidence
+as the true ones. A reader had no way to tell which was which.
+
+Standing rule adopted from this. An assertion of absence must record how the
+search was run, so a reader can judge whether it was capable of finding the thing.
+Where that record is missing from an earlier entry, the entry states absence
+weakly - not found by this method - rather than as fact.
+
+Directly affected and already corrected: W-INTL-30, and ledger rows E21, E22, E23.
+Still resting on absence and therefore still to be re-examined with a better
+method: W-INTL-29 on the timing report, and E20 on the energy derivation.
+
 ---
 
 ## Priority order
@@ -519,3 +557,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-29 | open, critical, refuted as stated; figure removed from the application |
 | W-INTL-30 | corrected; the claim holds and this entry was wrong |
 | W-INTL-31 | open, low; register bank wider than the prose |
+| W-INTL-32 | open, high; four false negatives from failed searches, method rule adopted |

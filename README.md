@@ -12,9 +12,10 @@
 ## Scope
 
 This repository holds the **international, ASCII-only, English-first, state-rhetoric-free** edition of the
-trust-first computing work. An earlier draft described it as a derivative of a Russian-language origin
-repository; that repository is not public and the derivation cannot be checked, so the claim is withdrawn
-and this edition stands on its own sources. It packages the trust-first computing thesis
+trust-first computing work, derived from the Russian-language `paper3-rossiya30-troica` edition, which lives
+as a directory inside [`gHashTag/trinity-papers-ru`](https://github.com/gHashTag/trinity-papers-ru) rather than
+as a repository of its own. An earlier draft of this README withdrew the derivation claim after searching for a
+repository of that name and finding none; the search was wrong, not the claim. It packages the trust-first computing thesis
 (GoldenFloat + TRI-27 + Trinity Provenance) as an international policy chapter and as a compliance whitepaper
 for a Hub71 Cohort 20 submission.
 
@@ -43,14 +44,14 @@ Status is stated per file so that a reader is never sent to something that is no
 - `plan/wave_intl_decomposed_plan.md` — sixteen gates, each with the check that closes it
 
 **Wave-intl-1 — never written, and not being reconstructed.** The five files this
-README used to list as deliverables do not exist. The Russian-language origin repository
-they were to be derived from is not public, so there is nothing to translate. Rather than invent their content, the two that
+README used to list as deliverables do not exist. The Russian-language origin does exist, as a
+directory inside `trinity-papers-ru`, so translation is possible; it has simply not been done. Rather than invent their content, the two that
 were genuinely needed have been written directly and are listed above; the rest are
 withdrawn from the list.
 
 - `paper/golden_chain_international.md` — not written. An 8-section international edition needs source material that does not exist in this repository.
 - `paper/hub71_compliance.md` — not written. Its intended content now lives in `paper/hub71_form_answers.md` and `plan/submission_checklist.md`; writing a third document that says the same thing would create a fourth place for the numbers to disagree.
-- `audits/gc_intl_v1_weakness_audit.md` — not written. The Wave-intl-2 addendum names it as the file it extends; that reference is dangling and is marked as such in the addendum itself.
+- `audits/gc_intl_v1_weakness_audit.md` — not written under this name, and not needed. The predecessor it stands for exists: `paper3-rossiya30-troica/research/weak_spots_registry.md` in `trinity-papers-ru`, a Russian-language registry of W1..W18. That is why the addendum numbering starts at 16.
 
 ## Hard rules
 
