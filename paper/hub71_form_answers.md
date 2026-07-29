@@ -86,6 +86,17 @@ reward.
 The honest boundary is that this defends the buyer against the operator. It does
 not defend anyone against the model.
 
+One consequence we would rather state than be asked about. Sampled re-execution
+needs work that can be re-run and compared. Transport, coverage and sensing are
+deterministic given their recorded inputs, so a mismatch is unambiguous. Inference
+is not: temperature, sampling policy and reduction order all move the output, so
+comparing two honest runs bit-for-bit fails and comparing them loosely lets a
+dishonest one through. Our position is to pin determinism in the job specification
+for settled inference - fixed seed, fixed temperature, named reduction order - and
+to say plainly that the published sampling and stake parameters apply to work that
+is reproducible by construction. A network that settles deterministic jobs
+honestly is worth more than one that settles every job ambiguously.
+
 ## Product
 
 Mesh, on hardware. Three nodes assembled, powered, and passing verified

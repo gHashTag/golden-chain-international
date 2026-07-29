@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-33
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-34
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -602,11 +602,90 @@ nobody is running, while identity and input integrity - the attacks that pay - a
 left assumed. A design that starts from identity and economics is aimed at the
 right target, and can say so with a citation rather than an assertion.
 
-Residual, and it stays open. Sampled re-execution assumes the work is
-deterministic enough to re-run and compare. Sampling policy, temperature and
-hardware non-determinism all weaken that assumption, and no document here has
-specified how a re-execution is judged to match. That is the next real question,
-and it should be written down before anyone asks it.
+Residual, addressed 2026-07-29. Sampled re-execution assumes the work can be
+re-run and compared. That assumption holds for three of the four arms and not for
+the fourth, and the honest design consequence is to say so rather than to average
+over it.
+
+Transport, coverage and sensing are deterministic given their recorded inputs. A
+packet count, a position and time, a spectrum snapshot: re-execution is a
+comparison of recorded values against a re-derivation, and a mismatch is
+unambiguous. Sampled re-execution works for these as written.
+
+Inference is not deterministic in general. Temperature, sampling policy, batching
+order and hardware reduction order all move the output. Comparing two runs
+bit-for-bit will fail for honest operators, and comparing them loosely will pass
+for dishonest ones. Three routes exist and the choice has to be made explicitly:
+
+1. Pin determinism in the job specification. Temperature zero, a fixed seed, a
+   fixed batch shape, a named reduction order. The job becomes reproducible by
+   construction and re-execution compares exactly. The cost is that the network
+   can only settle work whose caller accepts those constraints.
+2. Compare distributions rather than tokens. Re-run and check that the returned
+   logits lie within a tolerance of the re-derived ones. This admits sampling but
+   requires the operator to return logits, and the tolerance becomes a parameter
+   an adversary will probe.
+3. Do not settle inference by re-execution at all. Use it for the three
+   deterministic arms and settle inference against a different mechanism, which is
+   where a proof system would earn its cost.
+
+Recommendation is the first for now, because it is the only one that can be
+specified today without new cryptography, and because a network that settles
+deterministic jobs honestly is more useful than one that settles all jobs
+ambiguously.
+
+What must not happen is the current state: an economic assurance model quoted with
+its sampling rate and stake multiple, applied to four arms, one of which cannot be
+compared. The parameters are meaningless for that arm until the comparison rule
+exists.
+
+## W-INTL-34  Two of the five deployed contracts are scaffolds, and one of them is the identity root
+
+Severity: high. Deploying scaffolds to a testnet for bring-up is ordinary
+engineering. Describing the deployment as implementing device identity is not,
+and the application was heading that way.
+
+Found by reading the source on 2026-07-29 rather than the deployment record.
+
+ChipRegistry does not verify anything. `registerChip` is external, has no access
+control and no signature check. It takes a 32-byte key, a family in the range one
+to three, and a value that must equal the contract's own public constant
+PHI_ANCHOR. Anyone who has read the contract can supply all three. The contract's
+own comment says the intended gate is an off-chain challenge and response, and
+that this minimal registry does not implement it.
+
+The consequence reaches MiningPool. Its settlement path checks that the submitting
+chip is registered. That check passes for any key someone previously self-declared,
+so it establishes that a registration transaction happened, not that hardware
+exists. The device-identity property that the whole attestation argument rests on
+is, in the deployed contracts, a bookkeeping entry.
+
+JobProver cannot verify a proof either. Its Groth16 verifying key is a placeholder,
+labelled as such in the source, with the first two constants set to 1 and 2. Those
+are not the output of a trusted setup. The zero-knowledge proof register is
+deployed and inert.
+
+What this does not mean. The settlement logic is real and the checks around these
+two - era matching, nullifier replay protection, register caps, supply that cannot
+be inflated - work as written. The economics are further along than the audit
+previously credited. But two of the five contracts are frames waiting for their
+contents, and one of them is the one the thesis leans on.
+
+Action.
+
+1. Say which contracts are functional and which are bring-up scaffolds, in the
+   application and in the repository README. A reviewer who opens ChipRegistry
+   before being told will conclude something worse than the truth.
+2. Do not describe device identity as implemented. It is designed, deployed as an
+   interface, and not yet enforced.
+3. Write the off-chain challenge and response, or state what gates registration in
+   its absence. Until then MiningPool's chip check is a formality and should be
+   described as one.
+4. Replace the placeholder verifying key before any external party is invited to
+   submit a zero-knowledge proof.
+
+Closes when each deployed contract is described at the level it actually operates,
+and the identity gate either exists or is stated as absent.
 
 ---
 
@@ -643,3 +722,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-31 | open, low; register bank wider than the prose |
 | W-INTL-32 | open, high; four false negatives from failed searches, method rule adopted |
 | W-INTL-33 | answered; scope conceded, target defended, one residual open |
+| W-INTL-34 | open, high; identity registry and proof verifier are deployed scaffolds |
