@@ -19,6 +19,8 @@ long document will miss again. Each check is cheap and deterministic.
      promising them.
   7. Structural checks on the audit: entries in numeric order, each with a
      severity line, and a status table listing every entry.
+  8. Structural checks on the competitor matrix: every quantitative row carries a
+     provenance marker, and every [PUB] row names a citation that can be chased.
 
 A note on testing this file. Negative controls must be written with the same care
 as the checks. Two of them here failed to fire not because a check was weak but
@@ -237,6 +239,42 @@ def check_audit_structure(audit_text):
         )
 
 
+def check_matrix_markers(matrix_text):
+    """Rows in the competitor tables quote figures for third parties and for this
+    project. Each such figure must carry a provenance marker, and a [PUB] marker
+    must name a source that can be chased. An unmarked figure in a comparison
+    table is how a competitor came to be understated by a fifth."""
+    markers = ("[PUB]", "[EST]", "[UNVERIFIED]")
+    in_table = False
+    for line in matrix_text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            in_table = False
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) < 4:
+            continue
+        if set("".join(cells)) <= set("-: "):
+            in_table = True          # separator row: the table has begun
+            continue
+        if not in_table:
+            continue
+        # A throughput or power figure is a cell holding a number with a unit.
+        quantitative = [c for c in cells
+                        if re.search(r"\d", c) and re.search(r"tok/s|\bW\b|mW|bits per byte|percent", c)]
+        if not quantitative:
+            continue
+        if not any(m in stripped for m in markers):
+            notes.append(
+                f"matrix: quantitative row without a provenance marker: "
+                f"{cells[0][:44]!r}"
+            )
+        if "[PUB]" in stripped and not re.search(r"arXiv:\d|ISSCC|TerEffic|\d{4}", stripped):
+            notes.append(
+                f"matrix: [PUB] row without a chaseable citation: {cells[0][:44]!r}"
+            )
+
+
 def check_references_resolve(paths):
     """A reference to a file that does not exist is a defect unless the same
     line says so. Documents here deliberately name unwritten files in order to
@@ -275,6 +313,8 @@ def main():
     check_figures_agree(docs)
     if AUDIT.exists():
         check_audit_structure(AUDIT.read_text())
+    if MATRIX.exists():
+        check_matrix_markers(MATRIX.read_text())
     check_references_resolve([p for p, _ in docs])
 
     for note in notes:

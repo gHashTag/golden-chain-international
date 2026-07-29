@@ -148,7 +148,11 @@ contribution here is registry filling: a vendor-neutral reference with bit-exact
 conformance vectors, so that a format named in a datasheet means the same thing in
 two places. We do not claim our format family beats posit or microscaling formats,
 and on the one controlled comparison we have run it does not - see the ablation
-above, where a standard 8-bit format matched full precision and ours did not. That
+above, where a standard 8-bit format matched full precision and ours did not. We
+have since found that comparison is not implementation-symmetric: the reference arm
+uses a native cast while ours is emulated, so part of the gap may be our emulation
+rather than our format. We are separating the two before we say anything more
+about it, and we are not claiming the gap away in the meantime. That
 result is about 8-bit training and says nothing either way about the ternary case,
 which is where the design actually operates and which we have not yet measured the
 same way.

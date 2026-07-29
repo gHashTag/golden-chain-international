@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-39
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-40
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -753,6 +753,12 @@ Carried forward from predecessor entry W3, which recorded that advantage over
 posit and microscaling formats was unproven. It is worse than unproven: there is
 now a measurement pointing the other way.
 
+Qualification added 2026-07-29: per W-INTL-40 the comparison below is not
+implementation-symmetric. The reference arm uses a native cast; the project's arm
+uses a hand-rolled emulation with a saturation defect and no subnormals. Part of
+the gap may be emulation error. The finding stands as a reason not to claim
+superiority, and no longer as a measured defeat.
+
 The evidence, from this project's own ablation. In quantisation-aware training on
 a 29.4M-parameter model over 2000 steps, three seeds, disjoint train and
 validation shards, with a significance threshold of 0.005 BPB fixed in advance:
@@ -934,6 +940,65 @@ Action.
 
 Closes when no external document calls this figure a signal-to-noise ratio.
 
+## W-INTL-40  The ablation that disfavours our own format may be biased against it
+
+Severity: medium, and it runs the opposite way from every other entry in this
+file. Recorded with the same weight regardless.
+
+W-INTL-36 reports that the project's 8-bit format lost a controlled comparison
+against an industry-standard one. Reading the ablation source rather than its
+result shows the comparison is not symmetric, and the asymmetry disadvantages the
+project's own arm.
+
+All three quantised arms share the same per-row absolute-maximum scaling, which is
+fair. What differs is how the format itself is applied.
+
+The reference arm casts to a native 8-bit floating-point type provided by the
+framework. That cast does correct round-to-nearest-even and handles subnormal
+values in hardware or in a tested library path.
+
+The project's arm and the third arm are hand-rolled emulations built from a
+floor-of-log2, a mantissa rounded on a fixed grid, an exponent clamped into range,
+and a flush of small magnitudes to zero. Two consequences follow that the native
+cast does not suffer.
+
+First, on saturation the exponent is clamped while the mantissa is computed from
+the unclamped exponent, so the reconstructed value no longer corresponds to either.
+A correct implementation saturates to the format maximum; this one produces a value
+that is neither the input nor the saturated representable.
+
+Second, there are no subnormals. Magnitudes below the smallest normal are set to
+zero, while the reference format represents them. Near zero is exactly where
+weights concentrate, and straight-through training is sensitive there.
+
+So part of the reported degradation may be emulation error rather than format
+error, and the size of that part is unknown because it has not been separated.
+
+This does not overturn W-INTL-36. The result may survive a correct implementation,
+and the mechanism hypothesis offered in the ablation - that a narrow exponent range
+restricts weight dynamics during training - is plausible and independent of the
+defects above. What it does mean is that the negative result is not yet safe to
+lean on in either direction.
+
+Also noted, and it is sound. The run carries an anomaly gate that quarantines
+results below a floor, added after an earlier data-leakage bug produced an
+impossible score. The gate can only discard implausibly good results, which is the
+conservative direction, and its existence is disclosed in the published record.
+
+Action.
+
+1. Separate emulation error from format error. Quantise a fixed tensor with the
+   hand-rolled path and with a reference implementation of the same format, and
+   report the difference. If it is small the result stands as published.
+2. Fix the saturation path so the mantissa is recomputed from the clamped
+   exponent, and decide explicitly whether the format has subnormals.
+3. Re-run the arm afterwards. Until then W-INTL-36 should say the format lost a
+   comparison whose implementation was not symmetric, which is a weaker and truer
+   statement.
+
+Closes when the emulation is validated against a reference or the arm is re-run
+with a corrected one.
+
 ---
 
 ## Priority order
@@ -975,3 +1040,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-37 | partly closed; computed as far as the missing unit price allows |
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |
+| W-INTL-40 | open, medium; the ablation may be biased against our own format |
