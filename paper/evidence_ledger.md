@@ -88,7 +88,7 @@ the level was lowered rather than the artefact restated.
 
 | # | Claim | Level | Artefact | Falsified by |
 |---|---|---|---|---|
-| E26 | Attestation is rooted in the device, not a vendor enclave | written | mesh node part carries a bitstream signature scheme | demonstration that the trust path depends on a third-party enclave |
+| E26 | Attestation is rooted in the device, not a vendor enclave | conjecture | the mesh node part carries a bitstream signature scheme, and that remains true, but the scheme has a published bypass: a first-stage boot loader flaw defeating RSA authentication on this part family, with a practical bitstream recovery demonstrated (USENIX WOOT 2024). The bypass is fixable in boot loader software; whether the deployed loader carries the fix has not been checked | demonstration that the trust path depends on a third-party enclave, or confirmation that the deployed boot loader is unpatched. Tagged per hard rule 10 until the loader is checked. See audit W-INTL-19 |
 | E27 | Compute boards are a bench tier, not the trust anchor | written, by design | documented separation | any settlement path accepting a signature from the bench tier |
 | E28 | Hardware class can be proven by response deadline | refuted | a native optimised software implementation completes the sequential work faster than the target device | already falsified; retained so the idea is not reintroduced |
 | E29 | Hardware class can be narrowed by parallel-width challenge | partial | model | separation holds against a general-purpose processor and fails against a many-lane accelerator |

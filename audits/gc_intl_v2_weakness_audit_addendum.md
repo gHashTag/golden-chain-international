@@ -1,5 +1,9 @@
 # Weakness Audit Addendum: W-INTL-16 .. W-INTL-30
 
+Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
+appended where they were written rather than where they belong, which put 19
+through 25 after them.
+
 Status: Wave-intl-2. Named an addendum because it was drafted as one, but the file
 it says it extends, `audits/gc_intl_v1_weakness_audit.md`, does not exist and was
 never written. The numbering therefore starts at 16 for historical reasons only.
@@ -57,9 +61,9 @@ started rather than a bug in work delivered. The severity stays critical because
 the constraint is real and shapes what can be built; the framing changes because a
 reviewer told that a contract requires something will look for the contract.
 
-The design note requires device signatures and a unique hardware
-fingerprint among its checks. A design note states that any reward path
-settling without a valid device signature is a protocol violation. Together
+The design note requires device signatures and a unique hardware fingerprint
+among its checks, and states that any reward path settling without a valid device
+signature is a protocol violation. Together
 these mean that no proof type can settle on mainnet until dies exist - including
 the three arms described elsewhere as operating today. Software-signed operation
 does not close this: the contract will not accept those signatures.
@@ -118,68 +122,50 @@ Tiny Tapeout work, custom die for the funded path - and never let a claim about 
 carry over to the other. Closes when no external document uses an unqualified
 silicon to span both.
 
-## W-INTL-26  Two of six public cross-references are unreachable to a reviewer
+## W-INTL-19  Both tiers have published bitstream attacks, and the difference between them is not the one stated  [REVISED 2026-07-29]
 
-Severity: high. Costs a reviewer thirty seconds to find and reads as carelessness.
+Severity: raised from medium to high. The entry as originally written drew a
+distinction that the literature does not support, and the distinction was
+load-bearing for the attestation claim.
 
-The Cross-references section of the public README listed six repositories. Checked
-anonymously on 2026-07-29, which is the view an external reader gets:
+What was written. The bench-tier part has a published full break of its bitstream
+encryption, and unlike its system-on-chip siblings carries no public-key
+signature scheme. That much is correct: the break is STARBLEED, Ender, Moradi and
+Paar, USENIX Security 2020, "The Unpatchable Silicon: A Full Break of the
+Bitstream Encryption of Xilinx 7-Series FPGAs". Artix-7 is a 7-Series part, the
+attack is low-cost, and the vendor's own position is that it cannot be patched in
+silicon.
 
-- gHashTag/paper3-methodology, tt-trinity-corona, t27, trios-mcp-rag - reachable.
-- gHashTag/goldenfloat-preprint - private, returns 404 to an external reader,
-  while being cited as the home of arXiv:2606.05017.
-- gHashTag/paper3-rossiya30-troica - does not exist, returns 404.
+What was wrong. The implication that the mesh tier is unaffected. Zynq-7000
+contains 7-Series programmable logic. The vendor advisory did claim resistance,
+on the grounds that authentication in the boot process runs before configuration
+is used. That claim has since been broken in public: Ravi and others, USENIX WOOT
+2024, "Achilles Heel in Secure Boot: Breaking RSA Authentication and Bitstream
+Recovery from Zynq-7000 SoC", also IACR eprint 2023/1913. They report a flaw in
+the first-stage boot loader that bypasses RSA authentication outright, and the
+first practical STARBLEED recovery of a decrypted bitstream from an AES-256
+encrypted boot image on Zynq-7000.
 
-The second of these carries weight beyond a broken link. The Scope section defines
-this repository as the international derivative of that Russian-language origin. If
-the origin is not public, the derivation cannot be checked, and the four Wave-intl-1
-deliverables that were to be derived from it have no source.
+The real difference, and it does survive. The bench-tier break is in silicon and
+unpatchable; the mesh-tier bypass is in first-stage boot loader software and is
+fixable by changing that software. So the tiers are not equivalent, but the
+separation rests on patchability rather than on one part being sound. That is a
+weaker and more defensible statement than the one it replaces.
 
-Action: taken in part. The README now marks both as unreachable and states that
-Wave-intl-1 will be written directly rather than translated. Closes fully when
-either the repositories are published under the stated names, or the references are
-replaced by artefacts that resolve - the arXiv identifier in place of the preprint
-repository, and a plain statement of origin in place of the missing one.
+Action.
 
-## W-INTL-27  The submission target was misdescribed and the deadline was wrong
+1. State the mesh-tier position accurately wherever the trust anchor is
+   described. A part with a signature scheme that has a published, fixable bypass
+   is not the same as a part with an intact one, and a security-literate reviewer
+   will know the difference.
+2. Establish whether the deployed first-stage boot loader carries the fix. This is
+   checkable and has not been checked. Until it is, the attestation root is
+   [Open conjecture] per hard rule 10.
+3. Keep the tier separation, but justify it by patchability rather than by
+   presence or absence of a scheme.
 
-Severity: critical for scheduling. Found by reading hub71.com rather than the repository.
-
-Two premises behind this work were wrong, and both were load-bearing.
-
-Hub71+ AI is not a standalone application track. It is a specialist ecosystem
-entered by answering an AI question inside whichever programme form is chosen -
-Access Programme, Hub71+ Digital Assets, Hub71+ ClimateTech, Hub71+ Life Sciences,
-Initiate, SAVI, Sandbox, or ECA Anjal Z. Documents headed as answers to a Hub71+ AI
-track therefore describe a form that does not exist on its own. The two AI questions
-they contain are real and correctly reproduced; what is missing is the choice of
-host programme, which is still open and is a decision for the applicant.
-
-The deadline in the README was 2 August 2026. The Access Programme page and the
-Hub71+ Digital Assets page both state 21 August 2026 for Cohort 20, with the
-programme starting February 2027. Checked 2026-07-29. Planning built on 2 August
-compressed a twenty-three day runway into four.
-
-Action: taken. The README now states the verified deadline and the ecosystem model.
-Remaining: choose the host programme, and re-title the answers file once chosen.
-Closes when one programme is named and the answers are aligned to that form.
-
-## W-INTL-19  Bench-tier part has no bitstream signature scheme and broken encryption
-
-Severity: medium for the product, high if the bench tier is ever described as a
-trust anchor.
-
-The compute boards use a part whose bitstream encryption has a published full
-break (USENIX Security 2020) and which, unlike its system-on-chip siblings,
-carries no public-key bitstream signature scheme. Design confidentiality on
-those boards cannot be assumed under physical access.
-
-Action: keep the documented separation between mesh tier and bench tier explicit
-in every external document. Never let a settlement path accept a bench-tier
-signature.
-
-Closes when the separation is stated in the whitepaper and enforced in the
-contract's accepted-signer set.
+Closes when the boot loader is confirmed patched and the external description
+matches. Never let a settlement path accept a bench-tier signature regardless.
 
 ## W-INTL-20  Factory device identifiers are not unique
 
@@ -253,6 +239,55 @@ Action: a named local hiring plan is mandatory in the application text, not
 optional. A letter of intent from one operator converts the submission from a
 technology case into a commercial one and is the highest-value item obtainable
 before the deadline.
+
+## W-INTL-26  Two of six public cross-references are unreachable to a reviewer  [CLOSED 2026-07-29]
+
+Severity: high. Costs a reviewer thirty seconds to find and reads as carelessness.
+
+The Cross-references section of the public README listed six repositories. Checked
+anonymously on 2026-07-29, which is the view an external reader gets:
+
+- gHashTag/paper3-methodology, tt-trinity-corona, t27, trios-mcp-rag - reachable.
+- gHashTag/goldenfloat-preprint - private, returns 404 to an external reader,
+  while being cited as the home of arXiv:2606.05017.
+- gHashTag/paper3-rossiya30-troica - does not exist, returns 404.
+
+The second of these carries weight beyond a broken link. The Scope section defines
+this repository as the international derivative of that Russian-language origin. If
+the origin is not public, the derivation cannot be checked, and the four Wave-intl-1
+deliverables that were to be derived from it have no source.
+
+Closed. Every repository link in the README now returns HTTP 200 to a logged-out
+request, checked that way rather than from an authenticated session. The private
+preprint repository is cited by its arXiv identifier instead, which resolves for
+anyone. The Scope claim that this edition derives from a Russian-language origin
+is withdrawn: the origin is not public, so the derivation cannot be checked, and
+an unverifiable provenance claim is worse than none.
+
+Reopens if any README link stops resolving anonymously.
+
+## W-INTL-27  The submission target was misdescribed and the deadline was wrong
+
+Severity: critical for scheduling. Found by reading hub71.com rather than the repository.
+
+Two premises behind this work were wrong, and both were load-bearing.
+
+Hub71+ AI is not a standalone application track. It is a specialist ecosystem
+entered by answering an AI question inside whichever programme form is chosen -
+Access Programme, Hub71+ Digital Assets, Hub71+ ClimateTech, Hub71+ Life Sciences,
+Initiate, SAVI, Sandbox, or ECA Anjal Z. Documents headed as answers to a Hub71+ AI
+track therefore describe a form that does not exist on its own. The two AI questions
+they contain are real and correctly reproduced; what is missing is the choice of
+host programme, which is still open and is a decision for the applicant.
+
+The deadline in the README was 2 August 2026. The Access Programme page and the
+Hub71+ Digital Assets page both state 21 August 2026 for Cohort 20, with the
+programme starting February 2027. Checked 2026-07-29. Planning built on 2 August
+compressed a twenty-three day runway into four.
+
+Action: taken. The README now states the verified deadline and the ecosystem model.
+Remaining: choose the host programme, and re-title the answers file once chosen.
+Closes when one programme is named and the answers are aligned to that form.
 
 ## W-INTL-28  A leaderboard placement is asserted that no artefact supports
 
@@ -501,11 +536,12 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-16 | closed, verified |
 | W-INTL-17 | open, formulation drafted, decision required |
 | W-INTL-18 | revised, severity lowered, restated |
-| W-INTL-19 .. W-INTL-22 | open, unchanged |
+| W-INTL-19 | revised, severity raised; both tiers have published attacks |
+| W-INTL-20 .. W-INTL-22 | open, unchanged |
 | W-INTL-23 | open, hardware present, gate not run |
 | W-INTL-24 | open, unchanged |
 | W-INTL-25 | open, requires a third party |
-| W-INTL-26 | partly closed, README corrected |
+| W-INTL-26 | closed, all links resolve anonymously |
 | W-INTL-27 | partly closed, host programme still to choose |
 | W-INTL-28 | closed by artefact search; score removed, withdrawal record substituted |
 | W-INTL-29 | open, critical, refuted as stated; figure removed from the application |
