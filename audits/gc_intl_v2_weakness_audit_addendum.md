@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-42
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-44
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1155,6 +1155,89 @@ trains a reader to ignore the checker.
 The entry is retained rather than deleted for the same reason W-INTL-36 was: it
 was published, and the record of it being wrong is worth more than a tidy file.
 
+## W-INTL-43  The 323 MHz claim has no artefact anywhere, and the file cited for it does not exist
+
+Severity: high. It extends W-INTL-41 from a wrong citation to an absent result,
+and the search was run four ways so the conclusion does not rest on one method.
+
+Method, recorded per the rule adopted in W-INTL-32 and extended in W-INTL-42.
+
+1. Code search across the account for the figure and for the conformance count,
+   under four phrasings.
+2. The format specification named as the catalog entry's source.
+3. The persistent identifier the catalog describes as a hardware archive.
+4. The status table that carries the claim, and the file it cites as evidence.
+
+What each returned.
+
+The status table in gHashTag/trinity-s3ai at docs/hardware/README.md records the
+claim as FPGA 323 MHz with 35 of 35 RTL tests, marks it verified, and cites
+gf16_benchmarks.json as the evidence. That file does not exist in the repository.
+
+A similarly named file, gf16_bench_results.json, does exist in two places. It
+contains mean squared error, add and multiply latency in nanoseconds per
+operation, a neural-network accuracy figure and an MNIST encode-decode check. Its
+own source field names Zig benchmark sources. There is no FPGA frequency in it, no
+device, and no RTL test count. It is a software benchmark.
+
+The gf16 specification named as the catalog source contains no timing data.
+
+The persistent identifier is a two-kilobyte software description stub, as recorded
+in W-INTL-41.
+
+So the claim is asserted as verified in two places, and the artefact cited in each
+is either missing or about something else. Whether 323 MHz was ever measured is
+not settled by this; what is settled is that nothing reachable supports it.
+
+Contrast worth noting, because the same document does this correctly. Two rows
+below the 323 MHz line, the same status table records a throughput and power
+figure as an open conjecture and states that it is an RTL projection rather than a
+measurement. The discipline exists in the file. It was not applied to this row.
+
+Action.
+
+1. Produce the timing report or withdraw the frequency. It is one number and it is
+   asserted at the strongest status the project uses.
+2. Separate the conformance count from the frequency. 35 of 35 RTL tests passing
+   is a real and checkable claim with a plausible artefact; a clock rate is a
+   different claim needing a different one.
+3. Fix the citation in both the status table and the catalog entry.
+
+Closes when the frequency is either evidenced or gone from both.
+
+## W-INTL-44  The format's field layout is IBM's DLFloat, and our own benchmark file says so
+
+Severity: high for any novelty claim, low for everything else. Found by reading
+the benchmark file rather than the papers.
+
+The gf16 benchmark artefact describes the format under test, in its own words, as
+DLFloat-6:9 with one sign bit, six exponent bits and nine mantissa bits.
+
+IBM published DLFloat in 2019 as a 16-bit format for deep learning training and
+inference, with exactly one sign bit, six exponent bits and nine mantissa bits,
+chosen for the same stated reason - that deep learning cares more about dynamic
+range than about precision. The field layout is identical.
+
+So the layout is not new, and the project's own files already name it. What can be
+claimed is the derivation: a rule that generates field widths across a family from
+a stated constant, of which the 16-bit member coincides with DLFloat. That is a
+different and defensible claim, and it is stronger for conceding the coincidence
+than for leaving a reviewer to find it.
+
+What must not be claimed: that the 16-bit format is a new numeric format. A
+reviewer who knows the low-precision literature knows DLFloat, and the catalog's
+own purpose - registry filling with bit-exact conformance vectors - does not need
+novelty at the layout level.
+
+Action.
+
+1. State the DLFloat coincidence explicitly wherever gf16 is introduced, including
+   the preprint if it does not already.
+2. Claim novelty for the generating rule and the anchoring, not for the layout.
+3. Add DLFloat to the competitor matrix as prior art for the 16-bit member.
+
+Closes when the coincidence is stated in every document that introduces gf16.
+
 ---
 
 ## Priority order
@@ -1199,3 +1282,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |
 | W-INTL-41 | open, high; a verified catalog entry cites an archive without the result |
 | W-INTL-42 | retracted; the catalog is correct and the check was too narrow |
+| W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |
+| W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |
