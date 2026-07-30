@@ -123,6 +123,21 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A control must not share a surface with its subject
+
+A control fed a checker a fake commit message naming a nonexistent issue number, expecting the check
+to object. It did not - because the probe number was written as a literal in the workflow file, and
+the workflow file was part of the diff the check reads. The check found the number it was told to
+look for, in the instructions telling it to look.
+
+The control was right about the check and wrong about the world: writing the probe put the probe's
+evidence into the evidence.
+
+Before trusting a control, ask what the subject can see. If it reads files, your control's text is a
+file. If it reads a directory, your scratch copy is in that directory. Assemble probe values at run
+time rather than writing them down, and keep the control's working material outside whatever the
+subject scans.
+
 ## An observation about something you do not control is still a number you can pin
 
 A check watched an artefact in another repository, so a failure would have demanded a fix nobody on

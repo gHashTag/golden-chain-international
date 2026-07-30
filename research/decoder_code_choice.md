@@ -3248,3 +3248,21 @@ The tally for four loops of this work is worth stating plainly, because it is th
 done it. Of the checks this project trusted, **one could not see its own motivating failure, four
 could not fail at all, one was reading the wrong files, one skipped silently while documenting the
 skip as a feature, and one had no controls of any kind.** None of that was visible from a green run.
+
+## 118. The control that landed inside the thing it was checking
+
+The commit-claims control passed in CI, which for a control means it failed: the check it was meant to
+break reported OK.
+
+The probe message was `probe: closes W-INTL-999`, written as a literal in the workflow file. The
+workflow file is part of the diff the check reads. So the check looked for a line mentioning
+W-INTL-999, found one - its own instructions - and correctly reported no problem.
+
+The control was not wrong about the check. It was wrong about the world: **writing the probe put the
+probe's evidence into the evidence**. The number is assembled at run time now, `W-INTL-%s` and `999`
+as separate tokens, so the literal never appears in the file under examination.
+
+This is the third distinct way a control in this project has managed to test nothing - after an
+anchor that was not present, and a mutation the interpreter could not see. The pattern underneath all
+three: a control is an experiment, and an experiment that shares any surface with its subject is not
+measuring what it thinks it is. Here the shared surface was the file itself.

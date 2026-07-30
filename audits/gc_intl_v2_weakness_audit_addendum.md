@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-180
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-181
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4797,6 +4797,23 @@ failure, four could not fail at all, one was reading the wrong files, one skippe
 documenting the skip as a feature, and one had no controls of any kind. None of that was visible from
 a green run.
 
+## W-INTL-181  The control that landed inside the thing it was checking
+
+Severity: medium, and it is the third distinct way a control here has tested nothing.
+
+The commit-claims control passed in CI, which for a control means it failed - the check it was meant
+to break reported OK. The probe message was written as a literal in the workflow file, and the
+workflow file is part of the diff the check reads. So the check looked for a line mentioning the
+probe number, found one - its own instructions - and correctly reported no problem.
+
+The control was not wrong about the check. It was wrong about the world: writing the probe put the
+probe's evidence into the evidence. The number is assembled at run time now, so the literal never
+appears in the file being examined.
+
+Third way after an anchor that was not present and a mutation the interpreter could not see. The
+pattern underneath all three: a control is an experiment, and an experiment sharing any surface with
+its subject is not measuring what it thinks it is. Here the shared surface was the file itself.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4955,6 +4972,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
 | W-INTL-176 | closed with a harness in CI; an equal-length mutation within one second is invisible to the interpreter, so a control can test nothing and look like a broken check |
 | W-INTL-179 | closed; the catalog checker skipped silently with the skip documented as a feature, and the check written for W-INTL-41 could not fail |
+| W-INTL-181 | closed; the commit-claims probe was written literally into the workflow file, which is in the diff the check reads, so the control passed for the wrong reason |
 | W-INTL-180 | closed; every check in the repository now has a control and every control runs in CI |
 | W-INTL-178 | closed; the oldest check had no controls, two of its nine parts could not fail, and one was reading the wrong files - ten controls now run in CI |
 | W-INTL-177 | closed; a default filled in a missing masking-stage measurement, letting the search recommend a construction not measured end to end |
