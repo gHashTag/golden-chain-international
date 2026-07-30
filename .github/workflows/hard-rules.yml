@@ -93,16 +93,13 @@ jobs:
           python3 scripts/control.py research/constraint_register.md \
             '58 percent' '57 percent' \
             -- python3 scripts/check_figures_reproduce.py
-          # The catalog lives in another repository, so it is fetched to a path first and
-          # the controls mutate the copy. Four checks, four controls.
-          python3 - <<'FETCH'
-          import base64, subprocess, pathlib, sys
-          out = subprocess.run(["gh","api","repos/gHashTag/t27/contents/specs/numeric/formats_catalog.t27","--jq",".content"],
-                               capture_output=True, text=True)
-          if out.returncode or not out.stdout.strip():
-              sys.exit("could not fetch the catalog; the controls below need it")
-          pathlib.Path("/tmp/catalog.t27").write_text(base64.b64decode(out.stdout).decode())
-          FETCH
+          # The catalog lives in another repository. Fetched over https rather than
+          # through the GitHub CLI, because the CLI needs a token the controls step does
+          # not have - which is how the first run of this step failed. Four checks, four
+          # controls; the fetch failing fails the step rather than skipping it.
+          curl -fsSL -o /tmp/catalog.t27 \
+            https://raw.githubusercontent.com/gHashTag/t27/master/specs/numeric/formats_catalog.t27
+          test -s /tmp/catalog.t27
           for m in 'bias=15:bias=16' 'bits=16 s=1 e=5 m=10:bits=17 s=1 e=5 m=10' \
                    'id=binary16:id=binary32'; do
             python3 scripts/control.py /tmp/catalog.t27 "${m%%:*}" "${m##*:}" \
@@ -122,6 +119,8 @@ jobs:
           set -e
           python3 scripts/check_units.py
       - name: catalog rules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -e
           python3 scripts/check_catalog.py
