@@ -184,7 +184,13 @@ def recommendation():
             raw = int(-(-selected // fraction) + 1e-9)   # ceil, without the
             # truncation that made this 478 where the design says 477
             osc = max(oscillator_floor(0), pairs_for(raw))
-            cells = (area + I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))
+            if t not in I.SLLC_AREA:
+                # The masking encoder's degree is n-k, so its area is a property of the
+                # code. Substituting the largest measured one - which this line used to
+                # do - lets the search recommend a construction whose masking stage has
+                # never been measured. A recommendation has to be measured end to end.
+                continue
+            cells = (area + I.SLLC_AREA[t]
                      + I.COUNTERMEASURE_AREA["spongent_permutation"] + osc * OSC)
             tiles = cells / UTILISATION / TILE
             if best is None or tiles < best[0]:
@@ -273,7 +279,7 @@ def check_ledger_figures(rec):
         return 0
     tiles, n, k, t, blocks, raw, osc, rho_sel = rec
     decoder = I.decoder_area(7, t)
-    sllc = I.SLLC_AREA[t]
+    sllc = I.SLLC_AREA[t]   # guaranteed present: recommendation() skips codes without it
     counter = I.COUNTERMEASURE_AREA["spongent_permutation"]
     osc_area = osc * OSC
     cells = decoder + sllc + counter + osc_area

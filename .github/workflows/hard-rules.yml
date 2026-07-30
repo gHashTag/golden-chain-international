@@ -58,6 +58,26 @@ jobs:
           python3 scripts/check_commit_claims.py \
             "${{ github.event.pull_request.base.sha || github.event.before }}..${{ github.event.pull_request.head.sha || github.sha }}" \
             --require-commits
+      - name: the controls fire
+        run: |
+          set -e
+          # A check that has never failed is a check nobody has tested. Each control
+          # breaks one thing and asserts the check notices; the harness verifies the
+          # mutation applied, disables bytecode caching so the mutation is visible, and
+          # verifies the file was restored by hash.
+          python3 scripts/control.py --self-test
+          python3 scripts/control.py research/inputs.py \
+            'SELECTION_LOSS = 1 - 381 / 477' 'SELECTION_LOSS = 0.0' \
+            -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py research/inputs.py \
+            '# units: positions / positions' '' \
+            -- python3 scripts/check_units.py
+          python3 scripts/control.py paper/evidence_ledger.md \
+            'decoder 24,659,' 'decoder 24,700,' \
+            -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py research/decoder_code_choice.md \
+            'density after selection is 0.9293' 'density after selection is 0.9500' \
+            -- python3 scripts/check_figures_reproduce.py
       - name: units on every ratio
         run: |
           set -e
