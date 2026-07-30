@@ -103,6 +103,12 @@ production behaviour can be compared against expectation while the amount at ris
 is small. A network paying operators has a natural staging axis: a small number of
 known operators first.
 
+**Say whose schedule a date is.** Three public files carry a December 2026 date
+described as a scheduled tape-out. Checked systematically across fifteen READMEs, it
+is the open shuttle programme's delivery date for a tile submitted in May, not a
+fabrication the project has committed to fund. Both readings are available to a
+reviewer and only one is true; saying which costs a clause.
+
 **Have the incident plan before you need it.** A pause path, a documented
 response, and a decision made in advance about who can invoke it. Designed at
 build time, not after.

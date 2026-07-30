@@ -117,33 +117,60 @@ who reads a submitted Tiny Tapeout tile as evidence of a funded tape-out will ha
 been misled by the vocabulary rather than by any single false sentence. The
 application text already says silicon remains an open item, which is correct.
 
-REOPENED 2026-07-30, severity back to high. The revision above checked one
-repository and generalised.
+REOPENED then re-settled. This entry has now been rated high, medium, high and
+medium again, and the sequence is more instructive than any of the ratings.
 
-The DePIN daemon repository's README carries, in a warning block, a scheduled
-hardware tape-out date of 2026-12-16, with a performance projection described as
-pending that tape-out. That is a dated fabrication commitment in a public README -
-which is what this entry originally said and what the revision denied. The revision
-was right about tt-trinity-gamma and wrong about the account.
+First rating, high: a public file carries a fabrication date and the funding position
+behind it has changed. Written without naming the file.
 
-Two things plainly. The revision was made by inspecting one file and concluding about
-the whole, which is the error recorded in W-INTL-32 and again in the family-inference
-correction inside W-INTL-46. It keeps arriving in different clothes: an entry revised
-on partial inspection is not revised, it is guessed at with more confidence.
+Second, medium: inspection of tt-trinity-gamma found a status table marking tape-out
+as submitted and awaiting fabrication, with an explicit rule for closing the row.
+Careful reporting. The entry was lowered on that basis.
 
-And the projection beside that date is handled well - labelled projected and pending
-tape-out, which is the discipline the account applies unevenly. The problem is the
-date, not the number.
+Third, high: the DePIN daemon README carries, in a warning block, a scheduled hardware
+tape-out date of 2026-12-16. So the date existed after all and the lowering had been
+done by inspecting one repository and concluding about the account.
+
+Fourth, medium, and this time on a systematic search rather than a sample. Fifteen
+repository READMEs were fetched and searched directly, because the account-wide code
+search does not index the file where the date was found - it returns nothing for the
+phrase that is demonstrably in it, which makes it the wrong instrument for this
+question and is recorded as such.
+
+What that search found. The date appears in three places, not one: twice in the
+DePIN daemon README and twice in the mesh README. A fourth repository carries a
+different date, 2026-05-17, described as the day a tile was submitted to the open
+shuttle - which is correct reporting of a submission rather than a fabrication.
+
+And the date is benign in kind. TTSKY26b was submitted in May. December is when that
+shuttle's parts are expected back. It is the shuttle programme's delivery schedule for
+a tile already sent, not a fabrication the project has committed to fund. The original
+concern - that the funding position behind the date has changed - does not apply,
+because no funding stands behind a submission that already happened.
+
+Two things remain, and they are smaller than high severity.
+
+The wording is loose. Calling it a scheduled tape-out reads as a future commitment
+when the tape-out already occurred in May; December is delivery. And the DePIN daemon
+presents the date in a warning block without saying whose schedule it is, while the
+mesh README does better - it marks the associated performance figure projected and
+tags the dependent claim as an open conjecture.
+
+So the finding is now about vocabulary, which is where this entry started, rather than
+about an unfunded promise.
 
 Action.
 
 1. Use two distinct terms in every external document - shuttle tile for the Tiny
    Tapeout work, custom die for the funded path - and never let a claim about one
    carry over to the other.
-2. Remove the tape-out date from the public README or state the funding position
-   beside it. A scheduled fabrication date in a public file is read as a commitment.
-3. Re-audit the remaining repositories for dated commitments rather than assuming the
-   two inspected so far are representative.
+2. Say whose schedule the December date is. It is the open shuttle's delivery date
+   for a tile submitted in May, and describing it as a scheduled tape-out invites the
+   reading that the project has committed to fund a fabrication run.
+3. Re-audit done 2026-07-30 across fifteen repository READMEs, fetched and searched
+   directly because the account-wide code search does not index the file the date was
+   found in. Three occurrences of the December date, one correctly-reported May
+   submission date, nothing else.
 
 Closes when no external document uses an unqualified silicon to span both, and no
 public document carries a fabrication date without its funding position stated.
@@ -1808,7 +1835,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 |---|---|
 | W-INTL-16 | closed, verified |
 | W-INTL-17 | open, formulation drafted, decision required |
-| W-INTL-18 | REOPENED; the revision checked the wrong repository, a dated tape-out is public |
+| W-INTL-18 | re-settled at medium on a systematic search; the date is a shuttle delivery, the wording is loose |
 | W-INTL-19 | revised, severity raised; both tiers have published attacks |
 | W-INTL-20 .. W-INTL-22 | open, unchanged |
 | W-INTL-23 | open, hardware present, gate not run |
