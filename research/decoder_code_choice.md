@@ -699,3 +699,109 @@ afterwards rather than in silicon. The order should be:
 
 The error rate has been treated as the headline quantity through six loops of this work. It
 is the least decisive of the three.
+
+---
+
+## 27. The chain, run end to end
+
+Every part of this key generator had been verified separately and the chain had never
+been run. That is the arrangement in which a Chien search summing t of t+1 coefficients
+survived five loops of correct area measurements.
+
+`key_generator_e2e.py` runs it in software: a modelled oscillator bank with a stated
+bias, the pairing that turns counts into response bits, syndrome-based helper data,
+enrolment, a noisy regeneration, decoding, and the recovered key. Same construction as
+the RTL - BCH(127,22,23) over GF(2^7), 23 blocks, 2,921 response bits - and the same
+inversionless iteration.
+
+The point is not that the pieces work. It is that `code_choice_model.py` predicts a
+failure rate from a binomial tail, and an independent implementation of the actual chain
+either agrees or does not.
+
+| Bit error rate | Trials | Observed failure | Model |
+|---|---|---|---|
+| 0.04 | 300 | 0.000 | 5.71e-09 |
+| 0.06 | 300 | 0.000 | 1.23e-05 |
+| 0.08 | 200 | 0.000 | 0.00152 |
+| 0.10 | 120 | 0.025 | 0.0384 |
+
+Agreement across four orders of magnitude, with the only non-zero observation landing
+within sampling error of the prediction. The model now has a second witness.
+
+Two further checks. Keys round-trip at zero noise and at two percent, at bias 0.50 and
+0.35, twenty trials each. And blocks corrupted beyond the correction radius - t+6 errors -
+were refused or returned a wrong response in 40 of 40 cases, rather than silently
+returning a plausible one.
+
+## 28. The oscillator floor asked for the wrong quantity
+
+Found while checking whether the new code moved the floor. It did not; the floor was
+wrong.
+
+The figure in use was 272 oscillators, computed as 128 divided by the measured 0.471 bits
+per oscillator. That asks for 128 bits of raw entropy. What is needed is 128 bits
+surviving publication of the helper data - which is exactly the distinction W-INTL-59
+drew for response bits.
+
+It was drawn there and left undrawn here. Two accountings feed the same inequality, one
+was corrected six loops ago and the other kept the original error.
+
+With 2,415 bits of leakage, the requirement under reuse is log2(R!) >= 2,543:
+
+| | Oscillators | Ordering entropy | Residual after leakage |
+|---|---|---|---|
+| floor as used | 272 | 1,813 | **-602** |
+| floor correctly stated | 360 | 2,543 | 128 |
+
+At the floor in use the residual is negative and the construction yields no key at all.
+
+Every reuse figure this project has published is affected, and the area consequences are
+small because oscillators are cheap:
+
+| Construction | Was | Now |
+|---|---|---|
+| BCH(127,22,23), current | 5.22 tiles | 5.34 tiles |
+| BCH(127,15,27) | 6.07 tiles | 6.22 tiles |
+| BCH(255,47,42) | 11.86 tiles | 11.96 tiles |
+
+The area moved by two percent and the validity moved from no to yes, which is the
+uncomfortable part: a wrong figure that barely changes the answer is the hardest kind to
+notice. Position count is not the binding constraint either way - 77 oscillators supply
+the 2,921 positions needed, against 360 for the entropy.
+
+## 29. Every borrowed constant, and the operating point it came with
+
+W-INTL-74 found a code adopted from a paper along with that paper's operating point. The
+rule generalises, so here is every constant in this analysis that came from a source
+rather than from a measurement of this project.
+
+**Min-entropy density, 0.9414.** Wilde, Hiller and Pehl, from Maiti's dataset: 512 ring
+oscillators on each of 193 Xilinx Spartan-3E parts, at room temperature, paired
+**disjointly with their immediate neighbours**. The same paper shows two published
+figures from the same raw data disagreeing widely because one compares adjacent
+oscillators and the other distant ones. This project would use a 130 nm open process
+with an unspecified layout, and it is the tightest input in the analysis. Carried with
+the largest caveat of anything here.
+
+**Debiasing overheads, 1.58 to 5.3.** Maes, van der Leest, van der Sluis and Willems,
+computed for a 1,000-bit output at a failure rate of 1e-6. The overhead depends on the
+output length through an inverse binomial, so scaling these to a different length is an
+approximation rather than a lookup. Not currently corrected for, and it should be before
+any of them is used to size a design.
+
+**Oscillator area, 26.3 square micrometres.** Seven inverters, from the published Tiny
+Tapeout implementation, scaled by its measured inverter area. Mansouri and Dubrova state
+that the minimum inverter count for a usable oscillation frequency is typically ten to
+twenty. So this figure may be for an atypically short oscillator, and a bank built to a
+conventional length would be one and a half to three times the area. Since oscillators
+are a small part of the budget this does not change any conclusion, which is why it had
+not been examined.
+
+**Target of 171 error-free bits.** Bosch et al., derived from SRAM PUF entropy. Now
+vestigial: since the leakage inequality is applied directly with a density, this constant
+is used only on the inadmissible path in the model. Worth removing rather than leaving as
+a number that looks load-bearing.
+
+**Tile geometry, 18,032 square micrometres and a sixteen-tile limit.** Tiny Tapeout, and
+the only borrowed constants here that are a published specification rather than a
+measurement of something else.

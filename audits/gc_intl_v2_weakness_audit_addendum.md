@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-76
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-79
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2566,6 +2566,97 @@ have left the option open and the search will keep surfacing it. The whole n=511
 excluded on the same grounds: the key-equation solver needs about 3(t+1) general multipliers
 of m bits, and both factors are at their largest there.
 
+## W-INTL-77  The oscillator floor asked for raw entropy where residual was needed
+
+Severity: critical for correctness, small for area, and that combination is what makes it
+worth its own entry.
+
+Found while checking whether the new code moved the oscillator floor. It did not. The
+floor was wrong.
+
+The figure in use was 272 oscillators, computed as 128 divided by the measured 0.471 bits
+per oscillator. That asks for 128 bits of raw entropy. What is needed is 128 bits
+surviving publication of the helper data - the distinction W-INTL-59 drew for response
+bits six loops ago, drawn there and left undrawn here. Two accountings feed the same
+inequality; one was corrected and the other kept the original error.
+
+With 2,415 bits of leakage, the requirement under reuse is log2(R!) >= 2,543. At 272
+oscillators the ordering carries 1,813 bits, so the residual is -602: the construction
+yields no key at all. The correct floor is 360.
+
+| Construction | Reuse area as published | Corrected |
+|---|---|---|
+| BCH(127,22,23), current | 5.22 tiles | 5.34 tiles |
+| BCH(127,15,27) | 6.07 tiles | 6.22 tiles |
+| BCH(255,47,42) | 11.86 tiles | 11.96 tiles |
+
+The area moved by two percent and the validity moved from no to yes. A wrong figure that
+barely changes the answer is the hardest kind to notice, and it survived because every
+review of the reuse column was a review of its plausibility as an area.
+
+Method point worth carrying: when a correction is made to one accounting, look for the
+other accountings that feed the same inequality. This one had been sitting beside a
+corrected sibling for six loops.
+
+## W-INTL-78  The chain runs end to end, and the model has a second witness
+
+Severity: this is not a weakness. It closes the gap W-INTL-66 identified in the RTL and
+extends the same discipline to the model.
+
+Every part of the key generator had been verified separately and the chain had never been
+run - the arrangement in which a defective Chien search survived five loops of correct
+area measurements.
+
+`research/key_generator_e2e.py` runs it in software: a modelled oscillator bank at a
+stated bias, pairing, syndrome-based helper data, enrolment, noisy regeneration, decoding,
+recovered key. Same construction as the RTL and the same inversionless iteration, written
+independently of it.
+
+| Bit error rate | Trials | Observed failure | Model prediction |
+|---|---|---|---|
+| 0.04 | 300 | 0.000 | 5.71e-09 |
+| 0.06 | 300 | 0.000 | 1.23e-05 |
+| 0.08 | 200 | 0.000 | 0.00152 |
+| 0.10 | 120 | 0.025 | 0.0384 |
+
+Agreement across four orders of magnitude, the one non-zero observation within sampling
+error. Keys round-trip at zero and two percent noise at two bias levels. Blocks corrupted
+beyond the correction radius were refused or returned wrong in 40 of 40 cases rather than
+silently returning a plausible response.
+
+The model in `code_choice_model.py` had been the sole basis for every code decision in
+this project. It now has an independent implementation agreeing with it.
+
+## W-INTL-79  Every borrowed constant, with the operating point it arrived with
+
+Severity: medium, and it is the systematic application of W-INTL-74 rather than a new
+finding.
+
+**Min-entropy density 0.9414** - Wilde, Hiller and Pehl, from 512 ring oscillators on each
+of 193 Xilinx Spartan-3E parts at room temperature, paired disjointly with immediate
+neighbours. The same paper shows two published figures from identical raw data disagreeing
+widely depending on whether compared oscillators are adjacent or distant. This project
+would use a 130 nm open process with unspecified layout. It is the tightest input in the
+analysis and carries the largest caveat.
+
+**Debiasing overheads 1.58 to 5.3** - Maes et al., computed for a 1,000-bit output at
+failure rate 1e-6. The overhead depends on output length through an inverse binomial, so
+scaling to a different length is an approximation, not a lookup. Not corrected for, and it
+should be before any of these sizes a design.
+
+**Oscillator area 26.3 square micrometres** - seven inverters, from the published Tiny
+Tapeout implementation. Mansouri and Dubrova state the minimum for a usable frequency is
+typically ten to twenty inverters, so this may be an atypically short oscillator and a
+conventional bank could be one and a half to three times the area. It changes no
+conclusion, which is why it went unexamined.
+
+**Target of 171 error-free bits** - Bosch et al., from SRAM PUF entropy. Now vestigial,
+used only on the inadmissible path in the model since the leakage inequality is applied
+directly. Should be removed rather than left looking load-bearing.
+
+**Tile geometry** - Tiny Tapeout, and the only borrowed constants here that are a
+published specification rather than someone else's measurement.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2642,3 +2733,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-74 | open, high; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |
 | W-INTL-75 | resolved; BCH(127,22,23) is smaller than the inherited choice with 4.5x the entropy margin, superseding W-INTL-64 |
 | W-INTL-76 | closed by measurement; the best-margin code needs 16.88 tiles for its decoder alone |
+| W-INTL-77 | corrected; the oscillator floor asked for raw entropy instead of residual, and at the figure in use the construction yields no key |
+| W-INTL-78 | closed; the chain runs end to end and an independent implementation confirms the model across four orders of magnitude |
+| W-INTL-79 | open, medium; every borrowed constant listed with the operating point it arrived with |
