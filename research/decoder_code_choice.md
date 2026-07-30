@@ -1050,3 +1050,77 @@ strictly reduced the candidate set in 39 of 60 cases.
 That is a measurement on a toy, and whether the fraction scales to a 2,921-bit response has
 not been established. What it establishes is that the leak is a substantial fraction rather
 than a negligible one, which is what the contract policy needed and did not have.
+
+---
+
+## 39. The map, filled in where it was blank
+
+Three codes were measured to attack the blank regions rather than the populated ones -
+the lesson from section 36. Two aimed at the high error-rate column, which had no answer
+below entropy density 1.00, and one below the lower edge.
+
+| Code | Decoder | Tiles | rho_min | Max BER |
+|---|---|---|---|---|
+<!-- derived:external --> | BCH(255,29,47) | 231,431 | 12.83 | 0.9319 | 8.34 percent |
+<!-- derived:external --> | BCH(255,21,55) | 268,820 | 14.91 | 0.9633 | 10.54 percent |
+<!-- derived:external --> | BCH(255,63,30) | 147,563 | 8.18 | 0.7986 | 4.11 percent |
+
+Thirteen measured decoders, cheapest that works including its oscillator floor:
+
+```
+                  3%     4%     5%     6%     7%     8%     9%    10%
+rho 1.00     4.92  4.92  5.34  6.22  7.02  7.02 15.46 15.46
+rho 0.98     4.92  4.92  5.34  6.22 11.96 13.37 15.46 15.46
+rho 0.96     4.92  4.92  5.34  6.22 11.96 13.37     -     -
+rho 0.94     4.92  4.92  5.34  6.22 11.96 13.37     -     -   <- measured entropy
+rho 0.92     4.92  4.92  5.34 11.96 11.96     -     -     -
+rho 0.90     4.92  4.92  5.34 11.96 11.96     -     -     -
+rho 0.86     4.92  4.92     -     -     -     -     -     -
+rho 0.82     4.92  4.92     -     -     -     -     -     -
+rho 0.80     8.66  8.66     -     -     -     -     -     -
+rho 0.79        -     -     -     -     -     -     -     -
+```
+
+The blank column is answered where it matters. At the measured entropy density the project
+now has a construction up to eight percent bit error rate, where last loop it had nothing
+above seven. The cost is steep - 13.37 tiles against 4.92 - but a design that exists at 84
+percent of the budget beats a blank cell.
+
+The n=511 family is excluded without measuring it further, and the argument is a measured
+point plus monotonicity rather than an estimate: its decoder at t=54 measures 16.88 tiles,
+already over the whole budget, and decoder area increases with t at fixed field. Every
+n=511 candidate in the search has t of 85 or more.
+
+What remains blank: nine percent and above at the measured entropy density. That needs
+0.98, which is above what has been measured anywhere. If the real bank turns out both noisy
+and ordinary, there is no construction in this set for it - and that is now a specific
+statement about one cell rather than a general unknown.
+
+## 40. The leak fraction does not shrink with scale, and the single number was over-specific
+
+Section 38 reported the second enrolment removing 0.70 bits of 3.00 - about a quarter of
+what remained - from a sixteen-bit instance, and said the scaling was unestablished. Tested
+across five sizes:
+
+<!-- derived:external -->
+
+| Raw bits | Response | Checks | After one | After two | Lost |
+|---|---|---|---|---|---|
+| 12 | 4 | 2 | 3.00 | 2.85 | 0.15 |
+| 14 | 5 | 2 | 4.00 | 3.83 | 0.17 |
+| 16 | 6 | 3 | 4.00 | 3.51 | 0.49 |
+| 18 | 7 | 3 | 4.00 | 3.34 | 0.66 |
+| 20 | 8 | 4 | 4.00 | 3.22 | 0.78 |
+
+The absolute loss grows monotonically at roughly constant residual entropy - 0.15 bits at
+twelve raw bits to 0.78 at twenty. It does not shrink, which is the question that mattered:
+a leak that vanished at scale would have made the enrolment policy optional.
+
+Two corrections to how section 38 stated this. The fraction is not a constant: the same
+sixteen-bit size gives 23 percent there and 12 percent here, differing only in which parity
+checks the toy uses, so the leak depends on the code and a single percentage was
+over-specific. And five points spanning twelve to twenty raw bits do not extrapolate to
+12,432 - the direction is established, the value at scale is not.
+
+The policy stands on the direction. It forbids the second enrolment outright, so it is
+correct whether the leak is a fifth or a half.

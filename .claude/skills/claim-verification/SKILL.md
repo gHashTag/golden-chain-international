@@ -103,6 +103,38 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Spend measurement on the blank cells, not the confident ones
+
+Two loops running, the useful measurements were the ones aimed at regions the analysis had
+no answer for. The loop that measured inside a well-covered region learned nothing; the
+loops that measured a blank column and a blank edge each moved the result.
+
+Blank cells are also where the cost of being wrong is highest, because a blank discovered
+after fabrication is a project without an answer rather than a project with an expensive one.
+
+So when choosing what to measure next, rank candidates by how much of the answer space they
+would fill rather than by how interesting they look, and treat regions where you currently
+have nothing as the highest priority.
+
+## An excluded option needs a measured point plus monotonicity, not an estimate
+
+A whole family of codes was ruled out without measuring each one: the smallest member had
+been measured and already exceeded the entire budget, and the quantity increases with the
+parameter that every remaining member has more of.
+
+That is an argument rather than an extrapolation, and it is worth constructing deliberately.
+One measurement plus a monotonicity claim excludes an unbounded set; an estimate per member
+excludes nothing and invites re-litigation each loop.
+
+## Prefer stating which single cell is empty to stating that something is unknown
+
+A gap reported as "no construction above eight percent error rate at the measured entropy
+density, which would need 0.98" is actionable. The same gap reported as "the error rate is
+not measured" is not.
+
+Narrow an unknown until it names a cell, a threshold, or a single missing measurement. The
+work is the same; what changes is whether the next person can act on it.
+
 ## Sweep the variables that arrive together, together
 
 Every sensitivity analysis here moved one input while holding the others at a guessed

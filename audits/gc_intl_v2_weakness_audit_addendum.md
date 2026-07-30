@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-87
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-89
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2848,6 +2848,55 @@ This is a toy, and whether the fraction scales to a 2,921-bit response is not es
 What it establishes is that the leak is a substantial fraction rather than a negligible one,
 which is what the contract's enrolment policy needed and did not have when it was written.
 
+## W-INTL-88  The blank high-error column is answered, and one cell remains blank on purpose
+
+Severity: this is not a weakness. It closes the worst blind spot in the analysis - the one
+that would have been discovered after fabrication.
+
+W-INTL-85's map had no answer at eight percent bit error rate or above below entropy density
+1.00. Published ring-oscillator error rates across temperature reach that range, so an empty
+cell there was the most consequential gap in the work.
+
+Three codes measured, chosen for the blank regions rather than the populated ones:
+BCH(255,29,47) at 231,431 square micrometres tolerating 8.34 percent and needing 0.9319;
+BCH(255,21,55) at 268,820 tolerating 10.54 percent and needing 0.9633; BCH(255,63,30) at
+147,563 tolerating 4.11 percent and needing only 0.7986.
+
+At the measured entropy density the project now has a construction up to eight percent, at
+13.37 tiles of the sixteen available. Expensive, and a design at 84 percent of budget beats a
+blank cell.
+
+The n=511 family is excluded without further measurement, by a measured point plus
+monotonicity rather than an estimate: its decoder at t=54 measures 16.88 tiles, already over
+the whole budget, and area increases with t at fixed field, while every n=511 candidate needs
+t of 85 or more.
+
+What stays blank: nine percent and above at the measured entropy density, which would need
+0.98 - higher than anything measured anywhere. If the real bank is both noisy and ordinary
+there is no construction here for it. That is now a statement about one cell rather than a
+general unknown, which is the useful form.
+
+## W-INTL-89  The leak does not shrink with scale, and the fraction quoted was over-specific
+
+Severity: low as a correction, and it settles the question the enrolment policy turned on.
+
+W-INTL-87 measured the second enrolment removing 0.70 bits of 3.00 on a sixteen-bit instance
+and said the scaling was unestablished. Tested across five sizes at roughly constant residual
+entropy, the absolute loss grows monotonically: 0.15 bits at twelve raw bits, 0.17 at
+fourteen, 0.49 at sixteen, 0.66 at eighteen, 0.78 at twenty.
+
+It does not shrink, which is the question that mattered - a leak vanishing at scale would
+have made the enrolment policy optional.
+
+Two corrections to how W-INTL-87 stated it. The fraction is not a constant: the same
+sixteen-bit size gives 23 percent there and 12 percent here, differing only in which parity
+checks the toy uses. So the leak depends on the code and quoting a single percentage was
+over-specific. And five points from twelve to twenty raw bits do not extrapolate to 12,432 -
+the direction is established, the value at scale is not.
+
+The policy stands on the direction rather than the value, since it forbids the second
+enrolment outright and is therefore correct whether the leak is a fifth or a half.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2934,4 +2983,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-84 | superseded by W-INTL-86; the densification sampled the region already believed flat |
 | W-INTL-85 | open, high as a correction; sweeping one input at a time reversed the priority, and the error rate is at least as binding as entropy |
 | W-INTL-86 | corrected; two codes below the edge move it from 0.8613 to 0.8155 and the cheapest build from 5.34 to 4.92 tiles |
-| W-INTL-87 | closed; the re-enrolment leak measured at 0.70 bits of 3.00 on an enumerable instance |
+| W-INTL-87 | superseded by W-INTL-89; the single fraction quoted was over-specific |
+| W-INTL-88 | closed; the blank high-error column is answered up to eight percent at the measured entropy, one cell left blank explicitly |
+| W-INTL-89 | closed; the leak grows monotonically with scale rather than shrinking, and the policy stands on the direction |
