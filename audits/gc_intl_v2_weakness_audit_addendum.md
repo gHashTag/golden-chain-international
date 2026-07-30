@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-139
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-140
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3928,6 +3928,43 @@ said since it was written that a systolic reformulation exists and timing is not
 observation that latency is free has been in the constraint register as slack since power and timing
 were checked. The technique was available from the first loop; what changed was sorting the budget by
 share and looking at which term was large.
+
+## W-INTL-140  Sharing the Chien search's multipliers makes it larger, and the reason refines the rule
+
+Severity: none as a defect. It is a negative result recorded so the technique is not tried again.
+
+W-INTL-139 took thirty-nine percent off the design by sharing the solver's multipliers. The obvious
+next step was the table stages, now half the decoder - syndrome bank 13,258 square micrometres,
+Chien search 8,906.
+
+Implemented, verified differentially against the parallel Chien on six locators with an injected
+fault failing all six, and measured at 13,129 - forty-seven percent larger.
+
+The reason is exact. The parallel form has twenty-two constant multipliers, fixed XOR trees at about
+265 square micrometres each. The serial form has one general multiplier with both operands variable,
+plus addressing to read and write an indexed array of twenty-two entries, at about 10,050. Removing
+twenty-one cheap units saves 5,550; the shared unit costs 10,050. The trade loses by 4,223.
+
+The solver was the opposite case: its replicated units were general multipliers, the same kind as the
+shared one, so sharing removed sixty-four of sixty-six at no change in unit cost.
+
+So the predictor is not the logic share, which is what W-INTL-139 might have suggested. The Chien
+search is 65 percent logic and does not compress; the solver was 84 percent and compressed by 62.
+What decides it is whether the replicated unit costs more than the shared unit plus its addressing.
+Replicating something cheap is already the efficient arrangement.
+
+The same reasoning excludes the syndrome bank without implementing it: forty-two constant
+multipliers, cheaper per unit still, and serialising would additionally need the received word stored
+in another 127 flip-flops, because the parallel accumulators consume the input stream simultaneously
+and a shared one would have to re-read it. Excluded by argument rather than left open.
+
+The decoder stands at 44,346 square micrometres and the design at 5.40 tiles. The table stages are at
+their floor for this technique.
+
+One note on method. The header written for the serial Chien before measuring predicted a smaller
+saving than the solver's, for the right reason - a general multiplier costs more than the constant one
+it replaces - and got the sign wrong. Writing the reason down before measuring made the negative
+result immediately interpretable rather than puzzling, which is most of what that habit is for.
 
 ## Priority order
 

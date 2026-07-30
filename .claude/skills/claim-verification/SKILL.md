@@ -103,6 +103,32 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Sharing pays only when the replicated unit is expensive
+
+One component compressed by 62 percent when its replicated multipliers were shared. The same trade
+applied to the next component made it 47 percent larger.
+
+The difference is not how much of each is logic - the component that failed was 65 percent logic and
+the one that succeeded was 84, which looks like the same story. The difference is what was being
+replicated. The successful case replicated *general* multipliers, so sharing removed sixty-four of
+sixty-six identical units. The failing case replicated *constant* multipliers - fixed XOR trees, cheap
+- and replaced them with one general multiplier plus the addressing to index twenty-two entries,
+which cost more than the arithmetic it removed.
+
+So before serialising, compare the cost of one replicated unit against the shared unit plus its
+addressing. Replicating something cheap is already the efficient arrangement, and the logic share
+will not tell you which case you are in.
+
+## Write down why you expect a result before measuring it
+
+The header for the failing optimisation predicted a smaller saving, for exactly the right reason - a
+general multiplier costs more than the constant one it replaces - and got the sign wrong.
+
+Because the reason was written before the measurement, the negative result was immediately
+interpretable: the stated mechanism was correct and its magnitude had been underestimated. Without
+it, a 47 percent increase would have looked like a bug in the implementation, and the natural next
+move would have been to debug a correct circuit.
+
 ## Act on the observation you just wrote down
 
 One loop after recording that the largest component had absorbed no optimisation while the smallest
