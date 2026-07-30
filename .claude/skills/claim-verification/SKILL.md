@@ -123,6 +123,21 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## Take a ratio in the units the mechanism operates in
+
+A requirement was expressed as "the residual may be 28 percent of the ten-year value", computed from
+the two flip rates. The flip rate is a saturating function of the parameter that actually
+accumulates, so in that parameter the residual was 18.3 percent - and the error ran in the direction
+that made the requirement look reachable.
+
+When a model carries a parameter and you observe a saturating function of it, the parameter is the
+unit for every ratio, every margin and every "fraction remaining". The observable is for reporting.
+
+This is the mechanical form of "verify twice where the answer is convenient", written after that
+disposition failed to prevent the same error three loops later. A rule you have recorded is not a
+rule you have applied; a rule that names the specific check is easier to apply than one that names a
+mood.
+
 ## A summary saying there is nothing to read is not evidence there is nothing to read
 
 A fetched summary reported that a paper contained no discussion of the topic being searched for, and

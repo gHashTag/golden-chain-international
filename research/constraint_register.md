@@ -78,7 +78,17 @@ recommended construction meets at 171. And the word failure rate, which sets the
 | raw bit error rate | binding, cliff at eight to nine percent | slack up to fifteen percent with reliable-bit selection, which converts it into a requirement for raw positions |
 | tile area | binding and computed wrong | binding, and now with a check that recomputes it from inputs |
 
-**A second route to the aging requirement, added 2026-07-31.** Burn-in before enrolment, from a
+**The second route, costed and closed 2026-07-31.** Burn-in before enrolment does not replace the
+aging-resistant oscillator. Leaving only 18.3 percent of the ten-year differential still to come
+means pre-aging the part for between a quarter and two thirds of its service life - 2.8 to 6.7
+equivalent years across the published range of the NBTI time exponent, or roughly 54 to 320 hours of
+oven per part at the one acceleration figure available. "No area cost" was true and was not the cost
+that mattered. It survives as a supplement to a bank that already meets the requirement, widening the
+margin rather than creating it. The requirement itself is also corrected: the previous entry quoted
+28 percent, taken in flip rates, where the quantity that accumulates is the differential and the
+ratio in those units is 18.3.
+
+**The second route as first recorded, 2026-07-31.** Burn-in before enrolment, from a
 silicon source rather than a simulated one: He, Li, Yu and Yang report that enrolling after some
 accelerated aging keeps the required masking ratio from rising aggressively. It is a requirement on
 the provisioning flow, like the nine enrolment reads, and it costs no area. Quantified: burn-in must

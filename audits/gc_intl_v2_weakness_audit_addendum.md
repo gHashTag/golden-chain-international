@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-164
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-166
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4455,6 +4455,49 @@ already on disk.
 The rule this project has, read the primary source, needs the corollary: a summary saying there is
 nothing to read is not evidence that there is nothing to read.
 
+## W-INTL-165  Burn-in costed, and it is not the free route it was recorded as
+
+Severity: medium. It closes a route rather than opening one, and it corrects a number from the
+previous loop.
+
+W-INTL-163 recorded burn-in before enrolment as a second route to the ten-year aging requirement, at
+no area cost, needing at most 28 percent of the degradation still to come. Both halves were wrong.
+
+The 28 percent was taken in flip rates - 9.2 against 32.41. The quantity that accumulates under an
+aging law is the degradation, and what the source model carries is sigma, the width of the aging
+differential. In sigma the requirement is 0.2974 against 1.6215, which is 18.3 percent. Flip rate is
+a saturating function of sigma, so a ratio taken in flip rates flatters the requirement.
+
+And "no area cost" was not the cost that mattered. Under a power law in time, with the exponent swept
+across its published range of 0.16 to 0.5, meeting the requirement means enrolling after 2.82 to 6.67
+equivalent years - between a quarter and two thirds of a ten-year service life. At the one
+acceleration figure available, 96 hours at 150 C and 1.4 V for "several years" of nominal aging, that
+is roughly 54 to 320 hours of oven per part.
+
+So burn-in cannot replace the aging-resistant oscillator; it survives as a supplement that widens a
+margin it cannot create. The design is back to one route, and that route rests on the one estimate in
+it with no measurement behind it.
+
+Three assumptions are named in research/burn_in.py rather than buried, including the load-bearing one
+that no source read here verifies: that the differential between two oscillators inherits the time
+dependence of the degradation.
+
+## W-INTL-166  The same error twice in three loops, in the same direction
+
+Severity: medium as a method finding, and the repetition is the whole of it.
+
+W-INTL-159 recorded an argument that ran the wrong way and was not checked because it was the answer
+the design wanted. The 28 percent is that failure again, three loops later: a ratio taken in whichever
+units were nearest to hand, where those units happened to make the requirement look reachable.
+
+The skill rule written after the first instance - verify twice where the answer is convenient - was in
+the file when the second was written. A rule you have recorded is not a rule you have applied.
+
+What would have caught it is narrower and more mechanical than a disposition: a ratio between two
+quantities must be taken in the units the mechanism operates in, and when a model carries a parameter
+that the observable is a saturating function of, the parameter is the unit. Flip rate is what you
+measure; sigma is what accumulates.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4606,4 +4649,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-161 | closed and passed; the borrowed inverter area matches the library to within 0.09 percent, checked forty loops late |
 | W-INTL-162 | closed; the aging factor bracketed against the library at 1.33 to 1.67 laid out, so the 1.86 in use is conservative |
 | W-INTL-163 | open as a route; a silicon source gives burn-in before enrolment as a second way to meet the aging requirement, at no area cost, needing at most 28 percent of the degradation left to come |
+| W-INTL-165 | closed as a route; burn-in needs a quarter to two thirds of the service life before enrolment, so it supplements the aging-resistant oscillator rather than replacing it, and the 28 percent it was recorded with was 18.3 |
+| W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |
 | W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |
