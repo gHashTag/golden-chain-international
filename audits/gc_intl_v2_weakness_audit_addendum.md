@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-188
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-190
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4948,6 +4948,43 @@ forty-five, 3.44 tiles rather than 3.47.
 A design that says "keep the most reliable forty percent" and a mechanism that can keep 54.4 or 48.8
 are not the same design, and only one of them can be built.
 
+## W-INTL-189  The ranking was quantised because the model assumed the wrong instrument
+
+Severity: high, and it improves the design's tightest margin at no area cost.
+
+W-INTL-188 established that the selection fraction is quantised by the vote margin and that below the
+unanimous-vote floor further selection buys nothing. That is true of ranking by a vote of sign bits,
+and it is not true of this design.
+
+ro_characteriser.v emits one frequency count per oscillator per sweep, and its header says why: so
+that pairing, thresholds and every derived quantity are computed off the die. The enrolment model
+ranks by how lopsided a majority vote was - it assumes enrolment sees only response bits. The
+instrument this project built produces the quantity the model assumes is unavailable.
+
+Ranking by the averaged difference, whose error falls as sigma over the square root of the read
+count, is continuous rather than quantised and tracks the ideal bound. At the design's operating
+point the ten-year margin goes from 6.9 to 11.3 at no area cost, and fractions no vote can reach
+become available - forty percent gives 0.0005 and a margin above eighty.
+
+Positions and area are unchanged, because this is a provisioning-flow choice rather than a die-area
+one. The cost is stated rather than hidden: the part must expose frequency counts during enrolment,
+and ro_characteriser.v says in its own header that raw counts are exactly what an attacker wants and
+exactly what a key generator must never expose. Count-based ranking therefore requires that interface
+to be disabled after enrolment, which is a security-relevant property of the shipped part.
+
+## W-INTL-190  The parameter sweep, and which kind of quantisation hides
+
+Severity: low, and the classification is the useful part.
+
+Every continuous-looking parameter was checked against the mechanism that implements it. Number of
+blocks, oscillator length, oscillator count and gate window are all quantised by arithmetic - integers,
+odd counts, R(R-1)/2 pairs, powers of two - and all four were already handled, mostly because
+integers are obviously integers.
+
+The selection fraction was not, and its quantisation came from a choice of architecture rather than
+from arithmetic. That kind looks continuous in the model right up until someone asks which instrument
+does the ranking, which is why it survived five loops and the arithmetic ones survived none.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5110,6 +5147,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-184 | closed; the version tolerance applies to the three shared-solver entries only, so the other nineteen stay exact |
 | W-INTL-185 | closed; the selection fraction and read count were never revisited against the aged error rate, leaving a ten-year margin of 1.10 - now 7.6 at forty percent kept and twenty-five reads |
 | W-INTL-187 | closed; the bound renamed and given an achievable sibling, and the other models read for the same defect |
+| W-INTL-189 | closed; the enrolment model ranked by a vote of sign bits while this project's own instrument emits frequency counts - count-based ranking is continuous and takes the ten-year margin from 6.9 to 11.3 at no area cost, at the price of an interface that must be disabled after enrolment |
+| W-INTL-190 | closed; four of five continuous-looking parameters were quantised by arithmetic and already handled, and the fifth was quantised by an architectural choice, which is the kind that hides |
 | W-INTL-188 | closed; the selection fraction is quantised by the vote margin, so the forty percent adopted last loop is unreachable - twenty-five reads and the non-unanimous positions gives 54.4 percent and a margin of 6.9 |
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |
 | W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 96.4 percent of the aging-resistant cell's benefit |

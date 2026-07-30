@@ -3449,3 +3449,56 @@ its unverifiable assumption and reports against the unfavourable arm.
 So one instance, not a pattern - but the one instance sat under the design's tightest constraint for
 five loops, and it took writing the sibling function to find that the operating point it justified
 was unreachable.
+
+## 125. The ranking was quantised because the model assumed the wrong instrument
+
+Section 123 established that the selection fraction is quantised by the vote margin, and that below
+the unanimous-vote floor further selection buys nothing. That is true of ranking by a vote of sign
+bits. It is not true of this design.
+
+`ro_characteriser.v` emits **one frequency count per oscillator per sweep**. Its header says why: so
+that pairing, thresholds and every derived quantity are computed off the die and can be recomputed
+when the question changes. The enrolment model, meanwhile, ranks by `abs(votes - reads/2)` - it
+assumes enrolment sees only response bits.
+
+The instrument this project built produces the very quantity the enrolment model assumes is
+unavailable.
+
+Ranking by the averaged difference instead - error falling as sigma over the square root of the read
+count - is continuous rather than quantised, and tracks the ideal bound:
+
+| Kept | Ideal | Vote, 25 reads | Counts, 25 reads | Counts, 9 reads |
+|---|---|---|---|---|
+<!-- derived:external --> | 80% | 0.0337 | 0.0371 | 0.0357 | 0.0380 |
+<!-- derived:external --> | **54.4%** | 0.0035 | **0.0057** | **0.0039** | 0.0052 |
+<!-- derived:external --> | 40% | 0.0004 | 0.0062 | **0.0005** | 0.0007 |
+<!-- derived:external --> | 32.6% | 0.0001 | 0.0077 | 0.0002 | 0.0002 |
+
+At the design's operating point the ten-year margin goes from 6.9 to **11.3 at no area cost**, and
+deeper fractions become reachable: 40 percent, unattainable by any vote, gives 0.0005 and a margin
+above eighty.
+
+**The positions and the area are unchanged**, because this is a provisioning-flow choice rather than
+a die-area one. What it costs is stated rather than hidden: the part must expose frequency counts
+during enrolment, and `ro_characteriser.v` says in its own header that raw counts are exactly what an
+attacker wants and exactly what a key generator must never expose. So count-based ranking requires
+that interface to be disabled after enrolment - a security-relevant property of the shipped part, not
+a modelling convenience.
+
+## 126. The parameter sweep that produced it
+
+Section 123's lesson - ask whether the mechanism can reach the operating point - was applied to every
+other continuous-looking parameter in the design.
+
+| Parameter | Quantised by | Handled |
+|---|---|---|
+<!-- derived:external --> | number of blocks | integer by construction | yes |
+<!-- derived:external --> | oscillator length | must be odd for a ring to invert | yes, at seven |
+<!-- derived:external --> | oscillator count | pairs go as R(R-1)/2, so positions jump | yes, the search takes the ceiling |
+<!-- derived:external --> | gate window | a power of two by construction | yes, unswept and slack |
+<!-- derived:external --> | **selection fraction** | **the ranking mechanism** | **no - and the mechanism was the wrong one** |
+
+Four of five were already handled, mostly because integers are obviously integers. The one that was
+not is the one whose quantisation came from a *choice of architecture* rather than from arithmetic -
+and an architectural quantisation looks continuous in the model right up until someone asks which
+instrument does the ranking.

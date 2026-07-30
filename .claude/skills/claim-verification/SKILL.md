@@ -123,6 +123,32 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## When a model says a mechanism is limited, check what your own hardware already emits
+
+A model concluded that a ranking step could only reach certain discrete operating points, because it
+assumed the ranking saw one bit per measurement. The project's own instrument - built four loops
+earlier, for an unrelated reason - emits a full count per measurement, which makes the ranking
+continuous and an order of magnitude better.
+
+The limit was real for the assumed architecture and absent from the built one. Nobody had compared
+the two, because the model and the instrument lived in different files and were written for
+different questions.
+
+So when a model reports a mechanism's limit, go and read what the mechanism actually produces in your
+own tree before designing around the limit. And when the answer improves things, look immediately for
+what it costs elsewhere - here, exposing counts is precisely what the instrument's own header says a
+part holding a secret must never do.
+
+## Quantisation by arithmetic is obvious; quantisation by architecture hides
+
+Five continuous-looking parameters, four quantised by arithmetic - integers, odd counts, pair counts,
+powers of two - all four handled correctly without anyone thinking about it, because integers are
+visibly integers.
+
+The fifth was quantised by a choice of architecture, and it looked perfectly continuous in the model
+for five loops. That is the kind to hunt: a parameter whose granularity comes from *which component
+does the work*, not from the algebra.
+
 ## Ask whether the mechanism can reach the operating point you chose
 
 A design specified "keep the most reliable forty percent". The mechanism that does the keeping ranks

@@ -97,6 +97,41 @@ def selected_ber_ideal(sigma, fraction):
     return total / steps, thresh
 
 
+def selected_ber_from_counts(sigma, fraction, reads, rng=None, n=60000):
+    """Ranking by the averaged frequency difference rather than by a vote of sign bits.
+
+    W-INTL-189. The vote model below assumes enrolment sees only response bits, so it
+    ranks by how lopsided a majority vote was - which quantises the attainable fractions
+    and stops improving past about a third discarded.
+
+    This project's own characterisation structure emits one frequency count per
+    oscillator per sweep. If enrolment reads counts, the reliability estimate is the
+    averaged difference, whose error falls as sigma over the square root of the read
+    count, and the ranking is continuous rather than quantised. It tracks the ideal bound
+    closely and beats a twenty-five-read vote at nine reads.
+
+    The cost is not area. It is that the part must expose counts during provisioning, and
+    ro_characteriser.v says in its own header that raw counts are exactly what an
+    attacker wants and exactly what a key generator must never expose. So this ranking
+    requires the count interface to be disabled after enrolment, and that is a
+    security-relevant claim about the shipped part rather than a modelling choice.
+    """
+    if rng is None:
+        rng = random.Random(20260801)
+    if fraction >= 1.0:
+        return raw_ber(sigma)
+    rows = []
+    for _ in range(n):
+        d = rng.gauss(0, 1)
+        est = d + rng.gauss(0, sigma / math.sqrt(reads))
+        rows.append((abs(est), d, 1 if est > 0 else 0))
+    rows.sort(key=lambda t: -t[0])
+    sel = rows[:max(1, int(n * fraction))]
+    err = sum(1 for _, d, enrolled in sel
+              if (1 if d + rng.gauss(0, sigma) > 0 else 0) != enrolled)
+    return err / len(sel)
+
+
 def selected_ber_achievable(sigma, fraction, reads, rng=None, n=40000):
     """What selection actually delivers when enrolment ranks by a majority vote.
 
