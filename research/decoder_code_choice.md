@@ -2997,3 +2997,72 @@ rather than appearance.
 A floor was added with it. The check fails if fewer than fifteen figures bind, because a list of
 bindings can shrink silently and a number that stops being checked goes back to being a sentence
 without anyone deciding that it should.
+
+## 109. The aging mitigation, realised in a cell the library already has
+
+The design carries an aging-resistant oscillator because a conventional bank loses a third of its
+response bits over ten years and this construction absorbs 9.2 percent. The factor in the budget,
+1.857, is a transistor-width ratio from a custom cell, and it is the one number in the recommendation
+with neither a measurement nor a synthesis behind it.
+
+The mechanism does not need a custom cell. Their ARO adds two transistors per stage: one to stop the
+oscillation, one to hold the inverter input at VDD - VT while idle so the pMOS never sees a zero. The
+second is the one that matters, because NBTI on a pMOS is driven by a gate at zero and an idle
+conventional ring leaves half its nodes there.
+
+**Build the ring from two-input NANDs with the enable on the spare input.** With the enable high each
+stage is an inverter and the ring oscillates. With the enable low every output is driven to VDD, so
+every pMOS gate in the ring sits at one - the recovery condition rather than the stress condition.
+Same mechanism, through a cell that already exists.
+
+And in this library it is free:
+
+| Cell | Area |
+|---|---|
+<!-- derived:external --> | `sky130_fd_sc_hd__inv_1` | 3.7536 |
+<!-- derived:external --> | `sky130_fd_sc_hd__nand2_1` | **3.7536** |
+<!-- derived:external --> | `sky130_fd_sc_hd__einvn_1` | 6.2560 |
+
+Not similar - the same number, read from the liberty at run time rather than transcribed. The
+tristate inverter is there for contrast: it stops the oscillation and leaves the node floating, which
+is not the mechanism.
+
+| Arrangement | Factor | Oscillators | Cells | Tiles |
+|---|---|---|---|---|
+<!-- derived:external --> | conventional inverter ring | 1.000 | 920 | 34,970 | 3.35 |
+<!-- derived:external --> | NAND ring, same library cell | 1.000 | 920 | 34,970 | 3.35 |
+<!-- derived:external --> | their ARO, by transistor width | 1.857 | 1,709 | 35,759 | 3.42 |
+
+**The budget does not move.** The 7.73 percent ten-year figure is theirs, for their cell, in their
+simulation. A NAND ring shares the mechanism and has no published flip rate, so adopting it would
+trade a measured number for an argued one - and the argued one is the convenient one. The
+conservative factor stays.
+
+What would settle it is narrow and worth stating: a ten-year flip rate for a NAND-gated ring held
+high while idle, simulated or measured. At that point the mitigation costs nothing instead of 0.08 of
+a tile, and the last unmeasured estimate in the recommendation disappears with it.
+
+## 110. The register bound, and the synthesis half in CI
+
+Two pieces of apparatus, both continuing W-INTL-170.
+
+**The constraint register.** Seven more figures recompute from the model on every run - k carried,
+both densities, the aging factor, its cost in tiles, and the tiles before and after. The register is
+where a constraint's *status* is written, which is exactly where the contradiction W-INTL-171 found
+lives: a document describing a constraint as unchecked in the same paragraph as the design built to
+satisfy it. Twenty-two prose figures are now bound across the two documents, with a floor under the
+count.
+
+One pattern had to be anchored on its sentence rather than its units: `to ([\d.]+) of sixteen` matched
+"13 to 15 of sixteen" elsewhere in the file first, and reported 15 against a recomputed 3.42. A
+regex over prose finds the first thing shaped like the answer, not the answer.
+
+**The synthesis half of `measure_all.sh`, in CI.** This was named and not done for three loops. It
+needs the standard-cell liberty, which is 12.8 MB of PDK and not in this repository; the job fetches
+it from the cell library mirror, caches it, verifies the header names the corner it asked for, and
+fails if the fetch fails - a synthesis check that silently skips is the failure mode of W-INTL-153.
+Then `verify_inputs.py` re-synthesises all twenty-two declared areas.
+
+That closes the last gap between "the figures are reproducible" and "the figures are reproduced".
+Every area this project quotes is now re-synthesised on every pull request, and every testbench that
+guards it runs alongside.

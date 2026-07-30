@@ -67,6 +67,39 @@ jobs:
           set -e
           python3 scripts/check_catalog.py
 
+  synthesis-verification:
+    # The other half of measure_all.sh. Every declared area is re-synthesised against the
+    # standard-cell library and compared with what research/inputs.py says it is - the
+    # check that caught two areas declared under the wrong solver convention, one loop
+    # after they were merged, because it ran only when somebody remembered.
+    #
+    # It needs the liberty, which is 12.8 MB of PDK and is not in this repository. Fetched
+    # from the SkyWater cell library mirror and cached. If the fetch fails the job fails:
+    # a synthesis check that silently skips is the failure mode of W-INTL-153.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install yosys and iverilog
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq yosys iverilog
+      - name: cache the standard-cell liberty
+        id: liberty
+        uses: actions/cache@v4
+        with:
+          path: /tmp/sky130.lib
+          key: sky130-fd-sc-hd-tt-025C-1v80-v1
+      - name: fetch the standard-cell liberty
+        if: steps.liberty.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          curl -fsSL -o /tmp/sky130.lib \
+            https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/master/timing/sky130_fd_sc_hd__tt_025C_1v80.lib
+          test -s /tmp/sky130.lib
+          head -1 /tmp/sky130.lib | grep -q 'sky130_fd_sc_hd__tt_025C_1v80'
+      - name: every declared area re-synthesised
+        run: |
+          set -e
+          python3 scripts/verify_inputs.py
+
   rtl-verification:
     # Every area this project quotes is quoted for a circuit that decoded correctly, and
     # for eighty loops that rule was enforced by whoever remembered to run measure_all.sh.

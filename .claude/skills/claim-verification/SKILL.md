@@ -123,6 +123,27 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A regex over prose finds the first thing shaped like the answer
+
+Binding a figure with the pattern "to N of sixteen" reported 15, because "13 to 15 of sixteen"
+appeared earlier in the file than the sentence being checked. The check was right to fire and wrong
+about what it had found.
+
+Anchor a prose pattern on the sentence that makes the claim, not on the units it ends in. Units
+repeat; claims do not. And when a binding fails, read what it matched before believing what it says -
+the failure may be in the pattern rather than in the document.
+
+## The cheapest version of a mechanism may already be in the library
+
+A design carried an extra cost to satisfy a constraint, taken from a paper's custom cell. The
+mechanism that cell implements - hold this node away from the stress state while idle - turned out to
+be exactly what a two-input gate already in the standard-cell library does, at identical area.
+
+Before costing a mechanism from someone's transistor-level design, ask what the mechanism *is* in one
+sentence, then look for that sentence in the cell library you are already using. But do not take the
+saving on an argument: the published number belongs to the published circuit, and swapping the
+circuit means the number has to be re-established. Record the option and what would settle it.
+
 ## Count by execution, not by appearance
 
 A script's testbench count was taken by matching lines in its source and came out one too high - the

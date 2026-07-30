@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-172
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-174
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4615,6 +4615,51 @@ A floor was added with the binding: the check fails if fewer than fifteen figure
 list of bindings can shrink silently and a number that stops being checked goes back to being a
 sentence without anyone deciding that it should.
 
+## W-INTL-173  The aging mitigation exists as a cell the library already has
+
+Severity: medium, and it does not change the budget on purpose.
+
+The aging-resistant oscillator's mechanism is one transistor holding the inverter input away from
+zero while idle, because NBTI on a pMOS is driven by a gate at zero and an idle conventional ring
+leaves half its nodes there. That mechanism is available without a custom cell: build the ring from
+two-input NANDs with the enable on the spare input. Enable high and each stage is an inverter and the
+ring oscillates; enable low and every output is driven to VDD, so every pMOS gate in the ring sits at
+one.
+
+In this library it is free. sky130_fd_sc_hd__nand2_1 and sky130_fd_sc_hd__inv_1 are both 3.7536
+square micrometres - the same number, read from the liberty at run time rather than transcribed. The
+tristate inverter, 6.2560, stops the oscillation and leaves the node floating, which is not the
+mechanism.
+
+The budget does not move. The 7.73 percent ten-year figure belongs to their cell in their simulation;
+a NAND ring shares the mechanism and has no published flip rate, so adopting it would trade a
+measured number for an argued one, and the argued one is the convenient one. What would settle it: a
+ten-year flip rate for a NAND-gated ring held high while idle. At that point the mitigation costs
+nothing instead of 0.08 of a tile and the last unmeasured estimate in the recommendation goes with
+it.
+
+## W-INTL-174  The register bound, and the synthesis half of measure_all.sh in CI
+
+Severity: low, and it closes something named and deferred for three loops.
+
+Seven more figures in the constraint register recompute from the model on every run - k carried, both
+densities, the aging factor, its cost in tiles, and the tiles before and after. Twenty-two prose
+figures are now bound across the ledger and the register, with a floor under the count. The register
+is where a constraint's status is written, which is exactly where the contradiction in W-INTL-171
+lived.
+
+One pattern needed anchoring on its sentence rather than its units: "to N of sixteen" matched "13 to
+15 of sixteen" elsewhere in the file first and reported 15 against a recomputed 3.42. A regex over
+prose finds the first thing shaped like the answer, not the answer.
+
+The synthesis half of measure_all.sh now runs in CI. It needs the standard-cell liberty, 12.8 MB of
+PDK not carried in this repository; the job fetches it from the cell library mirror, caches it,
+verifies the header names the corner it asked for, and fails if the fetch fails - a synthesis check
+that silently skips is the failure mode of W-INTL-153. verify_inputs.py then re-synthesises all
+twenty-two declared areas.
+
+That closes the last gap between "the figures are reproducible" and "the figures are reproduced".
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4770,6 +4815,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-167 | closed with a check in CI; every ratio in the inputs declares its units, and the aging factor is a width ratio multiplying an area - kept as the conservative end |
 | W-INTL-169 | closed; every division in the six models read, one defect found and fixed with one definition imported plus a cross-model check |
 | W-INTL-171 | closed; fifteen ledger figures bound to the model, and three stale prose claims fell out on the first run |
+| W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
+| W-INTL-174 | closed; the register bound to the model and the synthesis half of measure_all.sh running in CI, closing the last gap between reproducible and reproduced |
 | W-INTL-172 | closed; a count taken by pattern-matching source disagreed with the artefact's own counter, and the artefact was right |
 | W-INTL-170 | open as a method finding; the error rate tracks whether a number is executed, so move numbers into code rather than reading prose harder |
 | W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
