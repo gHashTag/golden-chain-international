@@ -94,7 +94,7 @@ def cheapest(rho, ber, raw_budget=3000):
                 continue
             if blocks * (k - n * (1 - rho)) < KEY_BITS:      # leakage
                 continue
-            if word_failure(n, t, blocks, ber) > 1e-6:        # error target
+            if word_failure(n, t, blocks, ber) > I.TARGET_FAILURE:  # error target
                 continue
             leakage = n * blocks - k * blocks
             cells = DECODER[(m, t)] + oscillator_floor(leakage) * OSC
@@ -137,7 +137,7 @@ def max_ber(n, t, blocks):
     lo, hi = 0.0, 0.5
     for _ in range(50):
         mid = (lo + hi) / 2
-        if word_failure(n, t, blocks, mid) <= 1e-6:
+        if word_failure(n, t, blocks, mid) <= I.TARGET_FAILURE:
             lo = mid
         else:
             hi = mid
@@ -178,7 +178,7 @@ def recommendation():
             if area is None:
                 continue
             blocks = -(-int(need_k) // k)
-            if word_failure(n, t, blocks, eff) > 1e-6:
+            if word_failure(n, t, blocks, eff) > I.TARGET_FAILURE:
                 continue
             if k * blocks < need_k:
                 continue
@@ -264,13 +264,28 @@ def check_selection_entropy():
     return rho_selected
 
 
+def tolerated_ber():
+    """The bit error rate the recommendation's code survives at the declared target.
+
+    Written as the literal 0.0442 in three places until W-INTL-193. It is not an input:
+    it is what BCH(127,57,11) in three blocks tolerates at a word failure of one in a
+    million, so it moves when the code moves or when the target moves, and a literal does
+    not.
+    """
+    rec = recommendation()
+    if rec is None:
+        return 0.0
+    _, n, k, t, blocks, _, _, _ = rec
+    return max_ber(n, t, blocks)
+
+
 def aged_margin():
     """How much room the construction has at ten years on an aging-resistant bank."""
     import reliable_bit_selection as R
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
     sig = sqrt(R.sigma_for_raw_ber(0.06) ** 2 + R.sigma_for_raw_ber(0.0773) ** 2)
-    return 0.0442 / R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS)
+    return tolerated_ber() / R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS)
 
 
 def absorbable_flip():
@@ -283,7 +298,7 @@ def absorbable_flip():
     for _ in range(60):
         mid = (lo + hi) / 2
         sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS) <= 0.0442:
+        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS) <= tolerated_ber():
             lo = mid
         else:
             hi = mid

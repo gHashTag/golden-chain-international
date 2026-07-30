@@ -118,6 +118,10 @@ jobs:
             echo "::error::the commit-claims control did not fire"; exit 1
           fi
           echo "control on the commit message: the check FIRED"
+      - name: every input is covered by a check
+        run: |
+          set -e
+          python3 scripts/check_input_coverage.py
       - name: units on every ratio
         run: |
           set -e

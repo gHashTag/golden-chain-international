@@ -111,7 +111,7 @@ if __name__ == "__main__":
                     if area is None:
                         continue
                     blocks = -(-need_k // k)
-                    if word_fail(n, t, blocks, eff) > 1e-6:
+                    if word_fail(n, t, blocks, eff) > I.TARGET_FAILURE:
                         continue
                     sel_bits = n * blocks
                     raw_pos = int(sel_bits / frac + 0.999)

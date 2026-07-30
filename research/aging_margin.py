@@ -42,6 +42,20 @@ from math import sqrt
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import inputs as I
 import reliable_bit_selection as R
+from math import comb
+
+
+def tolerated_ber(n=127, t=11, blocks=3):
+    """Largest bit error rate at which the code still meets the declared target."""
+    lo, hi = 0.0, 0.5
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        per = sum(comb(n, i) * mid**i * (1 - mid)**(n - i) for i in range(t + 1, n + 1))
+        if 1 - (1 - per) ** blocks <= I.TARGET_FAILURE:
+            lo = mid
+        else:
+            hi = mid
+    return lo
 
 # measured there: DATE 2014, conditions above. Response-bit flip rate at ten years for a
 # conventional ring-oscillator PUF, and for the aging-resistant variant the same paper
@@ -109,7 +123,10 @@ if __name__ == "__main__":
     print("\n2. what the design sees, fresh and at ten years")
     print(f"   {'oscillator':>16} {'age':>8} {'selection':>10} {'effective BER':>14} "
           f"{'code tolerates':>15} {'verdict':>9}")
-    TOLERATED = 0.0442     # BCH(127,57,11) in three blocks, one in a million word failure
+    # Derived rather than written down: what the recommendation's code tolerates at the
+    # declared word-failure target. It was the literal 0.0442 in three files, which is
+    # the pattern inputs.py exists to prevent - see W-INTL-193.
+    TOLERATED = tolerated_ber()
     for label, s_age in (("conventional", sigma_age), ("aging-resistant", sigma_age_r)):
         for when, sig in (("fresh", combined_sigma(sigma_noise)),
                           ("10 years", combined_sigma(sigma_noise, s_age))):

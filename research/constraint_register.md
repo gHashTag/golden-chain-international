@@ -169,7 +169,7 @@ published figure:
 <!-- derived:external --> | aging-resistant | 10 years | 80% | 0.0334 | 0.0442 | fits |
 
 **The requirement, stated as a number rather than an assumption: the unselected ten-year flip rate
-must be at or below 15.5 percent.** That is what the recommendation absorbs, with a ten-year margin of 11.1. The figure was 9.2 while the enrolment ranking was modelled as a vote of sign bits; count-based ranking loosened it - see W-INTL-189. The published
+must be at or below 10.9 percent.** That is what the recommendation absorbs, with a ten-year margin of 3.6. The figure was 9.2 while the enrolment ranking was modelled as a vote of sign bits; count-based ranking loosened it - see W-INTL-189. The published
 conventional figure is 32.4 and the aging-resistant one is 7.7.
 
 Conditions: HSPICE Monte Carlo at 90 nm, simulation rather than silicon and not this process.
@@ -204,9 +204,9 @@ against it: a conventional ring at 32.41, the published aging-resistant cell at 
 NAND-gated ring - the same mechanism realised in a library cell at zero area cost - at an unknown
 value.
 
-The unknown is bounded usefully. In the source model the requirement sits 20.6 percent of the way from
+The unknown is bounded usefully. In the source model the requirement sits 8.0 percent of the way from
 the aging-resistant cell back toward a conventional ring, so a NAND ring qualifies if it captures at
-least 79.4 percent of that cell's benefit - loosened from 96.4 by the count-based ranking. That is much tighter than "it shares the
+least 92.0 percent of that cell's benefit. That is much tighter than "it shares the
 mechanism", which is all the argument for it amounts to today.
 
 Recorded here because it is the one open question that changes the design rather than the apparatus,
