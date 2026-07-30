@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-114
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-117
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3483,6 +3483,76 @@ Six loops of sensitivity analysis, three reversals of priority, and a register r
 tightest figure in the work - all correct, all conditional on a construction chosen in W-INTL-63
 without asking whether its leakage was avoidable. Asking took an hour.
 
+## W-INTL-115  The error-rate constraint rests on the assumption that all errors must be corrected
+
+Severity: critical as a correction of scope. It removes the last input still binding after
+W-INTL-114.
+
+Chapter 6 of the dissertation contains the comparison table this analysis has been reconstructing
+for twelve loops. Every row is for an SRAM PUF at fifteen percent average bit error probability, a
+128-bit key and a key error rate of one in a million: Code-Offset Golay at 3,696 response bits and
+907 slices or more, Code-Offset RM-GMC at 1,536 and 237, C-IBS RM at 2,304 and 250, and compressed
+DSC Seesaw at 974 response bits, 1,108 helper data bits and 249 slices.
+
+This project, at less than half that error rate, needed 2,921 response bits under the syndrome
+construction and 635 under SLLC, and concluded nine percent and above was impossible.
+
+Differential Sequence Coding reaches fifteen percent with 974 bits because it does not correct the
+errors. It indexes the reliable bits and skips the rest, storing compressed pointers as helper
+data. The thesis gives the arithmetic: the target is reached with a maximum bit error probability
+of 0.027 by indexing on average 32.6 percent of the available PUF bits. Fifteen percent raw becomes
+2.7 percent effective.
+
+Every construction evaluated here assumed all n positions must be corrected. That assumption is the
+error-rate constraint, and it was a choice.
+
+One thing already right: reliable-bit selection needs per-bit reliability from repeated
+measurements at enrolment, and the characterisation structure in W-INTL-70 emits raw frequency
+counts rather than response bits precisely so that downstream decisions could be made off the die.
+The instrument for this already exists.
+
+## W-INTL-116  Helper-data manipulation has a generic countermeasure, so the code choice never turned on it
+
+Severity: closes W-INTL-105, open for four loops, and closes it better than verification would
+have.
+
+W-INTL-105 rested on a second-hand claim that syndrome-based BCH is immune to helper-data
+manipulation, from a paper behind a paywall, and the recommendation was standing on it.
+
+Chapter 6 answers a different question. The helper data is hashed onto the decoder output to
+prevent helper-data manipulation attacks, using SPONGENT as a lightweight hash, so that 88 key bits
+are affected by each helper data bit and the key is corrupted as soon as the helper data is
+manipulated. Chapter 4 states the same countermeasure generically as K = S xor f(W).
+
+So the code choice never turned on manipulation immunity. There is a generic countermeasure, it is
+a lightweight hash, it is independent of the code, and it was in the same document as everything
+else read over the last three loops.
+
+Verification of Becker would have established whether one construction is immune. This establishes
+that the question need not be asked, provided the helper data is hashed into the key - which no
+design considered here currently does. That is a concrete gap: the countermeasure is cheap and
+absent.
+
+## W-INTL-117  Three loops running, a table in the cited literature has removed a constraint treated as fixed
+
+Severity: this is a finding about the method, and it is the most important entry in this file.
+
+W-INTL-110 found the leakage term was a property of the construction chosen. W-INTL-113 found the
+oldest construction in the field never had it, and W-INTL-114 that removing it makes the entropy
+density stop mattering. W-INTL-115 finds the error rate rests on an assumption the standard
+alternative does not make.
+
+Each was one table or one section in a document already cited. Twelve loops of measurement, three
+reversals of priority, a constraint register and four instruments that check each other - all of it
+inside a framing that a comparison table would have shown was one of several.
+
+The measurements survive: thirteen decoders correctly measured, the checks still running, the
+end-to-end chain still agreeing with the model. What does not survive is any claim that this
+analysis found the best construction. It never compared framings, only codes within one.
+
+The rule for the next loop is not to measure more carefully. It is to find the field's comparison
+table before optimising, and this file now contains three instances of what happens otherwise.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3587,7 +3657,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-102 | closed; a check now recomputes the headline from inputs, in CI, with three firing controls and a fourth of my own that was broken |
 | W-INTL-103 | corrected; two pre-correction figures survived in the same ledger row as the corrected one |
 | W-INTL-104 | closed; the five remaining binding rows re-derive correctly, and only the area row had been wrong |
-| W-INTL-105 | open, high; syndrome-based BCH is on the immune side of the code-offset line, corroborated twice and still unverified |
+| W-INTL-105 | closed by W-INTL-116; the question need not be asked once the helper data is hashed into the key |
 | W-INTL-106 | closed; every input declared once in research/inputs.py with its provenance, three scripts refactored to import |
 | W-INTL-107 | corrected; the oscillator floor was the previous code's, found by the extended check on its first run |
 | W-INTL-108 | corrected; the end-to-end chain had validated a superseded construction for six loops |
@@ -3595,5 +3665,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-111 | closed; SLLC implemented and measured, two open items closed and the third scoped out |
 | W-INTL-112 | closed; SLLC dissolves the oscillator-arrangement constraint, withdrawing W-INTL-67 and W-INTL-68 |
 | W-INTL-113 | closed; the n-k bound is confirmed first-hand for the syndrome construction, and Fuzzy Commitment has escaped it since 1999 |
+| W-INTL-115 | open, critical; the error-rate constraint assumes all errors must be corrected, and reliable-bit selection reaches 15 percent with 974 response bits |
+| W-INTL-116 | closes W-INTL-105; helper-data manipulation has a generic countermeasure, hashing the helper data into the key, absent from every design here |
+| W-INTL-117 | open as a method finding; three loops running, a table in already-cited literature removed a constraint treated as fixed |
 | W-INTL-114 | closed; under zero leakage the entropy density stops binding, withdrawing W-INTL-72, W-INTL-82, W-INTL-84, W-INTL-85 and W-INTL-86 as conclusions about the problem |
 | W-INTL-110 | decided rather than open, by W-INTL-111 and W-INTL-112; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |

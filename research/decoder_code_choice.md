@@ -1843,3 +1843,79 @@ Six loops of sensitivity analysis, three reversals of priority, and a register r
 tightest figure in the work - all correct, all conditional on a construction chosen in loop 53
 without asking whether its leakage was avoidable. That question took one hour when it was finally
 asked.
+
+---
+
+## 67. You do not have to correct the errors. You can skip them.
+
+Chapter 6 of the dissertation contains the comparison table this analysis has been
+reconstructing for twelve loops. Every row is for an SRAM PUF at **fifteen percent** average bit
+error probability, a 128-bit key and a key error rate of one in a million:
+
+| Scheme | PUF response bits | Helper data bits | Slices |
+|---|---|---|---|
+<!-- derived:external --> | Code-Offset Golay | 3,696 | 3,824 | 907 or more |
+<!-- derived:external --> | Code-Offset RM-GMC | 1,536 | 13,952 | 237 |
+<!-- derived:external --> | C-IBS RM | 2,304 | 9,216 | 250 |
+<!-- derived:external --> | DSC convolutional | 1,224 | 2,176 | 262 |
+<!-- derived:external --> | compressed DSC convolutional | 1,224 | 1,224 | 272 |
+<!-- derived:external --> | **compressed DSC Seesaw** | **974** | **1,108** | 249 |
+
+This project, at less than half that error rate, needed 2,921 response bits under the syndrome
+construction and 635 under SLLC - and concluded that nine percent and above was impossible.
+
+**Differential Sequence Coding reaches fifteen percent with 974 bits because it does not correct
+the errors.** It indexes the reliable bits and skips the rest, storing compressed pointers to
+them as helper data. The thesis states the arithmetic directly: the target bit error probability
+is reached with a maximum of 0.027 by indexing on average 32.6 percent of the available PUF bits.
+Fifteen percent raw becomes 2.7 percent effective, and then a modest code suffices.
+
+Every construction evaluated here assumed all n positions must be corrected. **That assumption
+is the error-rate constraint** - the one input still binding after SLLC removed the leakage term -
+and it was a choice, not a requirement.
+
+One thing already right: reliable-bit selection needs per-bit reliability, which means repeated
+measurements at enrolment. The characterisation structure built in section 20 emits raw frequency
+counts per oscillator rather than response bits, precisely so that any downstream decision could
+be made off the die. Reliability selection is such a decision, and the instrument for it already
+exists.
+
+## 68. The helper-data manipulation question had a generic answer all along
+
+W-INTL-105 has been open for four loops as corroborated but unverified: whether syndrome-based BCH
+is immune to helper-data manipulation, resting on a second-hand summary of a paper behind a
+paywall. The recommendation was standing on it.
+
+Chapter 6 answers a different and better question. From the implementation section: the helper
+data is hashed onto the output of the decoder to prevent helper-data manipulation attacks, using
+SPONGENT as a lightweight hash, so that 88 key bits are affected by each helper data bit and the
+key is corrupted as soon as the helper data is manipulated. Chapter 4 gives the same
+countermeasure generically as **K = S xor f(W)** - hash the helper data and fold it into the key.
+
+**So the code choice never turned on manipulation immunity.** There is a generic countermeasure,
+it is a lightweight hash, it is independent of the code, and it was in the same document as
+everything else this project has been reading for three loops.
+
+That closes the last inherited claim, and it closes it better than verifying Becker would have.
+Verification would have told me whether one construction is immune. This tells me the question
+does not need to be asked, provided the helper data is hashed into the key - which it currently is
+not, in any design considered here.
+
+## 69. Three loops running, the primary literature has removed a constraint I treated as fixed
+
+Worth stating plainly, because the pattern is now the finding.
+
+Loop 69 found that the leakage term was a property of the construction chosen, not of the problem.
+Loop 71 found that the oldest construction in the field never had that term, and that removing it
+makes the entropy density - the figure called the tightest in this work - stop mattering. This
+loop finds that the error rate, the last binding input, rests on the assumption that all errors
+must be corrected, and that the standard alternative does not make it.
+
+Each was one table or one section in a document already cited. Twelve loops of careful
+measurement, three reversals of priority, a constraint register, and four instruments that check
+each other - all of it operating inside a framing that a comparison table would have shown was one
+of several.
+
+The measurements survive. Thirteen decoders are still correctly measured, the checks still run,
+and the end-to-end chain still agrees with the model. What does not survive is any claim that the
+analysis found the best construction, because it never compared framings - only codes within one.

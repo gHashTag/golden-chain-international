@@ -103,6 +103,33 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Find the field's comparison table before optimising, not after
+
+Three loops running, a single table in a document already cited removed a constraint that had been
+treated as a fact of the problem: first that helper data must leak, then that the leakage makes
+source entropy critical, then that all errors must be corrected rather than avoided.
+
+Each cost one hour to read and each invalidated the framing of several loops of careful work. The
+measurements survived every time; the claim to have found the best design did not, because the
+work compared options within a framing and never compared framings.
+
+So the first hour of any optimisation goes to finding where the field compares whole approaches -
+a survey table, a thesis chapter, a related-work section with numbers. Not to check your approach
+is on the list, but to see what the other rows do not have to pay for.
+
+## An open question may have a generic answer that makes the question unnecessary
+
+A claim was chased for four loops: whether one construction resists a particular attack. The
+answer, in the same document, was that a cheap generic countermeasure exists which makes the
+attack ineffective against any construction.
+
+Verification would have settled which option was safe. The countermeasure settles that the choice
+does not matter, and it converts a research question into a missing component - which is a much
+better kind of open item, because it can be built.
+
+When a question about which option is safe stays open, look for whether the field has stopped
+asking it. Sometimes the answer is a component nobody in your design has.
+
 ## Read the taxonomy before optimising within one branch of it
 
 Twelve loops of code selection took a leakage term as a fact of the problem. One table in one
