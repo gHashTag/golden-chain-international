@@ -5,10 +5,13 @@ which found that the primitive has been fabricated on the process this project
 already uses but at eight bits of response, and did not establish whether a usable
 one fits in the area a shuttle allows.
 
-Confirmed by synthesis on 2026-07-30. The published implementation was cloned and
-run through yosys against the real SkyWater standard-cell library, typical corner,
-25 C, 1.8 V. Every cell area below is measured except the error-correction decoder,
-which remains an estimate and is flagged where it appears.
+Confirmed by synthesis on 2026-07-30, twice. First the published oscillator
+implementation, then a decoder written for the purpose. Every area below is measured
+except the key-equation solver, which is stated as a multiplier and flagged where it
+appears.
+
+The second pass moved the answer. The decoder estimate was low, and the decoder is
+the dominant cost.
 
 ---
 
@@ -106,11 +109,46 @@ Whether the design holds across temperature. The author documents responses
 changing until the part warms. Error correction exists to absorb that, but the code
 parameters depend on the error rate, and the error rate is what nobody has measured.
 
-Whether three thousand gates is the right decoder budget. It is the one input here
-that synthesis has not replaced, and at eighteen thousand square micrometres it is
-around half the total. Published designs correct on the order of seventeen errors in
-a three-hundred-bit codeword; matching a measured error rate may need more. Writing
-and synthesising a decoder would close this the same way the rest closed.
+Whether the decoder budget was right. It was not, and this is now measured.
+
+A decoder was written for BCH(255,131) over GF(2^8) with the primitive polynomial
+0x11D, and its two area-dominant stages - the syndrome bank and the Chien search -
+were synthesised against the same library. The key-equation solver was deliberately
+left out rather than written unverified in one pass and reported as measured.
+
+Measured, and linear in the correction strength at about 1,212 square micrometres
+per unit of t:
+
+| t | Syndrome + Chien | Tiles |
+|---|---|---|
+| 4 | 5,694 | 0.3 |
+| 8 | 10,475 | 0.6 |
+| 12 | 15,350 | 0.9 |
+| 18 | 22,668 | 1.3 |
+
+The previous estimate was eighteen thousand square micrometres for the whole
+decoder. Two of its three stages at t=18 measure 22,668, so the estimate was low
+before the third stage is counted at all.
+
+Full budget with the decoder measured, everything else as in section 5, and the
+solver taken as comparable to the two measured stages:
+
+| t | Decoder | Total | Tiles | Decoder share |
+|---|---|---|---|---|
+| 4 | 11,388 | 54,170 | 3.0 | 36 percent |
+| 8 | 20,950 | 70,657 | 3.9 | 51 percent |
+| 12 | 30,700 | 87,467 | 4.9 | 61 percent |
+| 18 | 45,336 | 112,701 | 6.3 | 69 percent |
+
+So the answer is five to seven tiles rather than three to four, and the decoder is
+two thirds of it at the strength published designs use.
+
+It still fits in sixteen. The margin is smaller than this document previously said,
+and the reason is worth stating plainly: the correction strength drives everything,
+and the correction strength is set by the oscillator error rate, which is the one
+thing nobody has measured. At t=4 the decoder is a third of the budget; at t=18 it
+is two thirds. Characterising the error rate is therefore not the first step because
+it is tidy - it is the first step because it sizes the largest block on the tile.
 
 Every one of those is a measurement rather than a question of principle, and the
 first step for all three is the same: put a characterisation structure on a tile and

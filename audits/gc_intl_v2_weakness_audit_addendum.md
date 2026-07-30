@@ -1597,9 +1597,26 @@ Action.
    Recomputed on measured areas the answer is 2.9 to 3.9 tiles of sixteen, against
    2.9 to 4.1 estimated. The conclusion did not move.
 
-   One input is still an estimate and is now the dominant uncertainty: the
-   error-correction decoder at roughly three thousand gates, about half the total
-   area. Writing and synthesising one would close it the same way the rest closed.
+   The remaining estimate was the decoder, and it has now been measured too - which
+   moved the answer.
+
+   A decoder was written for BCH(255,131) over GF(2^8) and its two area-dominant
+   stages synthesised against the same library. The key-equation solver was left out
+   rather than written unverified and reported as measured. Those two stages alone,
+   at the correction strength published PUF designs use, measure 22,668 square
+   micrometres - more than the eighteen thousand that had been budgeted for the whole
+   decoder.
+
+   Area is linear in correction strength at about 1,212 square micrometres per unit
+   of t. With the solver taken as comparable to the measured stages, the full budget
+   runs from 3.0 tiles at t=4 to 6.3 tiles at t=18, and the decoder is between a
+   third and two thirds of the total.
+
+   So it still fits in sixteen tiles, with less margin than previously stated. And
+   the reason to care about characterisation sharpens: the correction strength sizes
+   the largest block on the tile, and correction strength is set by the oscillator
+   error rate, which nobody has measured. Characterisation is the first step because
+   it determines the area, not because it is tidy.
 3. Whatever is built, characterise it - uniqueness, reliability across the
    temperature range a deployed node sees, uniformity, entropy - before any
    document calls it identity. The existing implementation is uncharacterised and

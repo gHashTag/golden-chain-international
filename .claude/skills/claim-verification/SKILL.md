@@ -137,8 +137,22 @@ did not move - which is worth recording precisely because most checks in this wo
 found errors. A check that confirms is still a check, and reporting the agreement is
 what makes the disagreements credible.
 
-Keep track of which inputs remain unmeasured after the pass. Here one did, and it
-was around half the total area, which makes it the finding rather than a footnote.
+Keep track of which inputs remain unmeasured after the pass, and then measure that
+one too. Here one survived a pass - roughly half the total by the estimate's own
+reckoning - and measuring it moved the answer by nearly a factor of two, because the
+estimate had been low. The inputs that survive a measurement pass are selected for
+being hard to measure, which is exactly why they are where the error lives.
+
+When measuring something you have to build, build only the part you can build
+correctly, and say which part that is. Two of three decoder stages were written and
+synthesised; the third was left out rather than written unverified in one pass and
+reported as measured. A measured lower bound with a named gap is worth more than a
+complete number nobody should trust.
+
+Sweep the parameter rather than picking one. Measuring the decoder at four correction
+strengths showed the area is linear in it, which turned a single number into a
+relationship - and the relationship revealed that the unmeasured physical error rate
+sizes the largest block on the chip. A single point would have hidden that.
 
 ## Findings in either direction count the same
 
