@@ -2211,3 +2211,48 @@ the solver's own header has said since it was written that a systolic reformulat
 timing is not closed, and the observation that latency is free here has been in the constraint
 register as slack since power and timing were checked. Nothing was learned this loop that was not
 already written down; what changed was looking at which term was large.
+
+---
+
+## 81. The same trade applied to the Chien search, and it loses
+
+Section 79 took thirty-nine percent off the design by sharing the solver's multipliers. The obvious
+next step was the table stages, now half the decoder at 22,215 square micrometres - the syndrome bank
+13,258 and the Chien search 8,906.
+
+Implemented, verified differentially against the parallel Chien on six locators, an injected fault
+failing all six, and measured: **13,129 square micrometres against 8,906. Forty-seven percent
+larger.**
+
+The reason is exact.
+
+| Form | Multipliers | Kind | Logic |
+|---|---|---|---|
+<!-- derived:external --> | parallel | 22 | constant, fixed XOR trees | 5,823, about 265 each |
+<!-- derived:external --> | serial | 1 | general, both operands variable | about 10,050 including addressing |
+
+Removing twenty-one cheap units saves about 5,550. The shared general unit, plus the addressing to
+read and write an indexed array of twenty-two entries, costs about 10,050. The trade loses by 4,223.
+
+The solver was the opposite case. Its replicated units were *general* multipliers - the same kind as
+the shared one - so sharing removed sixty-four of sixty-six at no change in unit cost, and the
+addressing it added was cheaper than the arithmetic it removed.
+
+**So the predictor is not the logic share.** The Chien search is 65 percent logic and does not
+compress; the solver was 84 percent logic and compressed by 62. What decides it is whether the
+replicated unit costs more than the shared unit plus its addressing. Replicating something cheap is
+already the efficient arrangement.
+
+The same reasoning rules out the syndrome bank without implementing it: forty-two constant
+multipliers, cheaper still per unit, and serialising would additionally require storing the received
+word - another 127 flip-flops - because the parallel accumulators consume the input stream
+simultaneously and a shared one would have to re-read it. Recorded as excluded by argument rather
+than left as an open option.
+
+The decoder therefore stands at 44,346 square micrometres and the design at 5.40 tiles. The table
+stages are at their floor for this technique.
+
+My own header for the serial Chien predicted a smaller saving than the solver's, for the right
+reason - a general multiplier costs more than the constant one it replaces. It predicted the sign
+wrong. Writing the reason down before measuring made the negative result immediately interpretable
+rather than confusing, which is most of what that habit is for.
