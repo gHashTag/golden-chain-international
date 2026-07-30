@@ -195,8 +195,27 @@ Parallel width: partial. Separation holds against a general-purpose processor
 and inverts against a many-lane accelerator, which has more lanes than the
 device has challenge engines.
 
+Reframed 2026-07-30 against the literature, see research/attestation_prior_art.md.
+
+The refutation recorded above is a category result rather than a bad experiment.
+Software-only remote attestation is a recognised family and the surveys
+characterise it as resting on stringent timing constraints or on the absence of
+free memory in which to hide code. Both dependencies are assumptions about the
+adversary's hardware, and both fail the moment the adversary has better hardware -
+which is exactly how this one failed here, to an optimised software implementation
+on a faster machine.
+
+So the finding is stronger than it read. It is not that a timing challenge was
+tried and did not work; it is that the software-only family was tested against its
+known dependency and the dependency does not hold for this device class. That is
+worth saying in those terms, because the first version invites the reply that a
+better challenge might work, and the second explains why it would not.
+
 Action: do not claim that a timing challenge proves hardware class. Use it as
-supporting evidence against casual emulation only. Identity carries the claim.
+supporting evidence against casual emulation only. Identity carries the claim, and
+the literature's stronger families - a key reconstructed from a physical function
+rather than stored, and an immutable attestation routine so the code using it
+cannot be swapped - are where the identity work should go next.
 
 ## W-INTL-22  No end-to-end inference system exists
 
@@ -715,9 +734,17 @@ Action.
    What the implementation proves: whoever registered an identifier held the key
    that identifier is derived from, at registration, for that registry, on that
    chain, once. What it does not prove: that the key lives on a die rather than in
-   a file. No on-chain check establishes that, and the entry that would - a
-   challenge the hardware answers under a constraint software cannot meet - is
-   W-INTL-21, which is partial at best.
+   a file. No on-chain check establishes that.
+
+   The literature's answer to that, recorded in research/attestation_prior_art.md,
+   is not to protect a stored key but to have none: reconstruct the signing key
+   from a physical function at the moment of use, so there is nothing at rest to
+   extract. That is also what this project's own registry documentation already
+   assumes, since it describes the identifier as derived from an on-die function.
+   The design assumes the stronger family and the implementation does not yet
+   reach it. Paired with it in the same literature is an immutable attestation
+   routine, which matters specifically on parts whose code lives in external flash
+   - both of these do.
 
    So the floor rises from "anyone may claim to be any chip" to "only the holder of
    a chip's key may register that chip". That is the whole claim.
