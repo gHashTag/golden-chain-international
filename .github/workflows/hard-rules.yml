@@ -76,7 +76,7 @@ jobs:
             'decoder 24,659,' 'decoder 24,700,' \
             -- python3 scripts/check_figures_reproduce.py
           python3 scripts/control.py research/decoder_code_choice.md \
-            'density after selection is 0.9293' 'density after selection is 0.9500' \
+            'density after selection is 0.8988' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
