@@ -92,6 +92,19 @@ def measure_serial(m, t):
     return tables + solver, None
 
 
+def tolerance_for(key, declared, tol_pct):
+    """A tolerance where it is earned and nowhere else.
+
+    A blanket tolerance covers the nineteen areas that reproduce bit for bit as well as
+    the three that do not, so those nineteen could drift by a percent and nothing would
+    say so. research/inputs.py names the three, measured; everything else is exact even
+    in CI.
+    """
+    if tol_pct <= 0 or key not in I.VERSION_SENSITIVE:
+        return 1.0
+    return max(1.0, declared * tol_pct / 100.0)
+
+
 def main():
     args = sys.argv[1:]
     only = None
@@ -159,7 +172,7 @@ def main():
             bad += 1
             continue
         delta = got - declared
-        limit = max(1.0, declared * tol_pct / 100.0)
+        limit = tolerance_for(("decoder", m, t), declared, tol_pct)
         flag = "" if abs(delta) < limit else "   MISMATCH"
         print(f"  GF(2^{m}) t={t:<3} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
         if abs(delta) >= 1.0:
@@ -176,7 +189,7 @@ def main():
                 bad += 1
                 continue
             delta = got - declared
-            limit = max(1.0, declared * tol_pct / 100.0)
+            limit = tolerance_for(("decoder_serial", m, t), declared, tol_pct)
             flag = "" if abs(delta) < limit else "   MISMATCH"
             print(f"{'GF(2^%d) t=%-3d' % (m, t):>22} {declared:10d} {got:10.0f} "
                   f"{delta:8.0f}{flag}")

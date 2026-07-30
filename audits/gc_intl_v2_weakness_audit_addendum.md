@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-183
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-186
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4856,6 +4856,60 @@ percent of the benefit is not answerable from the mechanism.
 The output is the number rather than the verdict: a NAND-gated ring qualifies at or below 9.2 percent
 unselected, with one and a half points of margin against the ARO's 7.73.
 
+## W-INTL-184  The tolerance now applies where it is earned and nowhere else
+
+Severity: low. A blanket tolerance covers what does not need it.
+
+Nineteen of the twenty-two declared areas reproduce bit for bit across yosys versions and three do
+not. A single tolerance covered all twenty-two, so the nineteen could have drifted by a percent with
+nothing to say so. research/inputs.py names the three - all the shared-multiplier solver - and
+verify_inputs applies the tolerance only to those. Control: a mismatch on an exact-checked entry
+fires even with the tolerance flag given.
+
+## W-INTL-185  The selection fraction was chosen against the fresh error rate, and the aged margin is 1.10
+
+Severity: high, and it is the first sweep of the decisions-against-constraints column.
+
+That column has named, for each constraint, the decisions taken against it, since it was added six
+loops ago. It had never been swept. Swept now: six of eight rows are clean. The raw error rate row is
+not.
+
+Its decisions were the selection fraction, the enrolment read count and the code. The constraint
+moved when aging entered - what matters at ten years is the aged rate - and only the code was
+revisited.
+
+Worse, the aging analysis computed the aged rate with selected_ber, which is the perfect-ranking
+bound, and the file defining it says so in its docstring. Enrolment ranks by a majority vote over a
+handful of reads. Against what nine reads achieve, the design sat at 0.0403 against 0.0442 tolerated:
+a margin of 1.10, the thinnest number in this work, where the documents reported 0.0334 and comfort.
+
+The lever is not the fraction alone. Deeper selection at nine reads plateaus near 0.017, because past
+a third discarded the ranking is the limit - nine reads give five distinct reliability levels and
+cannot separate what remains. Fraction and reads have to move together.
+
+Adopted: forty percent kept, twenty-five reads. Ten-year effective rate 0.0058, margin 7.6, at 953
+raw positions instead of 477, forty-five oscillators instead of thirty-five, and 0.05 of a tile. The
+reads cost provisioning time and no area.
+
+Twelve bound figures failed the moment the inputs changed and each named itself, which is three loops
+of binding prose to the model paying for themselves in a single edit.
+
+## W-INTL-186  A bound quoted downstream as an achievable figure
+
+Severity: medium as a method finding, and it is the mechanism behind W-INTL-185.
+
+selected_ber is documented as the optimistic bound - perfect ranking, with the cost of estimating the
+ranking measured separately in the same file. The aging work called it and reported the result as the
+design's ten-year error rate. Downstream reads the number, not the docstring.
+
+An artefact that records what to revisit is also not a revisit: the decisions column was carried
+unswept for six loops, the same shape as the register going stale for three and the notes nobody read
+for dozens.
+
+The narrow lesson: a bound should carry its direction in its name. A function called selected_ber
+returns a rate; a function called selected_ber_ideal returns a bound, and the caller who wanted the
+achievable figure notices.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5015,6 +5069,9 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-176 | closed with a harness in CI; an equal-length mutation within one second is invisible to the interpreter, so a control can test nothing and look like a broken check |
 | W-INTL-179 | closed; the catalog checker skipped silently with the skip documented as a feature, and the check written for W-INTL-41 could not fail |
 | W-INTL-182 | closed; the seven percent toolchain spread was a stale tool, not version drift - nineteen of twenty-two areas identical under the pinned build and the CI tolerance drops to one percent |
+| W-INTL-184 | closed; the version tolerance applies to the three shared-solver entries only, so the other nineteen stay exact |
+| W-INTL-185 | closed; the selection fraction and read count were never revisited against the aged error rate, leaving a ten-year margin of 1.10 - now 7.6 at forty percent kept and twenty-five reads |
+| W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |
 | W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 96.4 percent of the aging-resistant cell's benefit |
 | W-INTL-181 | closed; the commit-claims probe was written literally into the workflow file, which is in the diff the check reads, so the control passed for the wrong reason |
 | W-INTL-180 | closed; every check in the repository now has a control and every control runs in CI |

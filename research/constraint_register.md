@@ -129,7 +129,7 @@ to change with it.
 | Constraint | Decisions taken against it | Moves with it |
 |---|---|---|
 | word failure at 1e-6 | correction strength t; number of blocks; the whole code choice | yes, and it did - the code was chosen against the raw rate and re-chosen two loops after selection changed it |
-| min-entropy density | number of blocks; k required; the oscillator floor; whether debiasing is needed | yes - and this loop it moved again, because the density that applies is the one *after* selection, which is 0.9293 rather than 0.9414 |
+| min-entropy density | number of blocks; k required; the oscillator floor; whether debiasing is needed | yes - and this loop it moved again, because the density that applies is the one *after* selection, which is 0.8988 rather than 0.9414 |
 | helper-data leakage | the construction itself: syndrome over code-offset, then SLLC over syndrome | no longer applies; SLLC removed the term |
 | sixteen tiles | every area trade: the solver's multiplier sharing, the Chien search left parallel, the field | yes - and the two largest area wins came from revisiting decisions after this constraint stopped binding |
 | raw bit error rate | the selection fraction; the number of enrolment reads; the code | yes - selection converted this constraint into a requirement for raw positions, and every decision above it moved |
@@ -187,8 +187,8 @@ while idle. The 32.41 percent stands, and the requirement is met by choosing the
 So the row becomes: **binding, met by choosing an aging-resistant oscillator.** It is the first
 constraint in this work whose satisfaction depends on a property of the oscillator, which makes the
 oscillator arrangement a design decision rather than a detail. Costed: two extra nMOS transistors
-per stage, 1.86 times the area by transistor width, 0.08 of a tile, taking the design from 3.35 to
-3.42 of sixteen. The factor is an estimate from the published transistor sizes and not a layout.
+per stage, 1.86 times the area by transistor width, 0.10 of a tile, taking the design from 3.37 to
+3.47 of sixteen. The factor is an estimate from the published transistor sizes and not a layout.
 
 What it changes elsewhere. Row 7, one enrolment per device, was recorded as binding as policy with
 no cost attached. It now has one: the ten-year figure is what the policy buys. And selection, which

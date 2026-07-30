@@ -29,6 +29,17 @@ the thing that drifts. Three categories:
 # instead of as twenty-two wrong numbers.
 TOOLCHAIN = {"yosys": "0.65"}
 
+# Which declared areas move between yosys versions, measured rather than assumed. Under
+# 0.67+111, nineteen of the twenty-two reproduce exactly and these three differ by at
+# most 0.259 percent - all of them the shared-multiplier solver, which is the design's
+# only stage with resource sharing and therefore the only one where the mapper has
+# choices to make differently.
+#
+# Named individually so that a tolerance applies where it is earned and nowhere else: a
+# blanket tolerance would have let the other nineteen drift silently.
+VERSION_SENSITIVE = {("decoder_serial", 7, 11), ("decoder_serial", 7, 13),
+                     ("decoder_serial", 7, 21)}
+
 # ── the shuttle ─────────────────────────────────────────────────────────────
 TILE_AREA = 18_032        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
 TILE_LIMIT = 16           # specified: largest submission is 8x2 tiles
@@ -104,7 +115,14 @@ MIN_ENTROPY_DENSITY = MIN_ENTROPY_BITS / MIN_ENTROPY_OVER
 # the fraction of positions the recommendation discards: 477 raw, 381 selected. The
 # density above applies before this and not after it.
 # units: positions / positions
-SELECTION_LOSS = 1 - 381 / 477
+#
+# Raised from 477 raw positions to 953 in W-INTL-185. The fraction was chosen against the
+# fresh-device error rate and never revisited against the aged one. At ten years on an
+# aging-resistant bank, with the nine enrolment reads this used to specify, the design sat
+# at 0.0403 against 0.0442 tolerated - a margin of 1.10, the thinnest number in this work.
+# Keeping forty percent and reading twenty-five times gives 0.0058, a margin of 7.6, for
+# five hundredths of a tile and no area beyond the extra oscillators.
+SELECTION_LOSS = 1 - 381 / 953
 
 # ── the requirement ─────────────────────────────────────────────────────────
 KEY_BITS = 128            # specified: the key the registry needs
@@ -193,8 +211,9 @@ SOLVER_AREA = {"parallel_t21_m7": 57_571, "serial_t21_m7": 22_131}
 # a requirement on the provisioning flow, not an implementation detail. Reliable-bit
 # selection ranks positions by repeated reads, and the ranking quality is what sets the
 # effective error rate: one read makes selection counterproductive, nine gives 0.0133
-# effective from 0.0600 raw, twenty-five gives 0.0104. Nine is the figure the budget uses.
-ENROLMENT_READS = 9
+# effective from 0.0600 raw, twenty-five gives 0.0104. Twenty-five is the figure the
+# budget uses, because nine leaves a margin of 1.10 at ten years - see W-INTL-185.
+ENROLMENT_READS = 25
 
 # ── debiasing ───────────────────────────────────────────────────────────────
 # measured there: Maes, van der Leest, van der Sluis and Willems, Table 2, overhead at
