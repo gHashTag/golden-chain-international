@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-52
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-55
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1873,6 +1873,124 @@ that it does not.
 
 ---
 
+## W-INTL-53  The key-equation solver was budgeted at a third of its measured area
+
+Severity: medium, and it is a correction of this project's own analysis rather than of
+anything external.
+
+`bch_area_probe.v` measured two of the decoder's three stages and deliberately left
+the key-equation solver out, on the stated grounds that writing it unverified in one
+pass and reporting the result as measured would be worse than saying it was not
+measured. The tile budget then carried the solver as comparable to the two stages
+beside it.
+
+Written and measured 2026-07-30, as the inversionless Berlekamp-Massey iteration, and
+verified before measured: syndromes constructed from known error patterns, the result
+compared projectively against the error locator built directly as a product of linear
+factors, every correctable weight from one error to t with three patterns each. 55
+patterns at t=18, all passing, and the check shown able to fail - two independently
+injected faults each failed 51 of the 55.
+
+| t | Solver | Previously assumed |
+|---|---|---|
+| 4 | 17,503 | 5,694 |
+| 8 | 31,620 | 10,475 |
+| 12 | 45,878 | 15,350 |
+| 18 | 66,847 | 22,668 |
+
+Low by a factor of 2.95, and the whole-decoder figure low by 1.97.
+
+The cause generalises, which is why this is an entry rather than a footnote. Syndrome
+accumulation and the Chien search multiply by compile-time constants and fold into XOR
+trees; Berlekamp-Massey multiplies two runtime values, about 3(t+1) times. Estimating
+the third stage from the first two assumed the same kind of arithmetic. Any estimate in
+this project that extrapolates area from a neighbouring block should be checked for the
+same assumption.
+
+Two silent faults surfaced while writing it, both recorded because both produce
+plausible output rather than failure. Doubling the register length by shifting rather
+than concatenating truncates 36 to 4 at t=18, a shift being self-determined at the
+width of its left operand; the iteration then lengthens on the wrong steps and returns
+a polynomial of the wrong degree. And selecting a coefficient with a ternary still
+elaborates an out-of-bounds read as the untaken operand, which simulation reports as
+such and synthesis may treat differently - measuring a circuit that is not the one the
+testbench passed.
+
+Status: closed as a measurement. It is superseded in significance by W-INTL-55, which
+finds that the code being sized is the wrong code.
+
+## W-INTL-54  The decoder-share column did not follow from the table it sat in
+
+Severity: low as an error, worth recording as a class.
+
+The tile budget's decoder-share column read 36, 51, 61 and 69 percent. Its own decoder
+and total columns give 21, 30, 35 and 40. All four rows are high by a consistent factor
+of about 1.72, which means the column was computed against a different denominator, and
+that denominator cannot be reconstructed from the document.
+
+The other two columns are internally consistent - the decoder column is exactly twice
+the two measured stages, which is what the stated assumption says it should be, and
+total minus decoder gives a smoothly growing series consistent with the information
+rate falling as t rises. So the share column is the error.
+
+Corrected in place rather than carried forward. The class worth noting: this project's
+consistency checker verifies the evidence ledger's counts against its own table, and
+verifies figures quoted in prose against their sources, but it does not verify that a
+derived column in a research document follows from the columns beside it. A check that
+recomputed percentage columns from their neighbours would have caught this the day it
+was written.
+
+## W-INTL-55  The decoder was sized for the code the literature recommends against
+
+Severity: high, and it is the most useful finding in this file for the hardware
+schedule.
+
+Every area analysis of the identity root so far has been of BCH(255,131) at t=18, on
+the stated grounds that this is the order published designs use for PUF key generation.
+That premise is wrong.
+
+Bosch, Guajardo, Sadeghi, Shokrollahi and Tuyls, "Efficient Helper Data Key Extractor
+on FPGAs", CHES 2008, is the standard reference on making a fuzzy extractor small, and
+its stated motivation is the same constraint this project has - the area belongs to the
+application, not the key generator. They consider BCH and discard it before
+implementing it, writing that BCH decoder algorithms are very complex and therefore
+expected to be expensive in area. Their construction concatenates a short odd
+repetition code with a first-order Reed-Muller code, and their measured conclusion on
+a Spartan-3E is that Reed-Muller wins on area and, by their own error tables, on
+correction performance too. They note they could find no BCH implementation to compare
+against and expected its complexity to be higher.
+
+Measured here, both codes, same library, same rule that nothing is quoted before it
+decodes correctly:
+
+| Circuit | Area | Tiles |
+|---|---|---|
+| R(1,6) + repetition, decoders | 4,596 | 0.25 |
+| BCH decoder, t=4 | 23,197 | 1.3 |
+| BCH decoder, t=18 | 89,515 | 5.0 |
+
+A factor of 19.5. The decoder falls from 57 percent of the tile budget to about seven.
+One corroboration: the paper states its decoder's flip-flop count as 2^m + 6m - 1,
+which is 99 at m=6, and the circuit here uses about 95 for the Reed-Muller half,
+reached by a different derivation.
+
+The cost moved rather than vanished, and this is the part that must travel with the
+finding. Their construction is measured at a bit error probability of 0.15 and needs
+4,800 source bits to yield a 128-bit key. This project's budget assumes 384 raw bits,
+from a three-times multiplier over the key length that was never tied to a measured
+error rate. So the decoder saving is large and measured, and the raw width it depends
+on is somewhere between one and twelve times what has been assumed.
+
+What that changes about priorities: characterising the oscillator error rate was
+already first because it sized the largest block. It is now first because it decides
+which code to build, and that decision is worth a factor of nineteen in the block that
+was until today believed to dominate the design.
+
+What it does not license: any statement that the identity root is built. These are
+synthesis areas for circuits verified in simulation. Nothing is fabricated.
+
+Closes when the error rate is measured on this process and a code is chosen against it.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -1925,3 +2043,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-50 | open, high before this committee; the single-satellite-vendor claim is false |
 | W-INTL-51 | open, high; proof types are stubs, not produced |
 | W-INTL-52 | open, medium; index-based absences re-checked by enumeration, one changed |
+| W-INTL-53 | closed as a measurement; the solver is 2.95x the area it was budgeted at |
+| W-INTL-54 | corrected; a derived percentage column did not follow from its own table |
+| W-INTL-55 | open, high; the decoder was sized for a code the literature recommends against, at 19.5x the area |

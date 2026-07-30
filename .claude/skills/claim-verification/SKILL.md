@@ -69,6 +69,46 @@ Roughly half of all corrections were the tool:
 Every check needs a negative control that fires. Every check that finds nothing
 should say whether it could have found something.
 
+## An estimate that extrapolates from a neighbour inherits its assumptions
+
+The rule that produced the largest correction so far. Two of a decoder's three stages
+were measured; the third was budgeted as comparable to them, and measured nearly three
+times larger. The two measured stages multiply by compile-time constants, which fold
+into XOR trees. The third multiplies two runtime values. The estimate had silently
+assumed the same kind of arithmetic.
+
+So when sizing an unbuilt block from a built one, name the property being carried
+across and check that it holds. "Similar block, similar area" is not a measurement; it
+is a claim about what the blocks have in common, and that claim is the thing to test.
+
+## Before sizing the thing, check it is the right thing
+
+Stronger than the rule above, and it arrived immediately after it. The measurement was
+correct and the subject was wrong: an area budget built around one error-correcting
+code, when the standard reference on that exact problem discards that code on area
+grounds and recommends another that measures nineteen times smaller.
+
+A well-verified measurement of the wrong configuration reads exactly like a
+well-verified measurement. Nothing internal to it signals the error - the testbenches
+pass, the negative controls fail, the numbers reconcile. The only thing that catches it
+is reading what the field already decided, and reading the paper rather than its
+abstract: the sentence that mattered here was a parenthetical explaining why they did
+not implement the obvious choice.
+
+So for any block being sized, ask first whether the literature has already chosen
+differently, and go looking for the reason rather than the recommendation.
+
+## A derived column is a claim, and unchecked claims drift
+
+A percentage column in a research table was high by a consistent factor of about 1.72
+across all four of its rows, against a denominator that could not be reconstructed from
+the document. The two columns beside it were correct and self-consistent.
+
+The consistency checker verified ledger counts against the ledger table and quoted
+figures against their sources, and did not verify that a derived column followed from
+its neighbours. Anything computed from other numbers in the same document should be
+recomputed by whatever checks that document, or it will drift and nothing will notice.
+
 ## Enumerate, then filter, then fetch
 
 When an index cannot be trusted, the replacement is not a better query - it is a
