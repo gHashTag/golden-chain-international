@@ -103,6 +103,36 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Run a new check against the failure that motivated it, before trusting it
+
+A check was written to close a specific past failure. Run against the two commits that produced
+that failure, it passed both - the thing that went missing was not the thing the check looks at.
+
+Without that step it would have gone into CI looking like coverage, and the next loop would have
+recorded the class as closed. A check that cannot see its own motivating case is worse than none,
+because it converts an open problem into a solved-looking one.
+
+So: replay the historical failure through the new check first. If it does not fire, either
+reformulate it or keep it with its scope written down - and find the real fix elsewhere.
+
+## A heuristic arm in a verification tool is worse than an absent one
+
+One arm of that check needed a list of verbs to tell "I changed X" from "X is where this lives".
+It would have worked often and failed quietly the rest of the time.
+
+An absent check leaves you looking. A heuristic one stops you looking and reports a number. Cut the
+arm rather than shipping partial coverage that reads as full.
+
+## Never put a destructive command inside a test control
+
+A control committed and reset to clean up after itself, and the reset deleted the untracked file
+being tested - the work of the previous half hour.
+
+Controls run on the thing you are least willing to lose, which is exactly when a hard reset, a
+checkout of a modified file, or a branch delete is the wrong instrument. Substitute in memory,
+copy to a scratch path, restore from a backup you made first. The one-line version: never let a
+cleanup step outrank the thing it is cleaning up after.
+
 ## An anchored edit must assert its anchor
 
 Two loops of edits were reported as made and were never in the file: a string replacement whose

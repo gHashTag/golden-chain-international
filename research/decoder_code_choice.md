@@ -2476,3 +2476,77 @@ anchor first. The general shape is that a silent no-op is worse than an error, b
 message then describes work the diff does not contain; and this project's three checks compare
 documents against each other and against the model, but nothing compares a commit message against
 its diff.
+
+## 89. Two advisories promoted, and one control that had to be redone
+
+The two notes `check_consistency` had been printing for dozens of loops are gone, not by
+suppression. Both were true, both were read as furniture, and neither could be discharged by a
+check that only knows how to say the same sentence again.
+
+**The concession cross-check.** The application claims attestation is rooted in the device while
+ledger row E26 is `not built`, and the note asked someone to confirm the wording concedes it. The
+wording does concede it, plainly - "the architecture is settled; the enforcement is not built". That
+is a confirmation that happens once and then has to be recorded somewhere a check can read. The
+application now carries `<!-- concedes: E26 -->` at the paragraph that makes the concession, and its
+absence is a failure.
+
+**The placeholder count.** `[MONTH]` is a fact only the applicant holds, and the note said so every
+run. What it could not express is the distinction that matters: an accounted-for placeholder in a
+draft is a state of the work, and the same placeholder in a document declared ready is a defect. The
+file now declares which it is. While it says draft, an accounted placeholder passes and an
+unaccounted one fails; when it says ready, every placeholder fails.
+
+Four controls, each run and each firing: the concession marker removed, the document marked ready
+with a placeholder present, no submission marker at all, and the accounting line for a live
+placeholder deleted.
+
+## 90. The check written for W-INTL-149 could not have caught W-INTL-149
+
+`check_commit_claims.py` compares a commit message against its diff, which is the gap W-INTL-149
+fell through: nothing in this repository compared a claim against the change supposed to have made
+it true.
+
+Run against the two commits that lost their status rows, it passes both. The audit *entries* landed
+and only the *table rows* did not, so the numbers do appear in the diff. That was found by running
+it against the historical case before trusting it, which is the only reason it is not sitting in CI
+right now looking like coverage.
+
+The check is kept, with its scope stated: it catches a commit naming an audit entry that nothing in
+the diff mentions, and that arm has a control that fires. The actual fix for W-INTL-149 is the
+promotion in section 89 - the check that *did* detect the loss reported it as a note.
+
+A second arm was written and cut. Matching file paths in the message against changed files needed a
+list of verbs to distinguish "I changed X" from "X is where this lives", and a verb list is a
+heuristic that reports coverage it does not have. In a verification tool that is worse than an
+absent check: an absent check leaves you looking, and a heuristic one stops you.
+
+The first version of that control committed and reset to clean up, and the reset deleted the file
+being tested. The rewritten control substitutes the message in memory and touches no git state.
+
+## 91. The pointer family re-costed, and the axis that was supposed to matter is inert
+
+Section 77 costed IBS against SLLC at 0.32 of a tile ahead and declined it. Two things have changed:
+the design has moved three times, so those absolute figures describe nothing that exists; and
+W-INTL-144 established that global thresholding amplifies bias where the pointer family does not -
+"IBS and C-IBS do not amplify bias [...] Rather the opposite: they remove all bias."
+
+| Construction | Positions | Osc | Extra logic | Cells | Tiles | k needed | carried |
+|---|---|---|---|---|---|---|---|
+<!-- derived:external --> | SLLC + thresholding, 80% kept | 477 | 35 | 3,176 | 34,970 | **3.35** | 137.7 | 171 |
+<!-- derived:external --> | IBS, block of 4, deficit is bias | 1,524 | 56 | 581 | 32,927 | **3.15** | 128.0 | 171 |
+<!-- derived:external --> | IBS, block of 4, deficit is correlation | 1,524 | 56 | 581 | 32,927 | **3.15** | 136.0 | 171 |
+
+The pointer family is 0.20 of a tile ahead, down from 0.32, and **the entropy axis does not enter
+the comparison at all**. It feeds the requirement on k, and the code carries 171 against a
+requirement of at most 137.7 in every arm. The axis that was expected to decide the question turns
+out to bear on a constraint that is slack.
+
+The reason the range is quoted at all is a trap worth naming. The measured entropy deficit is
+attributed entirely to bias in `selection_entropy.py`, because that maximises the amplification and
+is the pessimistic reading *for thresholding*. Attributing it entirely to bias again here would make
+IBS appear to recover the whole deficit, which is the optimistic reading of the same unknown. One
+assumption cannot be pessimistic in one comparison and optimistic in the next.
+
+Declined again, for the reason it was declined before: IBS needs a random number source SLLC does
+not, and its helper data is attackable by machine learning on exactly the correlation this source is
+reported to have. Nothing measured this loop touches that argument.

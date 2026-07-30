@@ -36,6 +36,11 @@ jobs:
           set -e
           python3 scripts/check_consistency.py
           python3 scripts/check_figures_reproduce.py
+      - name: commit claims
+        run: |
+          set -e
+          git fetch --no-tags --depth=50 origin main || true
+          python3 scripts/check_commit_claims.py
       - name: catalog rules
         run: |
           set -e

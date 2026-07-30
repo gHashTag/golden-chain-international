@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-149
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-152
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4149,6 +4149,76 @@ error, because the commit message describes work the diff does not contain - and
 this project runs compare documents against each other and against the model, but nothing compares
 a commit message against its diff.
 
+## W-INTL-150  Two standing advisories promoted to failures
+
+Severity: medium, and the habit matters more than either note.
+
+check_consistency had printed the same two notes for dozens of loops. Both were true and both were
+read as furniture - which is how the status-table loss in W-INTL-149 survived four loops of being
+reported.
+
+The concession cross-check asked someone to confirm the application's wording concedes what ledger
+row E26 does not support. It does concede it, plainly. That is a confirmation that happens once and
+has to be recorded where a check can read it, so the application now carries a marker at the
+conceding paragraph and its absence fails.
+
+The placeholder count could not express the distinction that matters: an accounted-for placeholder
+in a draft is a state of the work, and the same placeholder in a document declared ready is a
+defect. The file now declares which it is, and both arms fail.
+
+Four controls run, four fire: marker removed, document marked ready with a placeholder present, no
+submission marker at all, and the accounting line for a live placeholder deleted.
+
+The general rule, recorded as a skill: if a note is still true after two runs it is not a note.
+Either it can be discharged and should be a failure until it is, or it cannot and does not belong in
+a check's output.
+
+## W-INTL-151  The check written for W-INTL-149 could not have caught W-INTL-149
+
+Severity: low as a defect, high as a near miss.
+
+check_commit_claims.py compares a commit message against its diff, which is the gap W-INTL-149 fell
+through. Run against the two commits that lost their status rows, it passes both: the audit entries
+landed and only the table rows did not, so the numbers do appear in the diff.
+
+That was found by running it against the historical case before trusting it. Without that step it
+would be in CI now, looking like coverage of a failure it cannot see - and the loop after would have
+recorded the class as closed.
+
+Kept with its scope stated, since the one arm it does have has a control that fires. A second arm
+was written and cut: matching file paths against changed files needed a verb list to distinguish "I
+changed X" from "X is where this lives", and a heuristic that reports coverage it does not have is
+worse than an absent check.
+
+Also recorded: the first version of that control committed and reset to clean up, and the reset
+deleted the file under test. The rewritten control substitutes the message in memory and touches no
+git state. A destructive command inside a test of untracked work is the project's own debugging
+doctrine violated in one line.
+
+## W-INTL-152  The pointer family re-costed, and the axis expected to decide it is inert
+
+Severity: informational, and it closes a question rather than opening one.
+
+W-INTL-121 costed IBS against SLLC at 0.32 of a tile ahead and declined it. The design has moved
+three times since, and W-INTL-144 added an axis that runs one way: global thresholding amplifies
+bias, the pointer family does not.
+
+Re-costed at the operating point that exists: IBS is 0.20 of a tile ahead, 3.15 against 3.35, the
+saving being the masking machinery minus the oscillators the extra positions need. And the entropy
+axis does not enter the comparison at all - it feeds the requirement on k, and the code carries 171
+against a requirement of at most 137.7 in every arm. The axis expected to decide the question bears
+on a constraint that is slack.
+
+One methodological point is worth more than the arithmetic. The measured entropy deficit is
+attributed entirely to bias in the thresholding analysis because that is the pessimistic reading
+there. Attributing it entirely to bias again here would make IBS appear to recover the whole
+deficit, which is the optimistic reading of the same unknown. An assumption cannot be pessimistic in
+one comparison and optimistic in the next; the figure is quoted as a range for that reason.
+
+Declined again on the argument that has not changed: IBS needs a random number source SLLC does not,
+and its helper data is attackable by machine learning on exactly the correlation this source is
+reported to have.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4286,3 +4356,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-147 | closed; the figure-reproduction check repointed from a construction eight loops old to the one recommended now |
 | W-INTL-148 | closed; the SLLC encoder was the wrong code's, untested, and a bare literal in a script |
 | W-INTL-149 | closed; two loops of status rows were silently dropped by an anchorless string replacement, and the note that said so was read as noise |
+| W-INTL-150 | closed; two standing advisories promoted to failures, four controls run and firing |
+| W-INTL-151 | closed with its scope stated; the commit-claims check cannot see the failure it was written for, which is why the fix is W-INTL-150 |
+| W-INTL-152 | closed; the pointer family re-costed at 0.20 of a tile ahead and declined again, and the entropy axis turns out to feed a slack constraint |
