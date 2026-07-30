@@ -123,6 +123,27 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A summary saying there is nothing to read is not evidence there is nothing to read
+
+A fetched summary reported that a paper contained no discussion of the topic being searched for, and
+listed the absent subtopics. The PDF had twenty-one mentions of it, a subsection with that heading,
+and the measured result the next day's work was built on.
+
+A wrong quotation gets caught by the next reader. A wrong "there is nothing here" ends the search -
+and it is the cheapest claim in the world to check, because the file is already on disk. Grep before
+accepting an absence, always.
+
+## Bracket an estimate you cannot replace
+
+One figure in a design had neither a measurement nor a synthesis behind it, and the thing it
+estimated could not be measured with the tools at hand. Instead of leaving it unbounded, it was
+bracketed against the nearest measurable analogue - which showed the estimate was conservative by
+eleven to forty percent.
+
+The bracket did not produce a better number and was not meant to. It produced the *direction of the
+error*, which is what separates an approximation you can build on from one you can only hope about.
+When you cannot measure the thing, measure something that brackets it and say which side you are on.
+
 ## The unchecked step is likeliest where the unchecked answer is convenient
 
 A published figure appeared to kill a design. The write-up argued that the figure's operating point

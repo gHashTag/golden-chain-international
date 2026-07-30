@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-160
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-164
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4378,6 +4378,83 @@ are 2.6 percent of the design, because the entropy work took the bank from 341 t
 that would have been expensive at the old operating point is nearly free at this one - the mirror
 image of W-INTL-142, where decisions went stale because the operating point moved.
 
+## W-INTL-161  A borrowed input checked against the library, forty loops late
+
+Severity: low, and it passed. The interval is the finding.
+
+INVERTER_AREA comes from a published Tiny Tapeout tile - 6,730 square micrometres across 1,792
+inverters, so 3.7556 each - and every oscillator budget in this work rests on it. Checked against
+the standard-cell library everything else here is measured on: sky130_fd_sc_hd__inv_1 is 3.7522, a
+ratio of 1.0009. The tile's oscillators are drive-1 inverters and nothing was lost in the borrowing.
+
+One grep, against a file that had been on disk for forty loops. A borrowed number with a
+one-command check available and unrun is the same shape as W-INTL-100, where the check existed and
+the habit did not.
+
+## W-INTL-162  The aging factor bracketed against the library
+
+Severity: low. It does not change the number and it changes what the number is.
+
+The 1.86 aging-resistant factor is the one figure in the recommendation with neither a measurement
+nor a synthesis behind it. A tristate inverter is an inverter with two extra series devices, the
+same device count the ARO adds: einvn_0 is 1.333 times inv_1 and einvn_1 is 1.666. So two added
+devices cost between 1.33 and 1.67 laid out in this library, and the estimate in use is conservative
+by eleven to forty percent.
+
+Kept rather than replaced, because a tristate inverter is an analogue and not the circuit - its
+enable devices sit in the output stacks where the ARO's second device is a pull-up on the input
+node. The bracket does not give a better number; it gives the direction of the error, which is the
+difference between an unbounded approximation and a conservative one.
+
+## W-INTL-163  A second source on aging, and the lever it hands over
+
+Severity: medium, and it opens a route that costs no area.
+
+The ten-year requirement rested on one paper: simulated, 90 nm. He, Li, Yu and Yang, ASCH-PUF in
+JSSC, report silicon measurements under accelerated aging - 96 hours at 150 C and 1.4 V, "resulting
+in equivalent effects of several years' aging under nominal conditions" - on a subthreshold inverter
+array rather than a ring-oscillator bank. Aging appears there as an increase in the masking ratio,
+which is their name for reliable-bit selection: "at the start of aging is 24% and maintained below
+26% throughout the aging experiment".
+
+Two points of extra selection over several equivalent years, measured, against a third of all bits
+flipping over ten, simulated. Different devices, and ring oscillators are what the literature
+singles out as aging-sensitive, so these do not contradict. What the second source establishes is
+that the catastrophic figure is specific to the conventional ring oscillator and not a general fact
+about PUFs.
+
+The lever: "S-ASCH benefits from having a burn-in process prior to enrollment", because enrolling
+after some aging means "the masking ratio will not have such an aggressive increase". That is a
+requirement on the provisioning flow rather than on the die - the same class as the nine enrolment
+reads - and it costs no area.
+
+Quantified: this construction absorbs a post-enrolment flip rate of 9.2 percent against a
+conventional ten-year figure of 32.41, so burn-in before enrolment must leave at most 28 percent of
+the degradation still to come. Whether a practical burn-in achieves that is not answerable from
+either source, and it is now a number rather than a hope.
+
+Worth having because the route already adopted, the aging-resistant oscillator, rests on the one
+estimate in the design with no measurement behind it. Two independent routes to one requirement,
+with different failure modes.
+
+## W-INTL-164  A fetched summary asserted a paper had no aging content; it has twenty-one mentions
+
+Severity: medium as a method finding, and it is the third instance.
+
+The fetch of the ASCH paper returned "this paper contains no discussion of PUF aging, NBTI effects,
+bit error rate degradation over time, or lifetime stability measurements", with a list of absent
+topics and an assurance it would not fabricate numbers. Extracted and grepped, the same PDF has
+twenty-one occurrences of "aging", two of "NBTI", a subsection headed "D. Aging", and the burn-in
+result this loop is built on.
+
+Twice before, a summary was wrong about what a source said. This is the first time one was wrong by
+asserting absence, which is worse: a wrong quotation gets caught by the next reader, and a wrong
+"there is nothing here" ends the search. It is also the cheapest claim to check - one grep of a file
+already on disk.
+
+The rule this project has, read the primary source, needs the corollary: a summary saying there is
+nothing to read is not evidence that there is nothing to read.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4526,3 +4603,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-158 | closed; the reproduction script had never run anywhere but the machine that wrote it, and failed all 21 testbenches on its first Linux run |
 | W-INTL-159 | closed; two sentences supporting the aging finding were contradicted by a passage already on disk, including one that ran the wrong way |
 | W-INTL-160 | **closes W-INTL-154**; the aging-resistant oscillator costs 0.07 of a tile and takes the ten-year effective error from 0.2888 to 0.0334 |
+| W-INTL-161 | closed and passed; the borrowed inverter area matches the library to within 0.09 percent, checked forty loops late |
+| W-INTL-162 | closed; the aging factor bracketed against the library at 1.33 to 1.67 laid out, so the 1.86 in use is conservative |
+| W-INTL-163 | open as a route; a silicon source gives burn-in before enrolment as a second way to meet the aging requirement, at no area cost, needing at most 28 percent of the degradation left to come |
+| W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |

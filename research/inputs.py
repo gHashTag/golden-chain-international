@@ -28,7 +28,10 @@ UTILISATION = 20_900 / 36_064
 
 # ── the oscillator ──────────────────────────────────────────────────────────
 # measured there: the same published tile, 6,730 um^2 of ring oscillators across 1,792
-# inverters. Seven inverters per oscillator is that design's choice; Mansouri and Dubrova
+# inverters. Cross-checked against the library everything else here is measured on:
+# sky130_fd_sc_hd__inv_1 is 3.7522 um^2 and this figure is 3.7556, a ratio of 1.0009. The
+# published tile's oscillators are built from drive-1 inverters and nothing was lost in
+# the borrowing. Forty loops of budgets rested on that and it had never been checked. Seven inverters per oscillator is that design's choice; Mansouri and Dubrova
 # call ten to twenty typical, and W-INTL-92 shows tripling it changes no fit verdict.
 INVERTER_AREA = 6_730 / 1_792
 INVERTERS_PER_OSCILLATOR = 7
@@ -44,8 +47,16 @@ INVERTERS_PER_OSCILLATOR = 7
 # transistor width that is (0.42 + 0.36) / 0.42.
 #
 # Two approximations stacked, both stated: transistor width is not layout area, and the
-# base figure it multiplies is itself an inverter count from a published tile. It is the
-# right order and it is not a measurement. A layout would settle it.
+# base figure it multiplies is itself an inverter count from a published tile.
+#
+# Bracketed against the library rather than left unbounded. A tristate inverter is an
+# inverter with two extra series devices, which is the same device count the ARO adds
+# though not the same placement: sky130_fd_sc_hd__einvn_0 is 1.333 times inv_1 and
+# einvn_1 is 1.666. So the layout cost of two added devices in this library sits between
+# 1.33 and 1.67, and the 1.857 in use is conservative by eleven to forty percent. The
+# ratio is kept rather than replaced, because a tristate inverter is an analogue and not
+# the circuit; what the bracket buys is knowing which way the estimate errs. A layout
+# would settle it.
 AGING_RESISTANT_FACTOR = (0.12 + 0.30 + 0.12 + 0.24) / (0.12 + 0.30)
 
 OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
