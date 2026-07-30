@@ -22,10 +22,12 @@ LN2 = 0.6931471805599453
 # Synthesis against the SkyWater library at the typical corner, 2026-07-30.
 # Every one of these decoded correctly in a self-checking testbench first.
 DECODER_AREA = {
-    "bch255_131_t18": 89_515,   # syndrome bank + Chien + Berlekamp-Massey
+    "bch255_131_t18": 90_254,   # syndrome + Chien 23,407 corrected, solver 66,847
     "rep3_rm64":       4_596,   # R(1,6) majority logic + repetition, both decoders
     "rep3_rm32":       2_883,   # R(1,5) variant
-    "bch127_15_t27":  100_709,  # syndrome + Chien 27,590 over GF(2^7), solver 73,119
+    "bch127_15_t27":  102_267,  # syndrome + Chien 29,148 over GF(2^7), solver 73,119
+                                # the table stages are the corrected ones, verified end to end;
+                                # the figure they replace omitted the locator constant term
 }
 
 TILE = 18_032                   # one Tiny Tapeout tile, um^2
@@ -67,6 +69,18 @@ CONSTRUCTIONS = [
 # the construction they recommended fails it outright.
 MIN_ENTROPY_DENSITY = 241.0 / 256      # measured, Wilde/Hiller/Pehl
 KEY_BITS = 128
+
+# Debiasing overhead, if the response bias falls outside the range where adding raw
+# bits is enough. Maes, van der Leest, van der Sluis and Willems report classic von
+# Neumann debiasing costing a factor of about 4.4 at 50 percent bias and 5.3 at 30
+# percent - and note that a PUF's usual reusability across enrolments does not
+# necessarily survive a debiasing step, which matters for a registry that may
+# re-enrol a die.
+#
+# Whether it is needed here is unmeasured. It is carried as a switch rather than
+# folded in, because it decides whether one of the two oscillator arrangements fits
+# at all.
+DEBIAS_FACTOR = 4.4
 
 
 def residual_entropy(rep, outer):
@@ -252,14 +266,17 @@ def entropy_floor():
     return int(-(-128 // ENTROPY_PER_OSCILLATOR))
 
 
-def report(p_b):
-    print(f"\n=== bit error probability {p_b:.3f} ===")
+def report(p_b, debias=False):
+    tag = " with von Neumann debiasing" if debias else ""
+    print(f"\n=== bit error probability {p_b:.3f}{tag} ===")
     header = f"{'construction':34} {'raw':>6} {'fail':>10} " \
              f"{'reuse':>7} {'disjoint':>9}  tiles"
     print(header)
     print("-" * len(header))
     for label, rep, outer, key in CONSTRUCTIONS:
         bits, _ = raw_bits(rep, outer)
+        if debias:
+            bits = int(bits * DEBIAS_FACTOR + 0.5)
         fail = total_failure(rep, outer, p_b)
         dec = DECODER_AREA[key]
         lo = dec + oscillators_reused(bits) * RO_AREA
@@ -289,5 +306,8 @@ if __name__ == "__main__":
     print("\nDecoder areas are measured; oscillator areas scale a measured "
           "inverter area.\nThe error rate is the free variable because it is "
           "the one not measured.")
-    for p in (0.02, 0.05, 0.10, 0.15):
+    for p in (0.02, 0.05):
         report(p)
+    print("\nIf the response bias falls outside the range where extra raw bits are")
+    print("enough, a debiasing stage comes first and costs a factor of 4.4:")
+    report(0.05, debias=True)
