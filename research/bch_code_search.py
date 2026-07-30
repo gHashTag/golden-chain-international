@@ -17,9 +17,11 @@ in the sources this project has read, and refuses to search if any disagrees.
 
 from math import comb, ceil
 
-RHO = 241.0 / 256          # measured min-entropy per response bit
-KEY_BITS = 128
-TARGET_FAILURE = 1e-6
+import inputs as I
+
+RHO = I.MIN_ENTROPY_DENSITY      # imported, not redeclared - see research/inputs.py
+KEY_BITS = I.KEY_BITS
+TARGET_FAILURE = I.TARGET_FAILURE
 
 
 def bch_parameters(m):
@@ -109,14 +111,10 @@ def search(raw_budget, min_ber):
 
 
 # Decoder areas, measured against the SkyWater library and verified end to end first.
-MEASURED_AREA = {(7, 21): 79_787, (7, 23): 86_896, (7, 27): 102_267,
-                 (7, 31): 116_194, (8, 18): 90_254, (8, 30): 147_563,
-                 (8, 31): 152_170, (8, 42): 206_630, (8, 43): 211_985,
-                 (8, 45): 222_024, (8, 47): 231_431, (8, 55): 268_820,
-                 (9, 54): 304_465}
-TILE = 18_032
-UTILISATION = 0.58   # measured on the published tile; see W-INTL-99
-OSC_AREA = 7 * (6_730 / 1_792)
+MEASURED_AREA = I.DECODER_AREA
+TILE = I.TILE_AREA
+UTILISATION = I.UTILISATION
+OSC_AREA = I.OSCILLATOR_AREA
 ENTROPY_FLOOR_OSC = 272
 
 

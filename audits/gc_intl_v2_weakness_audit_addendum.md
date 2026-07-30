@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-105
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-108
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3245,6 +3245,68 @@ leakage bound withdrew it is the named example of this attack working. It was in
 leakage and vulnerable to helper-data manipulation, and the leakage bound happened to catch it
 first. Being wrong for a reason you did not find is not the same as being right.
 
+## W-INTL-106  One declaration per input, and the utilisation now carries its own derivation
+
+Severity: none as a defect. It is the structural fix for the class W-INTL-99 belongs to.
+
+The audit found each measured quantity in three to seven files - tile area three times,
+utilisation three, entropy density three, key length four, the decoder table three. Each is a
+place drift can start, and "a number carried by hand will eventually not be carried" is not
+fixed by care.
+
+`research/inputs.py` declares each once with its provenance and one of three categories:
+measured here and reproducible by `measure_all.sh`, measured elsewhere with conditions stated,
+or a published specification. Three scripts import rather than redeclare and all still agree.
+
+One improvement fell out: the utilisation had been written by hand as 0.58 and is 0.5795
+computed from the two numbers it comes from, 20,900 of cells in 36,064 of tile. The tile figure
+is unchanged at 8.49 and the constant now carries its derivation rather than a rounding of it.
+
+## W-INTL-107  The oscillator floor did not follow the recommendation, and the check caught it
+
+Severity: medium as a defect, and it is the first thing the new check found on its own.
+
+`check_figures_reproduce.py` was extended from one figure to three. It failed immediately: the
+ledger's oscillator floor says 360, which belongs to BCH(127,22,23), while the recommendation
+moved to BCH(127,29,21) six loops ago - leakage 2,254 rather than 2,415, floor 341.
+
+The number did not follow the recommendation, and no amount of reading would have found it. The
+figure is plausible, sits in a sentence about a different code's properties, and is the correct
+answer to a question nobody was asking any more.
+
+Corrected. Two caveats about the check itself. It caught this only once its pattern matched
+the prose - my first pattern looked for "the floor being N oscillators" where the text says
+"oscillator floor is N oscillators", and it silently matched nothing. A check whose pattern
+does not fire is a check that passes.
+
+And the fixed version then failed on the write-up of this very entry, because its guard
+tested whether the phrase appeared anywhere in a document and the write-up quotes the phrase
+while describing the failure message. A guard looser than the pattern it protects reports
+failures for prose rather than for arithmetic. Corrected by distinguishing the document that
+must state a figure from ones that merely may; both controls still fire, on a wrong figure and
+on a missing one.
+
+## W-INTL-108  The end-to-end chain was validating a superseded construction
+
+Severity: medium. Third instance of the same drift in one loop.
+
+`key_generator_e2e.py` was still built around BCH(127,22,23). The recommendation moved to
+BCH(127,29,21) in loop 61, and the chain kept validating the older one for six loops - including
+the Monte Carlo that gave the failure model its second witness, so that witness was for a
+construction no longer being recommended.
+
+Nothing in the file was wrong. It simply described a design the rest of the analysis had stopped
+recommending.
+
+Repointed and re-run, and the agreement holds: at four percent the model predicts 1.7e-07 and
+300 trials show none, at six percent 1.58e-04 against none in 300, at eight percent 0.0107
+predicted against 0.015 observed in 200. Keys round-trip at zero and two percent noise at two
+bias levels.
+
+Three instances of one drift class in a single loop - a factor lost between documents, a floor
+that did not follow its code, and a chain validating a superseded design - all found by building
+the instrument rather than by looking harder.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3350,3 +3412,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-103 | corrected; two pre-correction figures survived in the same ledger row as the corrected one |
 | W-INTL-104 | closed; the five remaining binding rows re-derive correctly, and only the area row had been wrong |
 | W-INTL-105 | open, high; syndrome-based BCH is on the immune side of the code-offset line, corroborated twice and still unverified |
+| W-INTL-106 | closed; every input declared once in research/inputs.py with its provenance, three scripts refactored to import |
+| W-INTL-107 | corrected; the oscillator floor was the previous code's, found by the extended check on its first run |
+| W-INTL-108 | corrected; the end-to-end chain had validated a superseded construction for six loops |

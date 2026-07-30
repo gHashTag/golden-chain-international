@@ -21,28 +21,18 @@ LN2 = 0.6931471805599453
 # ── measured inputs ─────────────────────────────────────────────────────────
 # Synthesis against the SkyWater library at the typical corner, 2026-07-30.
 # Every one of these decoded correctly in a self-checking testbench first.
-DECODER_AREA = {
-    "bch255_131_t18": 90_254,   # syndrome + Chien 23,407 corrected, solver 66,847
-    "rep3_rm64":       4_596,   # R(1,6) majority logic + repetition, both decoders
-    "rep3_rm32":       2_883,   # R(1,5) variant
-    "bch127_15_t27":  102_267,  # syndrome + Chien 29,148 over GF(2^7), solver 73,119
-                                # the table stages are the corrected ones, verified end to end;
-                                # the figure they replace omitted the locator constant term
-}
+import inputs as I
 
-TILE = 18_032                   # one Tiny Tapeout tile, um^2
-# Cell area is not die area. The published tile this project measures its oscillators
-# from declares 1x2 tiles, 36,064 um^2, and holds 20,900 um^2 of cells - 58 percent
-# utilisation, measured in the same flow on the same process. That factor was applied
-# in the original tile budget and then dropped from every figure computed after the
-# code-choice work began, which made every tile count optimistic by 1.7 (W-INTL-99).
-UTILISATION = 0.58
-TILE_LIMIT = 16                 # largest submission, 8x2
+DECODER_AREA = I.DECODER_AREA
+
+TILE = I.TILE_AREA
+UTILISATION = I.UTILISATION
+TILE_LIMIT = I.TILE_LIMIT
 
 # One seven-inverter ring oscillator, from the measured inverter area in the
 # published tile: 6,730 um^2 across 1,792 inverters, seven per oscillator.
-INVERTER_AREA = 6_730 / 1_792
-RO_AREA = 7 * INVERTER_AREA
+INVERTER_AREA = I.INVERTER_AREA
+RO_AREA = I.OSCILLATOR_AREA
 
 # Error-free bits needed before hashing to a 128-bit key. Taken from the paper
 # rather than derived: it follows from the entropy per bit of the PUF they used,
@@ -73,8 +63,8 @@ CONSTRUCTIONS = [
 #
 # The first two versions of this file did not have this constraint at all, and
 # the construction they recommended fails it outright.
-MIN_ENTROPY_DENSITY = 241.0 / 256      # measured, Wilde/Hiller/Pehl
-KEY_BITS = 128
+MIN_ENTROPY_DENSITY = I.MIN_ENTROPY_DENSITY
+KEY_BITS = I.KEY_BITS
 
 # Debiasing overhead, if the response bias falls outside the range where adding raw
 # bits is enough. Maes, van der Leest, van der Sluis and Willems report classic von

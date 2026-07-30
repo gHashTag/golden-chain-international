@@ -1541,3 +1541,75 @@ two loops before the leakage bound withdrew it is the *named example* of the att
 It was inadmissible on leakage and vulnerable to helper-data manipulation, and the leakage
 bound happened to catch it first. Being wrong for a reason you did not find is not the same as
 being right.
+
+---
+
+## 57. One declaration per input
+
+The audit prompted by W-INTL-99 found each measured quantity living in three to seven
+files: the tile area declared three times, the utilisation three times, the entropy density
+three times, the key length four, the decoder table three. Each of those is a place where
+drift can start, and the rule that came out of the last loop - a number carried by hand
+will eventually not be carried - is not fixed by being careful.
+
+`research/inputs.py` now declares each one once, with the measurement it came from and
+which of three categories it belongs to: measured here and reproducible by
+`measure_all.sh`, measured by somebody else with the conditions stated, or a published
+specification. `code_choice_model.py`, `bch_code_search.py` and
+`scripts/check_figures_reproduce.py` import rather than redeclare, and all three still
+agree.
+
+One small improvement fell out. The utilisation had been written by hand as 0.58; computed
+from the two numbers it comes from - 20,900 square micrometres of cells in 36,064 of tile -
+it is 0.5795. The tile figure is unchanged at 8.49, and the constant now carries its own
+derivation instead of a rounding of it.
+
+## 58. Extending the check found a live error immediately
+
+The check from section 53 verified one figure. Extended to the entropy-density floor and
+the oscillator floor, it failed at once:
+
+    FAIL: evidence_ledger.md: oscillator floor says 360, recomputing from inputs gives 341
+
+The floor of 360 belongs to BCH(127,22,23). The recommendation moved to BCH(127,29,21) six
+loops ago, whose leakage is 2,254 rather than 2,415 and whose floor is therefore 341. The
+number did not follow the recommendation.
+
+Corrected. Two things about it. The error had been in the ledger through every loop since
+the recommendation changed, and no amount of reading would have found it - the figure is
+plausible, sits in a sentence about a different code's properties, and is the *right* answer
+to a question nobody was asking any more. And the check only caught it once its pattern
+matched the prose: my first pattern looked for "the floor being N oscillators" where the
+text says "oscillator floor is N oscillators", and it silently matched nothing. A check
+whose pattern does not fire is a check that passes.
+
+## 59. The end-to-end chain had been validating the wrong construction
+
+`key_generator_e2e.py` was still built around BCH(127,22,23). The recommendation moved to
+BCH(127,29,21) in loop 61, and the chain kept validating the older one for six loops -
+including the Monte Carlo that gave the failure model its second witness.
+
+The same drift as W-INTL-99, in a third place. Nothing in the file was wrong; it simply
+described a construction the rest of the analysis had stopped recommending.
+
+Repointed and re-run. The agreement holds on the new construction: at four percent bit error
+rate the model predicts 1.7e-07 and 300 trials show none; at six percent 1.58e-04 against
+none in 300; at eight percent 0.0107 predicted against 0.015 observed in 200. Keys round-trip
+at zero and two percent noise at two bias levels.
+
+So the model still has a second witness, and it is now a witness to the construction actually
+being recommended.
+
+Three instances of one drift class in a single loop - a factor lost between documents, a floor
+that did not follow its code, and a chain validating a superseded design - and all three were
+found by building the instrument rather than by looking harder. That is the argument for the
+instrument.
+
+One more, and it happened while writing this section. The extended check failed on the
+paragraph above, because its guard tested whether the phrase "oscillator floor is" appeared
+anywhere in a document and this section quotes that phrase while describing the failure
+message. A guard looser than the pattern it protects reports failures for prose rather than
+for arithmetic. Corrected by distinguishing the document that must state a figure from ones
+that merely may, and both controls still fire - a wrong figure and a missing one. Eighth time
+one of these checks has caught something in my own writing, and the first time it caught the
+text describing itself.
