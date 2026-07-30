@@ -94,6 +94,32 @@ directly took one download and it held - but the inference was the weakest link 
 the chain while it stood, and it stood in a document presented as verified. Where a
 claim concerns a specific thing, reach the document for that thing.
 
+## Audit the sections nobody audits
+
+Verification concentrates where numbers are, so the sections that carry
+architecture rather than figures get read and not checked. Three findings arrived in
+one pass over the two sections of an application that had never been examined - after
+forty-odd passes over the rest.
+
+They were: a hardware component asserted in the product description that the
+project's own working notes say is not fitted; a statement that two radios have never
+been powered simultaneously, which meant no two-party radio test had ever been
+possible and made a set of simulation-level rows unrunnable rather than merely
+unrun; and a market claim of a single supplier in a market with at least four,
+addressed to a committee that buys in that market.
+
+None of the three needed a tool. Two came from grepping the subject's own working
+files for the component names in its own prose. The third came from one search.
+
+**Take the prose apart into claims and check each one, especially where there is no
+number to attract attention.** A sentence describing what a thing is made of is as
+checkable as a measurement, and it is checked far less often.
+
+Note also where the subject is more honest internally than externally. In all three
+cases the working notes were candid - GPS marked as unavailable, the single-radio
+limitation written down by its own author, a rate constant labelled a guess. The
+defect was in what reached the outside, not in what was known.
+
 ## Ask how far away, not only whether
 
 A conclusion that a capability is unreachable on current hardware was correct and
