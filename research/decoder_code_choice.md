@@ -2143,7 +2143,7 @@ measured on this library:
 |---|---|---|
 <!-- derived:external --> | BCH(127,29,21) decoder, three stages | 79,787 | 86.9 percent |
 <!-- derived:external --> | SPONGENT permutation, the manipulation countermeasure | 6,215 | 6.8 percent |
-<!-- derived:external --> | SLLC encoder and unmask | 4,745 | 5.2 percent |
+<!-- derived:external --> <!-- derived:external --> | SLLC encoder and unmask | 4,745 | 5.2 percent |
 <!-- derived:external --> | 41 ring oscillators at 26.3 square micrometres | 1,077 | 1.2 percent |
 | **cell area** | **91,824** | |
 | die area at 57.95 percent utilisation | 158,446 | |
@@ -2159,3 +2159,55 @@ entropy density and the error rate decided which code was admissible, and the co
 the area. But the effort went into refining a small term while the large one was settled early and
 revisited only when a paper forced it. Sorting the budget by share is a cheap thing to do and it
 would have said so at any point.
+
+---
+
+## 79. Sharing the multipliers, which is where the 87 percent was
+
+Section 78 observed that the decoder is 87 percent of the design and that six loops had gone into
+the 1.2 percent. This acts on that.
+
+The key-equation solver instantiates 3(t+1) general multipliers - 66 at t=21 - and is 57,571 of the
+decoder's 79,787 square micrometres. That count is right for a communications decoder, which needs a
+codeword per symbol time. A key generator runs once at power-up and may take as long as it likes.
+
+Rewritten with two multipliers shared across cycles instead of sixty-six in parallel:
+
+| Form | Multipliers | Area | Cycles |
+|---|---|---|---|
+<!-- derived:external --> | parallel | 66 | 57,571 | one per iteration |
+<!-- derived:external --> | serial | 2 | **22,131** | about 1,850 in total |
+
+Sixty-two percent of the solver, for 185 microseconds once at power-up on a ten megahertz clock.
+
+Verified differentially rather than against a re-derived expectation: the same syndromes into both
+solvers, and the locator and its degree must match. Every error weight from one to twenty-one, two
+patterns each, forty-two cases, all matching. An injected fault in the serial version alone - the
+length condition weakened - fails all forty-two.
+
+Two implementation notes worth keeping. The first version registered the multiplier operands and
+used the product in the same cycle, so every product reflected the previous cycle's operands; the
+differential test caught it immediately, which a same-cycle inspection would not have. And the
+update now lands in a shadow array committed in one step, so that the discrepancy phase reads a
+consistent locator rather than one being rewritten underneath it.
+
+## 80. The budget after it
+
+| Component | Parallel | Serial |
+|---|---|---|
+<!-- derived:external --> | decoder, three stages | 79,786 | 44,346 |
+<!-- derived:external --> | SLLC encoder and unmask | 4,745 | 4,745 |
+<!-- derived:external --> | SPONGENT permutation | 6,215 | 6,215 |
+<!-- derived:external --> | 41 ring oscillators | 1,077 | 1,077 |
+<!-- derived:external --> | cell area | 91,823 | 56,383 |
+| **tiles of sixteen** | **8.79** | **5.40** |
+
+**3.39 tiles, thirty-nine percent of the design, from one change to the component that was
+eighty-seven percent of it.**
+
+That is the largest single reduction in this work, and it came from sorting the budget by share one
+loop ago rather than from any new measurement or paper. The technique was available from the start:
+the solver's own header has said since it was written that a systolic reformulation exists and that
+timing is not closed, and the observation that latency is free here has been in the constraint
+register as slack since power and timing were checked. Nothing was learned this loop that was not
+already written down; what changed was looking at which term was large.

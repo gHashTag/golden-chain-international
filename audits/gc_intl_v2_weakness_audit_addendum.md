@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-138
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-139
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3896,6 +3896,38 @@ Severity: none. It extends W-INTL-109 to the components added since.
 `verify_inputs.py` re-synthesised the thirteen decoder areas and nothing else, so the countermeasure
 and the characterisation readout were declared as measured without a check behind them. Extended: the
 SPONGENT round at 2,215 and the full permutation at 6,215 both reproduce exactly.
+
+## W-INTL-139  Sharing the solver's multipliers takes thirty-nine percent off the design
+
+Severity: this is not a weakness. It is the largest single reduction in this work and it acts on
+W-INTL-136.
+
+W-INTL-136 observed that the decoder is 87 percent of the design and that six loops had gone into
+the 1.2 percent. The key-equation solver instantiates 3(t+1) general multipliers - 66 at t=21 - and
+is 57,571 of the decoder's 79,787 square micrometres. That count is right for a communications
+decoder needing a codeword per symbol time, and this runs once at power-up.
+
+Rewritten with two multipliers shared across cycles: 22,131 square micrometres, sixty-two percent
+less, for about 1,850 cycles - 185 microseconds once at ten megahertz.
+
+Verified differentially rather than against a re-derived expectation: the same syndromes into both
+solvers, locator and degree must match, every error weight from one to twenty-one with two patterns
+each, forty-two cases all matching. An injected fault in the serial version alone fails all
+forty-two.
+
+The budget: decoder 79,786 to 44,346, cell area 91,823 to 56,383, and 8.79 tiles to 5.40. Thirty-nine
+percent of the design from one change to the component that was eighty-seven percent of it.
+
+Two implementation notes. The first version registered the multiplier operands and used the product
+in the same cycle, so every product reflected the previous cycle's operands - the differential test
+caught it immediately where inspection would not have. And the update now lands in a shadow array
+committed in one step, so the discrepancy phase reads a consistent locator.
+
+What makes this entry worth reading is that nothing was learned here. The solver's own header has
+said since it was written that a systolic reformulation exists and timing is not closed. The
+observation that latency is free has been in the constraint register as slack since power and timing
+were checked. The technique was available from the first loop; what changed was sorting the budget by
+share and looking at which term was large.
 
 ## Priority order
 

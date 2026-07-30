@@ -103,6 +103,32 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Act on the observation you just wrote down
+
+One loop after recording that the largest component had absorbed no optimisation while the smallest
+had absorbed six loops of it, acting on that observation removed thirty-nine percent of the design in
+a single change.
+
+Nothing new was learned. The technique had been named in the component's own header from the first
+loop, and the property that made it free had been sitting in the constraint register marked slack.
+Both were written down and neither was used.
+
+So when a loop produces an observation about where the effort should go, the next loop is that -
+not the next item on the list that was drawn up before the observation. An insight recorded and not
+acted on is indistinguishable from one never had.
+
+## Verify a rewrite differentially against the version it replaces
+
+A rewritten module was checked by feeding both it and the original the same inputs and requiring the
+outputs to match, rather than by re-deriving the expected answers.
+
+That is cheaper and stronger. Cheaper because the reference already exists; stronger because the
+reference has itself been verified against constructed cases and against injected faults, so the
+differential test inherits all of it. It also caught a pipelining error on the first run - products
+reflecting the previous cycle's operands - that reading the code would not have shown.
+
+Keep the original in the tree afterwards. It is the test.
+
 ## Sort the budget by share before deciding where to work
 
 A design's cost was assembled across twenty sections and never shown as one sorted table. Assembling
