@@ -69,6 +69,22 @@ Roughly half of all corrections were the tool:
 Every check needs a negative control that fires. Every check that finds nothing
 should say whether it could have found something.
 
+## Enumerate, then filter, then fetch
+
+When an index cannot be trusted, the replacement is not a better query - it is a
+listing. File trees pulled through the API for six repositories came to just over
+forty thousand paths; filtering those by name for the subject, then fetching the
+handful of candidates, found a model the index had never surfaced under five
+different phrasings.
+
+The order matters. Enumerate first, because a listing is complete in a way a query
+is not. Filter on paths, because names are cheap and contents are not. Fetch last,
+and only the candidates.
+
+This also gives absence a form worth stating: not "five searches returned nothing"
+but "forty thousand paths were listed, filtered on these terms, and the candidates
+read." The second is a claim someone else can repeat.
+
 ## When the index fails, fetch the files
 
 An account-wide code search returned nothing for a phrase that was demonstrably

@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-51
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-52
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1814,6 +1814,63 @@ code as output.
 
 Closes when no external document says proofs are produced today.
 
+## W-INTL-52  Re-checking the index-based absences: one changed, and a comparison report should not be quoted
+
+Severity: medium. This entry exists because the previous loop showed the account-wide
+code search does not reach every file, which put every earlier absence conclusion
+drawn from it under suspicion.
+
+Method. File trees enumerated through the git API for six repositories - 13,959,
+18,210, 673, 761, 117 and 7,350 paths - filtered by name for energy, power, joule,
+watt and efficiency, then for comparison, baseline and naive. Candidates fetched and
+read. No index involved.
+
+Result one: the energy finding changes in part. E20 recorded that no derivation was
+found for the 4x to 8x figure, searched under five formulations. Enumeration found
+something the index had not surfaced: a device-side power model in t27 at
+conformance/fpga_power.json. It carries stated constants for an Artix-7 - ten
+microwatts per megahertz per lookup table, five per flip-flop, fifty per block
+memory, one hundred per multiplier, twenty per input-output, fifty milliwatts static
+base, a twelve percent default toggle rate - together with device limits, a two-watt
+typical budget, and declared invariants that power estimates and utilisation stay in
+range.
+
+That is coarse and round-numbered, and it is a model with its assumptions written
+down, which is more than the ledger credited. The device half of the energy claim is
+therefore modelled rather than absent.
+
+What is still absent, and now absent by enumeration rather than by index: any
+comparison against a general-purpose baseline, and any derivation from the naive
+twenty-fold figure to the quoted four-to-eight. The model computes what an Artix-7
+design consumes. It does not compare that to anything.
+
+Result two, incidental and worth recording before someone quotes it. A binary-versus-
+ternary benchmark report exists and does not say what its title suggests. It measures
+execution time in a software virtual machine, not energy, and ternary is slower on
+every row - ratios of 1.48, 1.97, 1.68 and 2.64 in binary's favour. Several ternary
+result columns read "1 (wrapped)", which suggests the ternary path is producing wrong
+values rather than merely slow ones, and a comparison whose one side is wrong is not a
+comparison.
+
+None of that contradicts the project's thesis, which is about hardware rather than
+software interpretation, and there is no reason ternary arithmetic would be faster in
+a binary virtual machine. But the file is named as a comparison report and would be
+read as one.
+
+Action.
+
+1. Restate E20 as done: device side modelled with stated assumptions, comparison side
+   non-existent.
+2. Do not cite the binary-versus-ternary report. Fix the wrapped results or mark the
+   file as not a valid comparison.
+3. The remaining absences in this audit that rest on the index should be re-checked
+   the same way. This pass covered energy and comparison; W-INTL-43 on the timing
+   report used direct fetches as well as the index and is less exposed, but it is not
+   clear of it.
+
+Closes when every absence conclusion in this file either rests on enumeration or says
+that it does not.
+
 ---
 
 ## Priority order
@@ -1867,3 +1924,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-49 | open, high; two radios have never been up together |
 | W-INTL-50 | open, high before this committee; the single-satellite-vendor claim is false |
 | W-INTL-51 | open, high; proof types are stubs, not produced |
+| W-INTL-52 | open, medium; index-based absences re-checked by enumeration, one changed |
