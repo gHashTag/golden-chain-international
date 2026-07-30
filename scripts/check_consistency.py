@@ -21,6 +21,13 @@ long document will miss again. Each check is cheap and deterministic.
      severity line, and a status table listing every entry.
   8. Structural checks on the competitor matrix: every quantitative row carries a
      provenance marker, and every [PUB] row names a citation that can be chased.
+  9. Percentages stated in a table row must be derivable from two other numbers in
+     that row. Added 2026-07-30 after a decoder-share column was found high by a
+     consistent factor of about 1.72 across all four of its rows, against a
+     denominator that could not be reconstructed from the document. The two columns
+     beside it were correct. Nothing in this file recomputed a derived column, so
+     nothing noticed for as long as the table stood. Mark a row whose percentage
+     genuinely comes from outside its table with `<!-- derived:external -->`.
 
 A note on testing this file. Negative controls must be written with the same care
 as the checks. Two of them here failed to fire not because a check was weak but
@@ -275,6 +282,48 @@ def check_matrix_markers(matrix_text):
             )
 
 
+DERIVED_EXEMPT = "derived:external"
+
+
+def check_derived_percentages(docs):
+    """A percentage in a table row is a claim about two other numbers in that row.
+
+    For each row containing 'N percent' or 'N%', look for an ordered pair of the
+    row's other numeric cells whose ratio rounds to N. If no pair does, the figure
+    came from somewhere the reader cannot see, and that is either a labelling
+    omission or an arithmetic error. It was an arithmetic error the one time this
+    was checked by hand.
+    """
+    for path, text in docs:
+        for line in text.splitlines():
+            if not line.startswith("|") or DERIVED_EXEMPT in line:
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            pcts, plain = [], []
+            for cell in cells:
+                m = re.fullmatch(r"([0-9]+(?:\.[0-9]+)?)\s*(?:percent|%)", cell)
+                if m:
+                    pcts.append(float(m.group(1)))
+                    continue
+                n = re.fullmatch(r"([0-9][0-9,]*(?:\.[0-9]+)?)", cell)
+                if n:
+                    plain.append(float(n.group(1).replace(",", "")))
+            if not pcts or len(plain) < 2:
+                continue
+            for pct in pcts:
+                found = False
+                for a in plain:
+                    for b in plain:
+                        if b and abs(100.0 * a / b - pct) <= 1.0:
+                            found = True
+                if not found:
+                    failures.append(
+                        f"{path.name}: '{pct:g} percent' in a row whose other "
+                        f"numbers {[int(v) if v.is_integer() else v for v in plain]} "
+                        f"produce no such ratio"
+                    )
+
+
 def check_references_resolve(paths):
     """A reference to a file that does not exist is a defect unless the same
     line says so. Documents here deliberately name unwritten files in order to
@@ -316,6 +365,8 @@ def main():
     if MATRIX.exists():
         check_matrix_markers(MATRIX.read_text())
     check_references_resolve([p for p, _ in docs])
+    research = sorted((ROOT / "research").glob("*.md")) if (ROOT / "research").exists() else []
+    check_derived_percentages(docs + [(p, p.read_text()) for p in research])
 
     for note in notes:
         print(f"note: {note}")

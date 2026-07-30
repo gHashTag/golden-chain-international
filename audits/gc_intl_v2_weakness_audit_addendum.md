@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-55
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-58
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1991,6 +1991,87 @@ synthesis areas for circuits verified in simulation. Nothing is fabricated.
 
 Closes when the error rate is measured on this process and a code is chosen against it.
 
+## W-INTL-56  The pair count was used as an entropy count, and it is not one
+
+Severity: high. It invalidates the optimistic column of the tile budget and it is
+stated as wrong in the literature the project should have been reading.
+
+The budget document proposed sharing one comparison chain across a bank of ring
+oscillators, on the reasoning that a bank of R offers R(R-1)/2 distinct pairs, far more
+than any key needs, so the constraint moves from oscillator count to pair
+independence.
+
+Mansouri and Dubrova, arXiv:1207.4017, say why that fails. For a traditional RO-PUF
+not all challenges are valid: if A is faster than B and B is faster than C then A is
+necessarily faster than C, so the third response is predictable from the other two.
+Frequency comparison is a total order.
+
+R oscillators therefore realise one of R! rankings and carry log2(R!) bits, however
+many pairs are read out. R(R-1)/2 counts challenges a verifier may pose, not bits an
+adversary cannot guess, and the gap grows: at R=614 the pair count is 188,191 against
+4,807 bits of ordering, a factor of 39.
+
+The document had flagged pair independence as unmeasured, which was the right
+instinct pointed at the wrong thing. The problem is not that the pairs might turn out
+correlated on this process; it is that they are provably dependent for any process,
+by transitivity, and the amount of dependence is calculable rather than
+uncertain. `research/code_choice_model.py` now carries both readings side by side so
+the size of the overstatement stays visible.
+
+The ordering figure is itself an upper bound. It assumes every ranking equally likely,
+and the same literature reports that pairs too close in frequency must be discarded
+for reliability, at about a fifth of them in a temperature-aware design.
+
+Closes when the entropy per oscillator is measured on this process. Until then
+log2(R!) is the number to use and R(R-1)/2 should not appear.
+
+## W-INTL-57  The code every area analysis sized does not meet its own error target
+
+Severity: high, and it is the finding that should have come first.
+
+Five loops of area analysis took BCH(255,131) at t=18 as the target configuration.
+None asked whether it reaches the word error probability the application needs.
+
+Computed 2026-07-30 with a model calibrated against the published table it derives
+from - five checks, all matching to three significant figures. BCH(255,131) at t=18
+reaches one in a million only if the bit error probability is below 1.88 percent. Ring
+oscillator responses across temperature are not reliably below that, and the same
+literature that supplies the one concrete figure available - 0.48 percent of bits
+flipping at ten percent supply deviation, from SPICE on 90 nm with matched pairs -
+describes temperature as the larger effect and handles it by discarding unreliable
+pairs.
+
+| Construction | Works up to | Raw bits | Oscillators | Tiles |
+|---|---|---|---|---|
+| BCH(255,131) t=18 | 1.88 percent | 510 | 98 | 5.11 |
+| rep[3] + RM[64,7,32] | 13.22 percent | 4,800 | 614 | 1.15 |
+| rep[5] + RM[32,6,16] | 12.53 percent | 4,640 | 596 | 1.03 |
+
+So the code was not merely expensive, as W-INTL-55 concluded. It was ineffective, and
+the area analysis obscured that by never checking the code against its requirement.
+The class of error is worth naming: measuring a configuration carefully is not the
+same as establishing that the configuration is admissible, and a careful measurement
+of an inadmissible configuration reads exactly like a useful result.
+
+What survives, and is now better supported than before: it fits. The recommended
+construction takes about one tile of the sixteen a submission may use and holds to a
+bit error probability of 13 percent. The question W-INTL-46 raised is answered no on
+every input that has been measured.
+
+## W-INTL-58  This file overstated the code advantage by leading with a decoder-only figure
+
+Severity: low, and it is a correction of the entry above it rather than of the project.
+
+W-INTL-55 reported a factor of 19.5 between the two codes. That factor is decoders
+only. Across the whole design, oscillators included, it is 4.4: the smaller decoder
+buys its saving by consuming six times as many oscillators, and about half the
+advantage goes back.
+
+The conclusion holds and the number did not. Recorded because the figure has now been
+in a merged document and a pull request description, and because the failure mode is
+one this project keeps repeating - quoting a ratio between two measured parts as
+though it were a ratio between two designs.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2045,4 +2126,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-52 | open, medium; index-based absences re-checked by enumeration, one changed |
 | W-INTL-53 | closed as a measurement; the solver is 2.95x the area it was budgeted at |
 | W-INTL-54 | corrected; a derived percentage column did not follow from its own table |
-| W-INTL-55 | open, high; the decoder was sized for a code the literature recommends against, at 19.5x the area |
+| W-INTL-55 | open, high; the decoder was sized for a code the literature recommends against - factor corrected by W-INTL-58 |
+| W-INTL-56 | open, high; the pair count R(R-1)/2 was used as entropy and is wrong by transitivity |
+| W-INTL-57 | open, high; the code sized for five loops does not reach its own error target at any plausible error rate |
+| W-INTL-58 | corrected; the 19.5x advantage is decoders only, 4.4x across the whole design |
