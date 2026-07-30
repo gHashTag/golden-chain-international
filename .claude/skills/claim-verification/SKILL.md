@@ -87,6 +87,13 @@ A negative result from a primary source is worth stating precisely: a term searc
 under three phrasings across a whole document with zero occurrences is a much
 stronger statement than "I could not find it", and it is the form to use.
 
+**Confirm for the artefact, not for its family.** A conclusion about a capability
+was checked against the manual for one part and applied to a second by family
+inference. The second part was the one the argument actually rested on. Checking it
+directly took one download and it held - but the inference was the weakest link in
+the chain while it stood, and it stood in a document presented as verified. Where a
+claim concerns a specific thing, reach the document for that thing.
+
 ## Findings in either direction count the same
 
 Two retractions ran in the project's favour, one of them large: a format reported

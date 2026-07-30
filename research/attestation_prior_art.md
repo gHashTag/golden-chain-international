@@ -113,8 +113,18 @@ advanced-node device, which is the class the thesis argues a supply-chain-indepe
 buyer cannot count on. The two constraints meet at exactly one point, a custom die
 on a mature node.
 
-Read at search and secondary-source depth, not from the technical reference
-manuals. Confirm against the manuals before this appears in anything commercial.
+Confirmed against the manuals on 2026-07-30, for each part rather than for one and
+its family. UG470 for the bench tier and UG585 for the mesh tier, the latter being
+1843 pages and 3.2 megabytes of extracted text. The three phrasings return zero
+occurrences in both.
+
+What both manuals do offer is a key at rest - in fuses or in battery-backed memory
+- which is the family the literature specifically argues against, since a key at
+rest is a key that can be extracted. And the layer protecting that storage on these
+parts is the bitstream path, which carries an unpatchable published break on one
+and a published authentication bypass on the other. So the parts do not merely lack
+the strong option; the option they do offer has its protective layer already broken
+in this setting.
 
 ## 6. What this does not license
 
