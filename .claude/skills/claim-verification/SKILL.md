@@ -103,6 +103,16 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## "Reproducible" means reproducible somewhere else
+
+A script written so that anyone could reproduce every figure in one command failed all twenty-one of
+its checks the first time it ran on a Linux machine - a BSD-only spelling of mktemp that GNU
+coreutils rejects. Nothing was wrong with what it tested. It had simply only ever run on the machine
+that wrote it, for eighty loops, and had no way to say so.
+
+The first run on foreign ground is the measurement. Until then, "reproducible" is a property of your
+laptop.
+
 ## A rule enforced by memory is a rule that has already failed twice
 
 A project rule - no area is quoted for a circuit that has not been exercised - had a script behind

@@ -43,7 +43,10 @@ ran=0
 
 run_tb () {   # name, output-regex, iverilog args...
     local name="$1"; shift
-    local bin; bin="$(mktemp -t tb)"
+    # "mktemp -t tb" is a BSD spelling; GNU coreutils rejects a template with no X's.
+    # This script had never run anywhere but a Mac, which is how a reproduction script
+    # goes eighty loops without being reproducible - see W-INTL-158.
+    local bin; bin="$(mktemp "${TMPDIR:-/tmp}/tb.XXXXXX")"
     ran=$((ran + 1))
     if ! iverilog -g2012 -o "$bin" "$@" 2>/dev/null; then
         echo "  FAIL  $name (did not compile)"; fail=1; return

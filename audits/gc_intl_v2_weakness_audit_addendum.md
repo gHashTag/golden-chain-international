@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-157
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-158
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4318,6 +4318,24 @@ Named and not done: the synthesis half. Putting it in CI means fetching a PDK, a
 would check are already re-synthesised by scripts/verify_inputs.py locally. That is a real gap and
 it is smaller than the one just closed.
 
+## W-INTL-158  The reproduction script had never run anywhere but one Mac
+
+Severity: medium, and it was found by the job added in W-INTL-157 on its first run.
+
+measure_all.sh exists so that anyone can reproduce every figure this project quotes in one command.
+Its first execution on a Linux runner failed every one of its twenty-one testbenches, all with
+"did not compile", because `mktemp -t tb` is a BSD spelling and GNU coreutils rejects a template
+with no X's.
+
+Nothing was wrong with the RTL and every testbench passes. What was wrong is that a script whose
+entire purpose is third-party reproducibility had only ever been run on the machine that wrote it,
+for eighty loops, and said nothing about it.
+
+Fixed with a portable spelling. The general form is that "reproducible" claimed for a script means
+reproducible somewhere else, and the first run on foreign ground is the measurement - which is the
+same lesson as W-INTL-153 arriving from the other direction: there the harness was inert, here the
+harness was the only thing that had ever been exercised.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4463,3 +4481,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-155 | closed; two more CI steps that could not tell a clean scan from an empty one |
 | W-INTL-156 | half closed by argument, half named; area is corner-independent, and the slow-corner liberty is not in this environment |
 | W-INTL-157 | closed; the testbench half of measure_all.sh runs in CI on every pull request, with a failing-testbench control and a count guard |
+| W-INTL-158 | closed; the reproduction script had never run anywhere but the machine that wrote it, and failed all 21 testbenches on its first Linux run |
