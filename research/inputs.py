@@ -140,6 +140,9 @@ SELECTION_LOSS = 1 - 381 / 701
 # ── the requirement ─────────────────────────────────────────────────────────
 KEY_BITS = 128            # specified: the key the registry needs
 TARGET_FAILURE = 1e-6     # specified: word error probability the application allows
+# Vestigial as of W-INTL-193: it feeds only cheapest(), which is kept solely as the
+# guard on the utilisation factor and is no longer the source of any recommended
+# figure. Left declared rather than deleted so that the guard keeps its provenance.
 RAW_BUDGET = 3000         # a design choice, not a constraint: how many response bits the
                           # analysis is willing to spend, which sets the block count
 

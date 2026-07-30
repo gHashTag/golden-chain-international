@@ -133,6 +133,33 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A derived quantity written as a literal outlives the thing it was derived from
+
+An acceptance threshold - "the code tolerates 0.0442" - appeared as a literal in three files. It was
+not an input. It was a consequence of the error-correcting code and the failure target, and it
+belonged to a code that had been replaced four loops earlier. Every verdict computed against it was
+measured against a bar three times too low.
+
+Inputs get provenance notes and single-source discipline because everyone knows they drift. Derived
+quantities get typed in, because at the moment of typing they are simply true.
+
+So: if a number is a *consequence* of other numbers, compute it, even when computing it is three
+lines and typing it is one. The literal survives the derivation, and nothing about it says which
+version of the derivation it came from.
+
+## Perturb every input and see what fails
+
+Binding document figures to a model makes prose hard to falsify. It says nothing about inputs that no
+bound figure depends on - and one of those turned out to be the requirement the entire design existed
+to meet, declared in the single-source file and read by nothing in the path.
+
+Multiply each declared input by four, divide it by four, run the checks, put it back. Anything that
+fires nothing is either uncovered or genuinely unused, and both need a decision. Keep an allow-list
+with reasons; an allow-list is the difference between a known gap and an unnoticed one.
+
+Make the perturbation large. A half-step can land inside a figure's tolerance and report a covered
+input as blind.
+
 ## Coverage of a document is not coverage of a model
 
 Twenty-two figures in the documents were bound to the model and rechecked on every run, which made

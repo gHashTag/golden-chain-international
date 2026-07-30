@@ -3551,3 +3551,53 @@ The general shape is worth keeping. Twenty-two bound figures made the documents 
 a parameter with no figure attached to it was invisible to all of them. **Coverage of a document is
 not coverage of a model**: the question is not how many numbers are checked but which inputs can
 change without any of them moving.
+
+## 129. Every input perturbed, and the acceptance criterion came from the superseded code
+
+W-INTL-192 found one input no check could see. Rather than guess at others, every scalar in
+`inputs.py` was multiplied and divided and the checks re-run. Two were blind, and the second was not
+a blind input at all.
+
+**`TARGET_FAILURE` was declared and unread.** The word error probability the entire error-correction
+design exists to meet lived in `inputs.py`, was imported by one file outside the recommendation path,
+and was written as the literal `1e-6` in seven other places. That is the pattern `inputs.py` was
+created to prevent, in the file that prevents it, applied to the requirement rather than to a
+measurement.
+
+**And the tolerated bit error rate was a stale literal from a superseded code.** `0.0442` appeared in
+three files as "what the code tolerates". It is not an input - it is a consequence of the code and the
+target - and it belonged to BCH(127,29,21) in five blocks, which tolerates 0.0483 and was replaced
+four loops ago.
+
+The recommendation, BCH(127,57,11) in three blocks, tolerates **0.0143**. At 0.0442 its word failure
+is 0.0322 - thirty thousand times the target. So every aging verdict computed against that literal
+was measured against a bar three times too low.
+
+| | Against the stale literal | Against the derived tolerance |
+|---|---|---|
+<!-- derived:external --> | tolerated bit error rate | 0.0442 | **0.0143** |
+<!-- derived:external --> | ten-year margin at 54.4% kept | 11.1 | **3.6** |
+<!-- derived:external --> | absorbable unselected flip rate | 15.5% | **10.9%** |
+<!-- derived:external --> | a NAND ring must capture | 79.4% of the ARO benefit | **92.0%** |
+
+**The design still fits** - 0.0040 against 0.0143 - and the aging-resistant bank still clears the
+requirement at 7.73 against 10.9. The conclusions survive; three loops of margin figures did not.
+
+The tolerance is now derived from the recommendation on every run, so it moves when the code moves.
+
+## 130. The sweep is a check now
+
+`scripts/check_input_coverage.py` perturbs every declared scalar by a factor of four in each direction
+and fails if no check notices. It runs in CI.
+
+Two details earned themselves immediately. The perturbation has to be **large**: a half-step landed
+inside a bound figure's tolerance and reported a covered input as blind, and the question is whether a
+check is sensitive to an input at all, not whether it resolves small changes. And `RAW_BUDGET` is
+listed as deliberately unread, with the reason - it feeds only the vestigial guard kept for the
+utilisation factor. **An allow-list with reasons is the difference between a known gap and an
+unnoticed one.**
+
+The generalisation this project has been circling for four loops now has its mechanical form. Binding
+figures to a model makes documents hard to falsify. Perturbing inputs asks the complementary
+question - *which inputs can move without any bound figure moving* - and only the second one finds a
+constant that nothing reads.

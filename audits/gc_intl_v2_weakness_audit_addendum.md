@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-192
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-194
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5023,6 +5023,48 @@ the read count. The control fires with "ten-year margin says 11.1, recomputing f
 The shape is worth keeping. Coverage of a document is not coverage of a model: the question is not
 how many numbers are checked, but which inputs can change without any of them moving.
 
+## W-INTL-193  The acceptance criterion was a stale literal from the superseded code
+
+Severity: critical as a finding, and the conclusions survive it.
+
+Every scalar in inputs.py was multiplied and divided and the checks re-run. Two were blind, and the
+second was not a blind input at all.
+
+TARGET_FAILURE - the word error probability the entire error-correction design exists to meet - was
+declared in inputs.py, imported by one file outside the recommendation path, and written as the
+literal 1e-6 in seven other places. That is the pattern inputs.py exists to prevent, applied to the
+requirement rather than to a measurement.
+
+And the tolerated bit error rate was written as 0.0442 in three files as "what the code tolerates".
+It is not an input but a consequence of the code and the target, and it belonged to BCH(127,29,21) in
+five blocks - which tolerates 0.0483 and was replaced four loops ago.
+
+The recommendation tolerates 0.0143. At 0.0442 its word failure is 0.0322, thirty thousand times the
+target, so every aging verdict was measured against a bar three times too low. Corrected: the
+ten-year margin is 3.6 rather than 11.1, the absorbable unselected flip rate 10.9 percent rather than
+15.5, and a NAND ring must capture 92.0 percent of the aging-resistant cell's benefit rather than
+79.4.
+
+The design still fits - 0.0040 against 0.0143 - and the aging-resistant bank still clears the
+requirement at 7.73 against 10.9. The tolerance is now derived from the recommendation on every run,
+so it moves when the code moves.
+
+## W-INTL-194  Input coverage is a check now
+
+Severity: medium, and it is the complementary half of binding figures to a model.
+
+scripts/check_input_coverage.py perturbs every declared scalar by a factor of four in each direction
+and fails if no check notices. In CI.
+
+Two details earned themselves immediately. The perturbation has to be large - a half-step landed
+inside a bound figure's tolerance and reported a covered input as blind, and the question is whether
+a check is sensitive to an input at all. And RAW_BUDGET is listed as deliberately unread with its
+reason, because an allow-list with reasons is the difference between a known gap and an unnoticed
+one.
+
+Binding figures to a model makes documents hard to falsify. Perturbing inputs asks which inputs can
+move without any bound figure moving, and only the second finds a constant nothing reads.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5187,6 +5229,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-187 | closed; the bound renamed and given an achievable sibling, and the other models read for the same defect |
 | W-INTL-189 | closed; the enrolment model ranked by a vote of sign bits while this project's own instrument emits frequency counts - count-based ranking is continuous and takes the ten-year margin from 6.9 to 11.3 at no area cost, at the price of an interface that must be disabled after enrolment |
 | W-INTL-191 | closed; every caller still used the bound one loop after the rename made it legible, and the achievable rate now has a deterministic closed form |
+| W-INTL-193 | closed; the tolerated error rate was a literal belonging to the superseded code, so every aging verdict was measured against a bar three times too low - the design still fits at 0.0040 against 0.0143 |
+| W-INTL-194 | closed; input coverage is a check in CI, perturbing every declared scalar by a factor of four in each direction |
 | W-INTL-192 | closed; the enrolment read count could be set to one without any bound figure moving, so two figures now depend on it |
 | W-INTL-190 | closed; four of five continuous-looking parameters were quantised by arithmetic and already handled, and the fifth was quantised by an architectural choice, which is the kind that hides |
 | W-INTL-188 | closed; the selection fraction is quantised by the vote margin, so the forty percent adopted last loop is unreachable - twenty-five reads and the non-unanimous positions gives 54.4 percent and a margin of 6.9 |
