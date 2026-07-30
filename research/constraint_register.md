@@ -119,3 +119,63 @@ to change with it.
 
 Two entries in that table were written by finding the decision after the constraint had already
 moved. The point of keeping the column is that the third one should be found the other way round.
+
+---
+
+## Aging moves from unchecked to binding, 2026-07-31
+
+The register has listed oscillator aging as unchecked since it was written, on the grounds that
+every error-rate figure here is a fresh-device figure. It is now checked, and it binds harder than
+anything else in the list.
+
+Rahman, Forte, Fahrny and Tehranipoor, DATE 2014: "After 10 years, the average error in response of
+the ARO-PUF is 7.73%, whereas it is 32.41% in the conventional RO-PUF." Their frequency degradation
+over ten years is 1.8 percent, and that part does not matter - a drift both oscillators of a pair
+share cancels in the comparison that makes the bit. What flips bits is the differential.
+
+Carried into this project's own source model, calibrated so the unselected flip rate reproduces the
+published figure:
+
+| Oscillator | Age | Selection | Effective BER | Code tolerates | |
+|---|---|---|---|---|---|
+<!-- derived:external --> | conventional | fresh | 80% | 0.0076 | 0.0442 | fits |
+<!-- derived:external --> | conventional | 10 years | 80% | 0.2888 | 0.0442 | **FAILS** |
+<!-- derived:external --> | aging-resistant | 10 years | 80% | 0.0334 | 0.0442 | fits |
+
+**The requirement, stated as a number rather than an assumption: the unselected ten-year flip rate
+must be at or below 9.2 percent.** That is what the recommendation absorbs. The published
+conventional figure is 32.4 and the aging-resistant one is 7.7.
+
+Two conditions travel with those figures and both matter. They are HSPICE Monte Carlo at 90 nm, not
+silicon and not this process. And they are taken at 23 percent activation time - the fraction of
+wall-clock time the oscillators run - where this design runs its bank once at power-up for a few
+thousand cycles. The paper says outright that "the activation time of a PUF in security applications
+should be much less than 23%" and that lower activation reduces the error, but it gives that sweep
+for the aging-resistant variant only. The figure this design would see is not in the source.
+
+So the row becomes: **binding, with a stated requirement and an unmeasured input.** It is the first
+constraint in this work whose satisfaction depends on a property of the oscillator that has not been
+chosen yet, which makes the oscillator arrangement a design decision rather than a detail.
+
+What it changes elsewhere. Row 7, one enrolment per device, was recorded as binding as policy with
+no cost attached. It now has one: the ten-year figure is what the policy buys. And selection, which
+was adopted against noise, turns out to help against aging for the same reason - it ranks by the
+manufacturing difference, which is what an aging differential must exceed - but far less, because
+the aging differential at ten years is comparable to the manufacturing spread itself. Ranking by a
+signal buys little when the perturbation is as large as the signal.
+
+## Process corners, partly closed
+
+Every area and delay figure is at `sky130_fd_sc_hd__tt_025C_1v80`, the typical corner, and the
+register named that as unchecked.
+
+Half of it can be closed by argument rather than measurement. Area does not vary with corner: the
+same cells occupy the same space at every process condition, and area is the constraint that binds
+here. What varies is timing and power, and both have an order of magnitude of slack - the mapped
+critical path allows tens of megahertz against a design that runs a few thousand cycles once at
+power-up.
+
+The other half stays open and is named precisely: the slow-corner liberty
+`sky130_fd_sc_hd__ss_100C_1v60` is not present in this environment, so the derate has not been
+measured. An argument that a constraint is slack by a factor of ten is not the same as measuring it,
+and this register's own rule is to say which one a row is.

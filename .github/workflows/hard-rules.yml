@@ -19,20 +19,34 @@ jobs:
           # one place allowed to enumerate the forbidden vocabulary - the statement
           # of hard rule 9 itself - does not trip the gate that enforces it. Any
           # other line is scanned. Keep the sentinel off content lines.
+          #
+          # The file count is not decoration. W-INTL-153 was a CI step that passed
+          # green having read nothing, and grep over a path that has been renamed
+          # away reports no hits in exactly the same way as a clean scan. A gate
+          # that cannot tell "scanned and clean" from "scanned nothing" is not one.
+          SCANNED=$(find paper/ audits/ research/ plan/ README.md -type f 2>/dev/null | wc -l)
+          if [ "$SCANNED" -lt 20 ]; then
+            echo "::error::banned vocab scan saw only $SCANNED files; expected the"
+            echo "::error::document tree - check the paths in this step"; exit 1
+          fi
           HITS=$(grep -rniE "$PATTERN" paper/ audits/ research/ plan/ README.md 2>/dev/null \
                  | grep -v 'hard-rules:allow' || true)
           if [ -n "$HITS" ]; then
             echo "$HITS"
             echo "::error::banned vocabulary found"; exit 1
           fi
-          echo "banned-words gate: OK"
+          echo "banned-words gate: OK ($SCANNED files scanned)"
       - name: non-ASCII scan (paper/ only)
         run: |
           set -e
+          SCANNED=$(find paper/ -type f \( -name '*.md' -o -name '*.tex' \) | wc -l)
+          if [ "$SCANNED" -lt 1 ]; then
+            echo "::error::ascii scan matched no files under paper/"; exit 1
+          fi
           if find paper/ -type f \( -name '*.md' -o -name '*.tex' \) -exec grep -lP '[^\x00-\x7F]' {} \; 2>/dev/null | grep -q .; then
             echo "::error::non-ASCII characters found in paper/"; exit 1
           fi
-          echo "ascii-only gate: OK"
+          echo "ascii-only gate: OK ($SCANNED files scanned)"
       - name: document consistency
         run: |
           set -e

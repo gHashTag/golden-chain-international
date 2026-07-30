@@ -103,6 +103,30 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## A figure from a paper carries the operating point it was measured at
+
+A published ten-year degradation figure looked like it killed a design outright. It was measured at
+23 percent activation time; the design in question runs its source once at power-up, orders of
+magnitude below that, and the paper says explicitly that lower activation reduces the number.
+
+The figure was neither wrong nor applicable. What it establishes is the shape and the direction, and
+what it cannot establish is the value here - which the paper's own sweep would have given, for the
+other device.
+
+Take the conditions with the number, every time, and say plainly which of them your case matches.
+The useful output is often not a verdict but a requirement: "the ten-year flip rate must be at or
+below 9.2 percent" is checkable by whoever picks the part, and "the paper says 32 percent" is not.
+
+## Ranking by a signal buys little when the perturbation is as large as the signal
+
+Selecting the most reliable positions cut a noise-driven error rate by a factor of eight and an
+aging-driven one by a tenth of that. Same mechanism, same selection, wildly different return -
+because the noise was a fifth of the manufacturing spread and the ten-year aging differential was
+larger than it.
+
+Before assuming a mitigation transfers to a new perturbation, compare the perturbation to the
+quantity the mitigation sorts by. If they are the same size, the sort is close to random.
+
 ## Watch a new check run where it will live, not only where you wrote it
 
 A check was replayed against its motivating failure locally, kept with its scope written down, and

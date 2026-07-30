@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-153
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-156
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4241,6 +4241,60 @@ range passes.
 The general form for the skill file is that a check has two places it can be inert - the logic, and
 the harness that invokes it - and only the first is testable from a shell.
 
+## W-INTL-154  Aging is the first constraint the recommendation fails
+
+Severity: critical. It is the last unchecked constraint that could break the design, and it does.
+
+Every error-rate figure in this work is a fresh-device figure; the register named that and left it.
+Rahman, Forte, Fahrny and Tehranipoor, DATE 2014, read rather than summarised: "After 10 years, the
+average error in response of the ARO-PUF is 7.73%, whereas it is 32.41% in the conventional
+RO-PUF." Their common frequency drift is 1.8 percent and flips nothing, because a drift both
+oscillators of a pair share cancels in the comparison. The differential is what flips bits.
+
+Carried into this project's source model, calibrated so the unselected rate reproduces the published
+figure: at ten years on a conventional bank the design sees 0.2888 effective error against 0.0442
+tolerated. Off by six and a half times. On the aging-resistant variant it sees 0.0334 and fits.
+
+The requirement as a number: the unselected ten-year flip rate must be at or below 9.2 percent.
+
+Two conditions travel with the published figures. HSPICE Monte Carlo at 90 nm - simulation, not
+silicon, not this process. And 23 percent activation time, where this design runs its bank once at
+power-up for a few thousand cycles. The paper states that activation time in security applications
+should be far below 23 percent and that lower activation reduces the error, and gives that sweep for
+the aging-resistant variant only. The figure this design would see is not in the source.
+
+Selection helps for the same reason it helps against noise - it ranks by the manufacturing
+difference, which is what an aging differential must exceed - and helps far less, because at ten
+years that differential is comparable to the manufacturing spread itself. Ranking by a signal buys
+little when the perturbation is as large as the signal. Heavier selection does not rescue it: at
+32.6 percent kept the conventional bank is still at 0.186.
+
+Open, and it changes what the design is. The oscillator arrangement was specified by count and
+length, both driven by entropy; it now carries a reliability requirement neither determines. And one
+enrolment per device, recorded for many loops as binding as policy with no cost attached, now has
+one - the ten-year figure is what that policy buys.
+
+## W-INTL-155  Two more CI steps that could not tell a clean scan from an empty one
+
+Severity: low, and it is the generalisation of W-INTL-153 rather than a new class.
+
+The banned-vocabulary scan greps a list of directories with errors suppressed, so a renamed-away
+path reports no hits in exactly the way a clean scan does. The non-ASCII scan has the same shape.
+Both now count what they matched, fail below a floor, and print the count on success - 72 files and
+3. Neither was inert today; neither could have said so if it were.
+
+## W-INTL-156  Process corners, half closed by argument and half named
+
+Severity: low, and the value is in refusing to record an argument as a measurement.
+
+Area does not vary with process corner and area is what binds here, so half the question closes
+without measuring. Timing and power vary and both have an order of magnitude of slack against a
+design that runs a few thousand cycles once at power-up.
+
+The rest stays open with its missing artefact named: the slow-corner liberty
+sky130_fd_sc_hd__ss_100C_1v60 is not in this environment, so no derate has been measured. An
+argument that a constraint is slack by a factor of ten is not a measurement of it.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4382,3 +4436,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-151 | closed with its scope stated; the commit-claims check cannot see the failure it was written for, which is why the fix is W-INTL-150 |
 | W-INTL-152 | closed; the pointer family re-costed at 0.20 of a tile ahead and declined again, and the entropy axis turns out to feed a slack constraint |
 | W-INTL-153 | closed; the new check ran on an empty range in CI and passed green having read nothing, fixed at both ends |
+| W-INTL-154 | **open, critical**; aging is the first constraint the recommendation fails - 0.2888 against 0.0442 at ten years on a conventional bank, and the requirement is a ten-year flip rate at or below 9.2 percent |
+| W-INTL-155 | closed; two more CI steps that could not tell a clean scan from an empty one |
+| W-INTL-156 | half closed by argument, half named; area is corner-independent, and the slow-corner liberty is not in this environment |

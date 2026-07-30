@@ -2550,3 +2550,100 @@ assumption cannot be pessimistic in one comparison and optimistic in the next.
 Declined again, for the reason it was declined before: IBS needs a random number source SLLC does
 not, and its helper data is attackable by machine learning on exactly the correlation this source is
 reported to have. Nothing measured this loop touches that argument.
+
+## 92. Aging, which was the last unchecked constraint that could break the design
+
+Every error-rate figure in this work has been a fresh-device figure. The register named that and left
+it. Checked now, from the primary source, and it is the first constraint here that the recommendation
+fails.
+
+Rahman, Forte, Fahrny and Tehranipoor, DATE 2014:
+
+> After 10 years, the average error in response of the ARO-PUF is 7.73%, whereas it is 32.41% in the
+> conventional RO-PUF.
+
+and on the mechanism:
+
+> The frequency degradation in 10 years is about 1.8%
+
+Those two figures together are the finding. The *common* drift is 1.8 percent and it flips nothing -
+a response bit is a comparison between two oscillators, and a drift they share cancels. What flips
+bits is the *differential*: the two oscillators of a pair age at different rates because they carry
+different duty cycles, and after ten years that differential exceeds the manufacturing difference for
+a third of the pairs.
+
+Carried into this project's own source model, calibrated so the unselected rate reproduces the
+published figure - the aging term is another Gaussian perturbation of the difference, adding in
+quadrature with read noise:
+
+| Oscillator | Age | Kept | Effective BER | Code tolerates | |
+|---|---|---|---|---|---|
+<!-- derived:external --> | conventional | fresh | 80% | 0.0076 | 0.0442 | fits |
+<!-- derived:external --> | conventional | 10 years | 100% | 0.3251 | 0.0442 | FAILS |
+<!-- derived:external --> | conventional | 10 years | 80% | **0.2888** | 0.0442 | **FAILS** |
+<!-- derived:external --> | aging-resistant | 10 years | 80% | 0.0334 | 0.0442 | fits |
+
+Off by six and a half times, not marginally. **The requirement, as a number rather than an
+assumption: the unselected ten-year flip rate must be at or below 9.2 percent.** Published:
+32.4 conventional, 7.7 aging-resistant.
+
+### The condition that decides it is not in the source
+
+Both figures are taken at 23 percent activation time - the fraction of wall-clock time the
+oscillators run. This design runs its bank once at power-up for a few thousand cycles, so its
+activation time is orders below one percent. The paper says outright that "the activation time of a
+PUF in security applications should be much less than 23% used earlier" and that lower activation
+reduces the error, and its Table I gives that sweep - 7.81, 7.03, 7.01 percent at 23, 10, 5 and 1
+percent activation - **for the aging-resistant variant only**.
+
+So the number this design would actually see is not in the paper. What is in the paper is that the
+figure moves the right way and that the design's own duty cycle is at the favourable extreme of a
+range the paper did not measure for the relevant device.
+
+### What selection buys, and why less than expected
+
+| Oscillator | Unselected | 80% kept | 32.6% kept |
+|---|---|---|---|
+<!-- derived:external --> | conventional | 0.3251 | 0.2888 | 0.1861 |
+<!-- derived:external --> | aging-resistant | 0.0965 | 0.0334 | 0.0001 |
+
+Selection ranks by the manufacturing difference, which is exactly what an aging differential has to
+exceed, so it helps here for the same reason it helps against noise. It helps far less on the
+conventional bank because the ten-year differential is comparable to the manufacturing spread
+itself - **ranking by a signal buys little when the perturbation is as large as the signal**. And
+heavier selection cannot rescue it: at 32.6 percent kept the conventional bank still sits at 0.186.
+
+### What it changes
+
+The oscillator arrangement stops being a detail. Until now the bank was specified by count and
+length, both driven by entropy; it now carries a reliability requirement that the count and length
+do not determine. One enrolment per device, recorded for loops as *binding as policy* with no cost
+attached, now has one - the ten-year figure is what that policy buys, and re-enrolment is the other
+way to meet the requirement.
+
+## 93. Process corners, half closed by argument and half named
+
+Every area and delay figure is at `sky130_fd_sc_hd__tt_025C_1v80`. The register named the corner
+question as unchecked.
+
+Half closes without measuring. Area does not vary with corner - the same cells occupy the same space
+at every process condition - and area is what binds here. What varies is timing and power, and both
+have an order of magnitude of slack against a design that runs a few thousand cycles once at
+power-up.
+
+The other half stays open, named precisely: the slow-corner liberty
+`sky130_fd_sc_hd__ss_100C_1v60` is not present in this environment, so no derate has been measured.
+An argument that a constraint is slack by a factor of ten is not a measurement of it, and this
+project's rule is to say which one a row is.
+
+## 94. Two CI steps that could not tell a clean scan from an empty one
+
+W-INTL-153 was a CI step that passed green having read nothing. The same question asked of the rest
+of the workflow found two more that could not answer it.
+
+The banned-vocabulary scan greps a list of directories with errors suppressed; if a path is renamed
+away, the scan reports no hits in exactly the way a clean scan does. The non-ASCII scan has the same
+shape over `paper/`. Both now count what they matched and fail below a floor, and both print the
+count on success - 72 files and 3 respectively.
+
+Neither was inert today. The point is that neither could have told anyone if it were.
