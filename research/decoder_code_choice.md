@@ -3254,13 +3254,17 @@ skip as a feature, and one had no controls of any kind.** None of that was visib
 The commit-claims control passed in CI, which for a control means it failed: the check it was meant to
 break reported OK.
 
-The probe message was `probe: closes W-INTL-999`, written as a literal in the workflow file. The
-workflow file is part of the diff the check reads. So the check looked for a line mentioning
-W-INTL-999, found one - its own instructions - and correctly reported no problem.
+The probe message named a nonexistent entry number, written as a literal in the workflow file. The
+workflow file is part of the diff the check reads. So the check looked for a line mentioning that
+number, found one - its own instructions - and correctly reported no problem.
+
+Writing this section repeated the mistake: describing the control with the number spelled out put the
+number back into a document the check reads, and the second CI run failed the same way for a
+different file. The number is generated at run time now, from a clock, and no document here contains
+it - including this one, which is why it is described rather than quoted.
 
 The control was not wrong about the check. It was wrong about the world: **writing the probe put the
-probe's evidence into the evidence**. The number is assembled at run time now, `W-INTL-%s` and `999`
-as separate tokens, so the literal never appears in the file under examination.
+probe's evidence into the evidence**.
 
 This is the third distinct way a control in this project has managed to test nothing - after an
 anchor that was not present, and a mutation the interpreter could not see. The pattern underneath all

@@ -108,11 +108,11 @@ jobs:
           python3 scripts/control.py /tmp/catalog.t27 \
             'name="binary16 (fp16, half)"' 'name="binary16 runs at 250 MHz"' \
             -- python3 scripts/check_catalog.py /tmp/catalog.t27
-          # The probe number is assembled rather than written out. Spelled literally,
-          # it lands in this file, this file is in the diff being checked, and the check
-          # then finds the number it was told to look for - so the control passes for the
-          # wrong reason and reports that the check does not work. W-INTL-181.
-          printf 'probe: closes W-INTL-%s\n' 999 > /tmp/probe_msg.txt
+          # The probe number comes from the clock. Any fixed number, written anywhere -
+          # this file, the audit, the document describing the control - lands in the diff
+          # the check reads, and the check then finds the number it was told to look for.
+          # That happened twice, in two different files. W-INTL-181.
+          printf 'probe: closes W-INTL-%s\n' "$(date +%s)" > /tmp/probe_msg.txt
           if python3 scripts/check_commit_claims.py HEAD~1..HEAD \
                --message-file /tmp/probe_msg.txt --require-commits; then
             echo "::error::the commit-claims control did not fire"; exit 1
