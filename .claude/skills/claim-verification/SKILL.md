@@ -113,6 +113,22 @@ opportunity - here, eight bits of response, no measured uniqueness or reliabilit
 and drift with temperature that the author documents. A nearer path reported without
 its limits is worse than no path, because it will be planned against.
 
+## Do the arithmetic before accepting a limit
+
+A finding said a capability would not fit in the available area, scaled from a
+published implementation. Scaling was the wrong operation: the implementation
+replicated shared apparatus once per output bit. Sharing it moved the answer from
+thirty-two units of area to three, against a limit of sixteen.
+
+**When a limit is asserted, find out whether it is dimensional or architectural.**
+Those need different answers and get confused constantly. Public artefacts usually
+carry enough to tell them apart - here a configuration file declaring tile count and
+a README describing the block structure were sufficient.
+
+Label every estimate as an estimate, and say what would settle it. An area budget
+built from cell-area guesses is a decision aid, not a result; the thing that settles
+it is synthesis.
+
 ## Findings in either direction count the same
 
 Two retractions ran in the project's favour, one of them large: a format reported
