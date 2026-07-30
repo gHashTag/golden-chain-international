@@ -3502,3 +3502,52 @@ Four of five were already handled, mostly because integers are obviously integer
 not is the one whose quantisation came from a *choice of architecture* rather than from arithmetic -
 and an architectural quantisation looks continuous in the model right up until someone asks which
 instrument does the ranking.
+
+## 127. Renaming made the defect legible and nobody fixed the callers
+
+`selected_ber` became `selected_ber_ideal` last loop so that a caller who wanted the achievable figure
+would notice. Every caller still called the bound: the aging analysis, the code search, and the CI
+figure check, all now reading `R.selected_ber_ideal(...)` in plain sight.
+
+A rename converts an invisible defect into a visible one. It does not convert it into a fixed one,
+and a line that reads `_ideal` is only conspicuous to someone already asking the question.
+
+All three now use the achievable rate. That needed one more thing first: the count-ranked estimator
+was a Monte Carlo, and a check that moves by a thousandth between runs teaches people to re-run it
+until it passes. So `selected_ber_counts_exact` derives it in closed form - the conditioning is
+standard, `d | v` is Gaussian given the enrolment estimate - and it agrees with the sampler to within
+a tenth of a thousandth while being deterministic.
+
+Writing it caught its own arithmetic error on the way: the first version integrated the wrong tail
+and made the error rate **rise** with deeper selection. The sign of the slope is what caught it, not
+the magnitude, which is the kind of check worth having on any new estimator.
+
+### What it changes
+
+| | Vote-ranked | Count-ranked |
+|---|---|---|
+<!-- derived:external --> | ten-year effective rate at 54.4% kept | 0.0064 | **0.0040** |
+<!-- derived:external --> | margin against 0.0442 | 6.9 | **11.1** |
+<!-- derived:external --> | absorbable unselected ten-year flip rate | 9.2% | **15.5%** |
+<!-- derived:external --> | a NAND ring must capture | 96.4% of the ARO benefit | **79.4%** |
+
+The last row is the one that matters beyond this file. The threshold the free aging mitigation has to
+clear was 96.4 percent of a custom cell's benefit; it is now 79.4, because better ranking left more
+room for the oscillator to be worse. **The requirement on a component moved because a decision about
+provisioning moved** - which is the constraint-and-decision coupling this project keeps rediscovering,
+running in the pleasant direction for once.
+
+## 128. The control that changed nothing
+
+Setting the enrolment read count to one and running the figure check produced **no failure**. The
+design depends on that number - it is the difference between a ten-year margin of 11.1 and one of
+2.2 - and no bound figure referred to it, so the check could not see it move.
+
+Two figures now do: the ten-year margin, and the unselected flip rate the construction absorbs. Both
+recompute from inputs including the read count, and the control fires with `ten-year margin says
+11.1, recomputing from inputs gives 2.192`.
+
+The general shape is worth keeping. Twenty-two bound figures made the documents hard to falsify, and
+a parameter with no figure attached to it was invisible to all of them. **Coverage of a document is
+not coverage of a model**: the question is not how many numbers are checked but which inputs can
+change without any of them moving.

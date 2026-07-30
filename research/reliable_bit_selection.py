@@ -97,6 +97,41 @@ def selected_ber_ideal(sigma, fraction):
     return total / steps, thresh
 
 
+def selected_ber_counts_exact(sigma, fraction, reads, steps=4000):
+    """The count-ranked error rate in closed form, so a check can use it.
+
+    The sampler below is a Monte Carlo, which is fine for a table and wrong for a gate:
+    a check that moves by a thousandth between runs teaches people to re-run it.
+
+    The conditioning is standard. The enrolment estimate is v = d + e with d ~ N(0,1) and
+    e ~ N(0, sigma^2/reads), so v ~ N(0, 1+t^2) with t^2 = sigma^2/reads, and
+    d | v ~ N(v/(1+t^2), t^2/(1+t^2)). Selection keeps |v| above a threshold; the enrolled
+    bit is sign(v); regeneration adds fresh noise of variance sigma^2. So the error for a
+    kept position is Phi(-mu / sqrt(s2 + sigma^2)) with mu and s2 the conditional mean and
+    variance, and the answer is that averaged over the kept tail of v.
+    """
+    if fraction >= 1.0:
+        return raw_ber(sigma)
+    tau2 = sigma * sigma / reads
+    var_v = 1.0 + tau2
+    sd_v = math.sqrt(var_v)
+    mean_scale = 1.0 / var_v
+    cond_var = tau2 / var_v
+    denom = math.sqrt(cond_var + sigma * sigma)
+    total = 0.0
+    # integrate over the kept upper tail of v and double it by symmetry
+    # Keep the largest |v|: P(|v| > T) = fraction, so P(v > T) = fraction/2 and the kept
+    # upper tail starts at the 1 - fraction/2 quantile. Writing 0.5 + fraction/2 here -
+    # which is the same expression only at fraction = 1 - integrated the wrong tail and
+    # made the error rate rise with deeper selection, which is the sign that caught it.
+    lo = 1.0 - fraction / 2
+    for i in range(steps):
+        u = lo + (i + 0.5) / steps * (1 - lo)
+        v = ND.inv_cdf(u) * sd_v
+        total += ND.cdf(-(v * mean_scale) / denom)
+    return total / steps
+
+
 def selected_ber_from_counts(sigma, fraction, reads, rng=None, n=60000):
     """Ranking by the averaged frequency difference rather than by a vote of sign bits.
 

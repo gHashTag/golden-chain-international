@@ -82,7 +82,10 @@ def combined_sigma(*sigmas):
 
 
 def effective(sigma, keep):
-    return R.selected_ber_ideal(sigma, keep)[0] if keep < 1.0 else R.raw_ber(sigma)
+    # The achievable figure, not the bound. This file called the bound for four loops
+    # and reported the result as the design's ten-year error rate; W-INTL-186 named it
+    # and W-INTL-191 is it still being called one loop after the rename made it legible.
+    return R.selected_ber_counts_exact(sigma, keep, I.ENROLMENT_READS)
 
 
 if __name__ == "__main__":

@@ -123,6 +123,35 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A rename makes a defect legible, not fixed
+
+A function was renamed so that callers wanting the achievable figure instead of the optimistic bound
+would notice. One loop later every caller still called the bound, now reading `_ideal` in plain
+sight.
+
+Renaming is a message to a reader who is already asking the question. If you rename to expose a
+defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
+added cost that it looks like the problem was handled.
+
+## Coverage of a document is not coverage of a model
+
+Twenty-two figures in the documents were bound to the model and rechecked on every run, which made
+the prose hard to falsify. Then a control set one input to an absurd value and *nothing failed* - no
+bound figure depended on it, though the design's safety margin was five times different.
+
+The question is not how many numbers are checked. It is **which inputs can change without any checked
+number moving**. Enumerate the inputs, mutate each one, and see what fires; the ones that fire
+nothing are where the coverage is decorative.
+
+## Check the sign of a new estimator before the value
+
+A new closed-form estimator integrated the wrong tail, and the giveaway was that the error rate *rose*
+as selection got deeper - the opposite of what selection does.
+
+The magnitude of a first result is hard to judge. Its direction usually is not. Before comparing a new
+estimator against a reference, sweep its argument and ask whether it moves the way the mechanism has
+to move.
+
 ## When a model says a mechanism is limited, check what your own hardware already emits
 
 A model concluded that a ranking step could only reach certain discrete operating points, because it
