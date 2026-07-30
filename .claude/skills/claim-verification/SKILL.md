@@ -94,6 +94,25 @@ directly took one download and it held - but the inference was the weakest link 
 the chain while it stood, and it stood in a document presented as verified. Where a
 claim concerns a specific thing, reach the document for that thing.
 
+## Ask how far away, not only whether
+
+A conclusion that a capability is unreachable on current hardware was correct and
+incomplete. It said the fix required a funded custom fabrication run. Checking the
+open process the project already used showed the primitive had been fabricated there
+already, at the scale of a shuttle tile, in a programme the subject had already
+submitted to. The blocker was real; the distance was wrong by an order of magnitude
+in cost and schedule.
+
+**A finding of the form "X is impossible here" should always be followed by "and
+what is the cheapest thing that makes it possible".** The second question changes
+what the finding means to whoever has to act on it, and it is often answerable from
+public artefacts.
+
+When the answer arrives, carry the limitations across with the same weight as the
+opportunity - here, eight bits of response, no measured uniqueness or reliability,
+and drift with temperature that the author documents. A nearer path reported without
+its limits is worse than no path, because it will be planned against.
+
 ## Findings in either direction count the same
 
 Two retractions ran in the project's favour, one of them large: a format reported

@@ -60,11 +60,18 @@ have no custody policy.
 **Identity has a hardware floor, and the current parts are below it.** Per audit
 W-INTL-46, the scheme the attestation literature recommends - a key reconstructed
 from a physical function rather than stored - needs a hardened function neither
-part has. Built in fabric it lives in a bitstream with a published break on one
-part and a published authentication bypass on the other. So no arrangement of
-contracts closes identity on this hardware, and the custom die is where it closes
-rather than a later ambition. That does not block anything below; it means identity
-should be described as asserted until the die exists.
+part has, confirmed from both technical reference manuals. Built in fabric it lives
+in a bitstream with a published break on one part and a published authentication
+bypass on the other. So no arrangement of contracts closes identity on this
+hardware.
+
+The first step toward closing it is nearer than a funded die, per W-INTL-47: the
+primitive has already been taped out on the same open process this project's own
+shuttle tile uses, in the same programme. What exists is eight bits of
+challenge-response, uncharacterised for uniqueness, reliability and entropy, with
+documented temperature drift. So the step is a characterised macro with error
+correction on a tile, and the custom die is what follows if the tile proves out.
+Until then identity is asserted and should be described that way.
 
 **The identity gate has to be real.** MiningPool's chip check currently passes for
 any key someone previously registered, because ChipRegistry has no signature

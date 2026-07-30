@@ -249,6 +249,18 @@ That is what the die is for. Everything before it is a bench demonstration of th
 mesh, the arithmetic and the economics with identity asserted, which is what we
 have and what we say we have.
 
+The nearer part of that path, because it changes what we are asking for. A
+ring-oscillator physical function has already been taped out on the same open
+130 nm process our own shuttle tile uses, through the same programme we have already
+submitted to. So the first step is a characterised macro on a tile, not a funded
+mask set. What exists publicly today is eight bits of challenge-response with its
+uniqueness, reliability and entropy unmeasured, and with documented drift as the
+part warms - which is a demonstration that the process supports the primitive, not
+an identity. The work between that and a usable root is error correction and
+characterisation across the temperature range a deployed node sees. We would rather
+describe that as an engineering programme with a first step than as a funding
+milestone.
+
 ## Business model
 
 Operators acquire nodes and earn for verified contribution; the network charges
