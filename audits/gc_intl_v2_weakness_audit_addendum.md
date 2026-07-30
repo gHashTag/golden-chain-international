@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-186
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-188
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4910,6 +4910,44 @@ The narrow lesson: a bound should carry its direction in its name. A function ca
 returns a rate; a function called selected_ber_ideal returns a bound, and the caller who wanted the
 achievable figure notices.
 
+## W-INTL-187  The bound is renamed and given an achievable sibling
+
+Severity: low as a change, and it is the prescription from W-INTL-186 applied to the function that
+motivated it.
+
+selected_ber becomes selected_ber_ideal, and selected_ber_achievable is written beside it. The
+docstring said "optimistic bound" for six loops and downstream read the name and the number. Callers
+in the aging analysis, the search and the figure check all updated.
+
+The other models were read for the same defect. code_choice_model.py uses the n-k leakage bound and
+an ordering bound on oscillator entropy, both labelled where quoted and both used as upper limits,
+which is the safe direction for a bound. pointer_vs_linear.py quotes a range for exactly this reason,
+and burn_in.py sweeps its unverifiable assumption and reports against the unfavourable arm. One
+instance, not a pattern - but it sat under the design's tightest constraint for five loops.
+
+## W-INTL-188  The selection fraction is quantised, and the operating point adopted last loop is unreachable
+
+Severity: high. The conclusion held and the specification did not.
+
+Writing the achievable sibling made it computable, and the answer contradicts W-INTL-185. Enrolment
+ranks by how lopsided a majority vote was, so the attainable fractions are the discrete vote margins
+and the deepest is the share of positions that never voted unanimously. Below that floor, discarding
+more means tie-breaking at random among positions the vote cannot separate, which buys nothing.
+
+At twenty-five reads the floor is 54.4 percent kept. Forty percent - which the previous loop adopted
+- is not reachable at twenty-five reads, or at ninety-nine.
+
+The right form of the same decision is that the read count is the parameter and the fraction follows
+from it. Adopted: twenty-five reads, keep the positions that were not unanimous. 54.4 percent, 701
+raw positions for 381 selected, ten-year effective rate 0.0064 against 0.0442, a margin of 6.9
+against the 7.6 claimed for the unreachable point.
+
+Cheaper as well as real: 701 raw positions rather than 953, thirty-eight oscillators rather than
+forty-five, 3.44 tiles rather than 3.47.
+
+A design that says "keep the most reliable forty percent" and a mechanism that can keep 54.4 or 48.8
+are not the same design, and only one of them can be built.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5071,6 +5109,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-182 | closed; the seven percent toolchain spread was a stale tool, not version drift - nineteen of twenty-two areas identical under the pinned build and the CI tolerance drops to one percent |
 | W-INTL-184 | closed; the version tolerance applies to the three shared-solver entries only, so the other nineteen stay exact |
 | W-INTL-185 | closed; the selection fraction and read count were never revisited against the aged error rate, leaving a ten-year margin of 1.10 - now 7.6 at forty percent kept and twenty-five reads |
+| W-INTL-187 | closed; the bound renamed and given an achievable sibling, and the other models read for the same defect |
+| W-INTL-188 | closed; the selection fraction is quantised by the vote margin, so the forty percent adopted last loop is unreachable - twenty-five reads and the non-unanimous positions gives 54.4 percent and a margin of 6.9 |
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |
 | W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 96.4 percent of the aging-resistant cell's benefit |
 | W-INTL-181 | closed; the commit-claims probe was written literally into the workflow file, which is in the diff the check reads, so the control passed for the wrong reason |

@@ -82,7 +82,7 @@ def combined_sigma(*sigmas):
 
 
 def effective(sigma, keep):
-    return R.selected_ber(sigma, keep)[0] if keep < 1.0 else R.raw_ber(sigma)
+    return R.selected_ber_ideal(sigma, keep)[0] if keep < 1.0 else R.raw_ber(sigma)
 
 
 if __name__ == "__main__":

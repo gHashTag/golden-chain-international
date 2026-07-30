@@ -123,6 +123,22 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## Ask whether the mechanism can reach the operating point you chose
+
+A design specified "keep the most reliable forty percent". The mechanism that does the keeping ranks
+by a majority vote over N reads, so the fractions it can produce are the discrete vote margins - and
+the deepest is the share that never voted unanimously. Forty percent was not among them at any read
+count in range. Everything below that floor is tie-breaking at random among positions the ranking
+cannot separate.
+
+A continuous parameter in a model is often quantised by the thing that implements it. Before adopting
+an operating point, enumerate what the mechanism can actually produce and pick from that list - and
+notice which quantity is really the free one. Here it was the read count, with the fraction following
+from it, and stating it the other way round specified a design that cannot be built.
+
+The good news is that writing the achievable counterpart of a bound is what surfaced this, one loop
+after adopting the unreachable point. Sibling functions earn their keep immediately.
+
 ## A bound should carry its direction in its name
 
 A function returning the error rate under *perfect* ranking was called `selected_ber`, with the

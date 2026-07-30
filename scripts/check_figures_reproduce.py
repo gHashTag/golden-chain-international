@@ -166,7 +166,7 @@ def recommendation():
         SE.selected_bias(SE.mean_for_density(RHO), I.SELECTION_LOSS)[0])
     need_k = KEY_BITS / rho_sel
     sigma = R.sigma_for_raw_ber(0.06)
-    eff = R.selected_ber(sigma, fraction)[0]
+    eff = R.selected_ber_ideal(sigma, fraction)[0]
 
     best = None
     for m in (7, 8):

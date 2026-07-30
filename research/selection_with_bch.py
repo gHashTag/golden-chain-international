@@ -100,7 +100,7 @@ if __name__ == "__main__":
               f"{'tiles':>7}")
         best_overall = None
         for frac in (1.00, 0.80, 0.60, 0.40, 0.326, 0.20, 0.10):
-            eff = raw if frac >= 1.0 else R.selected_ber(sigma, frac)[0]
+            eff = raw if frac >= 1.0 else R.selected_ber_ideal(sigma, frac)[0]
             need_k = need_k_at(frac)
             rho_sel = density_at(frac)
             row_best = None

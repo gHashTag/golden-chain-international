@@ -75,12 +75,17 @@ def sigma_for_raw_ber(target):
     return (lo + hi) / 2
 
 
-def selected_ber(sigma, fraction):
+def selected_ber_ideal(sigma, fraction):
     """Error rate of the most reliable `fraction` of positions, perfectly ranked.
 
     Perfect ranking is the optimistic bound: it assumes enrolment measures |d| exactly.
-    The cost of estimating it from a finite number of enrolment reads is measured
-    separately below, and it is not small.
+
+    Renamed from selected_ber in W-INTL-187. Under the old name it was called by the
+    aging analysis and its result reported as the design's ten-year error rate; the
+    achievable figure was a tenth of the way from that number to failure. The docstring
+    said "optimistic bound" the whole time, and downstream read the name and the number.
+
+    Use selected_ber_achievable for anything a design has to survive.
     """
     # keep |d| >= thresh
     thresh = 0.0 if fraction >= 1.0 else ND.inv_cdf(0.5 + fraction / 2)
@@ -90,6 +95,23 @@ def selected_ber(sigma, fraction):
         d = ND.inv_cdf(u)
         total += ND.cdf(-d / sigma)
     return total / steps, thresh
+
+
+def selected_ber_achievable(sigma, fraction, reads, rng=None, n=40000):
+    """What selection actually delivers when enrolment ranks by a majority vote.
+
+    The counterpart to selected_ber_ideal, written beside it in W-INTL-187 because a
+    bound with no achievable sibling gets called by whoever needs a number.
+
+    Enrolment reads each position `reads` times and ranks by how lopsided the vote was.
+    That ranking is coarse - `reads` reads give roughly `reads/2` distinct levels - so
+    past about a third discarded the fraction stops mattering and the read count starts.
+    """
+    if rng is None:
+        rng = random.Random(20260801)
+    if fraction >= 1.0:
+        return raw_ber(sigma)
+    return enrolment_cost(rng, sigma, fraction, reads, n=n)
 
 
 # ── the pointer encoding ────────────────────────────────────────────────────
@@ -159,7 +181,7 @@ def repetition_bits_needed(eff_ber, key_bits=128, target=1e-6):
 
 
 def sample_check(rng, sigma, fraction, n=200000):
-    """Sampled confirmation of selected_ber, and of value/reliability independence."""
+    """Sampled confirmation of selected_ber_ideal, and of value/reliability independence."""
     kept_err = kept = ones = 0
     thresh = 0.0 if fraction >= 1.0 else ND.inv_cdf(1 - fraction / 2)
     for _ in range(n):
@@ -180,7 +202,7 @@ def selection_curve(sigma, reads, grid=1200):
     parameter Phi(d/sigma). The enrolled bit is the majority; the confidence is the
     margin |2k - reads|. Selecting every position whose margin clears M gives one
     point on the curve, and sweeping M gives the curve. This is the achievable
-    version of the perfect ranking in selected_ber, which assumes |d| is known
+    version of the perfect ranking in selected_ber_ideal, which assumes |d| is known
     exactly and is therefore a bound rather than a design.
 
     Returned: list of (margin, fraction selected, effective error rate).
@@ -235,10 +257,10 @@ if __name__ == "__main__":
     print("\n2. does selecting the reliable bits give the row's error reduction")
     print(f"   {'selected':>9} {'effective ber':>14} {'sampled':>9} {'bit value':>10}")
     for f in (1.0, 0.60, 0.40, ROW_FRACTION, 0.20, 0.10):
-        eff, _ = selected_ber(sigma, f)
+        eff, _ = selected_ber_ideal(sigma, f)
         s_eff, s_ones, _ = sample_check(rng, sigma, f, 120000)
         print(f"   {f:9.3f} {eff:14.4f} {s_eff:9.4f} {s_ones:10.4f}")
-    eff_row, _ = selected_ber(sigma, ROW_FRACTION)
+    eff_row, _ = selected_ber_ideal(sigma, ROW_FRACTION)
     print(f"   the row states 0.027 at {ROW_FRACTION:.3f} selected; "
           f"this model gives {eff_row:.4f}")
 
@@ -248,7 +270,7 @@ if __name__ == "__main__":
     for reads in (1, 3, 7, 15, 31, 63):
         curve = selection_curve(sigma, reads)
         m, f, e = min(curve, key=lambda t: abs(t[1] - ROW_FRACTION))
-        pb, _ = selected_ber(sigma, f)
+        pb, _ = selected_ber_ideal(sigma, f)
         print(f"   {reads:6d} {f:17.3f} {e:14.4f} {pb:16.4f}")
     print(f"   the row's 0.027 sits between 7 and 15 enrolment reads at this fraction.")
     print(f"   sampled cross-check at 15 reads: "
