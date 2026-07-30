@@ -632,3 +632,70 @@ without checking would quietly break the rule it was written to serve.
 
 Run 2026-07-30: six testbenches pass, and all eight areas reproduce exactly the figures
 this document quotes.
+
+---
+
+## 24. The code was inherited from a paper along with that paper's operating point
+
+BCH(127,15,27) came from Gao et al., and it is the right code for their constraints: an
+SRAM PUF with near-full entropy density and a bit error rate around ten percent. This
+project's constraints are different - ring oscillators, measured entropy density 0.9414,
+error rate unknown - and adopting a parameter choice along with a method carries the
+source's operating point silently.
+
+W-INTL-72 showed what that cost: the entropy margin was the tightest number in the whole
+analysis. So the parameter space was searched rather than borrowed.
+
+Code parameters are computed, not looked up. The generator polynomial of a narrow-sense
+binary BCH code is the lcm of the minimal polynomials of alpha^1 through alpha^2t, and the
+degree of the minimal polynomial of alpha^i is the size of its cyclotomic coset - so the
+parity count is the size of a union of cosets, which is arithmetic. `bch_code_search.py`
+computes it and refuses to search unless the result reproduces every BCH code named in the
+sources read for this project. All four reproduce.
+
+## 25. A better code exists, and it is smaller
+
+| Construction | Tiles | Entropy margin | Max BER | Raw bits |
+|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,15,27), the inherited choice | 6.07 | 0.0157 | 6.96 percent | 2,921 |
+<!-- derived:external --> | **BCH(127,22,23)** | **5.22** | **0.0708** | 5.23 percent | 2,921 |
+<!-- derived:external --> | BCH(255,47,42), fallback | 11.86 | 0.0801 | 7.02 percent | 2,805 |
+<!-- derived:external --> | BCH(511,139,54) | rejected | 0.1633 | 5.08 percent | 2,555 |
+
+Every decoder area measured, every decoder verified end to end first - including in
+GF(2^9), a field this project had never used, which the generator and the parameterised
+solver both handled without change.
+
+**BCH(127,22,23) is smaller than the inherited choice and has four and a half times the
+margin on the binding constraint.** It costs a quarter of the error tolerance, which is the
+right direction to trade: a shortfall in entropy density yields no key at all, while a
+shortfall in error rate calls for a stronger code.
+
+Two honest qualifications. Part of the inherited choice's margin here - 0.0157 rather than
+the 0.0065 reported in section 22 - is simply spending the whole raw-bit budget on blocks
+rather than stopping at the minimum, which is a free improvement that was available all
+along and was not taken. And BCH(255,47,42) buys a little more margin and better error
+tolerance for more than double the area, which is the fallback if measurement shows both
+quantities worse than expected.
+
+BCH(511,139,54) has by far the best margin and is out on area: its decoder alone measures
+304,465 square micrometres, 16.88 tiles, more than the entire sixteen a submission may use
+before a single oscillator is placed. That is worth stating as a measurement rather than an
+estimate, because the search would otherwise keep recommending it.
+
+## 26. What to measure first, revised
+
+W-INTL-72 changed the priority and this changes it again, in the same direction. The
+characterisation structure emits raw counts, so the order of analysis is a choice made
+afterwards rather than in silicon. The order should be:
+
+1. **Entropy density per response bit.** It is the binding constraint, a shortfall yields
+   no key, and it decides between BCH(127,22,23) at 5.22 tiles and BCH(255,47,42) at 11.86.
+2. **Bias.** It decides whether a debiasing stage is needed at all, and with it whether
+   oscillator reuse is a requirement rather than a preference.
+3. **Bit error rate across temperature.** It is the loosest of the three: every admissible
+   code in the search tolerates at least five percent, and a shortfall is answered by a
+   stronger code rather than by abandoning the construction.
+
+The error rate has been treated as the headline quantity through six loops of this work. It
+is the least decisive of the three.

@@ -67,6 +67,15 @@ run_tb "full decode end to end, GF(2^8) t=18" \
 run_tb "full decode end to end, GF(2^7) t=27" \
     -DMVAL=7 -DTVAL=27 -DREDVAL="7'h09" -DTOPNAME=bch127_tables \
     bch127_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^7) t=23" \
+    -DMVAL=7 -DTVAL=23 -DREDVAL="7'h09" -DTOPNAME=bch127t23_tables \
+    bch127t23_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=42" \
+    -DMVAL=8 -DTVAL=42 -DREDVAL="8'h1D" -DTOPNAME=bch255t42_tables \
+    bch255t42_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^9) t=54" \
+    -DMVAL=9 -DTVAL=54 -DREDVAL="9'h011" -DTOPNAME=bch511t54_tables \
+    bch511t54_tables.v bm_area_probe.v tb_bch_e2e.v
 run_tb "Reed-Muller decoder R(1,6)" rm_area_probe.v tb_rm.v
 run_tb "characterisation readout" ro_characteriser.v tb_ro_char.v
 
@@ -79,9 +88,21 @@ fi
 echo
 echo "== areas, SkyWater typical corner, one tile = 18,032 um^2 =="
 echo
-echo "  the chosen construction, BCH(127,15,27) over GF(2^7):"
+echo "  the chosen construction, BCH(127,22,23) over GF(2^7):"
+area "syndrome bank + Chien search" bch127t23_tables "" bch127t23_tables.v
+area "key-equation solver" bm_area_probe "T=23 M=7 RED=9" bm_area_probe.v
+echo
+echo "  the construction it replaced, BCH(127,15,27):"
 area "syndrome bank + Chien search" bch127_tables "" bch127_tables.v
 area "key-equation solver" bm_area_probe "T=27 M=7 RED=9" bm_area_probe.v
+echo
+echo "  the fallback if both error rate and entropy come in poor, BCH(255,47,42):"
+area "syndrome bank + Chien search" bch255t42_tables "" bch255t42_tables.v
+area "key-equation solver" bm_area_probe "T=42 M=8 RED=29" bm_area_probe.v
+echo
+echo "  rejected: BCH(511,139,54), decoder alone exceeds the whole budget"
+area "syndrome bank + Chien search" bch511t54_tables "" bch511t54_tables.v
+area "key-equation solver" bm_area_probe "T=54 M=9 RED=17" bm_area_probe.v
 echo
 echo "  the code it replaced, BCH(255,131) t=18 over GF(2^8):"
 area "syndrome bank + Chien search" bch255_tables "" bch255_tables.v
