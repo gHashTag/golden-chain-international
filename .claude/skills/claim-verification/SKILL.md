@@ -103,6 +103,42 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## A register of constraints does not check the arithmetic inside its own rows
+
+One loop after writing a constraint register with a status column, the row marked binding for
+area turned out to have been computed wrong for seventeen loops: cell area had been divided by
+die area with no utilisation factor, making every figure optimistic by 1.7.
+
+The register was right that the constraint binds and right about its source. It said nothing
+about whether the number under it was correct, because that is not what a register does.
+
+So a register makes the missing constraints visible and does not audit the present ones. After
+writing one, recompute each binding row from its definition rather than reading it.
+
+## A number carried between documents by hand will eventually not be carried
+
+A utilisation factor was measured, recorded and applied in the first document of this work.
+When the analysis moved to a second document, that one started from the raw cell areas rather
+than from the first document's conclusions, and the factor was simply absent from everything
+after.
+
+Nothing was overwritten and no step was wrong. The value just did not make the journey.
+
+So when analysis moves to a new file, carry the derived quantities as code or as an explicit
+import rather than by re-deriving from the raw inputs - and when re-deriving is unavoidable,
+list what the earlier document applied that the new one must too.
+
+## Slack results in a row are not evidence the next check will be slack
+
+Three constraints were checked across two loops and all three came back with orders of
+magnitude to spare. I wrote that this was not evidence the next would be slack, which was
+right, and then drew the wrong conclusion from it anyway: I kept looking for the next
+constraint.
+
+What bit was one already in the list, with the wrong arithmetic under it. A run of clean
+results shifts attention outward, to the unchecked, when the same run is equally a reason to
+re-examine the checked.
+
 ## Compute the sanity range before running the tool, not after reading its output
 
 A path tracer given a netlist whose sequential cells it could not recognise walked straight

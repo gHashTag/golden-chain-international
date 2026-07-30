@@ -115,6 +115,7 @@ MEASURED_AREA = {(7, 21): 79_787, (7, 23): 86_896, (7, 27): 102_267,
                  (8, 45): 222_024, (8, 47): 231_431, (8, 55): 268_820,
                  (9, 54): 304_465}
 TILE = 18_032
+UTILISATION = 0.58   # measured on the published tile; see W-INTL-99
 OSC_AREA = 7 * (6_730 / 1_792)
 ENTROPY_FLOOR_OSC = 272
 
@@ -132,7 +133,7 @@ if __name__ == "__main__":
         print("  " + "-" * 74)
         for r in search(budget, 0.05):
             area = MEASURED_AREA.get((r["n"].bit_length(), r["t"]))
-            tiles = (f"{(area + ENTROPY_FLOOR_OSC*OSC_AREA)/TILE:.2f}"
+            tiles = (f"{(area + ENTROPY_FLOOR_OSC*OSC_AREA)/UTILISATION/TILE:.2f}"
                      if area else "not measured")
             print(f"  BCH({r['n']},{r['k']}) {r['t']:5d} {r['blocks']:7d} {r['raw']:5d} "
                   f"{r['rho_min']:8.4f} {r['margin']:7.4f} {r['max_ber']*100:7.2f}% "

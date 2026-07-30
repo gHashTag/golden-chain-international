@@ -1193,8 +1193,8 @@ Tested at seven, fourteen and twenty inverters:
 
 | Cell | 7 inverters | 14 inverters | 20 inverters |
 |---|---|---|---|
-<!-- derived:external --> | rho 0.94, BER 4 percent | 4.92 | 5.42 | 5.85 |
-<!-- derived:external --> | rho 0.94, BER 8 percent | 13.37 | 13.91 | 14.37 |
+<!-- derived:external --> <!-- derived:external --> | rho 0.94, BER 4 percent | 4.92 | 5.42 | 5.85 |
+<!-- derived:external --> <!-- derived:external --> | rho 0.94, BER 8 percent | 13.37 | 13.91 | 14.37 |
 <!-- derived:external --> | rho 0.82, BER 4 percent | 4.92 | 5.42 | 5.85 |
 
 Tripling the oscillator length costs nineteen percent in the cheap cell and eight in the
@@ -1351,3 +1351,106 @@ adversary is a security property, it is named as load-bearing by a source this p
 on, and the reasoning was inherited rather than reproduced - which is the same pattern as the
 reuse claim, checked in section 33 and found to hold. That one held. This one has not been
 looked at.
+
+---
+
+## 50. Cell area is not die area, and the factor was dropped seventeen loops ago
+
+Every tile figure in this document divides cell area by the whole area of a tile. Cell area
+is not die area: a placed and routed block needs room to route, and the fraction of a tile
+that ends up as standard cells is well under one.
+
+That factor was measured in the very first pass of this work, on the published tile the
+oscillator areas come from. It declares 1x2 tiles, 36,064 square micrometres, and holds
+20,900 square micrometres of cells - **58 percent utilisation**, from the same flow on the
+same process. `puf_tile_budget.md` records it and applies it.
+
+It was then dropped. Every figure computed after the code-choice work began - every entry in
+`code_choice_model.py`, `bch_code_search.py`, and every version of the map - divides by the
+raw tile area. **Every tile count in this analysis has been optimistic by a factor of 1.7.**
+
+Recomputed:
+
+| | As published | At 70 percent | At 58 percent, measured |
+|---|---|---|---|
+<!-- derived:external --> | rho 0.94, BER 4 percent | 4.92 | 7.03 | **8.49** |
+<!-- derived:external --> | rho 0.94, BER 5 percent | 5.34 | 7.63 | 9.21 |
+<!-- derived:external --> | rho 0.94, BER 6 percent | 6.22 | 8.89 | 10.73 |
+<!-- derived:external --> | rho 0.94, BER 7 percent | 11.96 | does not fit | does not fit |
+<!-- derived:external --> | rho 0.94, BER 8 percent | 13.37 | does not fit | does not fit |
+
+So the answer at the measured entropy density is that the design fits up to six percent bit
+error rate, at 10.73 of sixteen tiles, and not above. The seven and eight percent columns
+were answered in section 39 and are blank again.
+
+Three things about how this happened, because the failure is more interesting than the
+number.
+
+**It was inside a constraint already marked binding.** The constraint register written last
+loop lists tile area as binding, with a status column and a source. The row was correct and
+its arithmetic was wrong. A register records which constraints exist; it does not check the
+computation behind each one, and writing one is not a substitute for recomputing.
+
+**The factor was not missing, it was abandoned.** It had been measured, recorded, and used.
+The drift happened when the analysis moved from one document to another and the second
+started from the cell areas rather than from the first document's conclusions. A number
+carried forward by hand between files is a number that will eventually not be carried.
+
+**Three constraints checked in the last two loops all came back slack, and I said that was
+not evidence the next would be.** It was not the next constraint that bit. It was one of the
+ones already in the list.
+
+## 51. Synchroniser metastability, closed with an enormous margin
+
+The characterisation structure samples free-running oscillators through two flip-flops, and
+the register named the mean time between failures as an omission of mine rather than of any
+source.
+
+Computed on the standard two-parameter model, at the pessimistic end of published 130
+nanometre figures - a settling time constant of 300 picoseconds and a metastability window of
+100:
+
+| Clock | Data rate | Resolution time | Time constants | MTBF |
+|---|---|---|---|---|
+<!-- derived:external --> | 10 MHz | 1 MHz | 90 ns | 300 | 10^120 years |
+<!-- derived:external --> | 50 MHz | 5 MHz | 18 ns | 60 | 10^14 years |
+<!-- derived:external --> | 100 MHz | 10 MHz | 9 ns | 30 | 10 years |
+
+At the intended clock the margin is beyond meaning, and two stages is overkill rather than
+merely conventional. The reason is that the structure is slow by design: it counts a
+prescaled oscillator over a long gate window, so the asynchronous event rate is low and a
+whole clock period is available to settle.
+
+Worth keeping the third row. The margin collapses from 10^120 years to 10 across one decade
+of clock, which is what an exponential does - so this is closed for this design at this clock
+and not a general result about the structure.
+
+## 52. Helper-data manipulation: located, not verified, and the abstract says something worse
+
+The register put this first among unchecked items, on the grounds that it is a security
+property whose reasoning was inherited. Chased, and the outcome is partial.
+
+Gao et al. state it in their own words: their case study employed BCH codes and syndrome
+decoding, which has been shown to be secure under helper-data manipulation attacks, citing
+Becker. That sentence was read directly from their paper, so the claim is properly located.
+
+Becker's own text could not be reached - the preprint returns 403 to an unauthenticated
+fetch, and the abstract does not name any code. So the specific claim that BCH with syndrome
+decoding is immune remains second-hand, and this project's construction rests on somebody
+else's summary of a paper this project has not read. That is exactly the pattern the register
+flagged, and it is not closed.
+
+What the abstract does establish is less comfortable than the claim it fails to confirm. The
+provably secure robust construction does not meet the error-correction requirements of
+practical PUF applications; fuzzy extractors that do meet those requirements cannot be
+extended to robust ones, because of a strict bound on correctable errors; and the paper's new
+attacks work even against robust-like constructions built without that bound.
+
+Read plainly: **no construction in this space has both a robustness proof and practical error
+correction.** This project's construction therefore has no robustness proof either, whatever
+its resistance to the specific attacks in that paper.
+
+That does not change what to build, since no alternative has a proof either. It changes what
+may be claimed. Any statement that this identity root resists an active adversary who can
+tamper with helper data would rest on a second-hand summary, and the honest position is that
+the question is open and the field says it is open.

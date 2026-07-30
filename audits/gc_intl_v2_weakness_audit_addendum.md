@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-98
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-101
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3085,6 +3085,90 @@ of mine; process corners, since every figure is typical-corner; routing feasibil
 percent tile utilisation; and the 128-bit target itself, inherited and never questioned
 against what the registry needs.
 
+## W-INTL-99  Cell area was divided by die area, and the utilisation factor was dropped seventeen loops ago
+
+Severity: critical. It makes every tile figure in this project optimistic by a factor of 1.7
+and reopens two cells that W-INTL-88 reported as answered.
+
+Cell area is not die area: a placed and routed block needs room to route. The fraction of a
+Tiny Tapeout tile that ends up as standard cells was measured in the first pass of this work,
+on the published tile the oscillator areas come from - it declares 1x2 tiles, 36,064 square
+micrometres, and holds 20,900 of cells, so 58 percent, from the same flow on the same process.
+`puf_tile_budget.md` records it and applies it.
+
+It was then abandoned. Every figure computed after the code-choice work began divides cell
+area by the raw tile area.
+
+At the measured utilisation the recommendation moves from 4.92 to 8.49 tiles, and the seven and
+eight percent error-rate columns stop fitting: the design covers up to six percent at 10.73 of
+sixteen tiles and nothing above. W-INTL-88's headline is withdrawn.
+
+Three things about the failure, which is more useful than the number.
+
+It was inside a constraint already marked binding. The register written last loop lists tile
+area as binding, with a status and a source. The row was right and its arithmetic was wrong. A
+register records which constraints exist and does not check the computation behind each, so
+writing one is not a substitute for recomputing.
+
+The factor was not missing, it was abandoned - measured, recorded, used, then dropped when the
+analysis moved to a second document that started from cell areas rather than from the first
+document's conclusions. A number carried between files by hand is a number that eventually is
+not carried.
+
+And the last two loops checked three constraints, found all three slack, and said that was not
+evidence the next would be. It was not the next constraint that bit. It was one already in the
+list.
+
+## W-INTL-100  Synchroniser metastability, closed with a margin that collapses fast
+
+Severity: none. It closes the one register entry named as my own omission rather than a
+source's.
+
+The characterisation structure samples free-running oscillators through two flip-flops.
+Computed on the standard two-parameter model at the pessimistic end of published 130 nanometre
+figures - settling time constant 300 picoseconds, metastability window 100 - the resolution
+time at a 10 megahertz clock is 300 time constants and the mean time between failures is 10^120
+years. Two stages is overkill rather than conventional, because the structure counts a
+prescaled oscillator over a long gate window so the asynchronous event rate is low.
+
+Worth keeping the shape rather than the number: the margin falls from 10^120 years to 10^14 at
+50 megahertz and to 10 years at 100. Closed for this design at this clock, not a general result
+about the structure.
+
+## W-INTL-101  Helper-data manipulation is located rather than verified, and the abstract says something worse
+
+Severity: high, and it is now specific rather than vague.
+
+The register put this first among unchecked items because it is a security property whose
+reasoning was inherited. Chased, with a partial outcome.
+
+Gao et al. state it in their own words - their case study employed BCH codes and syndrome
+decoding, which has been shown to be secure under helper-data manipulation attacks, citing
+Becker. That was read directly from their paper, so the claim is located.
+
+Becker's own text could not be reached: the preprint returns 403 to an unauthenticated fetch
+and the abstract names no code. So the specific claim of immunity remains second-hand, and this
+project's construction rests on someone else's summary of a paper this project has not read.
+Not closed.
+
+What the abstract does establish is worse than the claim it fails to confirm. The provably
+secure robust construction does not meet the error-correction requirements of practical PUF
+applications; extractors that do meet them cannot be extended to robust ones because of a
+strict bound on correctable errors; and the new attacks work even against robust-like
+constructions built without that bound.
+
+So no construction in this space has both a robustness proof and practical error correction,
+and this project's has no robustness proof either whatever its resistance to those specific
+attacks.
+
+That does not change what to build, since no alternative has a proof. It changes what may be
+claimed: any statement that this identity root resists an adversary who can tamper with helper
+data would rest on a second-hand summary. The honest position is that the question is open and
+the field says so.
+
+Closes when Becker's text is read. Until then the application must not claim resistance to
+helper-data manipulation.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3172,7 +3256,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-85 | open, high as a correction; sweeping one input at a time reversed the priority, and the error rate is at least as binding as entropy |
 | W-INTL-86 | corrected; two codes below the edge move it from 0.8613 to 0.8155 and the cheapest build from 5.34 to 4.92 tiles |
 | W-INTL-87 | superseded by W-INTL-89; the single fraction quoted was over-specific |
-| W-INTL-88 | closed; the blank high-error column is answered up to eight percent at the measured entropy, one cell left blank explicitly |
+| W-INTL-88 | withdrawn by W-INTL-99; the high-error column is blank again once tile utilisation is counted |
 | W-INTL-89 | closed; the leak grows monotonically with scale rather than shrinking, and the policy stands on the direction |
 | W-INTL-90 | closed; power was absent from the constraint set and is slack - 20 mA needs 609 MHz on the largest decoder |
 | W-INTL-91 | closed; the last blank cell is provably empty, not unmeasured - the only three qualifying codes are excluded by a measured point |
@@ -3183,3 +3267,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-96 | closed; the solver owns the critical path at twice either table stage, and one property predicts both the area and depth ratios |
 | W-INTL-97 | corrected; mapped depth is a quarter lower, and a path tracer returned a plausible-shaped meaningless number on the first attempt |
 | W-INTL-98 | open, medium; eleven constraints now in one register, six named as unchecked with helper-data manipulation first |
+| W-INTL-99 | open, critical; cell area was divided by die area, every tile figure optimistic by 1.7, and W-INTL-88's headline withdrawn |
+| W-INTL-100 | closed; synchroniser metastability is 10^120 years at the intended clock, and collapses to 10 years at 100 MHz |
+| W-INTL-101 | open, high; helper-data manipulation resistance is located but second-hand, and no construction in this space has a robustness proof |

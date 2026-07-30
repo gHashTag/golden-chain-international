@@ -31,6 +31,12 @@ DECODER_AREA = {
 }
 
 TILE = 18_032                   # one Tiny Tapeout tile, um^2
+# Cell area is not die area. The published tile this project measures its oscillators
+# from declares 1x2 tiles, 36,064 um^2, and holds 20,900 um^2 of cells - 58 percent
+# utilisation, measured in the same flow on the same process. That factor was applied
+# in the original tile budget and then dropped from every figure computed after the
+# code-choice work began, which made every tile count optimistic by 1.7 (W-INTL-99).
+UTILISATION = 0.58
 TILE_LIMIT = 16                 # largest submission, 8x2
 
 # One seven-inverter ring oscillator, from the measured inverter area in the
@@ -296,14 +302,15 @@ def report(p_b, debias=False):
         lo = dec + oscillators_reused(bits, max(leakage, 0)) * RO_AREA
         hi = dec + oscillators_disjoint(bits) * RO_AREA
         ok = " " if fail <= 1e-6 else "!"
-        star = lambda a: "*" if a / TILE > TILE_LIMIT else " "
+        star = lambda a: "*" if a / UTILISATION / TILE > TILE_LIMIT else " "
         resid = residual_entropy(rep, outer)
         if resid <= 0:
             print(f"{label:34} {bits:6d} {fail:10.2e}{ok} "
                   f"   INADMISSIBLE: residual entropy {resid:.0f} after n-k leakage")
             continue
         print(f"{label:34} {bits:6d} {fail:10.2e}{ok} "
-              f"{lo/TILE:6.2f}{star(lo)} {hi/TILE:8.2f}{star(hi)}")
+              f"{lo/UTILISATION/TILE:6.2f}{star(lo)} "
+              f"{hi/UTILISATION/TILE:8.2f}{star(hi)}")
     print("  ! word error probability worse than one in a million")
     print("  * does not fit the sixteen tiles a submission may use")
     print("  reuse: oscillators shared across pairs, floor set by log2(R!) exceeding")
