@@ -228,9 +228,26 @@ is our design submitted to an open multi-project run, which has been done and is
 awaiting fabrication; the status table that records it marks the row complete only
 once the shuttle confirms, and it has not. A custom die is a funded run of our own,
 which does not exist and is not funded. Everything downstream of a custom die is
-tagged [Open conjecture] with its falsification path stated. Conflating the two
-would let a submitted tile read as a funded tape-out, which is why the words are
-kept apart.
+tagged [Open conjecture] with its falsification path stated.
+
+Why the die matters more than a roadmap item, stated because we would rather be
+asked about it. Binding a key to a device without a vendor enclave needs the key
+reconstructed from a physical function on the die rather than stored, which is what
+the attestation literature converges on. Neither part we use has that function in
+hardware; on these families it has to be built in fabric, and the fabric lives in a
+bitstream whose confidentiality has an unpatchable published break on one part and
+whose authentication has a published bypass on the other. So on our current
+hardware identity is asserted, not rooted.
+
+The part that would give us the function today is a recent advanced-node device -
+exactly the class we argue a buyer concerned with supply-chain independence cannot
+count on obtaining. Our two constraints, identity in the device and hardware
+obtainable under any export regime, conflict on commodity parts. They meet at one
+point: a custom die on a mature node.
+
+That is what the die is for. Everything before it is a bench demonstration of the
+mesh, the arithmetic and the economics with identity asserted, which is what we
+have and what we say we have.
 
 ## Business model
 

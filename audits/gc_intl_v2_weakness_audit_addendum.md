@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-45
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-46
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1369,6 +1369,84 @@ Action.
 
 Closes when the ownership schedule for a value-bearing deployment is written down.
 
+## W-INTL-46  Neither part can host the identity scheme the thesis needs, and that makes the custom die load-bearing
+
+Severity: critical, and it is the most consequential finding in this file because
+it changes what the silicon roadmap is for rather than correcting a claim.
+
+Method. Vendor documentation and secondary sources at search depth, following the
+question raised by research/attestation_prior_art.md - whether the strong identity
+family that literature recommends is available on the parts in hand. Read at
+summary depth, not from the technical reference manuals directly; the conclusion
+below is consistent across several sources but should be confirmed against the
+manuals before it is relied on commercially.
+
+The chain, each link checkable.
+
+1. The literature's answer to binding a key to a device without a vendor enclave
+   is a key reconstructed from a physical function rather than stored, so nothing
+   at rest can be extracted. That is recorded in research/attestation_prior_art.md.
+
+2. Neither part in this project has a hardened physical function. Zynq
+   UltraScale+ devices do - a hardened block, with vendor-integrated third-party
+   intellectual property, used to protect the boot key. Zynq-7000 and the 7-Series
+   do not. On those parts such a function has to be built in fabric.
+
+3. A fabric implementation lives in the bitstream.
+
+4. The bitstream on these parts is not safe ground. On 7-Series the encryption has
+   an unpatchable published full break, and on Zynq-7000 the authentication has a
+   published bypass in the first-stage boot loader, both recorded in W-INTL-19.
+
+5. Therefore a fabric-built physical function on either part can have its
+   response read out, or the code that consumes it replaced. The strong family is
+   not reachable on this hardware.
+
+The tension this exposes, which is the actual finding.
+
+Two constraints the project holds simultaneously: identity rooted in the device
+rather than in a vendor enclave, and hardware obtainable under any export regime.
+On commodity parts these conflict. The part that would give a hardened physical
+function today is a recent, advanced-node device - precisely the class the thesis
+argues a buyer concerned with supply-chain independence cannot rely on obtaining.
+The parts that satisfy the export constraint cannot host the identity scheme.
+
+There is exactly one point where both constraints hold, and it is a custom die on
+a mature node.
+
+So the silicon roadmap is not a later stage of the same story. It is the only place
+the central claim closes. Everything before it is a bench demonstration of the
+mesh, the arithmetic and the economics, with identity asserted rather than rooted.
+That is a defensible position and a much clearer one than treating silicon as an
+ambition, and it is stronger in an application than the roadmap framing: it says
+why the die is necessary rather than desirable.
+
+Two corollaries worth recording.
+
+The bench-tier and mesh-tier distinction in W-INTL-19 survives this and is
+corroborated by it: the sources confirm Zynq-7000 carries a public-key bitstream
+signature scheme where the 7-Series does not. The distinction is real. It is just
+not sufficient for identity.
+
+Moving to a part with a hardened function would close the identity gap and open a
+supply-chain gap. That trade should be made explicitly if it is made at all, not
+by drifting onto a newer part because it has the feature.
+
+Action.
+
+1. Reframe the silicon roadmap in every external document: the die is where
+   identity closes, not a later nicety. State that identity on the current parts is
+   asserted rather than rooted.
+2. Confirm the availability claim against the vendor technical reference manuals
+   before it appears anywhere external. This entry was written at search depth.
+3. Do not describe a fabric-built physical function as device identity on these
+   parts. Given the two published bitstream attacks it would not be one.
+4. If a part with a hardened function is being considered, write down the
+   supply-chain cost alongside the security gain.
+
+Closes when the external documents say the die is load-bearing for identity, and
+when the availability claim has been confirmed against the manuals.
+
 ---
 
 ## Priority order
@@ -1416,3 +1494,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |
 | W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |
 | W-INTL-45 | corrected; ownership is renounced everywhere, freezing a known defect |
+| W-INTL-46 | open, critical; the identity scheme needs hardware neither part has, making the die load-bearing |

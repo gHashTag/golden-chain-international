@@ -57,6 +57,15 @@ takes effect. Neither exists in the current set - not because the keys are held
 badly but because they were given up at deployment, which is the other way to
 have no custody policy.
 
+**Identity has a hardware floor, and the current parts are below it.** Per audit
+W-INTL-46, the scheme the attestation literature recommends - a key reconstructed
+from a physical function rather than stored - needs a hardened function neither
+part has. Built in fabric it lives in a bitstream with a published break on one
+part and a published authentication bypass on the other. So no arrangement of
+contracts closes identity on this hardware, and the custom die is where it closes
+rather than a later ambition. That does not block anything below; it means identity
+should be described as asserted until the die exists.
+
 **The identity gate has to be real.** MiningPool's chip check currently passes for
 any key someone previously registered, because ChipRegistry has no signature
 check. A drafted gate exists in audit W-INTL-34; it is a specification and has not

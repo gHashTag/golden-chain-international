@@ -95,7 +95,28 @@ In order of how much a decision would rest on them:
    party should be able to check, not merely the operator, and that constraint
    rules out schemes whose verification is private.
 
-## 5. What this does not license
+## 5. Availability on the parts in hand, checked 2026-07-30
+
+The strong family is not available. Neither part has a hardened physical function:
+Zynq UltraScale+ devices do, Zynq-7000 and the 7-Series do not, and on those
+families such a function must be built in fabric. Fabric lives in the bitstream,
+and the bitstream on these parts carries an unpatchable published break to its
+encryption on one and a published bypass of its authentication on the other. A
+fabric-built function on either can therefore be read out, or the code consuming it
+replaced.
+
+The consequence is recorded as audit entry W-INTL-46 and it is the reason this
+research mattered. The project holds two constraints at once - identity rooted in
+the device, and hardware obtainable under any export regime - and on commodity
+parts they conflict. The part that offers the function today is a recent
+advanced-node device, which is the class the thesis argues a supply-chain-independent
+buyer cannot count on. The two constraints meet at exactly one point, a custom die
+on a mature node.
+
+Read at search and secondary-source depth, not from the technical reference
+manuals. Confirm against the manuals before this appears in anything commercial.
+
+## 6. What this does not license
 
 It does not license claiming a physical-function-based identity in any external
 document. Nothing of that kind is implemented, the parts' capability for it has
