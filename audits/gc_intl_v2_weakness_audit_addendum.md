@@ -1460,14 +1460,38 @@ Action.
    identity closes, not a later nicety. State that identity on the current parts is
    asserted rather than rooted.
 2. Confirm the availability claim against the vendor technical reference manuals
-   before it appears anywhere external. Done 2026-07-30: UG470, the 7 Series
-   Configuration User Guide, was fetched and searched. The terms "physically
-   unclonable", "physical unclonable" and "PUF" appear nowhere in it - zero
-   occurrences across the whole document under all three phrasings. What the
-   document does describe is a factory-programmed identifier readable over JTAG by
-   the vendor's own tools, and the security section characterises identification by
-   that route as a lower level of security than the encryption options. The finding
-   stands on the primary source.
+   before it appears anywhere external. Done 2026-07-30, for both parts rather than
+   for one and its family.
+
+   UG470, the 7 Series Configuration User Guide, covering the bench tier: the terms
+   "physically unclonable", "physical unclonable" and "PUF" appear nowhere - zero
+   occurrences across the whole document under all three phrasings. What it does
+   describe is a factory-programmed identifier readable over the debug port by the
+   vendor's own tools, with identification by that route characterised as a lower
+   level of security than the encryption options.
+
+   UG585, the Zynq-7000 Technical Reference Manual, covering the mesh tier and
+   therefore the trust anchor: 1843 pages, 3.2 megabytes of extracted text, and the
+   same three phrasings return zero occurrences again. What that manual does carry
+   is a secure-boot chapter with eFUSE settings, battery-backed RAM, AES key
+   management and RSA authentication.
+
+   Two things follow. The finding now rests on the manual for each part rather than
+   on one manual plus a family inference, which is what the first version did - the
+   mesh part is the trust anchor, so confirming its sibling and generalising was the
+   weakest link in the chain and is now closed.
+
+   And the key storage those manuals describe is precisely the family the literature
+   says to avoid: a key at rest in fuses or battery-backed memory, rather than
+   reconstructed on use. On these parts the protection around that storage is the
+   bitstream path, which carries an unpatchable break on one and a published
+   authentication bypass on the other, per W-INTL-19. So the parts do not merely
+   lack the strong option; the option they do offer is the one whose protective
+   layer is already broken here.
+
+   Corroborated in passing: the Zynq-7000 manual does carry RSA authentication in
+   its secure-boot chapter, which confirms from the primary source the mesh-tier and
+   bench-tier distinction recorded in W-INTL-19.
 3. Do not describe a fabric-built physical function as device identity on these
    parts. Given the two published bitstream attacks it would not be one.
 4. If a part with a hardened function is being considered, write down the
