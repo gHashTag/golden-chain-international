@@ -187,7 +187,7 @@ while idle. The 32.41 percent stands, and the requirement is met by choosing the
 So the row becomes: **binding, met by choosing an aging-resistant oscillator.** It is the first
 constraint in this work whose satisfaction depends on a property of the oscillator, which makes the
 oscillator arrangement a design decision rather than a detail. Costed: two extra nMOS transistors
-per stage, 1.86 times the area by transistor width, 0.07 of a tile, taking the design from 3.35 to
+per stage, 1.86 times the area by transistor width, 0.08 of a tile, taking the design from 3.35 to
 3.42 of sixteen. The factor is an estimate from the published transistor sizes and not a layout.
 
 What it changes elsewhere. Row 7, one enrolment per device, was recorded as binding as policy with
