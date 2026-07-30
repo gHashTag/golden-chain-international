@@ -3066,3 +3066,31 @@ Then `verify_inputs.py` re-synthesises all twenty-two declared areas.
 That closes the last gap between "the figures are reproducible" and "the figures are reproduced".
 Every area this project quotes is now re-synthesised on every pull request, and every testbench that
 guards it runs alongside.
+
+## 111. The areas reproduce on one laptop, and the first foreign run said so
+
+The synthesis job's first run reported **all twenty-two declared areas as mismatches**, by up to seven
+percent in both directions - the decoder at t=21 out by 3,230 square micrometres, SPONGENT out by 227
+the other way.
+
+Nothing is wrong with the circuits and nothing is wrong with the declarations. The runner's yosys is
+a different version from the one every figure here was measured with, and a synthesis area is a
+property of the tool as much as of the circuit: a different release maps to different cells.
+
+So "every figure in this project reproduces" has silently meant "on this laptop, with this build of
+yosys" for the whole of the work. The liberty was declared, measured, cross-checked and carried in
+`inputs.py`. The tool that reads it was never mentioned.
+
+That is the same shape as W-INTL-158 one level deeper. There, a script had only ever run on the
+machine that wrote it. Here the *numbers* had only ever been produced by one build of one tool, and
+the first execution on foreign ground was again the measurement.
+
+Two fixes. `research/inputs.py` declares the toolchain, and `verify_inputs.py` checks it before
+comparing anything - so a version difference now reports itself as a version difference rather than
+as twenty-two wrong numbers. And CI installs the pinned build rather than the distribution's,
+cached, so the comparison is against the tool the figures were taken with.
+
+The general form is worth keeping: **a measurement carries its instrument**. This project has been
+careful to record the conditions of every borrowed number - the pairing distance, the temperature,
+the activation time, the process node - and did not record the version of the program that produced
+its own.

@@ -123,6 +123,19 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A measurement carries its instrument, including the version of the program
+
+A body of work recorded the conditions behind every borrowed number - pairing distance, temperature,
+duty cycle, process node - and never recorded which build of the synthesis tool produced its own. The
+first run on another machine reported every declared figure as wrong, by a few percent in both
+directions, because a different release maps to different cells.
+
+Nothing was wrong with the circuits. "These figures reproduce" had silently meant "on this laptop".
+
+Declare the tool version next to the numbers it produced, and have the checker verify it *before*
+comparing anything - so a version difference arrives as one accurate sentence instead of twenty-two
+false ones.
+
 ## A regex over prose finds the first thing shaped like the answer
 
 Binding a figure with the pattern "to N of sixteen" reported 15, because "13 to 15 of sixteen"

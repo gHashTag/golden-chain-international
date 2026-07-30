@@ -79,8 +79,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: install yosys and iverilog
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq yosys iverilog
+      - name: install iverilog
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq iverilog
+      - name: cache the pinned yosys
+        id: oss
+        uses: actions/cache@v4
+        with:
+          path: /opt/oss-cad-suite
+          key: oss-cad-suite-20260730
+      - name: install the pinned yosys
+        if: steps.oss.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          # The distribution's yosys is a different version, and a synthesis area is a
+          # property of the tool as much as of the circuit: the first run of this job
+          # reported all twenty-two areas as mismatches by up to seven percent, with
+          # nothing wrong with the circuits. research/inputs.py declares the version and
+          # verify_inputs.py refuses to compare against a different one.
+          curl -fsSL -o /tmp/oss.tgz \
+            https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2026-07-30/oss-cad-suite-linux-x64-20260730.tgz
+          sudo mkdir -p /opt && sudo tar -xzf /tmp/oss.tgz -C /opt
+      - name: put the pinned yosys on the path
+        run: echo "/opt/oss-cad-suite/bin" >> "$GITHUB_PATH"
       - name: cache the standard-cell liberty
         id: liberty
         uses: actions/cache@v4

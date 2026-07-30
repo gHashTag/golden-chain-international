@@ -100,6 +100,24 @@ def main():
         only = tuple(int(x) for x in args[i + 1].split(","))
         del args[i:i + 2]
 
+    # A synthesis area is a property of the tool as much as of the circuit. Checked
+    # first, so that a toolchain difference says so instead of arriving as twenty-two
+    # wrong numbers - which is exactly how it arrived the first time this ran elsewhere.
+    ver = subprocess.run(["yosys", "-V"], capture_output=True, text=True)
+    found = re.search(r"Yosys (\S+)", ver.stdout or "")
+    want = I.TOOLCHAIN["yosys"]
+    if not found:
+        print("yosys not found or gave no version; areas cannot be verified",
+              file=sys.stderr)
+        return 1
+    if found.group(1) != want:
+        print(f"yosys {found.group(1)} found, {want} declared in research/inputs.py.",
+              file=sys.stderr)
+        print("Areas are toolchain-dependent - a different version maps differently and "
+              "every figure will differ by a few percent. Not a defect in the "
+              "circuits; see W-INTL-175.", file=sys.stderr)
+        return 1
+
     if not pathlib.Path(LIB).exists():
         print(f"liberty not found at {LIB}; nothing can be verified", file=sys.stderr)
         return 1

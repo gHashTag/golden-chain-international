@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-174
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-175
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4660,6 +4660,33 @@ twenty-two declared areas.
 
 That closes the last gap between "the figures are reproducible" and "the figures are reproduced".
 
+## W-INTL-175  Every declared area mismatched on the first foreign run, and the toolchain was undeclared
+
+Severity: high. The central reproducibility claim of this work was scoped to one machine's build of
+one tool, and nothing said so.
+
+The synthesis job added in W-INTL-174 reported all twenty-two declared areas as mismatches on its
+first run, by up to seven percent in both directions. Nothing is wrong with the circuits or the
+declarations: the runner's yosys is a different version, and a synthesis area is a property of the
+tool as much as of the circuit.
+
+So "every figure here reproduces" has silently meant "on this laptop, with this build" for the whole
+of the work. The liberty was declared, measured, cross-checked and carried in inputs.py; the program
+that reads it was never mentioned.
+
+Same shape as W-INTL-158 one level deeper - there a script had only ever run on the machine that
+wrote it, here the numbers had only ever been produced by one build of one tool, and the first
+execution on foreign ground was again the measurement.
+
+Fixed at both ends. inputs.py declares the toolchain and verify_inputs.py checks it before comparing
+anything, so a version difference reports itself as a version difference rather than as twenty-two
+wrong numbers; the control, declaring a version not installed, fires. And CI installs the pinned
+build rather than the distribution's, cached.
+
+The general form: a measurement carries its instrument. This work records the conditions of every
+borrowed number - pairing distance, temperature, activation time, process node - and did not record
+the version of the program that produced its own.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4816,6 +4843,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-169 | closed; every division in the six models read, one defect found and fixed with one definition imported plus a cross-model check |
 | W-INTL-171 | closed; fifteen ledger figures bound to the model, and three stale prose claims fell out on the first run |
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
+| W-INTL-175 | closed at both ends; all twenty-two areas mismatched on the first foreign run because the toolchain was undeclared, and a measurement carries its instrument |
 | W-INTL-174 | closed; the register bound to the model and the synthesis half of measure_all.sh running in CI, closing the last gap between reproducible and reproduced |
 | W-INTL-172 | closed; a count taken by pattern-matching source disagreed with the artefact's own counter, and the artefact was right |
 | W-INTL-170 | open as a method finding; the error rate tracks whether a number is executed, so move numbers into code rather than reading prose harder |
