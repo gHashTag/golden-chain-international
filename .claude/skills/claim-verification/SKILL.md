@@ -103,6 +103,30 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Ask whether a binding constraint is a property of the problem or of your choice
+
+A bound had governed every design decision for six loops, sourced from the field's own design
+rule and correctly applied. Chasing an unrelated question turned up a construction that does not
+have it at all - the redundancy is masked with fresh source bits and the leakage is zero by
+construction.
+
+The bound was real. It was a property of the schemes in use, not of the task, and nobody had
+asked which.
+
+So for each binding constraint, write down whether it follows from the problem statement or from
+the approach. If from the approach, the question "what would have to change for this not to bind"
+has an answer, and it is worth an hour before another loop of optimising against it.
+
+## Chasing one unverified claim is how you find the constraint you did not know about
+
+The most consequential finding in many loops came from pursuing a single second-hand citation to
+its source. The source did not settle that question and its neighbouring chapter overturned a
+different one.
+
+Unverified claims are worth chasing beyond their own value. The path to a primary source runs
+through the literature that cites it, and that literature is selected for relevance to your
+problem - which is exactly where an unasked question is likely to be sitting.
+
 ## Declare each input once, with its provenance and its category
 
 An audit found every measured quantity in a long analysis living in three to seven files.
