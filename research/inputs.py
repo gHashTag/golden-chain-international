@@ -127,6 +127,14 @@ MIN_ENTROPY_DENSITY = MIN_ENTROPY_BITS / MIN_ENTROPY_OVER
 # keep the positions that were not unanimous: 54.4 percent, 701 raw positions for 381
 # selected, and a ten-year effective rate of 0.0064 against 0.0442 tolerated - a margin of
 # 6.9 where nine reads give 2.4.
+#
+# That quantisation is a property of ranking by a vote of sign bits, and W-INTL-189 shows
+# it is avoidable: this project's characterisation structure emits frequency counts, and
+# ranking by the averaged difference is continuous, tracks the ideal bound, and gives
+# 0.0039 at the same 54.4 percent - a margin of 11.3 rather than 6.9, at the same area.
+# The positions and the area below are unchanged because the count-based ranking is a
+# provisioning-flow choice, not a die-area one; what it costs is that the part must expose
+# counts during enrolment and disable that interface afterwards.
 SELECTION_LOSS = 1 - 381 / 701
 
 # ── the requirement ─────────────────────────────────────────────────────────
