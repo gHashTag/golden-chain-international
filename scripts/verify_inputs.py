@@ -76,6 +76,13 @@ def main():
         return 1
 
     todo = sorted(I.DECODER_AREA) if only is None else [only]
+
+    # Components measured after this script was written and never machine-checked. Each is
+    # a fixed module rather than a generated one, so it is synthesised directly.
+    FIXED = {
+        "spongent_permutation": ("spongent.v", I.COUNTERMEASURE_AREA["spongent_permutation"], ""),
+        "spongent_round":       ("spongent.v", I.COUNTERMEASURE_AREA["spongent_round"], ""),
+    }
     bad = 0
     print(f"{'code':>12} {'declared':>10} {'measured':>10} {'delta':>8}")
     print("-" * 44)
@@ -91,6 +98,28 @@ def main():
         print(f"  GF(2^{m}) t={t:<3} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
         if abs(delta) >= 1.0:
             bad += 1
+    if only is None:
+        print()
+        print(f"{'module':>22} {'declared':>10} {'measured':>10} {'delta':>8}")
+        print("-" * 54)
+        for name, (src, declared, params) in sorted(FIXED.items()):
+            script = f"read_verilog -sv {src}; "
+            for prm in params.split():
+                script += f"chparam -set {prm.split('=')[0]} {prm.split('=')[1]} {name}; "
+            script += (f"hierarchy -top {name}; synth -top {name} -flatten; "
+                       f"dfflibmap -liberty {LIB}; abc -liberty {LIB}; opt_clean; "
+                       f"stat -liberty {LIB}")
+            got = yosys_area(script)
+            if got is None:
+                print(f"  {name:>20} {declared:10d} {'-':>10}  synthesis failed")
+                bad += 1
+                continue
+            delta = got - declared
+            flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+            print(f"  {name:>20} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
+            if abs(delta) >= 1.0:
+                bad += 1
+
     print()
     if bad:
         print(f"verify_inputs: {bad} of {len(todo)} decoder areas do not reproduce")

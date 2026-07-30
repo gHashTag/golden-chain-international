@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-134
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-138
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3826,6 +3826,76 @@ oscillator pairs whose ordering reverses as the die warms.
 
 Recorded in `research/inputs.py` as ENROLMENT_READS so that it lives beside the measured quantities
 rather than in prose.
+
+## W-INTL-135  The pointer family costed, and a measured advantage declined
+
+Severity: closes W-INTL-121, the only open critical entry.
+
+Index-Based Syndrome Coding removes helper-data leakage by making the helper data a pointer to a
+position - for i.i.d. bits a pointer says nothing about the value it points at - where SLLC masks the
+redundancy with fresh response bits. Both give zero leakage. Costed for the same code and key, with
+the pointer datapath implemented, verified against an injected off-by-one, and measured:
+
+| Scheme | Positions | Oscillators | Extra logic | Helper bits | Tiles |
+|---|---|---|---|---|---|
+| SLLC | 635 | 41 | 4,745 | 490 | 8.79 |
+| IBS, block of 4 | 2,540 | 72 | 581 | 1,270 | 8.47 |
+| IBS, block of 8 | 5,080 | 102 | 623 | 1,905 | 8.55 |
+
+The pointer datapath is eight times smaller than the masking machinery - a counter, a comparator and
+a register against a degree-98 encoder - and pays in positions, needing four times as many. Net, 0.32
+of a tile ahead.
+
+It should still not be used here. IBS needs a random codeword to point at, so it needs a random
+number source SLLC does not, and the literature records that ring-oscillator sum-PUF outputs are not
+fully independent and that IBS helper data can be attacked with machine learning on exactly that
+basis. The trade is 0.32 of a tile against a new attack surface aimed at this project's source type.
+
+That is a recommendation rather than a finding, and it is the first time in this work a measured
+advantage has been declined. Recorded plainly because the arithmetic says otherwise.
+
+## W-INTL-136  The decoder is 87 percent of the design and the oscillators are 1.2
+
+Severity: medium as a finding about where the effort went.
+
+The budget has been assembled across twenty sections and never shown as one table. Assembled: the
+decoder 79,787 square micrometres at 86.9 percent, the manipulation countermeasure 6,215 at 6.8, the
+SLLC encoder and unmask 4,745 at 5.2, and forty-one ring oscillators 1,077 at 1.2. Cell area 91,824,
+die area 158,446 at the measured utilisation, 8.79 tiles of sixteen.
+
+Six loops went into the oscillator side - the arrangement question, the entropy floor, the debiasing
+overhead, the pairing scheme - and all of it optimised a term worth about a hundredth of the total.
+
+Those loops were not wasted, because the oscillator side is where the constraints lived: the entropy
+density and the error rate decided which code was admissible, and the code is 87 percent of the area.
+But the effort refined a small term while the large one was settled early and revisited only when a
+paper forced it. Sorting the budget by share is cheap and would have said so at any point.
+
+## W-INTL-137  A module that never compiled had an area reported for it
+
+Severity: low as a defect and worth recording as a near-miss.
+
+The pointer datapath used `within` as a register name. That is a SystemVerilog sequence keyword:
+yosys accepted it as an identifier and synthesised the module, iverilog rejected it, and the first
+run produced an area of 584 square micrometres for a module whose testbench had never compiled.
+
+Nothing was published, because this project's rule is that no area is quoted for a circuit that has
+not passed a testbench, and the testbench had not run. The rule caught it. What it did not catch, and
+what a reader should notice, is that the synthesiser gave a plausible number for a design it had
+silently reinterpreted - the same shape as W-INTL-97, where a path tracer walked through
+unrecognised cells and returned 5,208 levels.
+
+Two tools disagreeing about whether an identifier is a keyword is a narrow bug. The general form is
+that a tool which partly does not understand its input returns a plausible answer rather than an
+error, and that the defence is a second tool with different strictness rather than closer reading.
+
+## W-INTL-138  The countermeasure is now machine-checked against its declaration
+
+Severity: none. It extends W-INTL-109 to the components added since.
+
+`verify_inputs.py` re-synthesised the thirteen decoder areas and nothing else, so the countermeasure
+and the characterisation readout were declared as measured without a check behind them. Extended: the
+SPONGENT round at 2,215 and the full permutation at 6,215 both reproduce exactly.
 
 ## Priority order
 
