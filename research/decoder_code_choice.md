@@ -545,3 +545,90 @@ The measurement that decides whether the identity root fits in sixteen tiles cos
 It is an instrument and not a key generator, and it must never ship in a part that holds
 a secret: raw frequency counts are exactly what an attacker wants and exactly what a key
 generator must never expose.
+
+---
+
+## 21. The reusable debiasing method does not exist for this construction
+
+Section 19 left the cost of e-2O-VN underived and said it should not be guessed. Derived
+now, and the answer is not a cost.
+
+e-2O-VN keeps every position: pairs that are not retained become erasure symbols rather
+than being discarded. A pair is retained when its two bits differ, so the erasure fraction
+is p^2 + (1-p)^2 - a half at 50 percent bias, more as bias worsens.
+
+A code of designed distance d corrects e errors and f erasures when 2e + f <= d-1, and for
+BCH d-1 = 2t. Per 127-bit block:
+
+| Bias | Erasure fraction | Erasures per block | Budget needed at 5 percent error rate | Best BCH(127) budget |
+|---|---|---|---|---|
+<!-- derived:external --> | 50 percent | 0.500 | 63.5 | 69.8 | 62 |
+<!-- derived:external --> | 40 percent | 0.520 | 66.0 | 72.1 | 62 |
+<!-- derived:external --> | 30 percent | 0.580 | 73.7 | 79.0 | 62 |
+<!-- derived:external --> | 25 percent | 0.625 | 79.4 | 84.1 | 62 |
+
+The erasures alone exceed the entire correction budget of the strongest BCH(127) code that
+still carries information - t=31, k=8, so 2t = 62. At every bias level. BCH cannot absorb
+this on its own, which is exactly why the source's design puts a repetition code innermost:
+repetition handles erasures almost free.
+
+But an inner repetition code cannot be afforded here, and the reason is structural rather
+than numerical. Residual min-entropy is `rho*n - (n-k)`, so reaching a 128-bit key requires
+
+    k >= 128 + n(1 - rho)
+
+Since rho <= 1 for any source, k >= 128 always - a construction cannot yield more key than
+its code carries information. A repetition code multiplies n and leaves k untouched, so it
+can only move that inequality the wrong way:
+
+| Construction | n | k | Requirement |
+|---|---|---|---|
+| rep[1] + BCH(127,15) | 127 | 15 | rho >= 1.89, impossible |
+| rep[3] + BCH(127,15) | 381 | 15 | rho >= 1.30, impossible |
+| rep[20] + BCH(127,15) | 2,540 | 15 | rho >= 1.04, impossible |
+
+Per block, and no number of blocks helps: from r=3 the per-block residual is already
+negative, so adding blocks adds leakage faster than it adds information.
+
+**So e-2O-VN is not unavailable at this entropy density. It is unavailable at any entropy
+density, for this construction, because the inner repetition it requires cannot carry the
+information the key needs.** The reusable option is not expensive here; it does not exist.
+
+That settles the protocol question in section 19 by removing the choice. One enrolment per
+device is the only constructible policy, and the registry has been updated to say so and to
+pin it with a test.
+
+## 22. The entropy margin is thinner than anything else in this analysis
+
+Falling out of the same inequality, and worth stating on its own because it is the
+tightest number in the whole line of work.
+
+Nineteen blocks of BCH(127,15,27): n total 2,413, k total 285. The requirement is
+k >= 128 + n(1-rho), which at the measured rho of 0.9414 is 269.4. The margin is 15.6 bits.
+
+Turned around, the construction needs rho >= 0.9349. The measured value is 0.9414, from
+ring oscillators on FPGAs in someone else's dataset. **The margin is 0.0065 in entropy
+density**, under a percentage point.
+
+Blocks buy margin linearly, since residual scales with block count while the per-block
+requirement does not: at 25 blocks the construction tolerates rho >= 0.9302, at the cost of
+proportionally more raw response bits and oscillators. That is a dial worth having and it
+is currently set to its tightest useful position.
+
+Nothing else in this analysis turns on a figure this close to its limit, and the figure was
+measured on a different process, on FPGAs, by someone measuring something else.
+
+## 23. Every figure, in one run
+
+The areas in this document were gathered over six loops as individual synthesis
+invocations and typed in by hand. That makes them unreproducible in practice: checking one
+meant reconstructing a session's shell history, and a change of library or tool version
+would have gone unnoticed until it contradicted something.
+
+`measure_all.sh` runs every probe and prints the table. It runs the testbenches first and
+refuses to print any area if one fails, because this project's rule is that no area is
+quoted for a circuit that has not decoded correctly, and a script that printed areas
+without checking would quietly break the rule it was written to serve.
+
+Run 2026-07-30: six testbenches pass, and all eight areas reproduce exactly the figures
+this document quotes.

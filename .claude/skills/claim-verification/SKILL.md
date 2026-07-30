@@ -103,6 +103,47 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Push the derivation until the answer stops being a number
+
+An option was left open for two loops as "cost not derived, do not guess". Deriving it
+did not produce a cost. Erasures alone exceeded the code's entire correction budget at
+every parameter value, and the fix the source used - an inner repetition code - is
+excluded by an inequality that holds for any source whatever, because a repetition code
+multiplies the code length while leaving its dimension alone.
+
+So the option was not expensive. It did not exist, and two loops of treating it as a live
+alternative had been wasted on a branch that was never reachable.
+
+When something is deferred as "expensive, not yet costed", finish the derivation before
+planning around it. Sometimes the cost is infinite, and that is a much more useful answer
+than a large number - it removes a decision instead of complicating one.
+
+## Find the number closest to its limit and name it
+
+A long analysis accumulates inputs, and attention drifts to whichever one moved last.
+Here the moving figure was the error rate and the binding figure was the entropy density:
+required 0.9349, measured 0.9414, margin under a percentage point - and measured on
+someone else's process for another purpose.
+
+Every other input had margins of two to twenty times. Nobody had asked which was
+tightest, because each had been introduced in a different loop and none had been compared
+against the others.
+
+So periodically compute the ratio of every input to its limit and report the smallest.
+It is usually not the one being discussed, and a shortfall there often means the design
+yields nothing rather than yielding less.
+
+## A measurement typed into a document is not reproducible
+
+Eight areas were gathered over six loops as one-off tool invocations and transcribed by
+hand. Checking any of them meant reconstructing a session's shell history, and a change
+of library or tool version would have gone unnoticed until it contradicted something.
+
+The fix is a script that produces the whole table, and it must enforce the project's own
+rules rather than just print - here it runs the testbenches first and refuses to print
+any area if one fails, because a script that printed regardless would have quietly broken
+the rule it was written to serve.
+
 ## Quote the range, not the worst member of a family
 
 A debiasing overhead was reported as 4.4. That is one method of four in the same source,
