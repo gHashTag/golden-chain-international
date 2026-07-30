@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-140
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-143
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3965,6 +3965,64 @@ One note on method. The header written for the serial Chien before measuring pre
 saving than the solver's, for the right reason - a general multiplier costs more than the constant one
 it replaces - and got the sign wrong. Writing the reason down before measuring made the negative
 result immediately interpretable rather than puzzling, which is most of what that habit is for.
+
+## W-INTL-141  The code was chosen before selection existed, and re-choosing it removes another 35 percent
+
+Severity: high as a finding about the process, and it is the second instance in two loops.
+
+Reliable-bit selection arrived in W-INTL-130 and made the effective error rate 0.0127 where the raw
+rate is six percent. The code was chosen in W-INTL-75 against the raw rate and was never revisited.
+BCH(127,29,21) tolerates 4.42 percent and is being asked to survive 1.27.
+
+Re-searched at the rate that applies: BCH(127,57,11) meets one in a million in three blocks and 381
+selected bits, against five blocks and 635. Every code that fits the operating point was unmeasured,
+and every measured code at n=127 has t of 21 or more - all chosen when high error tolerance was
+needed. The measured set was built for an operating point that no longer applies, so the search could
+only return the best of the wrong candidates.
+
+Generated, verified end to end and differentially, measured: decoder 24,659 square micrometres
+against 44,346, cell area 36,539 against 56,383, and 3.50 tiles against 5.40. Leakage checked first
+since the code changed - k total is 171 against the 136 required.
+
+## W-INTL-142  Sixty percent of the design removed in two loops, and both were revisits
+
+Severity: this is the method finding, and it is worth more than either change.
+
+The design stood at 8.79 tiles two loops ago, went to 5.40 by sharing the solver's multipliers, and
+now stands at 3.50 by re-choosing the code. Sixty percent removed, and neither change required a new
+measurement technique, a new paper, or a new constraint.
+
+Both were decisions correct at the operating point where they were made, in a design whose operating
+point had since moved. The solver's multiplier count assumed a throughput requirement this has never
+had. The code assumed an error rate that selection had since reduced by a factor of five.
+
+The constraint register was written to catch exactly this class and cannot. It records what each
+constraint is and whether it binds; it does not record which decisions were taken against which
+constraint. When a constraint moves, nothing points at the decisions that rested on it.
+
+Recorded as a change to how the register is kept rather than made this loop: a column naming, for
+each constraint, the decisions taken against it. The next loop is a better place to make that change
+than the one that noticed it needed making.
+
+## W-INTL-143  The constraint register is revised after three loops of deferral
+
+Severity: low, and the reason it went stale is the part that matters.
+
+The register was deferred for three loops while the leakage term was removed, selection was added,
+the countermeasure was measured, the solver was rewritten and the code was re-chosen. Revised now.
+
+What binds: the min-entropy requirement, met at 171 against 136 required; and the word failure rate,
+against the effective error rate after selection rather than the raw one.
+
+What no longer binds: helper-data leakage, removed entirely by SLLC and a property of the syndrome
+construction rather than of the problem; min-entropy density, once the tightest input and now worth
+three hundredths of a tile when halved; response bias, which decided the oscillator arrangement and
+no longer does; and the raw error rate, slack to fifteen percent with selection, which converts it
+into a requirement for raw positions.
+
+What is new: nine enrolment reads per position at the operating temperature, without which selection
+is counterproductive rather than merely weaker; and the manipulation countermeasure, a component
+rather than a constraint but load-bearing and absent for four loops.
 
 ## Priority order
 

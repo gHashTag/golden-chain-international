@@ -53,3 +53,46 @@ The unchecked list is ordered roughly by how much a bad answer would cost. Helpe
 manipulation is first because it is a security property, it is named as load-bearing by a
 source this project relies on, and the reasoning was inherited rather than reproduced - the
 same pattern as the reuse claim in W-INTL-83, which was checked and survived.
+
+
+---
+
+## Revision, 2026-07-30
+
+The register was written to make unchecked constraints visible and became the most out-of-date
+document here: it has been deferred for three loops while the leakage term was removed, reliable-bit
+selection was added, the manipulation countermeasure was measured, the solver was rewritten and the
+code was re-chosen. Brought up to date, and one lesson recorded about why it went stale.
+
+**What binds now.** Two things. The min-entropy requirement, `k_total >= 128/rho = 136`, which the
+recommended construction meets at 171. And the word failure rate, which sets the correction strength
+- but only against the *effective* error rate after selection, not the raw one.
+
+**What no longer binds, and why.**
+
+| Row | Was | Now |
+|---|---|---|
+| helper-data leakage, n-k | binding, eliminated a construction | removed entirely by SLLC; the term is a property of the syndrome construction, not the problem |
+| min-entropy per response bit | the tightest input in the work | slack; halving it moves the budget by three hundredths of a tile once the leakage term is gone |
+| response bias and debiasing | binding conditionally, decided the oscillator arrangement | slack; every arrangement fits without the leakage term |
+| raw bit error rate | binding, cliff at eight to nine percent | slack up to fifteen percent with reliable-bit selection, which converts it into a requirement for raw positions |
+| tile area | binding and computed wrong | binding, and now with a check that recomputes it from inputs |
+
+**What is new since the register was written.** Nine enrolment reads per position, at the operating
+temperature, without which selection is counterproductive rather than merely weaker. And the
+manipulation countermeasure, which is a component rather than a constraint but is load-bearing and was
+absent from every design for four loops.
+
+**Why it went stale, which is the part worth keeping.** The register lists constraints and their
+status. It does not list *what each decision was made under*. The code was chosen against a six
+percent raw error rate; selection then made the effective rate 0.0127 and the code was not revisited
+for two loops. The solver's multiplier count was chosen for a communications decoder; the
+observation that latency is free here sat in this register marked slack and was not connected to it.
+
+Both losses were the same shape: a decision correct at the operating point where it was made, and an
+operating point that moved. A register of constraints does not catch that. What would is a column
+recording, for each constraint, which decisions were taken against it - so that when a constraint
+moves, the decisions to revisit are named rather than remembered.
+
+Recorded as the change not made, because it is a change to how this file is kept rather than to what
+it says, and the next loop is a better place to make it than the one that noticed.
