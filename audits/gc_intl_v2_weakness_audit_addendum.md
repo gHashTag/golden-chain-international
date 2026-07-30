@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-117
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-123
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3640,6 +3640,74 @@ The countermeasure costs one hash of the helper data at regeneration. It is inde
 the code, so it survives whichever construction the previous two entries settle on, and it
 should be written into the key derivation before any construction is chosen rather than
 after.
+
+## W-INTL-121  Two families of scheme exist and this session only examined one
+
+Severity: critical as a scope finding.
+
+Chapter 3 of the dissertation is the map of framings this analysis never had. Its conclusion is one
+sentence: there are two main families of syndrome coding schemes for PUFs, linear approaches and
+pointer-based approaches.
+
+Every construction evaluated across twelve loops - Fuzzy Commitment, Code-Offset, Syndrome, Parity,
+SLLC - is linear.
+
+Index-Based Syndrome Coding divides the response into blocks and indexes, within each, the bit that
+matches the intended codeword bit with highest probability. It reduces errors by selecting bits of
+higher than average reliability, and for i.i.d. PUF bits the pointers are uncorrelated with the code
+sequence so nothing leaks through the helper data. Zero leakage by construction - not by masking as
+in SLLC nor by a random number as in Fuzzy Commitment, but because a pointer to a reliable bit says
+nothing about its value. Complementary IBS fixes IBS's inefficiency; Maximum-Likelihood Symbol
+Recovery indexes whole blocks and is stated to suit bit error probabilities above twenty percent.
+
+The counterweight, from the same section: the output bits of a ring-oscillator sum-PUF are not fully
+independent, and IBS helper data can be attacked with machine learning on that basis. So the pointer
+family trades a leakage-and-correction problem for a modelling problem, and this project's source is
+the type where that attack was demonstrated.
+
+Read alongside W-INTL-118, which was produced in parallel and which measures what happens when the
+selection mechanism is transferred to this project's error rate: the mechanism holds and the
+advantage does not. The two entries agree. A family that is better on a binding constraint pays
+somewhere else, and here it pays twice - a modelling attack aimed at this source type, and no
+advantage at six percent raw error.
+
+## W-INTL-122  The manipulation countermeasure is implemented and tested, closing W-INTL-120
+
+Severity: none as a defect. It closes the component W-INTL-116 identified.
+
+W-INTL-116 turned four loops of an open security question into a missing component, and W-INTL-120 -
+written in parallel by the cloud routine - observed that the countermeasure is three lines and still
+absent from the design. This closes it: fold the helper data into the key, K = S xor f(W).
+
+Present now in `research/sllc_key_generator.py` and tested on the property it exists for: honest
+reconstruction at two percent noise recovers the key in 60 of 60 trials, and one flipped helper-data
+bit changes the key in 60 of 60. The second is the point - a manipulated helper data must not yield
+the enrolled key whatever the decoder does with it, and folding it into the key achieves that
+without depending on the code.
+
+Cost is borrowed rather than measured: the thesis gives SPONGENT in its smallest configuration
+returning an 88-bit hash as 85 slices on a Spartan-3E. Labelled as borrowed, though it sits beside a
+decoder of 249 slices in the same table.
+
+## W-INTL-123  The session loop and the cloud routine collide on branch names
+
+Severity: medium as an operational defect, and it cost a merge.
+
+This work runs in two places: an interactive session and an hourly cloud routine given the same
+prompt. Both name their branches `wave-intl-NN` and both increment from what they see on main, so
+both chose `wave-intl-46` this hour. The routine pushed first, its pull request merged, and the
+session's push was rejected as a non-fast-forward - after which the session opened a pull request
+against a branch it did not own and merged the routine's work believing it was merging its own.
+
+Nothing was lost, because the rejected push left the session's commits local, and they are on
+`wave-intl-47-session` now. What was briefly true is worse than a lost commit: a report was written
+saying content had reached main when it had not. That was caught by checking whether the merged
+branch actually contained the new sections, which is a check worth doing after every merge rather
+than trusting the pull request state.
+
+The fix adopted here: session branches carry a `-session` suffix. The deeper point is that two
+agents given the same prompt and the same naming convention will collide, and the collision is
+silent on one side - the routine had no way to know.
 
 ## Priority order
 

@@ -103,6 +103,22 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## The taxonomy's top level is the one that matters, and it is usually one sentence
+
+The map of framings turned out to be a single sentence in a chapter conclusion: there are two main
+families, and every option examined across twelve loops was in one of them. Not a subtle
+distinction buried in an appendix - the top-level split, stated plainly, in a document already
+cited three loops running.
+
+So when reading for the field's taxonomy, read the conclusions of the survey chapters first and
+look specifically for how many families there are. Everything below that level is optimisation;
+that level is scope.
+
+And when you find the other family, look for its failure mode rather than its advantage. Here the
+second family gets zero leakage for free and has a machine-learning attack on its helper data that
+was demonstrated on exactly this project's source type. A family that is better on your binding
+constraint usually pays somewhere you were not measuring.
+
 ## Find the field's comparison table before optimising, not after
 
 Three loops running, a single table in a document already cited removed a constraint that had been
