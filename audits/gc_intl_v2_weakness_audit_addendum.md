@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-177
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-178
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4728,6 +4728,35 @@ Codes without a measured masking stage are skipped outright now. A recommendatio
 end to end, and a default that fills in a missing measurement is the opposite of that. Also recorded:
 an exception is not a diagnosis - the control now reports the broken thing by name.
 
+## W-INTL-178  The oldest check had never been tested, and two of its nine parts could not fail
+
+Severity: high. Every loop for eighty-odd loops printed check_consistency: OK and meant less than it
+appeared to, by an amount nobody could have stated.
+
+check_consistency.py has nine internal checks and not one had a control. Written now, one per check.
+Seven fire immediately. Two did not.
+
+check_matrix_markers could not fail: it appends to notes, and notes do not fail a run. The check
+exists because a competitor was once understated by a fifth for want of a provenance marker, and for
+its whole life it has been unable to stop that recurring. Promoted, and the control - removing the
+marker from a real quantitative row - fires. Third instance of this pattern in one file after the two
+promoted in W-INTL-150: a note is where a check goes when nobody decides whether it is a rule.
+
+check_references_resolve was wrong in two ways at once. Its pattern matched backticked dir/file.md
+only, the kind of reference these documents almost never make, while every document points constantly
+at .py, .sh and .v files. And the document list it was given held the ledger, application, audit,
+matrix, README and checklist - not the research documents. So the file carrying most of this
+project's reasoning, which names a script on nearly every page, had never had one reference checked.
+
+Widened, given the research documents, promoted to a failure, and anchored so that a cross-repository
+path in the audit - paper3-rossiya30-troica/research/weak_spots_registry.md, which contains a string
+that looks like a local research file - does not fire. Controls both ways. Scanned with the widened
+pattern every reference in every document resolves: the check was broken and the documents were not.
+
+Ten controls now run in CI, the harness self-test and nine deliberate breakages. The untested surface
+that remains is written down rather than left implicit: check_catalog has four internal checks and no
+controls, and check_commit_claims has one arm whose control is not in CI.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4885,6 +4914,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-171 | closed; fifteen ledger figures bound to the model, and three stale prose claims fell out on the first run |
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
 | W-INTL-176 | closed with a harness in CI; an equal-length mutation within one second is invisible to the interpreter, so a control can test nothing and look like a broken check |
+| W-INTL-178 | closed; the oldest check had no controls, two of its nine parts could not fail, and one was reading the wrong files - ten controls now run in CI |
 | W-INTL-177 | closed; a default filled in a missing masking-stage measurement, letting the search recommend a construction not measured end to end |
 | W-INTL-175 | closed at both ends; all twenty-two areas mismatched on the first foreign run because the toolchain was undeclared, and a measurement carries its instrument |
 | W-INTL-174 | closed; the register bound to the model and the synthesis half of measure_all.sh running in CI, closing the last gap between reproducible and reproduced |

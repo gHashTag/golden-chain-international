@@ -123,6 +123,18 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## Check the checker's inputs, not just its logic
+
+A reference-resolving check was given six documents and not the research directory - so the file
+carrying most of a project's reasoning, which names a script on nearly every page, had never had one
+reference checked. Its pattern was also restricted to the one file extension those documents almost
+never reference.
+
+The logic was correct. The inputs were wrong, and nothing in a passing run distinguishes "checked and
+clean" from "checked the wrong thing". When you audit a check, read what it is *given* and what it
+*matches* before reading what it does - and write a control that breaks a real instance in a real
+file, because a control on a file the check never opens passes for the same reason the check does.
+
 ## A control can test nothing, and it looks exactly like a check that does not work
 
 Python's import cache is keyed on a source file's modification time and size. Swap a value for one of

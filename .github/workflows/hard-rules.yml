@@ -78,6 +78,21 @@ jobs:
           python3 scripts/control.py research/decoder_code_choice.md \
             'density after selection is 0.9293' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py paper/evidence_ledger.md \
+            '  total        31 rows' '  total        30 rows' \
+            -- python3 scripts/check_consistency.py
+          python3 scripts/control.py research/decoder_code_choice.md \
+            'scripts/check_figures_reproduce.py' 'scripts/check_figures_reproduced.py' \
+            -- python3 scripts/check_consistency.py
+          python3 scripts/control.py research/hub71_ai_competitor_matrix.md \
+            '9.51 tok/s [PUB]' '9.51 tok/s' \
+            -- python3 scripts/check_consistency.py
+          python3 scripts/control.py paper/hub71_form_answers.md \
+            '<!-- concedes: E26 -->' '' \
+            -- python3 scripts/check_consistency.py
+          python3 scripts/control.py research/constraint_register.md \
+            '58 percent' '57 percent' \
+            -- python3 scripts/check_figures_reproduce.py
       - name: units on every ratio
         run: |
           set -e

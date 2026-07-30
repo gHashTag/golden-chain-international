@@ -3156,3 +3156,53 @@ end to end, and a default that fills in a missing measurement is the opposite of
 
 An exception is also not a diagnosis: the control now produces `selection is computing no bias
 amplification`, which names the broken thing.
+
+## 114. The oldest check had never been tested, and two of its nine parts could not fail
+
+`check_consistency.py` has run on every loop for longer than anything else here. It has nine internal
+checks and not one of them had a control. Written now, one per check, through the harness from the
+previous loop.
+
+Seven fire on the first attempt. Two did not, for the same reason and a different one.
+
+**`check_matrix_markers` could not fail.** It appends to `notes`, and notes do not fail a run. The
+check exists because a competitor was once understated by a fifth for want of a provenance marker,
+and for its whole life it has been unable to stop that happening again. Promoted; the control -
+removing the marker from a real quantitative row - now fires with
+`quantitative row without a provenance marker: 'Reference edge accelerator v1'`.
+
+That is the third instance of the same pattern in one file, after the two promoted in W-INTL-150. A
+note is where a check goes when nobody decides whether it is a rule.
+
+**`check_references_resolve` was worse: wrong file type and wrong file set.** Its pattern matched
+backticked `` `dir/file.md` `` only, which is the kind of reference these documents almost never
+make, while every document points constantly at `.py`, `.sh` and `.v` files - the ledger explicitly
+tells a reader to go and read them. And the list of documents it was given contained the ledger, the
+application, the audit, the matrix, the README and a checklist. **Not the research documents.** So
+the file carrying most of this project's reasoning, which names a script on nearly every page, had
+never had a single reference checked.
+
+Widened to the file types actually used, given the research documents, and promoted from a note to a
+failure. One subtlety kept it honest: the audit cites
+`paper3-rossiya30-troica/research/weak_spots_registry.md`, a path in another repository that contains
+a string looking exactly like a local `research/...` file. The pattern is anchored on a repository
+top-level directory preceded by a non-path character so that case does not fire, and there is a
+control asserting it does not.
+
+Scanned with the widened pattern, every reference in every document resolves. The check was broken;
+the documents were not.
+
+## 115. What "the checks pass" was worth before this loop
+
+Nine internal checks, two of which could never fail and one of which was reading the wrong files.
+Every loop for eighty-odd loops printed `check_consistency: OK` and meant less than it appeared to,
+by an amount nobody could have stated.
+
+The pattern across the last three loops is one thing said three ways: a check that has never failed
+is a check nobody has tested, and the way you test it is to break the thing it guards and watch. Ten
+controls now run in CI - the harness self-test and nine deliberate breakages - and each names the
+check it exercises.
+
+The remaining untested surface is written down rather than left implicit: `check_catalog` has four
+internal checks and no controls, and `check_commit_claims` has one arm with a control that is not in
+CI.
