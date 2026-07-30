@@ -1987,3 +1987,67 @@ an 88-bit hash takes 85 slices on a Spartan-3E with 117 registers and 153 lookup
 synthesised on this library, so it is a borrowed figure and labelled as one - but it is a
 lightweight hash and the decoder it sits beside is 249 slices in the same table, so the order of
 magnitude is settled even if the number is not.
+
+---
+
+## 72. Selection paired with BCH, which is the bound the parallel routine left open
+
+W-INTL-118, written in parallel by the cloud routine, measured reliable-bit selection against
+repetition and stated its own bound explicitly: the source pairs selection with a convolutional
+code, only repetition was measured, and a stronger inner code could reverse the conclusion.
+
+Paired with the BCH codes whose decoders are measured here, reusing the routine's selection model
+rather than rebuilding it - that model is already validated against a 120,000-position sample to
+within half a thousandth:
+
+| Raw error rate | Ranking | Fraction kept | Effective | Code | Raw positions | Tiles |
+|---|---|---|---|---|---|---|
+<!-- derived:external --> | 6 percent | 9 reads | 80 percent | 0.0133 | BCH(127,29,21) | 794 | 8.19 |
+<!-- derived:external --> | 10 percent | 9 reads | 80 percent | 0.0466 | BCH(127,29,21) | 794 | 8.19 |
+<!-- derived:external --> | 15 percent | 9 reads | 40 percent | 0.0374 | BCH(127,29,21) | 1,588 | 8.23 |
+
+**Nine enrolment reads, one code, and about 8.2 tiles at every error rate from six to fifteen
+percent.** Without selection: 10.37 tiles at six percent, 26.33 at ten which does not fit, and
+nothing fits at fifteen.
+
+So the reversal the routine predicted happens. Its conclusion was correct for repetition and does
+not hold for BCH.
+
+Two things this does not do. It does not use perfect ranking - the figures above are from a finite
+enrolment budget, which is the routine's own W-INTL-119 caveat honoured rather than discarded. And
+at one enrolment read selection makes things **worse**: 0.0823 effective against 0.0600 raw at six
+percent, because ranking on a single noisy measurement selects for what the noise did rather than
+for what the device is.
+
+## 73. A correction to the parallel routine's comparison
+
+W-INTL-118 compares selection plus repetition at 1,211 to 1,765 response bits against SLLC needing
+635 at the same rate. The 635 is five blocks of BCH(127,29,21), and at six percent raw that
+construction gives a word failure rate of 3.44e-05 against a target of one in a million. It does
+not meet the target there - 635 is the figure for four percent, where that code tolerates up to
+4.42 percent.
+
+SLLC at six percent needs the next stronger code, BCH(127,15,27), at ten blocks and 1,270 response
+bits.
+
+So the comparison is 1,211 to 1,765 against 1,270 - roughly a tie rather than a loss - and
+selection paired with BCH needs 794, which wins outright.
+
+The routine's mechanism measurements stand: the selection model, the 0.150 to 0.0066 figure, the
+agreement with a 120,000-position sample, and the enrolment-cost curve are all used above. What
+was wrong was one figure carried across from a different operating point, which is the same class
+as W-INTL-107 and W-INTL-99 - a number that did not follow the condition it was computed under.
+
+Worth noting how it was found: two agents on the same prompt, one checking the other's arithmetic
+against its own stated conditions. Neither would have caught it alone, because each was reading
+its own figure as familiar.
+
+## 74. What is left
+
+With selection the error rate stops constraining the design and only sets how many raw positions
+must be available - 794 at six percent, 1,588 at fifteen. Oscillators are cheap, so the whole map
+that took six loops collapses to one answer of about 8.2 tiles.
+
+That leaves, from the register: the pointer-based family still unexamined as a whole (W-INTL-121),
+the SPONGENT cost still borrowed rather than measured, and the enrolment procedure - nine reads per
+position - now a stated requirement on the provisioning flow rather than an implementation detail.
