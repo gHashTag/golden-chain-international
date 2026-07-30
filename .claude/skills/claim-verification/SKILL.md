@@ -123,6 +123,32 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A control can test nothing, and it looks exactly like a check that does not work
+
+Python's import cache is keyed on a source file's modification time and size. Swap a value for one of
+the same length within the same second - `0.65` for `0.23`, `24,659` for `24,700` - and the mutated
+run reads the *original* value. The control reports no failure, and the honest reading of that, "the
+check is broken", is wrong.
+
+Equal-length swaps are what a careful person writes. So run controls through a harness that verifies
+the anchor exists, disables bytecode caching, restores by content and verifies the restoration by
+hash - and give the harness a self-test that reproduces the hazard, so its reason is demonstrated
+rather than remembered.
+
+The general form: when a negative result surprises you, suspect the instrument before the subject.
+A control that does not fire is a claim about your test rig first and about the code second.
+
+## A default that fills in a missing measurement is worse than a crash
+
+A budget line read `TABLE.get(key, max(TABLE.values()))`. It let a search recommend a construction
+whose component had never been measured, substituting the largest measured one - silently, with no
+marker in the output.
+
+A missing measurement should stop the search, not be estimated by the nearest number to hand.
+`dict.get` with a default is where that happens most often, because it reads as defensive
+programming. In a costing model it is the opposite: it converts "we do not know" into a number that
+looks like the others.
+
 ## A measurement carries its instrument, including the version of the program
 
 A body of work recorded the conditions behind every borrowed number - pairing distance, temperature,

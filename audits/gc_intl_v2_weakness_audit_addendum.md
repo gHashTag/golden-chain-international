@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-175
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-177
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4687,6 +4687,47 @@ The general form: a measurement carries its instrument. This work records the co
 borrowed number - pairing distance, temperature, activation time, process node - and did not record
 the version of the program that produced its own.
 
+## W-INTL-176  A control can test nothing, and the failure looks like a broken check
+
+Severity: high as a method finding. It undermines the evidence behind every control in this work
+until it is ruled out.
+
+The previous loop noticed in passing that a mutate-and-restore control left a checker reading a stale
+bytecode cache. The mechanism is precise: Python's import cache is keyed on the source file's
+modification time and size, so an equal-length swap within the same second is invisible - the mutated
+run reads the original value.
+
+Reproduced rather than asserted, and the consequence is the inverse of the last loop's guess. The
+danger is not a control reporting a failure after restoring. It is a control reporting **no failure
+at all**, from which the honest conclusion - the check does not work - would be wrong. And an
+equal-length swap is exactly what a careful person writes: 0.65 for 0.23, 24,659 for 24,700, 0.9293
+for 0.9500.
+
+Three of this project's controls were equal-length swaps on Python files. Re-run through a harness
+that disables bytecode caching, all fire.
+
+scripts/control.py is that harness: it verifies the anchor exists before mutating, runs the check
+with bytecode caching off, restores by content and verifies the restoration by hash. Its --self-test
+reproduces the stale-cache case, so the reason it exists is demonstrated on every run. Five controls
+now run in CI - the self-test and one per check that a single edit can break.
+
+## W-INTL-177  A default that fills in a missing measurement
+
+Severity: medium, and it was found by the control harness on its first use.
+
+Running the zero-selection control made check_figures_reproduce.py crash with a KeyError rather than
+report. The cause was the budget line I.SLLC_AREA.get(t, max(I.SLLC_AREA.values())): without
+selection the search chooses a different code, and that default silently lets the search recommend a
+construction whose masking stage has never been measured, using the largest measured one as a
+stand-in.
+
+It happened not to matter, because the code the search returns is measured. It would have mattered
+the moment the operating point moved again, which in this work is roughly every third loop.
+
+Codes without a measured masking stage are skipped outright now. A recommendation has to be measured
+end to end, and a default that fills in a missing measurement is the opposite of that. Also recorded:
+an exception is not a diagnosis - the control now reports the broken thing by name.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4843,6 +4884,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-169 | closed; every division in the six models read, one defect found and fixed with one definition imported plus a cross-model check |
 | W-INTL-171 | closed; fifteen ledger figures bound to the model, and three stale prose claims fell out on the first run |
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
+| W-INTL-176 | closed with a harness in CI; an equal-length mutation within one second is invisible to the interpreter, so a control can test nothing and look like a broken check |
+| W-INTL-177 | closed; a default filled in a missing masking-stage measurement, letting the search recommend a construction not measured end to end |
 | W-INTL-175 | closed at both ends; all twenty-two areas mismatched on the first foreign run because the toolchain was undeclared, and a measurement carries its instrument |
 | W-INTL-174 | closed; the register bound to the model and the synthesis half of measure_all.sh running in CI, closing the last gap between reproducible and reproduced |
 | W-INTL-172 | closed; a count taken by pattern-matching source disagreed with the artefact's own counter, and the artefact was right |

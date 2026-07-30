@@ -3105,3 +3105,54 @@ The general form is worth keeping: **a measurement carries its instrument**. Thi
 careful to record the conditions of every borrowed number - the pairing distance, the temperature,
 the activation time, the process node - and did not record the version of the program that produced
 its own.
+
+## 112. A control that tests nothing, and the reason nobody would guess it
+
+The previous loop noticed in passing that a control which mutates a file and restores it by copy left
+a checker reading a stale bytecode cache. Chased down, the mechanism is precise and worse than it
+looked.
+
+Python's import cache is keyed on the source file's **modification time and size**. Swap a value for
+one of the same length, within the same second, and the interpreter reuses the cached bytecode - so
+the mutated run reads the *original* value. Reproduced rather than asserted:
+
+```
+equal length       mutated to 0.23     the run saw 0.65     -> MUTATION INVISIBLE
+different length   mutated to 0.6500   the run saw 0.6500   -> mutation visible
+```
+
+The consequence is the inverse of what the last loop guessed. The danger is not that a control
+reports a failure after restoring; it is that **a control reports no failure at all** - and the honest
+conclusion from a control that does not fire is that the check is broken, which would be wrong. An
+equal-length swap is exactly what a careful person writes: `0.65` for `0.23`, `24,659` for `24,700`,
+`0.9293` for `0.9500`.
+
+Three of this project's controls were equal-length swaps on Python files. Re-run through a harness
+that disables bytecode caching, all of them fire.
+
+`scripts/control.py` is that harness. It verifies the anchor exists before mutating - a replacement
+whose anchor is absent returns the input unchanged, which is W-INTL-149 in a different costume - runs
+the check with bytecode caching off, restores by content, and verifies the restoration by hash rather
+than by assuming the copy worked. Its `--self-test` reproduces the stale-cache case, so the reason
+the harness exists is demonstrated on every run rather than believed.
+
+Five controls now run in CI: the self-test, and one for each of the four checks that can be broken by
+a single edit.
+
+## 113. The control found a second defect on its way in
+
+Running the zero-selection control through the harness made `check_figures_reproduce.py` crash rather
+than report, with a `KeyError` on the SLLC area table.
+
+The cause was worth more than the crash. Without selection the search chooses a different code -
+BCH(127,8,31) - and the budget line was written as `I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))`.
+That default silently lets the search **recommend a construction whose masking stage has never been
+measured**, using the largest measured one as a stand-in. It happened not to matter, because the code
+the search actually returns is measured. It would have mattered the moment the operating point moved
+again, which in this work is roughly every third loop.
+
+Codes without a measured masking stage are now skipped outright. A recommendation has to be measured
+end to end, and a default that fills in a missing measurement is the opposite of that.
+
+An exception is also not a diagnosis: the control now produces `selection is computing no bias
+amplification`, which names the broken thing.
