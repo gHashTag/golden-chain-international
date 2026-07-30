@@ -1004,7 +1004,7 @@ Two more codes, chosen further below the edge, moved the whole picture:
 <!-- derived:external --> | BCH(255,55,31) | 152,170 | 8.44 | 0.8299 | 4.34 percent |
 
 BCH(127,29,21) is **cheaper than the recommendation it challenges** - 4.42 tiles of decoder
-against 4.82 - and tolerates entropy density down to 0.8155 against 0.8706. It costs error
+against 4.82 - and tolerates entropy density down to 0.7485 against 0.8706. It costs error
 tolerance, 4.42 percent against 5.23.
 
 So the flatness held where I sampled and did not hold where I had not. The correction is
@@ -2408,3 +2408,71 @@ recomputes 8.49 tiles, and they agree because both are anchored to the same supe
 point. The check written to stop documents drifting from the model is itself pinned to an old model.
 The new selection-entropy guard in the same file is anchored to the current one, which is the shape
 the rest of it should take.
+
+## 86. The masking stage was sized for the code it was written for
+
+SLLC was implemented in loop 63 for BCH(127,29,21). Its systematic encoder is a shift register whose
+degree is n-k, so for that code it is 98 stages and forty-nine taps, transcribed by hand. The
+recommendation has been BCH(127,57,11) since loop 79, whose generator has degree 70.
+
+The budget has been paying for a 98-stage encoder to protect a code that needs 70. The error is in
+the conservative direction, which is why nothing caught it: an overestimate cannot fail a fit check.
+
+Two other things were wrong with the same component. It had no testbench - the area had been quoted
+for five loops in a project whose rule is that no area is quoted for a circuit that has not been
+exercised, and whose measure_all.sh refuses to print areas when a testbench fails. And the number
+was a bare literal in one analysis script, in a project that moved every other input into inputs.py
+after W-INTL-99 for precisely this reason.
+
+`gen_sllc.py` now computes the generator polynomial from the cyclotomic cosets of alpha^1..alpha^2t,
+the same machinery `gen_bch_decoder.py` uses for its constants, so the taps are a consequence of the
+code rather than a transcription of it. Two independent confirmations that it is right: the degrees
+it produces are 70, 77 and 98 for t of 11, 13 and 21, which are exactly the n-k of the codes used
+throughout; and its t=21 output reproduces the hand-written file to within one square micrometre.
+
+| Stage | BCH(127,57,11) | BCH(127,29,21) |
+|---|---|---|
+<!-- derived:external --> | systematic encoder | 2,562 | 3,887 |
+<!-- derived:external --> | unmask | 613 | 858 |
+<!-- derived:external --> | **total** | **3,176** | **4,746** |
+
+The design goes from 3.50 tiles to **3.35**. Cell area 34,970: decoder 24,659, SLLC 3,176,
+countermeasure 6,215, oscillators 920.
+
+## 87. The check that pinned a document to a model eight loops old
+
+`check_figures_reproduce.py` existed because prose and script had once been wrong together, sharing
+a missing step. It recomputed the headline from `cheapest(RHO, 0.04)`: no SLLC, no selection, a
+three-thousand-bit raw budget - the design as it stood in loop 61. The ledger stated 8.49 tiles and
+the check recomputed 8.49 tiles, and they agreed because both were anchored to the same superseded
+construction.
+
+That is worse than having no check. No check leaves a document unverified; this one reported green
+while the document described a design that had been replaced four times.
+
+Repointed. The headline now comes from what the recommendation is: selection at the design's
+fraction, the post-selection density, SLLC sized to the code's own generator, the countermeasure,
+and the shared-multiplier solver. `cheapest()` is kept for one job - it is the arrangement in which
+the utilisation factor was dropped, so it still guards that - and is no longer the source of any
+figure a document has to match.
+
+Ledger row E31 rewritten to the construction that exists, with the movement recorded: 8.79 tiles,
+then 5.40 by sharing multipliers, then 3.50 by re-choosing the code, then 3.35 by sizing the encoder
+to its own code. **Sixty-two percent removed in four loops, none of it by a new technique or a new
+source.** Every step revisited a decision that had been correct at the operating point where it was
+made.
+
+## 88. Two loops of status rows that were never written
+
+Loops 79 and 80 both added rows to the audit's status table with a string replacement whose anchor
+was not in the file. `str.replace` returns the string unchanged when it finds nothing, so both edits
+reported success, both commit messages described the rows, and neither row existed.
+
+`check_consistency` said so both times - as a note rather than a failure, in a list that grew by two
+entries a loop for four loops. It was read as furniture.
+
+Twenty-seven entries added to the status table. Every anchored replacement this loop asserts its
+anchor first. The general shape is that a silent no-op is worse than an error, because the commit
+message then describes work the diff does not contain; and this project's three checks compare
+documents against each other and against the model, but nothing compares a commit message against
+its diff.

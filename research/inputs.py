@@ -105,6 +105,22 @@ def decoder_area(m, t):
     return DECODER_AREA_SERIAL.get((m, t), DECODER_AREA.get((m, t)))
 
 
+# measured here: the two SLLC stages, the systematic encoder and the unmask, keyed by
+# correction strength because the generator's degree is n-k and so is the register's.
+#
+# This was a bare literal in one script for five loops - 4,745 - and it was the figure
+# for BCH(127,29,21), whose generator has degree 98. The recommendation is
+# BCH(127,57,11), degree 70. The budget had been paying for the wrong encoder since the
+# code changed, and paying too much, so the error was in the conservative direction and
+# would not have shown up as a fit failure.
+#
+# The encoder is now generated from the code parameters by gen_sllc.py rather than
+# transcribed, and checked against a software polynomial division on 24 random
+# information words before its area is quoted - it had no testbench at all. The
+# generated t=21 encoder reproduces the hand-written file it replaces to within one
+# square micrometre, which is what makes the replacement safe to make.
+SLLC_AREA = {11: 3_176, 21: 4_746}
+
 # measured here: the characterisation structure's readout for a 272-oscillator bank, and
 # the smaller variant. The oscillators themselves are not synthesised - a ring oscillator
 # is a physical structure, not a logic cell - and are scaled from INVERTER_AREA above.

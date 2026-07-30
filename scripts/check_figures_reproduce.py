@@ -143,6 +143,62 @@ def max_ber(n, t, blocks):
     return lo
 
 
+def recommendation():
+    """The construction this project actually recommends, recomputed from inputs.
+
+    W-INTL-147: the headline used to come from cheapest(RHO, 0.04) - no SLLC, no
+    selection, a three-thousand-bit raw budget - which is the design as it stood eight
+    loops ago. The ledger stated 8.49 tiles and this file recomputed 8.49 tiles, and
+    they agreed because both were anchored to the same superseded operating point. A
+    check that pins a document to a stale model is worse than no check: it reports green
+    while the document is wrong.
+
+    This recomputes what the recommendation is: reliable-bit selection at the design's
+    fraction, the post-selection density, SLLC sized to the code's own generator degree,
+    the manipulation countermeasure, and the shared-multiplier solver.
+    """
+    import reliable_bit_selection as R
+    import selection_entropy as SE
+
+    fraction = 1.0 - I.SELECTION_LOSS
+    rho_sel = SE.density_for_bias(
+        SE.selected_bias(SE.mean_for_density(RHO), I.SELECTION_LOSS)[0])
+    need_k = KEY_BITS / rho_sel
+    sigma = R.sigma_for_raw_ber(0.06)
+    eff = R.selected_ber(sigma, fraction)[0]
+
+    best = None
+    for m in (7, 8):
+        n = (1 << m) - 1
+        for t, k in bch_parameters(m):
+            area = I.decoder_area(m, t)
+            if area is None:
+                continue
+            blocks = -(-int(need_k) // k)
+            if word_failure(n, t, blocks, eff) > 1e-6:
+                continue
+            if k * blocks < need_k:
+                continue
+            selected = n * blocks
+            raw = int(-(-selected // fraction) + 1e-9)   # ceil, without the
+            # truncation that made this 478 where the design says 477
+            osc = max(oscillator_floor(0), pairs_for(raw))
+            cells = (area + I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))
+                     + I.COUNTERMEASURE_AREA["spongent_permutation"] + osc * OSC)
+            tiles = cells / UTILISATION / TILE
+            if best is None or tiles < best[0]:
+                best = (tiles, n, k, t, blocks, raw, osc, rho_sel)
+    return best
+
+
+def pairs_for(positions):
+    """Oscillators needed to yield this many distinct pairs."""
+    x = 2
+    while x * (x - 1) // 2 < positions:
+        x += 1
+    return x
+
+
 def check_selection_entropy():
     """The leakage bound must be checked against the density of the SELECTED bits.
 
@@ -188,35 +244,35 @@ def check_selection_entropy():
 
 def main():
     check_selection_entropy()
-    at_measured = cheapest(RHO, 0.04)
-    if at_measured is None:
-        failures.append("model: no code fits at the measured entropy and 4 percent")
+
+    # The headline: the construction recommended now, not the one recommended in loop 61.
+    rec = recommendation()
+    if rec is None:
+        failures.append("model: nothing fits at the recommended operating point")
     else:
-        tiles, n, k, t = at_measured
-        if LEDGER.exists():
-            check(LEDGER.read_text(), "evidence_ledger.md",
-                  "tiles of sixteen at the recommended operating point",
-                  r"([0-9]+\.[0-9]+) of the sixteen tiles", tiles, 0.05)
-
-        blocks = 3000 // n
-        docs = [(LEDGER, "evidence_ledger.md")] + \
-               [(ROOT / "research" / "decoder_code_choice.md", "decoder_code_choice.md")]
-
-        # Every load-bearing figure, recomputed from inputs rather than read from a file.
-        floor = rho_floor(n, k, blocks)
-        ber = max_ber(n, t, blocks)
-        osc = oscillator_floor(n * blocks - k * blocks)
-        # The ledger is the document that must state these; the research notes may.
+        tiles, n, k, t, blocks, raw, osc, rho_sel = rec
+        docs = [(LEDGER, "evidence_ledger.md"),
+                (ROOT / "research" / "decoder_code_choice.md", "decoder_code_choice.md")]
         for path, name in docs:
             if not path.exists():
                 continue
             text = path.read_text()
             required = (name == "evidence_ledger.md")
+            check(text, name, "tiles of sixteen at the recommendation",
+                  r"([0-9]+\.[0-9]+) of the sixteen tiles", tiles, 0.02, required)
             check(text, name, "entropy density floor of the recommendation",
-                  r"entropy density down to ([0-9]\.[0-9]+)", floor, 0.002, required)
+                  r"entropy density down to ([0-9]\.[0-9]+)", KEY_BITS / (k * blocks),
+                  0.002, required)
             check(text, name, "oscillator floor",
-                  r"oscillator floor is ([0-9]+) oscillators", osc, 1, required)
+                  r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
+    at_measured = cheapest(RHO, 0.04)
+    if at_measured is None:
+        failures.append("model: no code fits at the measured entropy and 4 percent")
+    else:
+        # cheapest() is kept for one job only: it is the arrangement in which the
+        # utilisation factor was dropped, so it still guards that. It is no longer the
+        # source of any figure a document has to match.
         # The high error-rate columns must be absent, which is what W-INTL-99 restored.
         for ber in (0.07, 0.08):
             if cheapest(RHO, ber) is not None:
@@ -235,10 +291,11 @@ def main():
     if failures:
         print(f"\ncheck_figures_reproduce: {len(failures)} failure(s)")
         return 1
-    tiles, n, k, t = at_measured
+    tiles, n, k, t, blocks, raw, osc, rho_sel = rec
     print(f"check_figures_reproduce: OK "
-          f"(recommendation BCH({n},{k},{t}) at {tiles:.2f} of {TILE_LIMIT} tiles, "
-          f"die area at {UTILISATION:.0%} utilisation)")
+          f"(recommendation BCH({n},{k},{t}) x {blocks} at {tiles:.2f} of {TILE_LIMIT} "
+          f"tiles, {raw} raw positions, {osc} oscillators, "
+          f"post-selection density {rho_sel:.4f})")
     return 0
 
 

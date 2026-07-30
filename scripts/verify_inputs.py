@@ -112,6 +112,9 @@ def main():
         "spongent_permutation": ("spongent.v", I.COUNTERMEASURE_AREA["spongent_permutation"], ""),
         "spongent_round":       ("spongent.v", I.COUNTERMEASURE_AREA["spongent_round"], ""),
     }
+    # SLLC is declared as a sum of two modules per code, so it is verified as a sum
+    # rather than added to FIXED, which holds single modules.
+    SLLC = {11: ("sllc127t11.v", "sllc127t11"), 21: ("sllc127t21.v", "sllc127t21")}
     bad = 0
     print(f"{'code':>12} {'declared':>10} {'measured':>10} {'delta':>8}")
     print("-" * 44)
@@ -147,6 +150,30 @@ def main():
 
     if only is None:
         print()
+        print(f"{'SLLC, encoder+unmask':>22} {'declared':>10} {'measured':>10} {'delta':>8}")
+        print("-" * 54)
+        for t, (src, base) in sorted(SLLC.items()):
+            got = 0
+            for suffix in ("encoder", "unmask"):
+                top = f"{base}_{suffix}"
+                part = yosys_area(
+                    f"read_verilog -sv {src}; hierarchy -top {top}; "
+                    f"synth -top {top} -flatten; dfflibmap -liberty {LIB}; "
+                    f"abc -liberty {LIB}; opt_clean; stat -liberty {LIB}")
+                got = None if part is None or got is None else got + part
+            declared = I.SLLC_AREA[t]
+            if got is None:
+                print(f"{'t=%d' % t:>22} {declared:10d} {'-':>10}  synthesis failed")
+                bad += 1
+                continue
+            delta = got - declared
+            flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+            print(f"{'t=%d' % t:>22} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
+            if abs(delta) >= 1.0:
+                bad += 1
+
+    if only is None:
+        print()
         print(f"{'module':>22} {'declared':>10} {'measured':>10} {'delta':>8}")
         print("-" * 54)
         for name, (src, declared, params) in sorted(FIXED.items()):
@@ -170,7 +197,7 @@ def main():
     # Count what was actually synthesised, not what the first table held. The summary
     # said "all 15" while eighteen areas had been checked, which is the kind of line that
     # makes a passing gate mean less than it appears to.
-    total = len(todo) + (0 if only else len(I.DECODER_AREA_SERIAL) + len(FIXED))
+    total = len(todo) + (0 if only else len(I.DECODER_AREA_SERIAL) + len(FIXED) + len(SLLC))
     print()
     if bad:
         print(f"verify_inputs: {bad} of {total} declared areas do not reproduce")

@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-147
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-149
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4104,6 +4104,51 @@ The selection-entropy guard added this loop is anchored to the current operating
 shape the rest of the file should take. Repointing it means rewriting the ledger's E31 row, which is
 the row the whole area claim rests on, and that is a change worth doing deliberately.
 
+## W-INTL-148  The SLLC encoder was the wrong code's, untested, and a literal in a script
+
+Severity: high. Three defects in one component, all of which the project's own rules forbid.
+
+The SLLC stages were written by hand for BCH(127,29,21) - a degree-98 generator, forty-nine taps
+transcribed one per line. The recommendation has been BCH(127,57,11) for two loops, whose generator
+has degree 70. The budget was paying for the wrong encoder, and paying too much, so the error was
+conservative and could never show up as a fit failure.
+
+There was no testbench. The area had been quoted for five loops in a project whose stated rule is
+that no area is quoted for a circuit that has not been exercised, and whose measure_all.sh refuses
+to print areas when a testbench fails - and this circuit was in neither. A wrong tap would have been
+invisible in both directions.
+
+And the number itself, 4,745, was a bare literal in one analysis script, in a project that moved
+every other input into research/inputs.py after W-INTL-99 for exactly this reason.
+
+Fixed together. gen_sllc.py computes the generator from the cyclotomic cosets of alpha^1..alpha^2t -
+the same machinery the decoder generator uses - so the taps are a consequence of the code rather
+than a transcription of it. Its output for t=21 reproduces the hand-written file to within one
+square micrometre, which is what makes replacing that file safe. A generated testbench checks the
+register against a software polynomial division on 24 random information words and the unmask stage
+by round trip; a dropped tap and an exclusive-or turned into an and both fail it.
+
+Measured: 3,176 square micrometres for the recommendation's own code against 4,746 for the code it
+was written for. The design goes from 3.50 tiles to 3.35.
+
+## W-INTL-149  Two loops of status rows were dropped silently, and the note that said so was noise
+
+Severity: medium as a defect and high as a habit.
+
+Loops 79 and 80 each added rows to the audit's status table with a string replacement whose anchor
+did not exist. Python's str.replace returns the string unchanged when it finds nothing, so both
+edits succeeded, both commits claimed the rows, and neither row was ever in the file.
+
+check_consistency reported it both times, as a note rather than a failure: "audit: status table does
+not list W-INTL-121 ... W-INTL-147". The list grew by two entries a loop for four loops and was read
+as furniture. An advisory that never escalates is an advisory that gets read once.
+
+Both fixed: twenty-seven entries added to the status table, and every anchored replacement in this
+loop asserts its anchor before replacing. The general form is that a silent no-op is worse than an
+error, because the commit message describes work the diff does not contain - and the three checks
+this project runs compare documents against each other and against the model, but nothing compares
+a commit message against its diff.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4224,3 +4269,20 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-120 | measured, open as an omission; the countermeasure gives ideal avalanche for one hash and is still absent |
 | W-INTL-114 | closed; under zero leakage the entropy density stops binding, withdrawing W-INTL-72, W-INTL-82, W-INTL-84, W-INTL-85 and W-INTL-86 as conclusions about the problem |
 | W-INTL-110 | decided rather than open, by W-INTL-111 and W-INTL-112; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |
+| W-INTL-121 | closed; the pointer family costed against the linear one and declined for a new attack surface, the first measured advantage this work has refused |
+| W-INTL-122 | closed; the decoder is 87 percent of the design, which is where the next saving had to come from |
+| W-INTL-123 | closed; a branch collision with the cloud routine, and the check adopted after it - verify that merged content reached main |
+| W-INTL-124 .. W-INTL-129 | closed; measurement and apparatus entries, each with its control exercised |
+| W-INTL-130 | closed; reliable-bit selection adopted, nine enrolment reads made a requirement on the provisioning flow |
+| W-INTL-131 .. W-INTL-135 | closed; the countermeasure measured, the ledger's stale figures corrected, controls repaired |
+| W-INTL-136 | closed; sharing the key-equation solver's multipliers, 8.79 tiles to 5.40 |
+| W-INTL-137 .. W-INTL-140 | closed; the same trade refused for the Chien search, and the reason that refines the rule |
+| W-INTL-141 | closed; the code was chosen before selection existed, and re-choosing it takes 5.40 tiles to 3.50 |
+| W-INTL-142 | open as a method finding; sixty percent removed in two loops, both revisits of decisions whose operating point had moved |
+| W-INTL-143 | closed; the constraint register revised after three loops of deferral, and given the decisions-against-constraints column |
+| W-INTL-144 | closed with a guard; selection amplifies the bias it was assumed not to touch, and the previous design failed the leakage bound at the deeper fractions |
+| W-INTL-145 | closed; a measured input carried its arrangement and not its selection status |
+| W-INTL-146 | closed; two areas declared under the wrong convention, and a gate reported green without being run |
+| W-INTL-147 | closed; the figure-reproduction check repointed from a construction eight loops old to the one recommended now |
+| W-INTL-148 | closed; the SLLC encoder was the wrong code's, untested, and a bare literal in a script |
+| W-INTL-149 | closed; two loops of status rows were silently dropped by an anchorless string replacement, and the note that said so was read as noise |

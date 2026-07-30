@@ -14,7 +14,6 @@ import selection_entropy as SE
 import inputs as I
 
 LN2 = 0.6931471805599453
-SLLC = 4745
 
 
 def bch_table(m):
@@ -101,7 +100,8 @@ for raw in (0.06, 0.10, 0.15):
                 sel_bits = n * blocks
                 raw_pos = int(sel_bits / frac + 0.999)
                 osc = max(floor_ent(KEY), _r(raw_pos))
-                tiles = I.tiles(area + SLLC + osc * I.OSCILLATOR_AREA)
+                sllc = I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))
+                tiles = I.tiles(area + sllc + osc * I.OSCILLATOR_AREA)
                 if row_best is None or tiles < row_best[0]:
                     row_best = (tiles, n, k, t, blocks, sel_bits, raw_pos)
         if row_best is None:
