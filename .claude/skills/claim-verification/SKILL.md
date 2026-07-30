@@ -216,6 +216,24 @@ missing and three counts each inflated by one. Parse the table and generate the
 summary. The same defect recurred two iterations later and a script caught it
 within seconds.
 
+## Revise on the same evidence you would have demanded
+
+An entry was lowered from high to medium after inspecting one repository, where the
+status table turned out to be careful. It was the wrong repository: a second one
+carried a dated fabrication commitment in a public README, which is exactly what the
+entry had originally alleged. The revision was right about the file and wrong about
+the subject.
+
+**A downgrade needs the same coverage a finding does.** It is easy to be strict when
+raising a concern and loose when withdrawing one, because withdrawal feels like
+humility. It is not - an entry revised on partial inspection is not revised, it is
+guessed at with more confidence.
+
+Watch for verbs that survive a correction. Here the distinction between "produced"
+and "settled" had been carefully drawn and defended twice, and both sides of it were
+wrong: stub code that compiles is neither. Getting a distinction right does not make
+either of its terms true.
+
 ## Retract in place
 
 Keep a withdrawn finding, marked, with the reason and the method error that
