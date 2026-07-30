@@ -2647,3 +2647,63 @@ shape over `paper/`. Both now count what they matched and fail below a floor, an
 count on success - 72 files and 3 respectively.
 
 Neither was inert today. The point is that neither could have told anyone if it were.
+
+## 95. Two corrections to the aging finding, from a passage already on disk
+
+The finding stands and two of the sentences supporting it were wrong. Both were available in the
+paper this project had already downloaded and extracted, and both were written anyway.
+
+**The 1.8 percent was not a common drift.** Section 92 read "The frequency degradation in 10 years
+is about 1.8%" as a drift shared by both oscillators of a pair, and therefore cancelling. The
+sentence continues: "in our proposed ARO whereas it is about 14.4% for a conventional RO." It is the
+aging-resistant device's own degradation, against 14.4 percent for the conventional one. The
+conclusion did not rest on it - the modelled quantities are the flip rates - but the mechanism
+paragraph asserted something the source does not say.
+
+**Low duty cycle is not a defence.** Section 92 argued that the published figures are taken at 23
+percent activation time, that this design runs its bank once at power-up, and that the conventional
+number was therefore probably pessimistic here. The paper contradicts it directly:
+
+> In all cases, when the conventional RO-PUF is put in the oscillating (AC stress) or non-oscillating
+> mode (DC stress) when it is not used, it will experience significant amount of aging
+
+An idle conventional ring oscillator sits with its inverter inputs at a constant value. That is DC
+stress, and it is the worst case for NBTI on the pMOS - **not running it is not resting it**. The
+aging-resistant design's entire mechanism is a transistor that holds those inputs at VDD - VT while
+idle so the pMOS never sees a zero, which is also why the activation-time sweep in their Table I is
+given for that device and not for the conventional one.
+
+The argument was not merely unsupported; it ran the wrong way, and the hope it expressed was the
+reason it was not checked harder. Both passages sat in `/tmp/aro.txt` when it was written.
+
+## 96. The aging-resistant oscillator, costed and adopted
+
+W-INTL-154 left the design failing its only failing constraint with the fix named but not costed.
+Costed now, from the transistor sizes the paper states: inverters at Wn = 0.12u with Wp = 2.5 Wn,
+and two added nMOS gates of 0.12u and 0.24u per stage.
+
+By transistor width that is (0.42 + 0.36) / 0.42 = **1.86 times** a conventional stage.
+
+| | Conventional | Aging-resistant |
+|---|---|---|
+<!-- derived:external --> | oscillator area, each | 26.3 | 48.8 |
+<!-- derived:external --> | bank of 35 | 920 | 1,709 |
+<!-- derived:external --> | cell area | 34,970 | 35,759 |
+<!-- derived:external --> | tiles of sixteen | 3.35 | **3.42** |
+<!-- derived:external --> | ten-year flip rate, unselected | 32.4% | 7.7% |
+<!-- derived:external --> | effective error at ten years, 80% kept | 0.2888 | 0.0334 |
+<!-- derived:external --> | against a code tolerating | 0.0442 | 0.0442 |
+
+**Seven hundredths of a tile buys the only constraint the design was failing.** Adopted: the
+recommendation is now an aging-resistant bank, and `inputs.py` carries the factor with its
+derivation.
+
+Two approximations are stacked in that factor and both are stated rather than buried. Transistor
+width is not layout area. And the base figure it multiplies is itself an inverter count from a
+published tile rather than a layout of this oscillator. It is the right order and it is not a
+measurement; a layout would settle it, and the ledger's falsifier now says so.
+
+What makes this cheap is a fact established four loops ago for an unrelated reason: the oscillators
+are 2.6 percent of the design. The entropy work drove the bank from 341 oscillators to 35, and a
+1.86 times multiplier on 2.6 percent is not a decision anyone needs to agonise over. A constraint
+that would have been expensive at the old operating point is nearly free at this one.

@@ -12,14 +12,16 @@ The source is read rather than summarised. Rahman, Forte, Fahrny and Tehranipoor
 
 and on the mechanism:
 
-    "The frequency degradation in 10 years is about 1.8%"
+    "The frequency degradation in 10 years is about 1.8% in our proposed ARO whereas it
+    is about 14.4% for a conventional RO."
 
-Those two figures together are the whole point. The *common* drift is 1.8 percent and it
-does not flip anything, because a response bit is a comparison between two oscillators
-and a drift they share cancels. What flips bits is the *differential* part - the two
-oscillators of a pair age at different rates because they carry different duty cycles -
-and after ten years that differential exceeds the manufacturing difference for a third
-of the pairs.
+The previous version of this file quoted the 1.8 percent as a *common* drift shared by
+both oscillators of a pair and therefore harmless. That was a misreading, corrected here:
+1.8 percent is the aging-resistant oscillator's own degradation and 14.4 percent is the
+conventional one's. The reason a drift figure does not directly give a flip rate stands -
+a response bit is a comparison, so what flips it is the difference between the two
+oscillators' degradations rather than either one - but the numbers above are per-device
+degradation rates, not a common-mode term.
 
 Conditions, which travel with the figure: HSPICE Monte Carlo, 100 chip instances, 90 nm,
 64 conventional ring oscillators, three-sigma process variation. Simulation, not silicon,
@@ -46,19 +48,28 @@ import reliable_bit_selection as R
 # proposes.
 AGED_FLIP_CONVENTIONAL = 0.3241
 AGED_FLIP_RESISTANT = 0.0773
-COMMON_DRIFT = 0.018
+DEGRADATION_ARO = 0.018
+DEGRADATION_CONVENTIONAL = 0.144
 
-# The condition that matters most and is easiest to miss. Their Table I sweeps
-# "activation time" - the fraction of wall-clock time the oscillators are running - and
-# the ten-year figures above are taken at 23 percent. The paper says so itself: "the
-# activation time of a PUF in security applications should be much less than 23% used
-# earlier. Lower activation time further reduces the error rate".
+# Corrected. The previous version of this file argued that this design's activation time -
+# the fraction of wall-clock time the oscillators run - is orders below the 23 percent the
+# published figures were taken at, and that lower activation reduces the error, so the
+# conventional figure was probably pessimistic here.
 #
-# This identity root runs once at power-up for a few thousand cycles. Its activation time
-# is orders below one percent. Their Table I gives the aging-resistant variant across
-# activation times - 7.81, 7.03, 7.01 percent at 23, 10, 5 and 1 percent activation - and
-# does not give the conventional oscillator's figure at low activation. So the number
-# this design would actually see is not in the source.
+# That is true of the aging-resistant oscillator and false of the conventional one, and
+# the paper says so in a passage that was already on disk when the argument was written:
+#
+#     "In all cases, when the conventional RO-PUF is put in the oscillating (AC stress) or
+#     non-oscillating mode (DC stress) when it is not used, it will experience significant
+#     amount of aging"
+#
+# An idle conventional ring oscillator sits with its inverter inputs at a constant value,
+# which is DC stress and the worst case for NBTI on the pMOS. Not running it is not
+# resting it. The ARO's whole mechanism is a transistor that holds those inputs at
+# VDD - VT while idle so the pMOS never sees a zero; that is why its Table I sweep of
+# activation time is given for the ARO and not for the conventional device.
+#
+# So low duty cycle is not a defence for the conventional bank. The 32.41 percent stands.
 PUBLISHED_ACTIVATION = 0.23
 
 RAW_NOISE_BER = 0.06          # the fresh-device figure this project has been using
@@ -86,9 +97,11 @@ if __name__ == "__main__":
           f"{AGED_FLIP_CONVENTIONAL:.2%} at ten years")
     print(f"   aging, ARO      sigma {sigma_age_r:.4f} reproduces "
           f"{AGED_FLIP_RESISTANT:.2%} at ten years")
-    print(f"   the common {COMMON_DRIFT:.1%} frequency drift is not modelled because a "
-          f"drift both")
-    print(f"   oscillators of a pair share cancels in the comparison that makes the bit")
+    print(f"   ten-year frequency degradation is {DEGRADATION_ARO:.1%} for the "
+          f"aging-resistant oscillator")
+    print(f"   and {DEGRADATION_CONVENTIONAL:.1%} for the conventional one; the flip "
+          f"rates above are what")
+    print(f"   those degradations produce once paired, and are the figures modelled here")
 
     print("\n2. what the design sees, fresh and at ten years")
     print(f"   {'oscillator':>16} {'age':>8} {'selection':>10} {'effective BER':>14} "
@@ -117,21 +130,20 @@ if __name__ == "__main__":
     print(f"   published: {AGED_FLIP_CONVENTIONAL:.1%} for a conventional bank, "
           f"{AGED_FLIP_RESISTANT:.1%} for the aging-resistant one")
 
-    print("\n4. the condition the published figure carries")
-    print(f"   both ten-year figures are taken at {PUBLISHED_ACTIVATION:.0%} activation "
-          f"time - the fraction of")
-    print(f"   wall-clock time the oscillators run. This design runs its bank once at "
-          f"power-up")
-    print(f"   for a few thousand cycles, so its activation time is orders below one "
-          f"percent, and")
-    print(f"   the paper's own Table I shows lower activation reducing the error. It "
-          f"gives that")
-    print(f"   sweep for the aging-resistant variant only - 7.81, 7.03, 7.01 percent at "
-          f"23, 10, 5")
-    print(f"   and 1 percent - and not for the conventional one. The figure this design "
-          f"would see")
-    print(f"   is therefore not in the source, and the requirement below is what has to "
-          f"be met.")
+    print("\n4. low duty cycle is not a defence, which is the correction")
+    print(f"   the published figures are at {PUBLISHED_ACTIVATION:.0%} activation time "
+          f"and this design's bank runs")
+    print(f"   once at power-up, so the previous version of this file argued the "
+          f"conventional figure")
+    print(f"   was pessimistic here. The paper contradicts that: an idle conventional "
+          f"oscillator sits")
+    print(f"   at DC stress, which is the worst case for NBTI on the pMOS. Not running "
+          f"it is not")
+    print(f"   resting it. The aging-resistant design exists precisely to hold those "
+          f"inputs away from")
+    print(f"   zero while idle, which is why the activation sweep is given for it and "
+          f"not for the")
+    print(f"   conventional device. The 32.41 percent stands.")
 
     print("\n5. what selection buys against aging, which is not what it was adopted for")
     for label, s_age in (("conventional", sigma_age), ("aging-resistant", sigma_age_r)):
