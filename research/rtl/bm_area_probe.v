@@ -31,19 +31,19 @@
 // makes this stage expensive relative to the other two: syndrome accumulation
 // and the Chien search multiply by compile-time constants, which fold into XOR
 // trees, while Berlekamp-Massey multiplies two runtime values.
-module gf_mul (
-    input  wire [7:0] a,
-    input  wire [7:0] b,
-    output wire [7:0] y
+module gf_mul #(parameter M = 8, parameter [M-1:0] RED = 8'h1D) (
+    input  wire [M-1:0] a,
+    input  wire [M-1:0] b,
+    output wire [M-1:0] y
 );
-    reg [7:0] acc, cur;
+    reg [M-1:0] acc, cur;
     integer i;
     always @* begin
-        acc = 8'h00;
+        acc = {M{1'b0}};
         cur = a;
-        for (i = 0; i < 8; i = i + 1) begin
+        for (i = 0; i < M; i = i + 1) begin
             if (b[i]) acc = acc ^ cur;
-            cur = (cur[7]) ? ((cur << 1) ^ 8'h1D) : (cur << 1);
+            cur = (cur[M-1]) ? ((cur << 1) ^ RED) : (cur << 1);
         end
     end
     assign y = acc;
@@ -62,59 +62,60 @@ endmodule
 // Addition is XOR, so subtraction does not appear. The window D holds
 // S_{r+1-j} for j = 0..t and is a shift register fed by syn_byte, which is why
 // the syndromes must arrive in order starting with S_1.
-module bm_solver #(parameter T = 18) (
+module bm_solver #(parameter T = 18, parameter M = 8,
+                   parameter [M-1:0] RED = 8'h1D) (
     input  wire                clk,
     input  wire                rst_n,
     input  wire                start,      // load: lambda=1, B=1, gamma=1, L=0
     input  wire                en,         // advance one iteration
-    input  wire [7:0]          syn_byte,   // S_1 first, then S_2, ...
-    output wire [8*(T+1)-1:0]  lambda,
+    input  wire [M-1:0]        syn_byte,   // S_1 first, then S_2, ...
+    output wire [M*(T+1)-1:0]  lambda,
     output wire [$clog2(T+2)-1:0] deg,     // register length L
     output reg                 done
 );
     localparam LW = $clog2(T+2);
 
-    reg [7:0] lam [0:T];
-    reg [7:0] bee [0:T];
-    reg [7:0] win [0:T];
-    reg [7:0] gamma;
+    reg [M-1:0] lam [0:T];
+    reg [M-1:0] bee [0:T];
+    reg [M-1:0] win [0:T];
+    reg [M-1:0] gamma;
     reg [LW-1:0] ell;
     reg [$clog2(2*T+1)-1:0] r;
 
     // ── discrepancy: t+1 general multiplies and an XOR tree ─────────────────
-    wire [7:0] prod [0:T];
+    wire [M-1:0] prod [0:T];
     genvar j;
     generate
         for (j = 0; j <= T; j = j + 1) begin : disc
-            gf_mul m (.a(lam[j]), .b(win[j]), .y(prod[j]));
+            gf_mul #(.M(M), .RED(RED)) m (.a(lam[j]), .b(win[j]), .y(prod[j]));
         end
     endgenerate
 
-    wire [7:0] dchain [0:T];
+    wire [M-1:0] dchain [0:T];
     assign dchain[0] = prod[0];
     generate
         for (j = 1; j <= T; j = j + 1) begin : dsum
             assign dchain[j] = dchain[j-1] ^ prod[j];
         end
     endgenerate
-    wire [7:0] delta = dchain[T];
+    wire [M-1:0] delta = dchain[T];
 
     // ── the update: two general multiplies per coefficient ──────────────────
     // Bshift is x*B, so coefficient k of x*B is B_{k-1}, and zero at k=0.
-    wire [7:0] scaled_lam [0:T];
-    wire [7:0] scaled_bee [0:T];
+    wire [M-1:0] scaled_lam [0:T];
+    wire [M-1:0] scaled_bee [0:T];
     generate
         for (j = 0; j <= T; j = j + 1) begin : upd
-            gf_mul ml (.a(gamma), .b(lam[j]), .y(scaled_lam[j]));
+            gf_mul #(.M(M), .RED(RED)) ml (.a(gamma), .b(lam[j]), .y(scaled_lam[j]));
             // Coefficient zero of x*B is zero by construction. Selecting it with
             // a ternary would still elaborate bee[-1] as the untaken operand,
             // which simulation reports as an out-of-bounds read and synthesis is
             // free to treat differently - and a circuit that differs from the one
             // the testbench passed is not the circuit being measured.
             if (j == 0) begin : zero_tap
-                assign scaled_bee[0] = 8'h00;
+                assign scaled_bee[0] = {M{1'b0}};
             end else begin : shifted_tap
-                gf_mul mb (.a(delta), .b(bee[j-1]), .y(scaled_bee[j]));
+                gf_mul #(.M(M), .RED(RED)) mb (.a(delta), .b(bee[j-1]), .y(scaled_bee[j]));
             end
         end
     endgenerate
@@ -129,30 +130,30 @@ module bm_solver #(parameter T = 18) (
     // condition would fire on the wrong steps while still producing a plausible
     // looking polynomial.
     wire [LW:0] two_ell = {ell, 1'b0};
-    wire lengthen = (delta != 8'h00) && (two_ell <= r);
+    wire lengthen = (delta != {M{1'b0}}) && (two_ell <= r);
 
     integer i;
     always @(posedge clk) begin
         if (!rst_n) begin
             for (i = 0; i <= T; i = i + 1) begin
-                lam[i] <= (i == 0) ? 8'h01 : 8'h00;
-                bee[i] <= (i == 0) ? 8'h01 : 8'h00;
-                win[i] <= 8'h00;
+                lam[i] <= (i == 0) ? {{(M-1){1'b0}}, 1'b1} : {M{1'b0}};
+                bee[i] <= (i == 0) ? {{(M-1){1'b0}}, 1'b1} : {M{1'b0}};
+                win[i] <= {M{1'b0}};
             end
-            gamma <= 8'h01;
+            gamma <= {{(M-1){1'b0}}, 1'b1};
             ell   <= {LW{1'b0}};
             r     <= 0;
             done  <= 1'b0;
         end else if (start) begin
             for (i = 0; i <= T; i = i + 1) begin
-                lam[i] <= (i == 0) ? 8'h01 : 8'h00;
-                bee[i] <= (i == 0) ? 8'h01 : 8'h00;
-                win[i] <= 8'h00;
+                lam[i] <= (i == 0) ? {{(M-1){1'b0}}, 1'b1} : {M{1'b0}};
+                bee[i] <= (i == 0) ? {{(M-1){1'b0}}, 1'b1} : {M{1'b0}};
+                win[i] <= {M{1'b0}};
             end
             // S_1 must already be in the window when iteration zero computes its
             // discrepancy, so start loads it and the enabled cycles feed S_2 on.
             win[0] <= syn_byte;
-            gamma <= 8'h01;
+            gamma <= {{(M-1){1'b0}}, 1'b1};
             ell   <= {LW{1'b0}};
             r     <= 0;
             done  <= 1'b0;
@@ -170,7 +171,7 @@ module bm_solver #(parameter T = 18) (
                 gamma <= delta;
                 ell   <= (r + 1'b1) - ell;
             end else begin
-                bee[0] <= 8'h00;
+                bee[0] <= {M{1'b0}};
                 for (i = 1; i <= T; i = i + 1) bee[i] <= bee[i-1];
             end
 
@@ -183,24 +184,25 @@ module bm_solver #(parameter T = 18) (
 
     generate
         for (j = 0; j <= T; j = j + 1) begin : flat
-            assign lambda[8*j +: 8] = lam[j];
+            assign lambda[M*j +: M] = lam[j];
         end
     endgenerate
 endmodule
 
 // Top level for area measurement: the solver alone, so the figure can be added
 // to the syndrome and Chien numbers without overlap.
-module bm_area_probe #(parameter T = 18) (
+module bm_area_probe #(parameter T = 18, parameter M = 8,
+                       parameter [M-1:0] RED = 8'h1D) (
     input  wire               clk,
     input  wire               rst_n,
     input  wire               start,
     input  wire               en,
-    input  wire [7:0]         syn_byte,
-    output wire [8*(T+1)-1:0] lambda,
+    input  wire [M-1:0]       syn_byte,
+    output wire [M*(T+1)-1:0] lambda,
     output wire               done
 );
     wire [$clog2(T+2)-1:0] deg_unused;
-    bm_solver #(.T(T)) s (
+    bm_solver #(.T(T), .M(M), .RED(RED)) s (
         .clk(clk), .rst_n(rst_n), .start(start), .en(en),
         .syn_byte(syn_byte), .lambda(lambda), .deg(deg_unused), .done(done)
     );

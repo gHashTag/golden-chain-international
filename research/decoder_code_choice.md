@@ -295,3 +295,89 @@ and the choice is made on area; above it, only the concatenated construction wor
 all. That is a cheaper question to answer than the one this analysis started with,
 and it is the same characterisation structure that was already the recommended first
 step.
+
+---
+
+## 13. The constraint this analysis did not have, added 2026-07-30
+
+Publishing helper data costs min-entropy, and none of the twelve sections above
+counted that cost.
+
+For a secure sketch over an (n,k) linear code the loss is bounded by n-k. Gao, Su,
+Yang, Chen, Nepal and Ranasinghe (arXiv:1902.03031) call this the well-known
+min-entropy loss and use it as the design rule directly: prefer a small n and a small
+t, because a small t implies a large k, and a large k means fewer blocks are needed to
+reach a k-bit secret.
+
+That rule points the opposite way from everything sections 4 through 12 concluded. Area
+favoured the low-rate concatenated construction; leakage forbids it.
+
+Residual min-entropy per block is `rho*n - (n-k)`, with rho the min-entropy per response
+bit. At the measured rho of 0.9414:
+
+| Construction | n | k | Leak | Residual |
+|---|---|---|---|---|
+| rep[3] + RM[64,7,32] | 4,800 | 175 | 4,625 | **-106** |
+| rep[5] + RM[32,6,16] | 4,640 | 174 | 4,466 | **-98** |
+| BCH(255,131) t=18, x2 | 510 | 262 | 248 | 232 |
+| BCH(255,171) t=11 | 255 | 171 | 84 | 156 |
+| BCH(127,15,27) | 127 | 15 | 112 | 7.6 |
+| BCH(63,16,11) | 63 | 16 | 47 | 12.3 |
+
+The construction recommended in sections 4 through 12 of this document has negative
+residual entropy. It is not expensive or marginal; on the standard bound it delivers no
+secret at all. That recommendation is withdrawn.
+
+Two things must travel with that. The n-k figure is an upper bound on leakage, so a
+tighter analysis for a specific code and source could recover some of it - but n-k is
+the bound the literature designs against, and a construction that needs a better bound
+than the field uses is not one to build on. And the same arithmetic applied to the CHES
+2008 source-bit column gives a negative residual at that paper's own assumed entropy
+density, which suggests its column answers a different question - how many bits the code
+delivers, not how much secrecy survives publication.
+
+## 14. The code that satisfies all three constraints
+
+Leakage wants a high rate. Error tolerance wants a low one. Area wants both small. Only
+one of the codes named in the sources clears all three, and it is the one Gao et al.
+chose for the same reasons.
+
+BCH(127,15,27) over GF(2^7), primitive polynomial x^7+x^3+1. Measured on the same
+library, the solver verified in the new field before its area was quoted - the GF(2^8)
+case re-run as a regression and still passing, 82 patterns at t=27 in the new field
+passing, and an injected fault failing 77 of them.
+
+| Stage | Area |
+|---|---|
+| Syndrome bank + Chien search | 27,590 |
+| Key-equation solver | 73,119 |
+| Decoder total | **100,709** |
+
+Nineteen blocks for a 128-bit key, 2,413 raw response bits.
+
+| Component | Reuse | Disjoint |
+|---|---|---|
+| Decoder | 100,709 | 100,709 |
+| Oscillators | 272 | 4,826 |
+| Total tiles of 16 | **5.98** | **12.62** |
+
+It fits in both readings of the oscillator arrangement, and it tolerates a bit error
+probability up to 7.06 percent - four times what BCH(255,131) at t=18 allowed.
+
+## 15. What the three loops on this question actually established
+
+Worth stating plainly, because the direction reversed twice.
+
+The decoder area figures are all correct and all were measured. What changed each time
+was which constraint was being applied. Loop one had area only, and picked the smallest
+decoder. Loop two added the error target, and found the original code inadmissible.
+Loop three added the leakage bound, and found the replacement inadmissible too.
+
+Each measurement survived; each recommendation did not. The pattern is worth naming: a
+measurement is about the artefact, a recommendation is about the constraint set, and the
+constraint set was incomplete three times running. Nothing about measuring more carefully
+would have caught it. Reading the design rule the field uses would have, and that is what
+finally did.
+
+The answer now rests on three constraints from three sources, one measured entropy
+density, and four synthesis runs. It could still be missing a fourth constraint.

@@ -25,6 +25,7 @@ DECODER_AREA = {
     "bch255_131_t18": 89_515,   # syndrome bank + Chien + Berlekamp-Massey
     "rep3_rm64":       4_596,   # R(1,6) majority logic + repetition, both decoders
     "rep3_rm32":       2_883,   # R(1,5) variant
+    "bch127_15_t27":  100_709,  # syndrome + Chien 27,590 over GF(2^7), solver 73,119
 }
 
 TILE = 18_032                   # one Tiny Tapeout tile, um^2
@@ -47,7 +48,40 @@ CONSTRUCTIONS = [
     ("BCH(255,131) t=18, no repetition", 1, (255, 131, 37), "bch255_131_t18"),
     ("rep[3] + RM[64,7,32]",             3, (64, 7, 32),    "rep3_rm64"),
     ("rep[5] + RM[32,6,16]",             5, (32, 6, 16),    "rep3_rm32"),
+    ("BCH(127,15) t=27",                 1, (127, 15, 55),  "bch127_15_t27"),
 ]
+
+
+# ── the constraint this file was missing entirely ───────────────────────────
+# Publishing helper data costs min-entropy. For a secure sketch over an (n,k)
+# linear code the loss is bounded by n-k, which Gao, Su, Yang, Chen, Nepal and
+# Ranasinghe (arXiv:1902.03031) call the well-known min-entropy loss and use as
+# the design rule: prefer small n and small t, because a small t implies a large
+# k, and a large k means fewer blocks are needed to reach a k-bit secret.
+#
+# Residual min-entropy per block is therefore  rho*n - (n-k)  where rho is the
+# min-entropy per response bit. The count of blocks follows from the target key
+# length, and the raw response width follows from the blocks.
+#
+# The first two versions of this file did not have this constraint at all, and
+# the construction they recommended fails it outright.
+MIN_ENTROPY_DENSITY = 241.0 / 256      # measured, Wilde/Hiller/Pehl
+KEY_BITS = 128
+
+
+def residual_entropy(rep, outer):
+    """Min-entropy surviving publication of the helper data, per block."""
+    n, k, _ = outer
+    width = rep * n
+    return MIN_ENTROPY_DENSITY * width - (width - k)
+
+
+def blocks_for_key(rep, outer):
+    """Blocks needed to reach KEY_BITS, or None if the block yields nothing."""
+    r = residual_entropy(rep, outer)
+    if r <= 0:
+        return None
+    return -(-KEY_BITS // int(r)) if int(r) else None
 
 
 def tail(n, k_min, p):
@@ -72,10 +106,22 @@ def word_error(rep, outer, p):
 
 
 def raw_bits(rep, outer):
-    """Raw response bits consumed to deliver TARGET_BITS error-free bits."""
+    """Raw response bits consumed.
+
+    Two accountings, and the difference is the subject of W-INTL-63. The paper
+    this model was first built from counts blocks by error-free output bits,
+    ceil(171/k), which asks how much data the code delivers. The leakage bound
+    asks how much secrecy survives publishing the helper data, and that is the
+    binding question. Where a block has positive residual entropy the second
+    accounting is used; where it does not, the construction is inadmissible and
+    the first accounting is reported only so the gap is visible.
+    """
     n, k, _ = outer
-    words = -(-TARGET_BITS // k)          # ceiling
-    return rep * n * words, words
+    blocks = blocks_for_key(rep, outer)
+    if blocks is None:
+        words = -(-TARGET_BITS // k)
+        return rep * n * words, words
+    return rep * n * blocks, blocks
 
 
 def total_failure(rep, outer, p):
@@ -220,6 +266,11 @@ def report(p_b):
         hi = dec + oscillators_disjoint(bits) * RO_AREA
         ok = " " if fail <= 1e-6 else "!"
         star = lambda a: "*" if a / TILE > TILE_LIMIT else " "
+        resid = residual_entropy(rep, outer)
+        if resid <= 0:
+            print(f"{label:34} {bits:6d} {fail:10.2e}{ok} "
+                  f"   INADMISSIBLE: residual entropy {resid:.0f} after n-k leakage")
+            continue
         print(f"{label:34} {bits:6d} {fail:10.2e}{ok} "
               f"{lo/TILE:6.2f}{star(lo)} {hi/TILE:8.2f}{star(hi)}")
     print("  ! word error probability worse than one in a million")

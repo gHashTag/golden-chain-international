@@ -103,6 +103,44 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Enumerate the constraint set before optimising against it
+
+Three loops running, a recommendation was made and withdrawn. Each measurement was
+correct and each recommendation was wrong, because the constraint set was incomplete
+three times. Area only, so the smallest option won. Then the error target arrived and
+killed it. Then the leakage bound arrived and killed the replacement.
+
+Nothing about measuring more carefully would have caught any of it. What caught it was
+reading the design rule the field actually uses - which each time was stated plainly in
+a paper, as a rule rather than a result, in a sentence that was not the paper's
+headline.
+
+So before optimising, write the constraint list down and go looking for the ones not on
+it. Ask what the field's own selection rule is and why, because a rule encodes
+constraints that results do not. And when a recommendation reverses direction twice,
+suspect the list rather than the arithmetic.
+
+## Constraints that pull opposite ways are the ones most often half-counted
+
+Leakage rewards a high code rate. Error tolerance rewards a low one. Every conclusion
+this project reached about codes was drawn with one of those in view, and each time the
+missing one pointed the other way.
+
+That is not coincidence. When two constraints oppose, optimising against either alone
+produces a confident answer at the wrong extreme, and the answer looks better the more
+carefully it is computed. Whenever an analysis lands hard at one end of a range, look
+for the constraint that would push back.
+
+## Separate what was measured from what was recommended when reporting a reversal
+
+Three recommendations were withdrawn and no measurement was. Saying "the conclusion was
+wrong" would have implied the numbers were, and they were not - they were correct
+measurements of the wrong configuration, then of a differently wrong one.
+
+When reporting a reversal, say which artefacts survived it. It tells the reader what
+they can still rely on, and it keeps the failure located where it belongs: in the
+framing, not in the instruments.
+
 ## When you fix a conflation, check you have not made another one
 
 The correction that most needs this rule was itself a correction. A pair count was
