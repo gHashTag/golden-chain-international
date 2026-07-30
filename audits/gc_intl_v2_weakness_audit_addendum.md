@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-181
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-183
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4814,6 +4814,48 @@ Third way after an anchor that was not present and a mutation the interpreter co
 pattern underneath all three: a control is an experiment, and an experiment sharing any surface with
 its subject is not measuring what it thinks it is. Here the shared surface was the file itself.
 
+## W-INTL-182  The toolchain spread was a statement about a stale tool, not about version drift
+
+Severity: medium, and it corrects a figure this project published two loops ago.
+
+W-INTL-175 concluded that synthesis areas are toolchain-dependent by up to seven percent, from a run
+in which all twenty-two mismatched. That run used the distribution's yosys, several years behind.
+Under the pinned modern build, nineteen of twenty-two reproduce exactly and the three that move are
+all the shared-multiplier solver, differing by at most 0.259 percent.
+
+That the only version sensitivity sits in that one circuit is not a coincidence: it is the design's
+only stage with resource sharing, so it is the only one where the mapper has choices to make
+differently.
+
+The CI tolerance drops from fifteen percent to one, against a measured worst case of 0.26. The check
+is now worth close to what the local one is - the convention error it was built for, 24,659 against
+42,069, is seventy percent, three hundred times the noise.
+
+Corrected rather than quietly replaced: "toolchain-dependent by up to seven percent" was true of the
+comparison that produced it and false as a general claim.
+
+## W-INTL-183  What the free aging mitigation has to prove
+
+Severity: informational, and it converts an open argument into a threshold.
+
+W-INTL-173 found that a NAND-gated ring gives the aging-resistant mechanism at zero area cost and
+declined to bank it, because the ten-year flip rate belongs to the paper's custom cell. The condition
+can be stated exactly.
+
+The requirement is 9.2 percent unselected at ten years. A conventional ring is 32.41 and the
+published aging-resistant cell is 7.73. In the source model the requirement sits 3.6 percent of the
+way from the aging-resistant cell back toward conventional, so a NAND ring qualifies only if it
+captures at least 96.4 percent of that cell's benefit.
+
+Far tighter than "shares the mechanism, so it should be fine", which is what the argument for it
+amounts to. The mechanisms differ in detail - the ARO holds the inverter input at VDD minus VT with a
+dedicated transistor, a NAND holds its output at VDD, and the ARO stops oscillation with a second
+device where the NAND does both jobs with one gate - and whether that costs more or less than 3.6
+percent of the benefit is not answerable from the mechanism.
+
+The output is the number rather than the verdict: a NAND-gated ring qualifies at or below 9.2 percent
+unselected, with one and a half points of margin against the ARO's 7.73.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4972,6 +5014,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
 | W-INTL-176 | closed with a harness in CI; an equal-length mutation within one second is invisible to the interpreter, so a control can test nothing and look like a broken check |
 | W-INTL-179 | closed; the catalog checker skipped silently with the skip documented as a feature, and the check written for W-INTL-41 could not fail |
+| W-INTL-182 | closed; the seven percent toolchain spread was a stale tool, not version drift - nineteen of twenty-two areas identical under the pinned build and the CI tolerance drops to one percent |
+| W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 96.4 percent of the aging-resistant cell's benefit |
 | W-INTL-181 | closed; the commit-claims probe was written literally into the workflow file, which is in the diff the check reads, so the control passed for the wrong reason |
 | W-INTL-180 | closed; every check in the repository now has a control and every control runs in CI |
 | W-INTL-178 | closed; the oldest check had no controls, two of its nine parts could not fail, and one was reading the wrong files - ten controls now run in CI |
