@@ -103,6 +103,34 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Report a conclusion over a range of the weakest input, not at a point
+
+The weakest input in a long analysis was a constant measured on someone else's process for
+another purpose. Every conclusion had been stated at its value, which is stating a
+conclusion at someone else's operating point.
+
+Recomputed across the plausible range, the recommendation turned out not to move at all
+over six percentage points, and then to stop entirely. That is a better answer than a
+margin: a margin invites the question of how much is enough, while a flat band with a named
+edge says the decision is insensitive over a wide range and says exactly where it is not.
+
+So when one input is much weaker than the rest, sweep it and report the shape. And say
+whether the edge is an edge in reality or only in what has been measured so far - those are
+very different claims and they look identical in a table.
+
+## Implement a borrowed formula rather than scaling its published outputs
+
+Overheads from a paper had been rescaled from the 1,000-bit case it tabulates to a
+2,921-bit design. The dependence runs through an inverse binomial, so rescaling was an
+approximation dressed as a lookup.
+
+Implementing the constraint took an hour and gave three things a rescaled number cannot:
+figures correct for the actual size, a calibration check against every value the paper
+states, and the ability to answer the next question without going back to the paper.
+
+When a source tabulates outputs of a formula it also states, implement the formula. The
+table is then a test rather than the data.
+
 ## When you correct one accounting, find the others feeding the same inequality
 
 A distinction was drawn six loops ago between raw quantity and quantity surviving a

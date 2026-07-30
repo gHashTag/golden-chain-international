@@ -129,6 +129,54 @@ def key_of(blocks):
     return hashlib.sha256(flat).digest()[:KEY_BITS // 8]
 
 
+# ── debiasing, and the constraint that sizes it ─────────────────────────────
+# The overheads this project has been quoting came from Maes et al.'s Table 2, which
+# computes them for a 1,000-bit output. The overhead depends on output length through
+# an inverse binomial - relative fluctuation shrinks as the output grows, so less
+# slack is needed - so borrowing the figures for a 2,921-bit output was an
+# approximation. The constraint is implemented here instead of borrowed, and it
+# reproduces all three figures the paper states.
+
+def classic_von_neumann(bits):
+    """CVN: consider consecutive pairs, keep the first bit when they differ."""
+    return [bits[i] for i in range(0, len(bits) - 1, 2) if bits[i] != bits[i + 1]]
+
+
+def pair_output_von_neumann(bits):
+    """2O-VN: keep both bits of a differing pair, so a retained pair yields two."""
+    out = []
+    for i in range(0, len(bits) - 1, 2):
+        if bits[i] != bits[i + 1]:
+            out += [bits[i], bits[i + 1]]
+    return out
+
+
+def debias_overhead_model(y, bias, pfail=1e-6, bits_per_pair=1):
+    """Smallest raw length whose retained count reaches y with probability 1-pfail."""
+    from math import lgamma, log, exp
+    q = 2 * bias * (1 - bias)
+    need = y / bits_per_pair
+
+    def cdf_below(nn):
+        tot = 0.0
+        for i in range(int(need)):
+            lp = (lgamma(nn + 1) - lgamma(i + 1) - lgamma(nn - i + 1)
+                  + i * log(q) + (nn - i) * log(1 - q))
+            tot += exp(lp)
+            if tot > 1.0:
+                return 1.0
+        return tot
+
+    lo, hi = int(need * 2), int(need * 40)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if cdf_below(mid // 2) <= pfail:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+
+
 # ── the model this is checking ──────────────────────────────────────────────
 def model_failure(ber):
     per_block = sum(comb(N, i) * ber**i * (1 - ber)**(N - i)
@@ -170,7 +218,30 @@ if __name__ == "__main__":
         fails = sum(1 for _ in range(n) if trial(rng, 0.5, ber) != "ok")
         print(f"   {ber:6.2f} {n:7d} {fails/n:10.3f} {model_failure(ber):12.3g}")
 
-    print("\n3. errors beyond the correction radius are refused, not mis-corrected")
+    print("\n3. debiasing: the formula, and the chain that has to live with it")
+    need = N * BLOCKS
+    print(f"   {'method':8} {'bias':>5} {'raw needed':>11} {'overhead':>9} "
+          f"{'observed retained':>18}")
+    for label, fn, bpp in (("CVN", classic_von_neumann, 1),
+                           ("2O-VN", pair_output_von_neumann, 2)):
+        for bias in (0.50, 0.30):
+            n_raw = debias_overhead_model(need, bias, bits_per_pair=bpp)
+            got = [len(fn([1 if rng.random() < bias else 0 for _ in range(n_raw)]))
+                   for _ in range(12)]
+            short = sum(1 for g in got if g < need)
+            print(f"   {label:8} {bias:4.0%} {n_raw:11d} {n_raw/need:9.2f} "
+                  f"{min(got):8d}..{max(got):<8d}" + ("  SHORT" if short else ""))
+    print("   the retained counts must clear the response length in every trial;")
+    print("   the constraint is sized for a failure rate of one in a million.")
+
+    print("\n4. debiased bits are unbiased, which is the point of the stage")
+    for bias in (0.50, 0.30, 0.20):
+        raw = [1 if rng.random() < bias else 0 for _ in range(400000)]
+        kept = classic_von_neumann(raw)
+        print(f"   source bias {bias:.2f} -> retained bias "
+              f"{sum(kept)/len(kept):.4f} over {len(kept)} bits")
+
+    print("\n5. errors beyond the correction radius are refused, not mis-corrected")
     caught = 0
     for _ in range(40):
         blocks, helper = enrol(rng, 0.5)
