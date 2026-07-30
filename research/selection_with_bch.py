@@ -72,50 +72,66 @@ def need_k_at(fraction):
     was an understatement that grew with the selection fraction, and it is why the
     deeper rows of this table used to look free.
     """
-    rho = SE.density_for_bias(SE.selected_bias(MU, 1.0 - fraction)[0])
-    return int(KEY / rho + 0.999)
+    return int(KEY / density_at(fraction) + 0.999)
 
-for raw in (0.06, 0.10, 0.15):
-    sigma = R.sigma_for_raw_ber(raw)
-    print(f"\n=== raw bit error rate {raw:.0%} "
-          f"(the routine's model, sigma {sigma:.4f}) ===")
-    print(f"{'selected':>9} {'eff BER':>9} {'density':>8} {'k needed':>9} "
-          f"{'code':>16} {'blocks':>7} {'selected bits':>14} {'raw positions':>14} "
-          f"{'tiles':>7}")
-    best_overall = None
-    for frac in (1.00, 0.80, 0.60, 0.40, 0.326, 0.20, 0.10):
-        eff = raw if frac >= 1.0 else R.selected_ber(sigma, frac)[0]
-        need_k = need_k_at(frac)
-        rho_sel = KEY / need_k
-        row_best = None
-        for m in (7, 8):
-            n = (1 << m) - 1
-            for t, k in bch_table(m):
-                area = I.decoder_area(m, t)
-                if area is None:
-                    continue
-                blocks = -(-need_k // k)
-                if word_fail(n, t, blocks, eff) > 1e-6:
-                    continue
-                sel_bits = n * blocks
-                raw_pos = int(sel_bits / frac + 0.999)
-                osc = max(floor_ent(KEY), _r(raw_pos))
-                sllc = I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))
-                tiles = I.tiles(area + sllc + osc * I.OSCILLATOR_AREA)
-                if row_best is None or tiles < row_best[0]:
-                    row_best = (tiles, n, k, t, blocks, sel_bits, raw_pos)
-        if row_best is None:
-            print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} {'none fits':>16}")
-            continue
-        tiles, n, k, t, blocks, sel_bits, raw_pos = row_best
-        print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} "
-              f"{f'BCH({n},{k},{t})':>16} {blocks:7d} "
-              f"{sel_bits:14d} {raw_pos:14d} {tiles:7.2f}")
-        if best_overall is None or tiles < best_overall[0]:
-            best_overall = (tiles, frac, n, k, t, raw_pos)
-    if best_overall:
-        tiles, frac, n, k, t, raw_pos = best_overall
-        print(f"  best: BCH({n},{k},{t}) selecting {frac:.1%}, "
-              f"{raw_pos} raw positions, {tiles:.2f} tiles")
+
+def density_at(fraction):
+    """Min-entropy density of the selected positions. One definition, not two.
+
+    This table used to display the density by inverting the ceiled k - KEY / need_k -
+    which is a different number: 0.9275 where the density is 0.9293, because a ceiling
+    was round-tripped through a division. Two files then reported two densities for the
+    same operating point and neither was wrong on its own terms. The fix is the one this
+    project keeps arriving at: compute it once and let everything import it.
+    """
+    return SE.density_for_bias(SE.selected_bias(MU, 1.0 - fraction)[0])
+
+# The sweep runs under a main guard so that a checker can import this module and
+# call density_at() without executing three tables. A module that computes on
+# import cannot be cross-checked against, which is how two files came to report
+# two densities for one operating point.
+if __name__ == "__main__":
+    for raw in (0.06, 0.10, 0.15):
+        sigma = R.sigma_for_raw_ber(raw)
+        print(f"\n=== raw bit error rate {raw:.0%} "
+              f"(the routine's model, sigma {sigma:.4f}) ===")
+        print(f"{'selected':>9} {'eff BER':>9} {'density':>8} {'k needed':>9} "
+              f"{'code':>16} {'blocks':>7} {'selected bits':>14} {'raw positions':>14} "
+              f"{'tiles':>7}")
+        best_overall = None
+        for frac in (1.00, 0.80, 0.60, 0.40, 0.326, 0.20, 0.10):
+            eff = raw if frac >= 1.0 else R.selected_ber(sigma, frac)[0]
+            need_k = need_k_at(frac)
+            rho_sel = density_at(frac)
+            row_best = None
+            for m in (7, 8):
+                n = (1 << m) - 1
+                for t, k in bch_table(m):
+                    area = I.decoder_area(m, t)
+                    if area is None:
+                        continue
+                    blocks = -(-need_k // k)
+                    if word_fail(n, t, blocks, eff) > 1e-6:
+                        continue
+                    sel_bits = n * blocks
+                    raw_pos = int(sel_bits / frac + 0.999)
+                    osc = max(floor_ent(KEY), _r(raw_pos))
+                    sllc = I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))
+                    tiles = I.tiles(area + sllc + osc * I.OSCILLATOR_AREA)
+                    if row_best is None or tiles < row_best[0]:
+                        row_best = (tiles, n, k, t, blocks, sel_bits, raw_pos)
+            if row_best is None:
+                print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} {'none fits':>16}")
+                continue
+            tiles, n, k, t, blocks, sel_bits, raw_pos = row_best
+            print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} "
+                  f"{f'BCH({n},{k},{t})':>16} {blocks:7d} "
+                  f"{sel_bits:14d} {raw_pos:14d} {tiles:7.2f}")
+            if best_overall is None or tiles < best_overall[0]:
+                best_overall = (tiles, frac, n, k, t, raw_pos)
+        if best_overall:
+            tiles, frac, n, k, t, raw_pos = best_overall
+            print(f"  best: BCH({n},{k},{t}) selecting {frac:.1%}, "
+                  f"{raw_pos} raw positions, {tiles:.2f} tiles")
 
 

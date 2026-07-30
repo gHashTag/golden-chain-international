@@ -123,6 +123,28 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## The error rate tracks whether a number is executed
+
+After two errors in the same class, every division in six models was read expecting to find more.
+Five were clean; the sixth failed on a display column, not a result.
+
+Both errors that mattered had been in prose and in a comparison written for a report - places with
+no compiler, no import graph and no test. The executed parts had been kept honest by being executed.
+
+So the response to finding an arithmetic error is not to read the arithmetic more carefully. It is
+to ask which numbers in the work are never run, and move them into something that runs. Reading
+harder scales with attention; a number that is computed on every check does not need any.
+
+## A module that computes on import cannot be cross-checked
+
+Two files reported two values for the same quantity, and nothing compared them - because importing
+one of them executed three tables of output. Anything that wants to call a function in it has to run
+the whole program first, so nothing ever did.
+
+Put the driver under a main guard from the start. The cost is one line and the benefit is that the
+module becomes an importable definition rather than a script, which is the difference between a
+figure that can be cross-checked and a figure that has to be trusted.
+
 ## When a disposition fails twice, replace it with a check that runs
 
 A rule that said "be careful where the answer is convenient" was in the skill file when the same

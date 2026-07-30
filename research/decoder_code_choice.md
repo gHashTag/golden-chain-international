@@ -2908,3 +2908,51 @@ So both arms are reported and **the requirement is quoted against k = 1**, which
 not convenient. Even at the most favourable corner of the favourable arm, burn-in is eight percent of
 the service life before enrolment, so the conclusion of the previous loop stands: it supplements the
 aging-resistant oscillator and does not replace it.
+
+## 105. Every division in the models, read once
+
+The units check covers `inputs.py`. The two errors that motivated it lived elsewhere - one in prose,
+one in a model - so every division in the six research models was read.
+
+| File | Divisions | Verdict |
+|---|---|---|
+<!-- derived:external --> | `selection_entropy.py` | 8 | probabilities over probabilities, key bits over density; consistent |
+<!-- derived:external --> | `aging_margin.py` | 0 | nothing to check |
+<!-- derived:external --> | `pointer_vs_linear.py` | 4 | positions over a fraction, key bits over density; consistent |
+<!-- derived:external --> | `burn_in.py` | 6 | sigma over sigma, and one flip-rate ratio printed to name the previous error; consistent |
+<!-- derived:external --> | `reliable_bit_selection.py` | 8 | integration steps and entropy per selected bit; consistent |
+<!-- derived:external --> | `selection_with_bch.py` | 5 | **one defect** |
+
+The defect: the search table displayed the post-selection density as `KEY / need_k`, where `need_k`
+is the *ceiled* integer number of bits the key requires. Round-tripping a ceiling through a division
+gives 0.9275 where the density is 0.9293. Two files reported two densities for one operating point,
+and neither was wrong on its own terms - one printed a density and the other printed the density
+implied by a rounded requirement, under the same column heading.
+
+Small, and the same shape as the errors that were not small: a quantity recomputed locally instead of
+imported, in units that were nearly right.
+
+Fixed the way this project keeps arriving at: one definition, imported. `density_at()` is now the
+only place the number is computed, and the sweep moved under a main guard so a checker can import the
+module without executing three tables - a module that computes on import cannot be cross-checked
+against, which is part of how the split survived.
+
+And cross-checked rather than trusted. `check_figures_reproduce.py` now compares what the two models
+report and fails on any disagreement, because one definition imported can be undone by anyone who
+finds it convenient to recompute locally. The control - reintroducing the round-trip - fires.
+
+## 106. What the sweep says about where errors live
+
+Five of six models were clean, and the sixth failed on a display column rather than on a result. That
+is worth stating because the instinct after two units errors was that the models were riddled with
+them.
+
+The two that mattered were in prose and in a comparison written for a report - places with no
+compiler, no import graph and no test. The models are the part of this work that gets executed, and
+execution is what has been keeping them honest.
+
+So the useful generalisation is not "audit the arithmetic". It is that **the error rate tracks
+whether a number is executed**, and the defence is to move numbers into code that runs rather than to
+read prose more carefully. The units check does that for the inputs; the cross-model check does it
+for a figure that two files were free to disagree about; the parts still unprotected are the ones
+that appear only in sentences.
