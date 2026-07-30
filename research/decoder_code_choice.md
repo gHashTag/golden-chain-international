@@ -451,3 +451,97 @@ responses are, and whether reusing oscillators across pairs degrades extraction.
 
 Three of the four combinations fit. The one that does not is the one where both unmeasured
 properties turn out unfavourable, and nothing currently rules that out.
+
+---
+
+## 18. The debiasing figure was the worst case, and the conclusion survives anyway
+
+Section 17 used a factor of 4.4 for von Neumann debiasing. That is classic von Neumann,
+which is the least efficient method the source describes. Maes, van der Leest, van der
+Sluis and Willems give three more, and their Table 2 lists the debiasing overhead for
+each at four bias levels.
+
+| Method | Reusable | Overhead at bias 40 / 35 / 30 / 25 percent |
+|---|---|---|
+| Classic von Neumann | no | 4.4 / 4.4 / 5.3 / 5.3 |
+| Pair-output, 2O-VN | no | 2.31 / 2.45 / 2.66 / 2.99 |
+| Multi-pass tuple-output, 2P-TO-VN | no | 1.58 / 1.73 / 1.96 / 2.32 |
+| Pair-output with erasures, e-2O-VN | **yes** | 1.00, paid instead as a stronger inner code |
+
+So the honest range is 1.58 to 5.3, not 4.4, and quoting the worst method as the cost
+overstated it by up to a factor of three.
+
+The conclusion does not move. Applied to BCH(127,15,27) and its 2,413 response bits,
+with two oscillators per response bit:
+
+| Method, best case | Raw bits | Tiles |
+|---|---|---|
+| 2P-TO-VN at 40 percent bias | 3,813 | 16.79 |
+| 2O-VN at 40 percent bias | 5,574 | 21.92 |
+| Classic von Neumann | 10,617 | 36.63 |
+
+Sixteen tiles is the limit. The most efficient method in the literature, at the mildest
+bias in its table, still does not fit - and that method is not reusable.
+
+Every one of them fits at 6.07 tiles when oscillators are reused across pairs, because
+there the binding constraint is the entropy floor rather than the position count, and
+the entropy floor does not move with debiasing overhead.
+
+**So oscillator reuse is a requirement rather than an optimisation**, conditional on
+debiasing being needed at all. That is a sharper statement than section 17's, and it
+holds across the whole method table rather than resting on one figure.
+
+## 19. Reusability is a protocol constraint, not only a silicon one
+
+Three of the four methods are marked not reusable, and the paper is precise about what
+that means: enrolling the same device a second time leaks more than one enrolment does,
+because the debiasing step is stochastic and bit errors between enrolments shift which
+pairs are retained.
+
+This project's registry has a slashing path and no stated position on re-registration. If
+a die can ever be enrolled twice - after a slash, after a key rotation, after a failed
+provisioning run - then the three efficient methods are unavailable and only e-2O-VN
+remains. Its debiasing overhead is 1.00 because it discards nothing, replacing unretained
+pairs with erasures; the cost reappears as a longer inner repetition code, which for the
+paper's design runs from 20 to 28 bits as bias worsens.
+
+That cost has not been derived for a BCH-only design, and it should not be guessed. What
+can be said now is that the choice between one enrolment per device and many is a
+silicon-area decision as well as a protocol one, and nothing in the registry currently
+records which it is.
+
+## 20. The instrument, built and measured
+
+Everything still open turns on three quantities of this process: the bit error rate
+across temperature, the min-entropy per oscillator, and the bias. All three come from one
+structure, and it is built.
+
+It emits **one frequency count per oscillator per sweep** and nothing else. No comparator,
+no arbiter, no response bits. A structure that emitted response bits could only report the
+error rate of the pairing wired into it, and pairing is precisely what is in question - so
+the pairing, the threshold for discarding close pairs, the bias and the entropy under any
+scheme are all computed afterwards from the counts, and can be recomputed when the
+question changes.
+
+Verified against arithmetic: oscillators modelled as square waves of known distinct
+periods, counts asserted within three of the window divided by the period, and the
+frequency ordering asserted to be preserved - that last being the property the whole
+primitive rests on. Two injected faults, removing the synchroniser and failing to clear
+the accumulator between oscillators, each fail 14 checks.
+
+The first run failed eight checks and every one was in the test model rather than the
+circuit: half-periods are integers, so odd periods collapsed onto their even neighbours.
+An instrument's own test is an instrument.
+
+| Component | Area | Tiles |
+|---|---|---|
+| Readout for a 272-oscillator bank | 5,223 | 0.29 |
+| The 272 oscillators | 7,151 | 0.40 |
+| **Total** | **12,374** | **0.69** |
+
+The measurement that decides whether the identity root fits in sixteen tiles costs
+0.69 of one.
+
+It is an instrument and not a key generator, and it must never ship in a part that holds
+a secret: raw frequency counts are exactly what an attacker wants and exactly what a key
+generator must never expose.
