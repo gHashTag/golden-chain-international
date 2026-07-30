@@ -153,41 +153,82 @@ def oscillators_pair_count(bits):
     return n
 
 
-# What the ordering actually carries. R oscillators ranked by frequency realise one
-# of R! permutations, so the information available is log2(R!) bits however the
-# pairs are read out. This is an upper bound too - it assumes every ordering is
-# equally likely and ignores that pairs too close in frequency have to be discarded
-# for reliability, which the same literature reports costs about a fifth of them.
-def oscillators_ordering(bits):
+# What the ordering carries: R oscillators ranked by frequency realise one of R!
+# permutations, so at most log2(R!) bits are available however the pairs are read.
+def ordering_entropy(n):
+    return lgamma(n + 1) / LN2
+
+
+# Measured entropy per oscillator. Wilde, Hiller and Pehl, arXiv:1910.07068,
+# compute it from Maiti's silicon dataset - 512 oscillators on each of 193 parts,
+# paired disjointly with their neighbours to give 256 response bits - and get 241.0
+# bits by the bitwise estimate and 241.3 by a normal model, about 94 percent of what
+# 256 bits could carry. That is 0.471 bits per oscillator, and the ordering bound for
+# 512 oscillators is 3,875 bits, so practice sits a factor of sixteen below the
+# bound. They also note the practically usable figure is lower still, because bits
+# from pairs too close in frequency have to be masked for reliability.
+ENTROPY_PER_OSCILLATOR = 241.0 / 512
+
+
+# Two constraints, and the previous version of this file collapsed them into one.
+#
+# The code needs response bit positions: 4,800 of them for the recommended
+# construction. Nothing about those positions has to be independent - the decoder
+# consumes bits, and correlated bits decode as well as uncorrelated ones.
+#
+# The extractor needs min-entropy: 128 bits, plus whatever the helper data leaks.
+# This is the constraint independence bears on.
+#
+# Requiring log2(R!) to exceed the count of response bits, as the previous version
+# did, is neither of these. It demanded that the ordering entropy exceed a bit count
+# that does not need to be entropy at all, and it happened to land inside the bracket
+# below, which is why the number looked reasonable while the reasoning was not.
+def oscillators_disjoint(bits):
+    """Each response bit from its own pair, each oscillator used once. This is what
+    the measured entropy figure was taken from, so it is the reading that carries a
+    measurement rather than a bound."""
+    return 2 * bits
+
+
+def oscillators_reused(bits):
+    """Oscillators shared across pairs, so R of them supply R(R-1)/2 positions, with
+    the entropy requirement enforced separately. Cheaper by an order of magnitude and
+    resting on the assumption that reuse does not degrade the extraction rate, which
+    is not measured."""
     n = 2
-    while lgamma(n + 1) / LN2 < bits:
+    while n * (n - 1) // 2 < bits:
         n += 1
-    return n
+    return max(n, entropy_floor())
+
+
+def entropy_floor():
+    """Oscillators needed for 128 bits of min-entropy at the measured rate."""
+    return int(-(-128 // ENTROPY_PER_OSCILLATOR))
 
 
 def report(p_b):
     print(f"\n=== bit error probability {p_b:.3f} ===")
     header = f"{'construction':34} {'raw':>6} {'fail':>10} " \
-             f"{'1/bit':>7} {'order':>7} {'pairs':>7}  tiles"
+             f"{'reuse':>7} {'disjoint':>9}  tiles"
     print(header)
     print("-" * len(header))
     for label, rep, outer, key in CONSTRUCTIONS:
         bits, _ = raw_bits(rep, outer)
         fail = total_failure(rep, outer, p_b)
         dec = DECODER_AREA[key]
-        a1 = dec + oscillators_one_per_bit(bits) * RO_AREA
-        a2 = dec + oscillators_ordering(bits) * RO_AREA
-        a3 = dec + oscillators_pair_count(bits) * RO_AREA
+        lo = dec + oscillators_reused(bits) * RO_AREA
+        hi = dec + oscillators_disjoint(bits) * RO_AREA
         ok = " " if fail <= 1e-6 else "!"
         star = lambda a: "*" if a / TILE > TILE_LIMIT else " "
         print(f"{label:34} {bits:6d} {fail:10.2e}{ok} "
-              f"{a1/TILE:6.1f}{star(a1)} {a2/TILE:6.2f}{star(a2)} "
-              f"{a3/TILE:6.2f}{star(a3)}")
+              f"{lo/TILE:6.2f}{star(lo)} {hi/TILE:8.2f}{star(hi)}")
     print("  ! word error probability worse than one in a million")
     print("  * does not fit the sixteen tiles a submission may use")
-    print("  1/bit: one oscillator per raw bit. order: log2(R!) from the frequency")
-    print("  ranking, which is what the ordering carries. pairs: R(R-1)/2, which")
-    print("  counts challenges rather than bits and is kept only to show the gap.")
+    print(f"  reuse: oscillators shared across pairs, floor of {entropy_floor()} set by")
+    print("  128 bits of min-entropy at the measured 0.471 bits per oscillator.")
+    print("  disjoint: two oscillators per response bit, the arrangement the measured")
+    print("  entropy figure was taken from. The bracket is wide because which one")
+    print("  holds is not measured on this process.")
 
 
 if __name__ == "__main__":

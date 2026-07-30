@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-58
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-62
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2072,6 +2072,104 @@ in a merged document and a pull request description, and because the failure mod
 one this project keeps repeating - quoting a ratio between two measured parts as
 though it were a ratio between two designs.
 
+## W-INTL-59  Response positions and min-entropy were collapsed into one constraint
+
+Severity: high, and it is a correction of the fix applied in W-INTL-56 rather than of
+anything older.
+
+W-INTL-56 replaced the pair count R(R-1)/2 with the ordering bound log2(R!) and said
+that was the number to use. It is not, and the error is more interesting than the one
+it replaced.
+
+There are two constraints, not one.
+
+The code needs response bit *positions* - 4,800 of them for the recommended
+construction. Nothing about those positions has to be independent. A decoder consumes
+correlated bits as happily as uncorrelated ones; correlation costs entropy, not
+correctability.
+
+The extractor needs *min-entropy* - 128 bits, plus whatever the helper data leaks.
+This is the only constraint independence bears on.
+
+Requiring log2(R!) to exceed the count of response bits is neither of these. It demands
+that ordering entropy exceed a bit count that does not need to be entropy at all. The
+number it produced, 614 oscillators, happens to sit inside the bracket the correct
+framing gives, which is why it looked reasonable while the reasoning was wrong - and
+which is why it was published in a merged document and a pull request before this was
+noticed.
+
+Corrected in `research/code_choice_model.py`, which now reports a bracket from the two
+arrangements and enforces the entropy floor separately.
+
+## W-INTL-60  Measured entropy per oscillator is a sixteenth of the ordering bound
+
+Severity: high. It widens the answer rather than changing its direction.
+
+Wilde, Hiller and Pehl, arXiv:1910.07068, compute entropy from silicon rather than
+from a bound: 512 ring oscillators on each of 193 parts, paired disjointly with their
+neighbours to give 256 response bits, yielding 241.0 bits by the bitwise estimate and
+241.3 by a normal model - about 94 percent of what 256 bits could carry.
+
+That is 0.471 bits per oscillator. The ordering bound for 512 oscillators is 3,875
+bits, so practice sits a factor of sixteen below it. They add that the usable figure is
+lower still, because bits from pairs too close in frequency must be masked for
+reliability.
+
+They also record why two published entropy figures from the same raw data disagree:
+one compares adjacent oscillators and one compares distant ones, and spatial patterns
+in mean frequency make the distant comparison look far less unique. So the extraction
+rate depends on layout, not only on count, and no figure transfers between
+arrangements without saying which arrangement it came from.
+
+Applied to this project, with the decoder measured:
+
+| Arrangement | Oscillators | Total | Tiles of 16 |
+|---|---|---|---|
+| oscillators reused across pairs | 272 | 11,752 | 0.65 |
+| two oscillators per response bit | 9,600 | 257,036 | 14.25 |
+
+A factor of twenty-two, and both fit. The upper figure has almost no margin, and it is
+the one that rests on a measurement while the lower rests on an assumption about reuse
+that nobody has tested.
+
+## W-INTL-61  The response bits are biased, so key search is ordered rather than uniform
+
+Severity: high, and it is a security finding rather than an area one, which is why it
+is separate from W-INTL-60 despite sharing a source.
+
+The same paper reports the per-bit probability bias across its dataset reaching roughly
+plus or minus 0.4, and draws the consequence directly: as a result of these biases not
+all keys are equally probable, which opens a way to get above linear proportion between
+the chance of finding the right key and the area of key space searched - one need only
+try keys in descending order of probability.
+
+241 of 256 bits of entropy sounds close to full. It is an average, and an average does
+not bound guessing effort when the distribution is skewed. Any statement that this
+project's identity root delivers 128 bits of security has to be made against a
+min-entropy figure and a bias measurement, neither of which exists for this process.
+
+The same authors also attempted to exploit the residual correlations by covariance
+fitting and could not, and report a context-tree-weighting compression bound of 7.86237
+bits per byte, 98 percent of original size - a weaker bound than their bitwise estimate.
+So the honest summary is that the bias is documented and the exploitation is not
+demonstrated, which is a reason to measure rather than a reason to assume either way.
+
+What this changes in the application: nothing yet, because no security level is claimed
+for the identity root. It becomes load-bearing the moment one is.
+
+## W-INTL-62  The derived-column check found nothing else in the history
+
+Severity: none. Recorded as a negative result, because negative results from a new
+instrument are worth as much as positive ones and are easier to forget.
+
+The check added on 2026-07-30 was run backwards over the whole repository: 79 revisions
+by 18 documents, every markdown table row in every revision. It flagged four rows, all
+four being the rows of the single table already recorded as W-INTL-54.
+
+The reasoning that prompted the sweep was that a class of error rarely occurs once.
+Here it did occur once. The check's value is therefore prospective rather than a
+backlog, and the sweep is worth stating so nobody runs it again expecting a yield.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2130,3 +2228,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-56 | open, high; the pair count R(R-1)/2 was used as entropy and is wrong by transitivity |
 | W-INTL-57 | open, high; the code sized for five loops does not reach its own error target at any plausible error rate |
 | W-INTL-58 | corrected; the 19.5x advantage is decoders only, 4.4x across the whole design |
+| W-INTL-59 | corrected; response positions and min-entropy were collapsed into one constraint |
+| W-INTL-60 | open, high; measured entropy per oscillator is a sixteenth of the ordering bound, bracket 0.65 to 14.25 tiles |
+| W-INTL-61 | open, high if a security level is ever claimed; response bits are biased and key search is ordered |
+| W-INTL-62 | closed as a negative result; the derived-column check found nothing else in 79 revisions |

@@ -103,6 +103,53 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## When you fix a conflation, check you have not made another one
+
+The correction that most needs this rule was itself a correction. A pair count was
+being used as an entropy count; replacing it with the ordering bound looked like the
+fix, and shipped. It was not: the requirement it enforced - that ordering entropy
+exceed the number of bits a decoder consumes - was not a requirement at all. Decoders
+consume positions and do not care whether they are independent; extractors need
+min-entropy and are the only place independence matters. Two constraints, and both
+versions of the analysis had one.
+
+The tell was available and ignored: the replacement produced a number inside the range
+the correct framing gives, so nothing looked wrong. A plausible number is the normal
+appearance of a wrong derivation. After fixing a conflation, write down each constraint
+as a separate line with its own units, and check that every quantity appears on the
+line where it belongs.
+
+## Prefer a measured rate to a derived bound, and say which arrangement it came from
+
+An ordering bound said 3,875 bits from 512 oscillators. Silicon measured 241. The bound
+was correct and useless - a factor of sixteen above what extraction achieves.
+
+Worse, the measured rate does not transfer freely: the same authors show two published
+entropy figures from the same raw data disagreeing widely because one compares adjacent
+elements and the other distant ones, with layout patterns doing the work. So a measured
+rate carries its arrangement with it, and quoting it outside that arrangement is the
+same error as quoting a bound.
+
+When both a bound and a measurement exist, report the measurement and name its
+conditions. When only a bound exists, say so rather than treating it as a design figure.
+
+## An average entropy figure does not bound guessing effort
+
+241 of 256 bits reads as almost full. The same dataset has per-bit bias reaching plus or
+minus 0.4, which means keys are not equiprobable and an attacker searches in descending
+order of probability rather than uniformly.
+
+So average entropy sizes a design and does not size an attack. Any security level
+claimed in bits needs min-entropy and a bias measurement, and neither follows from an
+average. If only the average exists, claim no security level.
+
+## Record negative results from new instruments
+
+A new check was run backwards over 79 revisions of 18 documents on the reasoning that a
+class of error rarely occurs once. It found only the one instance already known. That is
+worth writing down: it stops the sweep being repeated in hope, and it tells the next
+reader that the check earns its place prospectively rather than by clearing a backlog.
+
 ## Combinatorial counts are usually not entropy counts
 
 A bank of R elements compared pairwise offers R(R-1)/2 pairs, and that was used as a
