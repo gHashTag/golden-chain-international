@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-84
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-87
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2786,6 +2786,68 @@ And between band and edge there is a single step rather than a slope - one point
 density costs more than double the area, because it forces the move from GF(2^7) to GF(2^8)
 and a correction strength of 42.
 
+## W-INTL-85  Sweeping one input at a time reversed the priority; both at once gives a rectangle
+
+Severity: high as a correction. It overturns the ordering stated in W-INTL-82 and repeated
+since.
+
+Every sweep in this project moved the entropy density while holding the error-rate
+requirement at five percent, and concluded that the error rate was the least decisive of the
+three quantities. Both come from the same characterisation structure, so the pair is what a
+single fabrication returns, and holding one fixed was an artefact of how the analysis grew.
+
+Mapped across ten measured decoders, the error rate has a cliff at eight percent and the
+entropy density has one at 0.8155. Published ring-oscillator error rates across temperature
+reach eight percent far more readily than published entropy figures approach 0.82, so the
+error rate is at least as binding - the opposite of what was concluded.
+
+The useful shape is a rectangle rather than a band: entropy density at or above 0.82 with
+error rate at or below four percent gives 4.92 tiles, and nothing inside it changes the
+answer.
+
+Method point: a sensitivity analysis over one variable at a time answers a question nobody
+asked, when the variables arrive together from one measurement.
+
+## W-INTL-86  The densification that answered a qualification sampled the wrong region
+
+Severity: medium, and it is a correction of the inference in W-INTL-84 rather than of its
+measurements.
+
+W-INTL-84 answered a caveat about a sparse sample by measuring three more codes and
+reporting that the flat band was a property of the problem rather than of the sample. Those
+three were chosen to populate the band and probe just under its edge.
+
+Two more codes, chosen further below the edge, moved the whole picture. BCH(127,29,21) at
+79,787 square micrometres is cheaper than the recommendation it challenges - 4.42 tiles of
+decoder against 4.82 - and tolerates entropy density down to 0.8155 against 0.8706, at the
+cost of error tolerance, 4.42 percent against 5.23. BCH(255,55,31) at 152,170 extends the
+same direction.
+
+The flatness held where it was sampled and did not hold where it had not been. The earlier
+measurements were right and the inference from them was not: densifying inside a region
+already believed flat tests almost nothing. A qualification about a sample is answered by
+sampling where the sample is thin.
+
+The edge moves from 0.8613 to 0.8155, and the cheapest configuration from 5.34 tiles to
+4.92.
+
+## W-INTL-87  The re-enrolment leak, measured on an instance small enough to enumerate
+
+Severity: none as a defect; it closes the gap W-INTL-83 left open explicitly.
+
+W-INTL-83 demonstrated the mechanism and said the quantity had not been computed. Computed
+now by exhaustive enumeration rather than bounded: sixteen-bit raw response, classic von
+Neumann, six-bit response, three-bit syndrome, second enrolment differing in at most two raw
+bits, sixty devices, candidate keys counted over all 2^16 raw strings.
+
+One enrolment leaves 8.0 candidate keys, 3.00 bits. Two leave 4.9, 2.30 bits. The second
+enrolment removes 0.70 bits of 3.00 - about a quarter of what remained - and strictly reduced
+the candidate set in 39 of 60 cases.
+
+This is a toy, and whether the fraction scales to a 2,921-bit response is not established.
+What it establishes is that the leak is a substantial fraction rather than a negligible one,
+which is what the contract's enrolment policy needed and did not have when it was written.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2869,4 +2931,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-81 | closed; the chain runs with debiasing and gives the sizing a third independent witness |
 | W-INTL-82 | closed; the recommendation is flat from entropy density 1.00 down to 0.88, refined by W-INTL-84 |
 | W-INTL-83 | closed; the reuse claim behind the contract's enrolment policy verified on this construction, mechanism shown not quantified |
-| W-INTL-84 | closed; the flat band survived densification to eight measured codes, and the edge is at 0.8613 |
+| W-INTL-84 | superseded by W-INTL-86; the densification sampled the region already believed flat |
+| W-INTL-85 | open, high as a correction; sweeping one input at a time reversed the priority, and the error rate is at least as binding as entropy |
+| W-INTL-86 | corrected; two codes below the edge move it from 0.8613 to 0.8155 and the cheapest build from 5.34 to 4.92 tiles |
+| W-INTL-87 | closed; the re-enrolment leak measured at 0.70 bits of 3.00 on an enumerable instance |

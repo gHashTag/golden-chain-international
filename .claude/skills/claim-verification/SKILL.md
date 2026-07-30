@@ -103,6 +103,27 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Sweep the variables that arrive together, together
+
+Every sensitivity analysis here moved one input while holding the others at a guessed
+value, and the ordering of importance that came out was an artefact of which one was held.
+Two of the inputs arrive from the same measurement, so the pair is what a single experiment
+returns - and mapping them together reversed the conclusion about which mattered more.
+
+When inputs come from one source, sweep them jointly. A one-at-a-time analysis answers a
+question nobody will ever be in a position to ask.
+
+## Answer a sampling qualification by sampling where the sample is thin
+
+A caveat about a sparse sample was answered by measuring three more points - all chosen
+inside the region already believed uniform. The uniformity held there, the caveat was
+declared closed, and two points from outside that region then moved the whole result.
+
+The measurements were right; the inference was not. Densifying where you are already
+confident tests almost nothing. When discharging a caveat about coverage, deliberately
+sample the parts you have not looked at, especially the ones you expect to be
+uninteresting.
+
 ## A sweep's granularity is part of its result
 
 A conclusion was swept in steps of 0.02 and reported an edge at 0.87. Re-swept at 0.01, the

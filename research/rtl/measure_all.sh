@@ -85,6 +85,12 @@ run_tb "full decode end to end, GF(2^8) t=43" \
 run_tb "full decode end to end, GF(2^8) t=45" \
     -DMVAL=8 -DTVAL=45 -DREDVAL="8'h1D" -DTOPNAME=bch255t45_tables \
     bch255t45_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^7) t=21" \
+    -DMVAL=7 -DTVAL=21 -DREDVAL="7'h09" -DTOPNAME=bch127t21_tables \
+    bch127t21_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=31" \
+    -DMVAL=8 -DTVAL=31 -DREDVAL="8'h1D" -DTOPNAME=bch255t31_tables \
+    bch255t31_tables.v bm_area_probe.v tb_bch_e2e.v
 run_tb "Reed-Muller decoder R(1,6)" rm_area_probe.v tb_rm.v
 run_tb "characterisation readout" ro_characteriser.v tb_ro_char.v
 
@@ -97,7 +103,15 @@ fi
 echo
 echo "== areas, SkyWater typical corner, one tile = 18,032 um^2 =="
 echo
-echo "  the chosen construction, BCH(127,22,23) over GF(2^7):"
+echo "  the cheapest build if the error rate holds at four percent, BCH(127,29,21):"
+area "syndrome bank + Chien search" bch127t21_tables "" bch127t21_tables.v
+area "key-equation solver" bm_area_probe "T=21 M=7 RED=9" bm_area_probe.v
+echo
+echo "  and its GF(2^8) counterpart, BCH(255,55,31):"
+area "syndrome bank + Chien search" bch255t31_tables "" bch255t31_tables.v
+area "key-equation solver" bm_area_probe "T=31 M=8 RED=29" bm_area_probe.v
+echo
+echo "  the construction for a five percent error rate, BCH(127,22,23):"
 area "syndrome bank + Chien search" bch127t23_tables "" bch127t23_tables.v
 area "key-equation solver" bm_area_probe "T=23 M=7 RED=9" bm_area_probe.v
 echo
