@@ -103,6 +103,31 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Declare each input once, with its provenance and its category
+
+An audit found every measured quantity in a long analysis living in three to seven files.
+Each is a place where drift starts, and the rule that a hand-carried number will eventually
+not be carried is not fixed by being careful about carrying it.
+
+One module, one declaration per input, everything else importing. Two details make it worth
+more than a tidy-up. Each entry carries where it came from, because a constant without a
+provenance is exactly the thing that drifts. And each is labelled by category - measured here
+and reproducible, measured elsewhere with the conditions stated, or a published specification -
+because those three deserve different amounts of trust and look identical as numbers.
+
+A by-product: writing the derivation instead of the result caught a rounding. A factor
+recorded as 0.58 is 0.5795 when computed from the two measurements it comes from.
+
+## A guard looser than the pattern it protects reports failures for prose
+
+A check tested whether a phrase appeared anywhere in a document before comparing the figure
+beside it. It then failed on a paragraph *about* the check, which quoted the phrase while
+describing a failure message.
+
+Guard on the pattern that extracts the value, not on prose that mentions the subject - and
+where a document genuinely must state a figure, say so explicitly rather than inferring it
+from whether the words are present.
+
 ## Checks that compare documents cannot catch a shared omission
 
 Every check in a long analysis compared documents with each other, and a missing factor survived

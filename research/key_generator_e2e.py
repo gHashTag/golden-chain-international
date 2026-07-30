@@ -20,10 +20,14 @@ import random
 from math import comb
 
 # ── the construction, from the search in bch_code_search.py ─────────────────
-M, RED, T, K_BITS = 7, 0x09, 23, 22       # BCH(127,22,23) over GF(2^7)
+# BCH(127,29,21) over GF(2^7), the recommendation as of loop 61. This file exercised
+# BCH(127,22,23) for six loops after the recommendation moved, which is the same drift
+# as W-INTL-99 in a different place: the chain was validating a construction the rest
+# of the analysis had stopped recommending.
+M, RED, T, K_BITS = 7, 0x09, 21, 29
 N = (1 << M) - 1
 BLOCKS = 23
-KEY_BITS = 128
+KEY_BITS = 128       # see research/inputs.py; kept literal so this file runs standalone
 MASK = N
 
 

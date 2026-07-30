@@ -23,25 +23,26 @@ import re
 import sys
 from math import comb, lgamma
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "research"))
+import inputs as I
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LEDGER = ROOT / "paper" / "evidence_ledger.md"
 REGISTER = ROOT / "research" / "constraint_register.md"
 
-# ── inputs, each traceable to a measurement ─────────────────────────────────
-TILE = 18_032                    # Tiny Tapeout tile, um^2, from the specification
-TILE_LIMIT = 16                  # largest submission
-UTILISATION = 0.58               # measured on the published tile: 20,900 of 36,064
-INVERTER = 6_730 / 1_792         # measured: oscillator area over inverter count
-OSC = 7 * INVERTER               # seven inverters per oscillator
-RHO = 241.0 / 256                # measured min-entropy per response bit
-KEY_BITS = 128
+# ── inputs ──────────────────────────────────────────────────────────────────
+# Imported rather than redeclared. Every one of these used to be written out here as
+# well as in two other scripts, which is the arrangement W-INTL-99 came out of: a
+# quantity living in several files is a quantity that will eventually disagree with
+# itself. research/inputs.py carries each with the measurement it came from.
+TILE = I.TILE_AREA
+TILE_LIMIT = I.TILE_LIMIT
+UTILISATION = I.UTILISATION
+OSC = I.OSCILLATOR_AREA
+RHO = I.MIN_ENTROPY_DENSITY
+KEY_BITS = I.KEY_BITS
+DECODER = I.DECODER_AREA
 LN2 = 0.6931471805599453
-
-# Decoder areas, each verified by end-to-end decoding before being quoted.
-DECODER = {(7, 21): 79_787, (7, 23): 86_896, (7, 27): 102_267, (7, 31): 116_194,
-           (8, 18): 90_254, (8, 30): 147_563, (8, 31): 152_170, (8, 42): 206_630,
-           (8, 43): 211_985, (8, 45): 222_024, (8, 47): 231_431, (8, 55): 268_820,
-           (9, 54): 304_465}
 
 failures = []
 
@@ -104,10 +105,19 @@ def cheapest(rho, ber, raw_budget=3000):
     return best
 
 
-def check(text, name, label, pattern, expected, tol):
+def check(text, name, label, pattern, expected, tol, required=True):
+    """Compare a figure stated in prose against one recomputed from inputs.
+
+    `required` distinguishes the document that must state the figure from ones that
+    merely may. The first version guarded on whether a phrase appeared anywhere in the
+    text, which fired on a paragraph *about* the check that quoted the phrase without a
+    number - a check whose guard is looser than its pattern reports failures for prose
+    rather than for arithmetic.
+    """
     m = re.search(pattern, text)
     if not m:
-        failures.append(f"{name}: no figure found for {label} (pattern {pattern!r})")
+        if required:
+            failures.append(f"{name}: no figure found for {label} (pattern {pattern!r})")
         return
     got = float(m.group(1))
     if abs(got - expected) > tol:
@@ -115,6 +125,22 @@ def check(text, name, label, pattern, expected, tol):
             f"{name}: {label} says {got:g}, recomputing from inputs gives "
             f"{expected:.2f} (tolerance {tol})"
         )
+
+
+def rho_floor(n, k, blocks):
+    """Lowest min-entropy density at which this construction still yields a key."""
+    return 1 - (k - KEY_BITS / blocks) / n
+
+
+def max_ber(n, t, blocks):
+    lo, hi = 0.0, 0.5
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        if word_failure(n, t, blocks, mid) <= 1e-6:
+            lo = mid
+        else:
+            hi = mid
+    return lo
 
 
 def main():
@@ -127,6 +153,25 @@ def main():
             check(LEDGER.read_text(), "evidence_ledger.md",
                   "tiles of sixteen at the recommended operating point",
                   r"([0-9]+\.[0-9]+) of the sixteen tiles", tiles, 0.05)
+
+        blocks = 3000 // n
+        docs = [(LEDGER, "evidence_ledger.md")] + \
+               [(ROOT / "research" / "decoder_code_choice.md", "decoder_code_choice.md")]
+
+        # Every load-bearing figure, recomputed from inputs rather than read from a file.
+        floor = rho_floor(n, k, blocks)
+        ber = max_ber(n, t, blocks)
+        osc = oscillator_floor(n * blocks - k * blocks)
+        # The ledger is the document that must state these; the research notes may.
+        for path, name in docs:
+            if not path.exists():
+                continue
+            text = path.read_text()
+            required = (name == "evidence_ledger.md")
+            check(text, name, "entropy density floor of the recommendation",
+                  r"entropy density down to ([0-9]\.[0-9]+)", floor, 0.002, required)
+            check(text, name, "oscillator floor",
+                  r"oscillator floor is ([0-9]+) oscillators", osc, 1, required)
 
         # The high error-rate columns must be absent, which is what W-INTL-99 restored.
         for ber in (0.07, 0.08):
