@@ -17,6 +17,18 @@ the thing that drifts. Three categories:
   specified      - a published specification rather than a measurement
 """
 
+# ── the toolchain ───────────────────────────────────────────────────────────
+# Every area here is a synthesis result, and a synthesis result is a property of the
+# tool as much as of the circuit. The first run of verify_inputs.py on a machine that
+# was not this one reported all twenty-two areas as mismatches, by up to seven percent
+# in both directions, because the runner's yosys was a different version. Nothing was
+# wrong with the circuits and nothing was wrong with the declarations; the toolchain had
+# never been declared, so "these figures reproduce" silently meant "on this laptop".
+#
+# Declared here so that a version difference reports itself as a version difference
+# instead of as twenty-two wrong numbers.
+TOOLCHAIN = {"yosys": "0.65"}
+
 # ── the shuttle ─────────────────────────────────────────────────────────────
 TILE_AREA = 18_032        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
 TILE_LIMIT = 16           # specified: largest submission is 8x2 tiles

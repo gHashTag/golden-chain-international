@@ -340,6 +340,50 @@ def check_ledger_figures(rec):
     return len(bound)
 
 
+def check_register_figures(rec):
+    """The constraint register carries the same numbers as the ledger, in sentences.
+
+    It is the document where a constraint's *status* is recorded, and W-INTL-171 found
+    the failure that costs: the ledger described aging as unchecked two loops after it
+    became binding, in the same paragraph as the design built to satisfy it. The register
+    is where that class of contradiction lives, so its figures are bound too.
+    """
+    if rec is None or not REGISTER.exists():
+        return 0
+    tiles, n, k, t, blocks, raw, osc, rho_sel = rec
+    conventional = (I.decoder_area(7, t) + I.SLLC_AREA[t]
+                    + I.COUNTERMEASURE_AREA["spongent_permutation"]
+                    + osc * INVERTERS * I.INVERTER_AREA)
+    bound = [
+        ("k carried", r"construction meets at (\d+)", k * blocks, 0),
+        ("post-selection density", r"which is ([\d.]+) rather than 0\.9414",
+         rho_sel, 0.0005),
+        ("measured density", r"rather than (0\.9414)", RHO, 0.0005),
+        ("aging factor", r"([\d.]+) times the area by transistor width",
+         I.AGING_RESISTANT_FACTOR, 0.005),
+        ("aging cost in tiles", r"transistor width, ([\d.]+) of a tile",
+         tiles - I.tiles(conventional), 0.005),
+        ("tiles before", r"taking the design from ([\d.]+) to", I.tiles(conventional), 0.005),
+        # Anchored on the sentence rather than on "of sixteen", which also appears
+        # in "13 to 15 of sixteen" elsewhere in the file and matched first.
+        ("tiles after", r"taking the design from [\d.]+ to ([\d.]+) of sixteen",
+         tiles, 0.005),
+    ]
+    flat = re.sub(r"\s+", " ", REGISTER.read_text())
+    for label, pattern, expected, tol in bound:
+        m = re.search(pattern, flat)
+        if not m:
+            failures.append(f"constraint_register.md: no figure found for {label} "
+                            f"(pattern {pattern!r})")
+            continue
+        got = float(m.group(1))
+        if abs(got - expected) > tol:
+            failures.append(
+                f"constraint_register.md: {label} says {got:g}, recomputing from inputs "
+                f"gives {expected:.4g} (tolerance {tol})")
+    return len(bound)
+
+
 def main():
     check_selection_entropy()
 
@@ -364,8 +408,8 @@ def main():
             check(text, name, "oscillator floor",
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
-    n_bound = check_ledger_figures(rec)
-    if n_bound < 15:
+    n_bound = check_ledger_figures(rec) + check_register_figures(rec)
+    if n_bound < 22:
         failures.append(
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "
             f"how a number goes back to being a sentence")
@@ -400,7 +444,7 @@ def main():
           f"(recommendation BCH({n},{k},{t}) x {blocks} at {tiles:.2f} of {TILE_LIMIT} "
           f"tiles, {raw} raw positions, {osc} oscillators, "
           f"post-selection density {rho_sel:.4f}; "
-          f"{n_bound} ledger figures bound)")
+          f"{n_bound} prose figures bound)")
     return 0
 
 

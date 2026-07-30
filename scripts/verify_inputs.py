@@ -100,6 +100,39 @@ def main():
         only = tuple(int(x) for x in args[i + 1].split(","))
         del args[i:i + 2]
 
+    # A synthesis area is a property of the tool as much as of the circuit. Checked
+    # first, so that a toolchain difference says so instead of arriving as twenty-two
+    # wrong numbers - which is exactly how it arrived the first time this ran elsewhere.
+    ver = subprocess.run(["yosys", "-V"], capture_output=True, text=True)
+    found = re.search(r"Yosys (\S+)", ver.stdout or "")
+    want = I.TOOLCHAIN["yosys"]
+    if not found:
+        print("yosys not found or gave no version; areas cannot be verified",
+              file=sys.stderr)
+        return 1
+    tol_pct = 0.0
+    if "--tolerance-percent" in args:
+        i = args.index("--tolerance-percent")
+        tol_pct = float(args[i + 1])
+        del args[i:i + 2]
+
+    # Exact comparison needs the declared build. A different one maps to different cells
+    # and every figure moves by a few percent - measured at up to 7.3 across all
+    # twenty-two, which is W-INTL-175. CI cannot install the declared build without a
+    # blind search through 737 MB release tarballs, so it runs with a tolerance instead:
+    # weaker than exact and far tighter than the class of error this check exists for,
+    # which was a convention mismatch of seventy percent.
+    if tol_pct > 0 and found.group(1) != want:
+        print(f"yosys {found.group(1)} found, {want} declared; comparing with a "
+              f"{tol_pct:g} percent tolerance (W-INTL-175)")
+    elif found.group(1) != want:
+        print(f"yosys {found.group(1)} found, {want} declared in research/inputs.py.",
+              file=sys.stderr)
+        print("Areas are toolchain-dependent - a different version maps differently and "
+              "every figure will differ by a few percent. Not a defect in the "
+              "circuits; see W-INTL-175.", file=sys.stderr)
+        return 1
+
     if not pathlib.Path(LIB).exists():
         print(f"liberty not found at {LIB}; nothing can be verified", file=sys.stderr)
         return 1
@@ -126,7 +159,8 @@ def main():
             bad += 1
             continue
         delta = got - declared
-        flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+        limit = max(1.0, declared * tol_pct / 100.0)
+        flag = "" if abs(delta) < limit else "   MISMATCH"
         print(f"  GF(2^{m}) t={t:<3} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
         if abs(delta) >= 1.0:
             bad += 1
@@ -142,10 +176,11 @@ def main():
                 bad += 1
                 continue
             delta = got - declared
-            flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+            limit = max(1.0, declared * tol_pct / 100.0)
+            flag = "" if abs(delta) < limit else "   MISMATCH"
             print(f"{'GF(2^%d) t=%-3d' % (m, t):>22} {declared:10d} {got:10.0f} "
                   f"{delta:8.0f}{flag}")
-            if abs(delta) >= 1.0:
+            if abs(delta) >= limit:
                 bad += 1
 
     if only is None:
@@ -167,9 +202,10 @@ def main():
                 bad += 1
                 continue
             delta = got - declared
-            flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+            limit = max(1.0, declared * tol_pct / 100.0)
+            flag = "" if abs(delta) < limit else "   MISMATCH"
             print(f"{'t=%d' % t:>22} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
-            if abs(delta) >= 1.0:
+            if abs(delta) >= limit:
                 bad += 1
 
     if only is None:
@@ -189,9 +225,10 @@ def main():
                 bad += 1
                 continue
             delta = got - declared
-            flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+            limit = max(1.0, declared * tol_pct / 100.0)
+            flag = "" if abs(delta) < limit else "   MISMATCH"
             print(f"  {name:>20} {declared:10d} {got:10.0f} {delta:8.0f}{flag}")
-            if abs(delta) >= 1.0:
+            if abs(delta) >= limit:
                 bad += 1
 
     # Count what was actually synthesised, not what the first table held. The summary
