@@ -16,6 +16,8 @@
 #   [HIRING]     named hiring plan required by W-INTL-25, currently unnamed
 # Each is a fact only the applicant holds. None are invented here.
 #
+# <!-- submission: draft -->
+#
 # CLOSED 2026-07-29: the Parameter Golf placement claim. The artefact search is
 # complete; see audit W-INTL-28. The submission history is now reported in place
 # of a score, and it is the stronger of the two.
@@ -70,6 +72,7 @@ self-declared key without a challenge, and the signature scheme on the mesh part
 has a published bypass whose fix status on our boot loader we have not confirmed.
 The architecture is settled; the enforcement is not built. We would rather say
 that than let a deployed interface read as a working guarantee.
+<!-- concedes: E26 -->
 
 What verification does and does not buy, stated plainly because it is the
 objection we expect first. Verifying execution is not verifying judgement. Nothing

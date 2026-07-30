@@ -153,26 +153,63 @@ def check_application_against_ledger(app_text, rows):
             continue
         level = rows[row_id]
         if any(level.startswith(w) for w in NON_SUPPORTING):
-            notes.append(
+            # Promoted from a note in W-INTL-150. It was a standing advisory asking
+            # someone to confirm the wording concedes the gap, which is a confirmation
+            # that has to happen once and then be recorded. A note cannot record it, so
+            # it was re-read and re-ignored every run. The application now carries an
+            # explicit marker where it makes the concession, and its absence fails.
+            if f"<!-- concedes: {row_id} -->" in submitted:
+                continue
+            failures.append(
                 f"cross-check: '{topic}' appears in the application while {row_id} "
-                f"is '{level.split(',')[0]}' - confirm the wording concedes it"
+                f"is '{level.split(',')[0]}' and the text carries no "
+                f"'<!-- concedes: {row_id} -->' marker"
             )
 
 
 def check_no_placeholders_in_submitted(app_text):
-    submitted = app_text.split("# NOT FOR SUBMISSION")[0]
-    # The comment header is working material too; it is stripped before sending.
+    """Placeholders are failures unless they are accounted for and the form is a draft.
+
+    Promoted from a note in W-INTL-150. The note said the same true thing every run for
+    dozens of loops and became furniture. What it could not express is the distinction
+    that matters: a placeholder naming a fact only the applicant holds, listed as such
+    while the document is a draft, is a state of the work - and the same placeholder in
+    a document declared ready is a defect.
+
+    So the file declares which it is. While it says draft, an accounted-for placeholder
+    passes and an unaccounted one fails. When it says ready, every placeholder fails.
+    """
+    submitted, _, not_for = app_text.partition("# NOT FOR SUBMISSION")
+    # The comment header is working material too; it is stripped before sending, and it
+    # is where the placeholders are accounted for.
     body = "\n".join(l for l in submitted.splitlines() if not l.startswith("#"))
+    accounting = "\n".join(l for l in submitted.splitlines() if l.startswith("#")) \
+        + not_for
+
+    ready = "<!-- submission: ready -->" in app_text
+    if not ready and "<!-- submission: draft -->" not in app_text:
+        failures.append(
+            "application: no '<!-- submission: draft -->' or "
+            "'<!-- submission: ready -->' marker, so placeholders cannot be judged"
+        )
+        return
+
     found = collections.Counter()
-    for line_no, line in enumerate(body.splitlines(), 1):
+    for line in body.splitlines():
         for token in PLACEHOLDERS:
             if token in line:
                 found[token] += 1
     for token, n in sorted(found.items()):
-        notes.append(
-            f"placeholder: {token} appears {n} time(s) in application body - "
-            f"must be resolved or cut before the form is filled in"
-        )
+        if ready:
+            failures.append(
+                f"placeholder: {token} appears {n} time(s) in a body marked ready "
+                f"for submission"
+            )
+        elif token not in accounting:
+            failures.append(
+                f"placeholder: {token} appears {n} time(s) in the application body "
+                f"and is not listed among the facts only the applicant holds"
+            )
 
 
 def check_figures_agree(docs):
