@@ -957,3 +957,96 @@ units of 0.02 and hid a code that works just below its resolution, which is a re
 a sweep's granularity is part of its result. And between the band and the edge there is a
 single step, not a slope: one point of entropy density costs more than double the area,
 because it forces the move from GF(2^7) to GF(2^8) and a correction strength of 42.
+
+---
+
+## 35. Two inputs at once, which is what one fabrication answers
+
+Every sweep so far moved the entropy density with the error-rate requirement held at five
+percent. Both quantities come from the same characterisation structure, so the pair is
+what a single fabrication would return, and holding one fixed while sweeping the other was
+an artefact of how the analysis grew rather than a property of the problem.
+
+Cheapest measured code that works, in tiles, across ten measured decoders:
+
+```
+             2%     3%     4%     5%     6%     7%     8%   <- bit error rate
+rho 1.00   4.92  4.92  4.92  5.34  6.22  7.02  7.02
+rho 0.94   4.92  4.92  4.92  5.34  6.22 11.96     -   <- measured entropy
+rho 0.90   4.92  4.92  4.92  5.34 11.96 11.96     -
+rho 0.88   4.92  4.92  4.92  5.34 11.96 11.96     -
+rho 0.86   4.92  4.92  4.92     -     -     -     -
+rho 0.82   4.92  4.92  4.92     -     -     -     -
+rho 0.81      -     -     -     -     -     -     -
+```
+
+This corrects the priority stated three loops ago. That loop concluded the error rate was
+the least decisive of the three quantities, and it reached that by sweeping entropy density
+while holding the error requirement at five percent. With both moving, the error rate has a
+cliff at eight percent among measured codes and entropy has one at 0.8155 - and published
+ring-oscillator error rates across temperature reach the first far more readily than
+published entropy figures approach the second.
+
+The useful shape: a rectangle. **Entropy density at or above 0.82 and error rate at or
+below four percent gives 4.92 tiles**, and nothing inside that rectangle changes the answer.
+
+## 36. The codes that mattered were outside the region I sampled
+
+Last loop this document reported the flat band as a property of the problem rather than of
+the sample, having densified from five measured codes to eight. That conclusion was drawn
+from three codes chosen to populate the band and probe just under its edge.
+
+Two more codes, chosen further below the edge, moved the whole picture:
+
+| Code | Decoder | Tiles | rho_min | Max BER |
+|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,29,21) | 79,787 | 4.42 | 0.8155 | 4.42 percent |
+<!-- derived:external --> | BCH(255,55,31) | 152,170 | 8.44 | 0.8299 | 4.34 percent |
+
+BCH(127,29,21) is **cheaper than the recommendation it challenges** - 4.42 tiles of decoder
+against 4.82 - and tolerates entropy density down to 0.8155 against 0.8706. It costs error
+tolerance, 4.42 percent against 5.23.
+
+So the flatness held where I sampled and did not hold where I had not. The correction is
+not to the earlier measurement, which was right, but to the inference: densifying inside a
+region already believed flat tests almost nothing. A qualification about a sample is
+answered by sampling where the sample was thin, not where it was thick.
+
+## 37. What the recommendation is now
+
+It depends on which cell of the map the characterisation lands in, and that is the honest
+form of the answer:
+
+- **error rate at or below four percent**: BCH(127,29,21), 4.92 tiles, works down to
+  entropy density 0.8155
+- **error rate five percent**: BCH(127,22,23), 5.34 tiles, needs 0.8706
+- **error rate six to seven percent**: 6.22 to 11.96 tiles depending on entropy
+- **error rate at or above eight percent**: no measured code, and the search says codes
+  exist but their decoders are unmeasured or too large
+
+The prudent build, before any measurement, is the code that covers the largest rectangle
+rather than the one that is cheapest at a guessed operating point. That is BCH(127,29,21)
+if the error rate can be held to four percent, and the whole point of the characterisation
+structure is that this is a measurement rather than a guess.
+
+## 38. The re-enrolment leak, measured rather than bounded
+
+W-INTL-83 demonstrated the mechanism by which a second enrolment leaks and said explicitly
+that the quantity had not been computed. Computed now, on an instance small enough to
+enumerate exhaustively rather than bound.
+
+Sixteen-bit raw response, classic von Neumann, six-bit response, three-bit syndrome, second
+enrolment differing in at most two raw bits. Sixty devices, candidate keys counted over all
+2^16 raw strings:
+
+| | Candidate keys | Entropy |
+|---|---|---|
+| after one enrolment | 8.0 | 3.00 bits |
+| after two enrolments | 4.9 | 2.30 bits |
+
+**The second enrolment removes 0.70 bits of 3.00 - about a quarter of what remained** - and
+strictly reduced the candidate set in 39 of 60 cases.
+
+That is a measurement on a toy, and whether the fraction scales to a 2,921-bit response has
+not been established. What it establishes is that the leak is a substantial fraction rather
+than a negligible one, which is what the contract policy needed and did not have.
