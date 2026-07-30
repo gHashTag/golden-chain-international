@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-70
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-73
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2425,6 +2425,84 @@ It is an instrument, not a key generator, and must never ship in a part that hol
 secret: raw frequency counts are exactly what an attacker wants and exactly what a key
 generator must never expose. That should be stated wherever this block is referenced.
 
+## W-INTL-71  The only reusable debiasing method does not exist for this construction
+
+Severity: this resolves W-INTL-69 by removing the choice it described.
+
+W-INTL-69 left the cost of e-2O-VN underived and said it should not be guessed. Derived
+2026-07-30, and the answer is not a cost.
+
+e-2O-VN keeps every position, turning unretained pairs into erasure symbols. A pair is
+retained when its two bits differ, so the erasure fraction is p^2 + (1-p)^2 - a half at 50
+percent bias, more as bias worsens. A code of distance d corrects e errors and f erasures
+when 2e + f <= d-1, and for BCH d-1 = 2t. Per 127-bit block the erasures alone run from
+63.5 to 79.4, against a budget of 62 for the strongest BCH(127) code that still carries
+information. BCH cannot absorb this at any bias level.
+
+That is why the source puts a repetition code innermost. It cannot be afforded here, and
+the reason is structural. Residual min-entropy is rho*n - (n-k), so a 128-bit key needs
+k >= 128 + n(1-rho), and since rho <= 1 for any source, k >= 128 always - a construction
+cannot yield more key than its code carries information. A repetition code multiplies n and
+leaves k alone, so it only moves the inequality the wrong way: rep[3] + BCH(127,15) would
+need rho >= 1.30, and rep[20] would need 1.04. Both impossible for any source, not merely
+for this one.
+
+So the reusable option is not expensive here; it does not exist. One enrolment per device
+is the only constructible policy.
+
+`ChipRegistryV2` has been updated to state that as a requirement rather than leave it as
+behaviour, and to explain why, on the open pull request. Two paths were already closed - a
+registered chip is refused, and a slashed chip is refused because slashing sets a flag
+without clearing registeredAt. The second is easy to break by a well-meaning change:
+clearing the record on slash, or adding an unregister path, would read like tidying up and
+would silently make the key generator insecure. `test_slashedChipCanNeverReRegister` now
+refuses re-registration after a slash with a fresh nonce and a valid signature, and from a
+different submitter in case the record were ever keyed on the attestor. Injecting the
+tidy-up makes it fail. 14 tests pass.
+
+Not merged. The registry sits in front of the token supply and was written and tested by
+one party; that position has not changed.
+
+## W-INTL-72  The entropy margin is the tightest figure in this work
+
+Severity: high, and it is a sensitivity rather than an error.
+
+Falling out of the same inequality as W-INTL-71. Nineteen blocks of BCH(127,15,27) give n
+total 2,413 and k total 285, against a requirement of 128 + n(1-rho) = 269.4 at the
+measured rho of 0.9414. The margin is 15.6 bits.
+
+Turned around: the construction needs rho >= 0.9349, and the measured figure is 0.9414. The
+margin is 0.0065 in entropy density, under a percentage point - and the measurement comes
+from ring oscillators on FPGAs, in a dataset gathered by other people for another purpose,
+on a different process from the one this project would use.
+
+Blocks buy margin linearly, since residual scales with block count while the per-block
+requirement does not: 25 blocks tolerate rho >= 0.9302, at proportionally more raw response
+bits and oscillators. The dial exists and is currently at its tightest useful setting.
+
+Nothing else in this project turns on a number this close to its limit. It should be the
+first thing checked against the characterisation structure's output, ahead of the error
+rate, because a shortfall here is not a matter of needing a stronger code - it means the
+construction yields no key at all.
+
+## W-INTL-73  Every synthesis figure now reproduces in one run
+
+Severity: none. Recorded because the alternative was quietly accumulating.
+
+The areas in this project were gathered over six loops as individual synthesis invocations
+and typed into documents by hand. Checking one meant reconstructing a session's shell
+history, and a change of standard-cell library or tool version would have gone unnoticed
+until it contradicted something else.
+
+`research/rtl/measure_all.sh` runs every probe and prints the table. It runs the six
+testbenches first and refuses to print any area if one fails, because the rule this project
+adopted is that no area is quoted for a circuit that has not decoded correctly - and a
+script that printed areas without checking would have quietly broken the rule it exists to
+serve.
+
+Run 2026-07-30: six testbenches pass, eight areas reproduce exactly the figures the
+documents quote.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2495,3 +2573,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-68 | corrected; 4.4 was the worst debiasing method, range is 1.58 to 5.3, and oscillator reuse is required under all of them |
 | W-INTL-69 | open, high; the registry has no stated enrolment policy, and reusability of the key generator depends on it |
 | W-INTL-70 | built; the characterisation structure is verified and costs 0.69 tiles |
+| W-INTL-71 | resolved; reusable debiasing does not exist for this construction, so one enrolment per device is forced and the registry now says so |
+| W-INTL-72 | open, high; the construction needs entropy density 0.9349 against a measured 0.9414, a margin of 0.0065 |
+| W-INTL-73 | closed; every synthesis figure reproduces from one script, testbenches first |
