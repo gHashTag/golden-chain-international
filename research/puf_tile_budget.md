@@ -5,25 +5,45 @@ which found that the primitive has been fabricated on the process this project
 already uses but at eight bits of response, and did not establish whether a usable
 one fits in the area a shuttle allows.
 
-Every cell area below is an estimate. The conclusion should be confirmed by
-synthesis, not by this document.
+Confirmed by synthesis on 2026-07-30. The published implementation was cloned and
+run through yosys against the real SkyWater standard-cell library, typical corner,
+25 C, 1.8 V. Every cell area below is measured except the error-correction decoder,
+which remains an estimate and is flagged where it appears.
 
 ---
 
-## 1. The numbers that are not estimates
+## 1. Measured
 
 A Tiny Tapeout 1x1 tile is about 161 by 112 micrometres, so 18,032 square
 micrometres. The largest block a submission may take is 8x2, sixteen tiles, about
 288,512 square micrometres.
 
-The existing eight-bit implementation declares 1x2 tiles. That is 36,064 square
-micrometres for eight response bits, or about 4,508 per bit.
+Synthesis of the published eight-bit implementation:
+
+| Quantity | Measured |
+|---|---|
+| Cells | 3,784 |
+| Total cell area | 20,900 um^2, for eight response bits |
+| Ring oscillators | 6,730 um^2 across 1,792 inverters |
+| Flip-flops | 5,930 um^2 across 296 |
+| Remaining logic | 8,240 um^2 - multiplexers, arbiters, counters, replicated eight times |
+| Declared footprint | 1x2 tiles, 36,064 um^2, so 58 percent utilisation |
+
+The 1,792 inverters are exactly eight blocks by thirty-two oscillators by seven
+inverters, which confirms the architecture reading this document was built on.
+
+An aside worth recording because most checks in this work have found errors. The
+estimates this document previously used were close: an inverter assumed at 3.75
+against 3.756 measured, a flip-flop at 22.0 against 20.03, utilisation assumed at
+60 percent against 58 measured. The conclusion did not move. That is not a reason to
+trust the next set of estimates, but it is worth saying when it happens.
 
 ## 2. Why naive scaling fails
 
-At 4,508 square micrometres per response bit, a 128-bit response needs about
-577,000 - thirty-two tiles against a limit of sixteen. It does not fit, and this is
-the number that matters if the architecture is taken as given.
+Taking the declared footprint of 4,508 square micrometres per response bit, a
+128-bit response needs about 577,000 - thirty-two tiles against a limit of sixteen.
+It does not fit, and this is the number that matters if the architecture is taken as
+given.
 
 It should not be taken as given. The existing design instantiates a complete
 measurement chain per response bit: thirty-two ring oscillators, two sixteen-to-one
@@ -55,14 +75,17 @@ So the decoder is inside the area budget. It is also the largest single item in 
 A fuzzy extractor loses entropy to its helper data, so the raw response must be
 larger than the key. Taking a 128-bit key and three multipliers for raw width:
 
-| Assumption | Raw bits | Oscillators | Estimated area | Tiles |
-|---|---|---|---|---|
-| optimistic, 2x | 256 | 128 | 52,600 | 2.9 |
-| typical, 3x | 384 | 256 | 66,700 | 3.7 |
-| conservative, 4x | 512 | 256 | 73,700 | 4.1 |
+Recomputed on measured cell areas and the measured 58 percent utilisation:
 
-At sixty percent utilisation, and with a decoder budgeted at roughly three thousand
-gates.
+| Assumption | Raw bits | Oscillators | Area | Tiles |
+|---|---|---|---|---|
+| optimistic, 2x | 256 | 128 | 51,500 | 2.9 |
+| typical, 3x | 384 | 256 | 65,600 | 3.6 |
+| conservative, 4x | 512 | 256 | 70,000 | 3.9 |
+
+Every input measured except the decoder, budgeted at roughly three thousand gates.
+That single estimate is now the largest source of uncertainty in the table and the
+only thing left to settle.
 
 ## 6. Answer
 
@@ -83,9 +106,11 @@ Whether the design holds across temperature. The author documents responses
 changing until the part warms. Error correction exists to absorb that, but the code
 parameters depend on the error rate, and the error rate is what nobody has measured.
 
-Whether three thousand gates is the right decoder budget. Published designs correct
-on the order of seventeen errors in a three-hundred-bit codeword; matching a
-measured error rate may need more.
+Whether three thousand gates is the right decoder budget. It is the one input here
+that synthesis has not replaced, and at eighteen thousand square micrometres it is
+around half the total. Published designs correct on the order of seventeen errors in
+a three-hundred-bit codeword; matching a measured error rate may need more. Writing
+and synthesising a decoder would close this the same way the rest closed.
 
 Every one of those is a measurement rather than a question of principle, and the
 first step for all three is the same: put a characterisation structure on a tile and
