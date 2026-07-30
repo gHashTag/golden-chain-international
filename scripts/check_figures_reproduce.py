@@ -143,7 +143,51 @@ def max_ber(n, t, blocks):
     return lo
 
 
+def check_selection_entropy():
+    """The leakage bound must be checked against the density of the SELECTED bits.
+
+    RHO is measured on unselected positions and the design discards a fifth of them.
+    Selection keeps the positions furthest from the decision boundary, which are the
+    positions most committed to a value, so the survivors are more biased than the
+    population - Delvaux et al. name global thresholding as the scheme that amplifies
+    bias the most, and this project's own source model reproduces it.
+
+    The check is here rather than in a document because it is what would have caught
+    the previous design: BCH(127,29,21) in five blocks carried 145 bits of k, and at
+    the deeper selection fractions the analysis was quoting, 145 is not enough.
+
+    All three ways it can fail were exercised before it was committed: no amplification
+    (W-INTL-144), a document figure that disagrees, and a k that does not cover the
+    requirement, which reproduces the previous design's failure.
+    """
+    import selection_entropy as SE
+
+    mu = SE.mean_for_density(RHO)
+    bias, _ = SE.selected_bias(mu, I.SELECTION_LOSS)
+    rho_selected = SE.density_for_bias(bias)
+    if rho_selected >= RHO:
+        failures.append(
+            "selection entropy: selection is computing no bias amplification, which "
+            "means the source model has lost its offset - see W-INTL-144"
+        )
+        return None
+    k_total = 57 * 3                      # the recommendation, BCH(127,57,11) x 3
+    required = KEY_BITS / rho_selected
+    if k_total < required:
+        failures.append(
+            f"selection entropy: the recommendation carries {k_total} bits of k and "
+            f"needs {required:.1f} at the post-selection density {rho_selected:.4f}"
+        )
+    doc = ROOT / "research" / "decoder_code_choice.md"
+    if doc.exists():
+        check(doc.read_text(), "decoder_code_choice.md",
+              "min-entropy density after selection",
+              r"density after selection is ([0-9]\.[0-9]+)", rho_selected, 0.002)
+    return rho_selected
+
+
 def main():
+    check_selection_entropy()
     at_measured = cheapest(RHO, 0.04)
     if at_measured is None:
         failures.append("model: no code fits at the measured entropy and 4 percent")

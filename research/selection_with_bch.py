@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, 'research')
 from math import comb, lgamma
 import reliable_bit_selection as R
+import selection_entropy as SE
 import inputs as I
 
 LN2 = 0.6931471805599453
@@ -60,22 +61,39 @@ def _r(positions):
 
 RHO = I.MIN_ENTROPY_DENSITY
 KEY = I.KEY_BITS
-need_k = int(KEY / RHO + 0.999)
+MU = SE.mean_for_density(RHO)
+
+
+def need_k_at(fraction):
+    """Bits of k the key needs, at the density the SELECTED positions actually have.
+
+    RHO is measured on unselected positions. Selection keeps the ones furthest from the
+    decision boundary, which are the ones most committed to a value, so the survivors
+    are more biased - see research/selection_entropy.py and W-INTL-144. Using RHO here
+    was an understatement that grew with the selection fraction, and it is why the
+    deeper rows of this table used to look free.
+    """
+    rho = SE.density_for_bias(SE.selected_bias(MU, 1.0 - fraction)[0])
+    return int(KEY / rho + 0.999)
 
 for raw in (0.06, 0.10, 0.15):
     sigma = R.sigma_for_raw_ber(raw)
     print(f"\n=== raw bit error rate {raw:.0%} "
           f"(the routine's model, sigma {sigma:.4f}) ===")
-    print(f"{'selected':>9} {'eff BER':>9} {'code':>16} {'blocks':>7} "
-          f"{'selected bits':>14} {'raw positions':>14} {'tiles':>7}")
+    print(f"{'selected':>9} {'eff BER':>9} {'density':>8} {'k needed':>9} "
+          f"{'code':>16} {'blocks':>7} {'selected bits':>14} {'raw positions':>14} "
+          f"{'tiles':>7}")
     best_overall = None
-    for frac in (1.00, 0.60, 0.40, 0.326, 0.20, 0.10):
+    for frac in (1.00, 0.80, 0.60, 0.40, 0.326, 0.20, 0.10):
         eff = raw if frac >= 1.0 else R.selected_ber(sigma, frac)[0]
+        need_k = need_k_at(frac)
+        rho_sel = KEY / need_k
         row_best = None
         for m in (7, 8):
             n = (1 << m) - 1
             for t, k in bch_table(m):
-                if (m, t) not in I.DECODER_AREA:
+                area = I.decoder_area(m, t)
+                if area is None:
                     continue
                 blocks = -(-need_k // k)
                 if word_fail(n, t, blocks, eff) > 1e-6:
@@ -83,14 +101,15 @@ for raw in (0.06, 0.10, 0.15):
                 sel_bits = n * blocks
                 raw_pos = int(sel_bits / frac + 0.999)
                 osc = max(floor_ent(KEY), _r(raw_pos))
-                tiles = I.tiles(I.DECODER_AREA[(m, t)] + SLLC + osc * I.OSCILLATOR_AREA)
+                tiles = I.tiles(area + SLLC + osc * I.OSCILLATOR_AREA)
                 if row_best is None or tiles < row_best[0]:
                     row_best = (tiles, n, k, t, blocks, sel_bits, raw_pos)
         if row_best is None:
-            print(f"{frac:9.1%} {eff:9.4f} {'none fits':>16}")
+            print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} {'none fits':>16}")
             continue
         tiles, n, k, t, blocks, sel_bits, raw_pos = row_best
-        print(f"{frac:9.1%} {eff:9.4f} {f'BCH({n},{k},{t})':>16} {blocks:7d} "
+        print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} "
+              f"{f'BCH({n},{k},{t})':>16} {blocks:7d} "
               f"{sel_bits:14d} {raw_pos:14d} {tiles:7.2f}")
         if best_overall is None or tiles < best_overall[0]:
             best_overall = (tiles, frac, n, k, t, raw_pos)

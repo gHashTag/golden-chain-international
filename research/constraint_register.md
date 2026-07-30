@@ -96,3 +96,26 @@ moves, the decisions to revisit are named rather than remembered.
 
 Recorded as the change not made, because it is a change to how this file is kept rather than to what
 it says, and the next loop is a better place to make it than the one that noticed.
+
+---
+
+## Decisions against constraints, 2026-07-31
+
+The change the previous revision recorded as not made. For each constraint, the decisions that were
+taken against it - so that when the constraint moves, what to revisit is named rather than
+remembered. The last column is the test: if the constraint changed today, would that decision have
+to change with it.
+
+| Constraint | Decisions taken against it | Moves with it |
+|---|---|---|
+| word failure at 1e-6 | correction strength t; number of blocks; the whole code choice | yes, and it did - the code was chosen against the raw rate and re-chosen two loops after selection changed it |
+| min-entropy density | number of blocks; k required; the oscillator floor; whether debiasing is needed | yes - and this loop it moved again, because the density that applies is the one *after* selection, which is 0.9293 rather than 0.9414 |
+| helper-data leakage | the construction itself: syndrome over code-offset, then SLLC over syndrome | no longer applies; SLLC removed the term |
+| sixteen tiles | every area trade: the solver's multiplier sharing, the Chien search left parallel, the field | yes - and the two largest area wins came from revisiting decisions after this constraint stopped binding |
+| raw bit error rate | the selection fraction; the number of enrolment reads; the code | yes - selection converted this constraint into a requirement for raw positions, and every decision above it moved |
+| oscillator entropy floor | oscillator count; the pairing arrangement; whether reuse across pairs is allowed | yes, and it was wrong once: the floor was written against raw entropy rather than residual |
+| one enrolment per device | the enrolment protocol; the nine-read ranking; the registry contract | policy, not physics - if the contract changes, the ranking quality and the effective error rate change with it |
+| throughput and clock | the solver's multiplier count; the serial-vs-parallel choice in every stage | yes - this row was marked slack for eighteen loops before anything was decided differently because of it |
+
+Two entries in that table were written by finding the decision after the constraint had already
+moved. The point of keeping the column is that the third one should be found the other way round.

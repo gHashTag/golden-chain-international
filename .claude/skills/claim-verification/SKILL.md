@@ -103,6 +103,38 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## A check that runs inside the assumption it is testing proves nothing
+
+A model asserted that a position's reliability says nothing about its value, "checked below rather
+than assumed". The check sampled from a distribution whose symmetry was what made the claim true. It
+reported the expected answer because the sampler had been told to produce it.
+
+The tell is that the check and the assumption share a parameter. Before trusting one, ask which
+input would have to be wrong for the check to fail - and if the answer is "the one the assumption
+sets", the check is decoration.
+
+The fix is to vary that parameter to its measured value rather than its convenient one. Here the
+measured source had a bias of 0.5207 and the model used 0.5000, and the difference was a live defect
+in the design of the previous loop.
+
+## Record the condition a later decision might change, not the one that already burned you
+
+A measured input was recorded with the arrangement it was taken under, because an earlier loop had
+been caught by that. It was not recorded as measured before a filtering step the design later added,
+because at the time there was no filtering step.
+
+Provenance notes capture the conditions someone thought to write down. The conditions that matter
+are the ones a future decision changes. When you add a stage that transforms the data an input
+describes, go back and ask what the input still describes.
+
+## "Gates green" is a claim about which gates
+
+A loop reported gates green having run the fast check and not the slow one. The slow one was the
+only one that would have fired, and it fired a loop later on work already merged.
+
+Name the gates you ran, in the report and in the commit. A summary that says "green" without a list
+is a summary of the checks you remembered.
+
 ## When a constraint moves, revisit the decisions that were taken against it
 
 Sixty percent of a design came off in two loops, and neither change needed a new technique, a new

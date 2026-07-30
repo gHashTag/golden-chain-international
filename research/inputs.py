@@ -40,9 +40,22 @@ OSCILLATOR_AREA = INVERTERS_PER_OSCILLATOR * INVERTER_AREA
 # immediate neighbours, giving 241.0 bits of min-entropy in 256 response bits. The same
 # paper shows this figure swinging widely with pairing distance, so it carries its
 # arrangement with it. It is the tightest input in this work.
+#
+# It is measured on UNSELECTED positions, and the design selects. Reliable-bit
+# selection discards the positions whose difference is closest to zero, which are the
+# positions least committed to a value - so the survivors are more biased than the
+# population and this density does not describe them. Delvaux et al. state it in their
+# abstract, "we disprove the intuitive assumption that bit selection schemes have no
+# leakage", and name global thresholding as the scheme that amplifies bias the most.
+# research/selection_entropy.py computes the amplification in this project's own source
+# model: at the twenty percent the design discards, 0.9414 becomes 0.9293.
 MIN_ENTROPY_BITS = 241.0
 MIN_ENTROPY_OVER = 256
 MIN_ENTROPY_DENSITY = MIN_ENTROPY_BITS / MIN_ENTROPY_OVER
+
+# the fraction of positions the recommendation discards: 477 raw, 381 selected. The
+# density above applies before this and not after it.
+SELECTION_LOSS = 1 - 381 / 477
 
 # ── the requirement ─────────────────────────────────────────────────────────
 KEY_BITS = 128            # specified: the key the registry needs
@@ -55,9 +68,9 @@ RAW_BUDGET = 3000         # a design choice, not a constraint: how many response
 # end to end before its area was quoted - injected errors located exactly, every weight
 # from one to t, in every field. Reproduce with research/rtl/measure_all.sh.
 DECODER_AREA = {
-    (7, 11):  24_659,   # tables 11,021 + serial solver 13,638 - the recommendation
-    (7, 13):  28_958,   # tables 13,448 + serial solver 15,510
-    (7, 21):  79_787,   # tables 22,215 + parallel solver 57,571; 44,346 with the serial
+    (7, 11):  42_069,   # tables 11,021 + parallel solver 31,048
+    (7, 13):  50_143,   # tables 13,448 + parallel solver 36,695
+    (7, 21):  79_787,   # tables 22,215 + parallel solver 57,571
     (7, 23):  86_896,
     (7, 27): 102_267,
     (7, 31): 116_194,
@@ -71,6 +84,26 @@ DECODER_AREA = {
     (8, 55): 268_820,
     (9, 54): 304_465,
 }
+
+# measured here, same convention but with the shared-multiplier solver in place of the
+# replicated one. The recommendation is built from this table, not the one above.
+#
+# The two were mixed for one loop: 24,659 and 28,958 were entered into DECODER_AREA,
+# whose verifier measures the parallel solver, so the declaration named one circuit and
+# the verifier synthesised another. Both numbers were right and neither described what
+# the dictionary said it described. scripts/verify_inputs.py checks this table too now,
+# which is what found it.
+DECODER_AREA_SERIAL = {
+    (7, 11):  24_659,   # tables 11,021 + serial solver 13,638 - the recommendation
+    (7, 13):  28_958,   # tables 13,448 + serial solver 15,510
+    (7, 21):  44_346,   # tables 22,215 + serial solver 22,131
+}
+
+
+def decoder_area(m, t):
+    """The area the design would pay: the shared-multiplier solver where measured."""
+    return DECODER_AREA_SERIAL.get((m, t), DECODER_AREA.get((m, t)))
+
 
 # measured here: the characterisation structure's readout for a 272-oscillator bank, and
 # the smaller variant. The oscillators themselves are not synthesised - a ring oscillator
