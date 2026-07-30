@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-47
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-50
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1627,6 +1627,100 @@ Action.
 Closes when the external documents describe the shuttle path accurately and no
 document claims identity ahead of characterisation.
 
+## W-INTL-48  The Solution section asserts hardware that is not on the bench
+
+Severity: high. It is one clause in the sentence that describes the product, and it
+names a component the project's own working notes say it does not have.
+
+The application says a Zynq-7020 with a software-defined radio and GPS timing
+routes traffic through a self-healing mesh.
+
+The hardware target in the mesh repository's own working file lists three boards as
+Zynq-7020 plus AD9361, armv7l, Linux 5.10. No GPS. The README and roadmap in the
+same repository describe the intended node as Zynq-7020 plus AD9361 plus GPS and a
+pulse-per-second input, so the intent is documented - but the boards in hand are the
+first list, not the second.
+
+The mesh daemon's own strengthening document is explicit about the consequence:
+items needing flight hardware, GPS or an external radio part are marked as
+unautomatable and cannot be closed in that repository today, and a mobility-aware
+routing metric is recorded as blocked without a real position source.
+
+So GPS timing is a design element, not a bench fact, and the Solution section states
+it as though it were installed.
+
+Action: describe the node as it is. The radio and the processor are there; the timing
+source is not. If GPS matters to the architecture - and for a mesh sharing an uplink
+it plausibly does - say what it is for and that it is not yet fitted.
+
+Closes when no external document lists GPS among what the boards have.
+
+## W-INTL-49  Two radios have never been up at the same time
+
+Severity: high, and it reaches further than the radio.
+
+Found in the mesh repository's working notes, in a sentence written by the project
+about itself: the radio's capacity has never been measured, only one AD9361 has ever
+come up at a time, and the fragmentation rate constant is a guess and should be
+treated as one.
+
+The same file states elsewhere that two radios are needed for a link.
+
+Put together, that means no radio link of any kind has ever existed here - not over
+the air, which was already recorded, and not in loopback between two boards either.
+The 108.6 dB figure is a single board talking to itself, which is consistent with
+everything already written, but the absence goes further than the audit had it:
+there has been no two-party radio test at all.
+
+It also reaches the mesh claims. Multi-hop routing, throughput across two hops and
+the three-node shared-uplink demonstration are all recorded as simulation, which is
+correct, but the reason is stronger than scheduling. They could not have been run.
+
+And it puts a number in the application under suspicion by association: a constant
+governing fragmentation rate is documented by its own author as a guess. Nothing
+external quotes it, and nothing external should.
+
+Action.
+
+1. State in the application that no two-radio test has been performed, alongside the
+   existing statement that nothing has been transmitted over the air. The second
+   does not imply the first and a reader will assume it does.
+2. Bring up two radios simultaneously before anything else on the radio path. It is
+   the prerequisite for every mesh claim currently marked simulation.
+3. Do not quote the fragmentation constant anywhere external until it is measured.
+
+Closes when two radios have been up together and the capacity has a measured number.
+
+## W-INTL-50  The single-vendor claim about satellite backhaul is false
+
+Severity: medium in general, high in front of this particular committee.
+
+The Problem section says satellite backhaul is a single foreign vendor. Checked
+2026-07-30 against the current market: it is not.
+
+There are at least four distinct providers with commercial backhaul offerings, and
+the second largest constellation is specifically oriented toward telecommunications
+backhaul for enterprise and government customers, working with governments in Africa
+and South Asia - which is precisely the market and the use case the Problem section
+describes. Two further operators compete for the same enterprise business, and a
+fourth constellation is being funded at scale with an explicit focus on underserved
+markets.
+
+The claim is therefore wrong on its own terms, and it is wrong in a way that will be
+noticed. The submission is to a committee in a region that buys satellite capacity
+and follows this market closely.
+
+The defensible version is narrower and survives. Satellite backhaul is a small
+number of foreign vendors, all outside the buyer's jurisdiction, sold as a recurring
+operating cost rather than an owned asset, and subject to the commercial and
+political decisions of the operator. That is enough to motivate terrestrial mesh
+without asserting a monopoly that does not exist.
+
+Action: replace the claim with the narrower one. Do not describe a competitive market
+as a monopoly to a buyer who purchases in it.
+
+Closes when no external document claims a single satellite vendor.
+
 ---
 
 ## Priority order
@@ -1676,3 +1770,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-45 | corrected; ownership is renounced everywhere, freezing a known defect |
 | W-INTL-46 | open, critical; the identity scheme needs hardware neither part has - superseded in part by W-INTL-47 on how far away the fix is |
 | W-INTL-47 | not a weakness; the identity root needs a shuttle macro rather than a funded die |
+| W-INTL-48 | open, high; the Solution section asserts GPS that is not on the boards |
+| W-INTL-49 | open, high; two radios have never been up together |
+| W-INTL-50 | open, high before this committee; the single-satellite-vendor claim is false |

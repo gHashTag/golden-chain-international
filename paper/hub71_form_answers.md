@@ -38,9 +38,12 @@ and what replaced them.
 
 Two problems usually treated separately are one problem. Many regions have
 neither dependable connectivity nor the ability to import advanced AI
-accelerators, and for overlapping reasons: satellite backhaul is a single
-foreign vendor, and capable inference silicon is an export-controlled supply
-chain. Solving one leaves the other open.
+accelerators, and for overlapping reasons. Satellite backhaul is a small number of
+foreign operators, none in the buyer's jurisdiction, sold as a recurring cost rather
+than an owned asset and subject to the operator's commercial and political decisions
+- we say a small number rather than one, because the market is competitive and this
+committee buys in it. Capable inference silicon is an export-controlled supply chain.
+Solving one leaves the other open.
 
 There is a third gap underneath both. Proving that a computation ran on the
 hardware that claims it currently requires a trusted execution environment from
@@ -49,9 +52,11 @@ is not a solution; it reproduces the problem one layer down.
 
 ## Solution
 
-One node does all three. A Zynq-7020 with a software-defined radio and GPS
-timing routes traffic through a self-healing mesh, so a group of nodes shares a
-single uplink. The same node runs low-precision inference on multiplier-free
+One node does all three. A Zynq-7020 with a software-defined radio routes traffic
+through a self-healing mesh, so a group of nodes shares a single uplink. The design
+also takes a GPS pulse-per-second input for timing; that part is not fitted on the
+boards we have, and we say so rather than describing the intended node as the built
+one. The same node runs low-precision inference on multiplier-free
 arithmetic that maps onto mature, freely exportable process nodes. Operators are paid for
 four proof types settling through one contract. That contract is written and
 deployed to Base Sepolia; four of its checks are enforced and two are not yet -
@@ -282,8 +287,11 @@ claim, the line says so.
 - Authenticated encryption running on the node processors. Two on-device runs,
   2026-07-01 and 2026-07-04, on two different boards, each with its own recorded
   binary hash and a zero exit code. Two runs on two boards rather than one.
-- 5.8 GHz radio front end verified in digital loopback. Loopback, not over the
-  air. Nothing has been transmitted; that needs an amplifier and a licence.
+- 5.8 GHz radio front end verified in digital loopback on one board. Loopback, not
+  over the air, and one board rather than two: only one radio has ever been brought
+  up at a time, so no two-party radio test of any kind has been run. Nothing has
+  been transmitted; that needs an amplifier and a licence. Radio capacity is
+  unmeasured and we quote no figure for it.
 - Multiplier-free ternary tile: 206 of 206 self-checking vectors pass against a
   golden model, and synthesis against a Xilinx target allocates no DSP primitive.
   Both reproduce from the repository in minutes.
