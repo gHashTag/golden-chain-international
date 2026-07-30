@@ -103,6 +103,44 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Sort the budget by share before deciding where to work
+
+A design's cost was assembled across twenty sections and never shown as one sorted table. Assembling
+it took one command and showed that one component was 87 percent of the total and another, which had
+absorbed six loops of optimisation, was 1.2 percent.
+
+The work was not wasted - the small term was where the *constraints* lived, and those decided the
+large one. But effort went to refining the small term while the large one sat unexamined until an
+outside source forced it.
+
+So sort by share early and re-sort whenever a component is added. Where the constraints are and where
+the cost is are different questions, and only one of them is answered by the thing you happen to be
+measuring.
+
+## Decline a measured advantage when it buys an attack surface, and say so plainly
+
+An alternative came out 0.32 of a tile cheaper, measured, with its datapath implemented and verified.
+It was declined: it needs a random number source the incumbent does not, and the literature records
+an attack on its helper data that was demonstrated on exactly this project's source type.
+
+Write that down as a recommendation against the arithmetic rather than burying the measurement. A
+reader who sees only the conclusion cannot tell whether the alternative was measured or dismissed,
+and a later loop will re-derive it.
+
+## Two tools disagreeing is a better check than reading more carefully
+
+A register named `within` - a SystemVerilog sequence keyword - was accepted by the synthesiser as an
+identifier and rejected by the simulator. The synthesiser reported a plausible area for a module the
+simulator would not compile.
+
+Nothing was published, because the rule here is that no area is quoted for a circuit that has not
+passed a testbench. But the near-miss has the same shape as a path tracer that walked through cells it
+did not recognise and returned a number that looked like a depth.
+
+A tool that partly does not understand its input returns a plausible answer rather than an error.
+Running a second tool with different strictness over the same source costs nothing and catches the
+class.
+
 ## Test the property the component is for, not the property it is named after
 
 A cryptographic primitive was implemented to price a countermeasure. Verifying it against the

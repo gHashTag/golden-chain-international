@@ -2102,3 +2102,60 @@ one, which at the characterisation structure's 448 cycles per sweep is negligibl
 but is a step the flow must contain. And the reads must be at the temperature the device will
 operate at, or the reliability ranking is of the wrong quantity - which is the same point the
 literature makes about pairs whose ordering reverses as the die warms.
+
+---
+
+## 77. The pointer family, costed against the linear one
+
+W-INTL-121 has been the only open critical entry: the field has two families and this work examined
+one. Costed now, for the same code and key.
+
+Index-Based Syndrome Coding removes helper-data leakage differently from SLLC. SLLC masks the
+redundancy with fresh response bits; IBS makes the helper data a pointer to a position, and for
+i.i.d. bits a pointer says nothing about the value it points at. Both give zero leakage; the
+question is what each costs.
+
+| Scheme | Positions | Oscillators | Extra logic | Helper bits | Tiles |
+|---|---|---|---|---|---|
+<!-- derived:external --> | SLLC | 635 | 41 | 4,745 | 490 | 8.79 |
+<!-- derived:external --> | IBS, block of 4 | 2,540 | 72 | **581** | 1,270 | **8.47** |
+<!-- derived:external --> | IBS, block of 8 | 5,080 | 102 | 623 | 1,905 | 8.55 |
+
+The pointer datapath is eight times smaller than the masking machinery - one counter, one comparator
+and a register against a degree-98 encoder - and pays for it in positions, needing four times as
+many. Net, the pointer family comes out 0.32 of a tile ahead.
+
+**And it should still not be used here.** IBS needs a random codeword to point at, so it needs a
+random number source that SLLC does not. And the literature records that ring-oscillator sum-PUF
+outputs are not fully independent and that IBS helper data can be attacked with machine learning on
+exactly that basis. So the trade is 0.32 of a tile against a new attack surface aimed at this
+project's source type.
+
+That is a recommendation rather than a finding, and it is the first time in this work that a
+measured advantage has been declined. Worth stating plainly because the arithmetic says otherwise.
+
+## 78. What the 8.79 tiles are made of
+
+The budget has been assembled across twenty sections and never shown as one table. Every component
+measured on this library:
+
+| Component | Area | Share |
+|---|---|---|
+<!-- derived:external --> | BCH(127,29,21) decoder, three stages | 79,787 | 86.9 percent |
+<!-- derived:external --> | SPONGENT permutation, the manipulation countermeasure | 6,215 | 6.8 percent |
+<!-- derived:external --> | SLLC encoder and unmask | 4,745 | 5.2 percent |
+<!-- derived:external --> | 41 ring oscillators at 26.3 square micrometres | 1,077 | 1.2 percent |
+| **cell area** | **91,824** | |
+| die area at 57.95 percent utilisation | 158,446 | |
+| **tiles of sixteen** | **8.79** | |
+
+One thing falls out of seeing it in one place. **The decoder is 87 percent of the design and the
+oscillators are 1.2 percent.** Six loops went into the oscillator side of the budget - the
+arrangement question, the entropy floor, the debiasing overhead, the pairing scheme - and all of it
+was optimising a term worth about a hundredth of the total.
+
+Those loops were not wasted, because the oscillator side is where the *constraints* lived: the
+entropy density and the error rate decided which code was admissible, and the code is 87 percent of
+the area. But the effort went into refining a small term while the large one was settled early and
+revisited only when a paper forced it. Sorting the budget by share is a cheap thing to do and it
+would have said so at any point.
