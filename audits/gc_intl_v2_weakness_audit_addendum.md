@@ -3553,6 +3553,94 @@ analysis found the best construction. It never compared framings, only codes wit
 The rule for the next loop is not to measure more carefully. It is to find the field's comparison
 table before optimising, and this file now contains three instances of what happens otherwise.
 
+## W-INTL-118  The row that removed the constraint does not remove it at this project's error rate
+
+Severity: this retracts the operative half of W-INTL-115 while confirming its mechanism.
+It is a correction of a correction, and the direction matters more than either number.
+
+W-INTL-115 read a comparison table in the cited dissertation and concluded that the
+error-rate constraint was a choice, because compressed Differential Sequence Coding
+reaches fifteen percent average bit error probability with 974 response bits by indexing
+the reliable third of the positions rather than correcting all of them, while this
+project needed 2,921 bits under syndrome and 635 under SLLC at less than half that rate.
+
+research/reliable_bit_selection.py builds the selection under this project's own source
+model - a ring-oscillator pair emitting sign(d + n), the device difference d drawn once
+and the read noise n redrawn every measurement - with the noise scaled so the raw error
+rate matches the row. The mechanism transfers and is not in doubt. Selecting the most
+reliable 32.6 percent of positions takes the error rate from 0.150 to 0.0066 under
+perfect ranking, and the analytic figure and a 120,000-position sample agree to within
+half a thousandth at every fraction tried.
+
+What does not transfer is the advantage. Selection has to be paired with something, and
+paired with repetition at a word failure rate of one in a million it needs, at six
+percent raw error, between 1,211 and 1,765 response bits depending on the enrolment
+budget. SLLC needed 635 at the same rate. The row wins at fifteen percent because at
+fifteen percent the block constructions need 2,921 and 3,696 bits; it does not win at
+six, because 635 is already below what selection plus repetition can reach there.
+
+The bound on this finding is explicit: the source pairs DSC with a convolutional code and
+Viterbi decoding, and only repetition was measured here. A stronger inner code moves the
+selection column down and could reverse this. What is measured is that adopting the row's
+winner because the row exists would have been wrong at this project's error rate, and
+that is the same failure W-INTL-117 named, committed in the opposite direction one loop
+later.
+
+## W-INTL-119  Perfect ranking is not a design, and the enrolment reads are the price
+
+Severity: medium, and it is the reason the previous entry comes out the way it does.
+
+Reliable-bit selection needs to know which bits are reliable. The figure in W-INTL-115 and
+the 0.0066 above both assume the reliability is known exactly, which no enrolment
+procedure delivers. The achievable version reads each position a fixed number of times and
+ranks by the majority margin; research/reliable_bit_selection.py computes the exact
+fraction and effective error rate for that rule by summing the binomial vote distribution
+over the population of positions, rather than sampling it.
+
+At fifteen percent raw and roughly the row's selected fraction, one enrolment read gives
+0.208, three gives 0.096, seven gives 0.045, fifteen gives 0.022, thirty-one gives 0.010
+and sixty-three gives 0.009, against 0.0066 for perfect ranking. A 120,000-position sample
+at fifteen reads returns 0.022 against the exact 0.0216. The dissertation's 0.027 is
+reproduced at thirty-one reads while selecting 48.7 percent, so the row is consistent with
+a realistic enrolment budget rather than with the bound - it is an honest number, and it
+is not the bound.
+
+This is a real cost SLLC does not carry. SLLC reads each position once. Thirty-one reads
+per position is thirty-one times the enrolment time and a counter wide enough to hold the
+votes, and the characterisation structure in W-INTL-70 already emits raw frequency counts,
+so the instrument exists and the budget for using it does not.
+
+Two secondary results, both measured, both favourable to selection and neither sufficient
+to change W-INTL-118. The bit value is independent of the reliability under this source:
+the share of ones among the selected positions is between 0.4976 and 0.5018 at every
+fraction from 1.0 down to 0.1, so pointers to reliable positions say which positions are
+stable and not what they hold, which is what makes them compatible with the zero-leakage
+regime W-INTL-114 established. And the differential encoding is the right size: 318
+pointers into 974 positions cost 3,157 bits as absolute indices and 888 bits at the
+entropy floor of the geometric gap distribution, against the 1,108 the row states, so the
+row's helper data is about a quarter above the floor, which is where a real entropy coder
+sits.
+
+## W-INTL-120  The manipulation countermeasure is three lines and it is still not in the design
+
+Severity: low as an engineering task, high as an omission, and now measured rather than
+argued.
+
+W-INTL-116 closed the helper-data manipulation question by finding the generic
+countermeasure K = S xor f(W) in the same chapter as everything else, and recorded that no
+design in this repository does it. The entry did not say what it buys, so this loop
+measured it. Folding a hash of the 1,108-bit helper data into the key changes 64.3 of 128
+key bits on average when a single helper bit is flipped, over 200 trials, with a range of
+51 to 78. That is the ideal half, which is what a hash is supposed to give, and it is the
+figure to quote rather than the source's 88 - the source reports its own lightweight hash,
+not a bound, and quoting a number above the ideal as an improvement would be the mistake
+this file exists to catch.
+
+The countermeasure costs one hash of the helper data at regeneration. It is independent of
+the code, so it survives whichever construction the previous two entries settle on, and it
+should be written into the key derivation before any construction is chosen rather than
+after.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3668,5 +3756,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-115 | open, critical; the error-rate constraint assumes all errors must be corrected, and reliable-bit selection reaches 15 percent with 974 response bits |
 | W-INTL-116 | closes W-INTL-105; helper-data manipulation has a generic countermeasure, hashing the helper data into the key, absent from every design here |
 | W-INTL-117 | open as a method finding; three loops running, a table in already-cited literature removed a constraint treated as fixed |
+| W-INTL-118 | measured; retracts the operative half of W-INTL-115 - the mechanism transfers, the advantage does not at this error rate |
+| W-INTL-119 | measured; perfect ranking is a bound, thirty-one enrolment reads is the achievable version and its price |
+| W-INTL-120 | measured, open as an omission; the countermeasure gives ideal avalanche for one hash and is still absent |
 | W-INTL-114 | closed; under zero leakage the entropy density stops binding, withdrawing W-INTL-72, W-INTL-82, W-INTL-84, W-INTL-85 and W-INTL-86 as conclusions about the problem |
 | W-INTL-110 | decided rather than open, by W-INTL-111 and W-INTL-112; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |
