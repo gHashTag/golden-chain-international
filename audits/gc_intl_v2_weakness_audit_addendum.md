@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-67
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-70
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2333,6 +2333,98 @@ Closes when bias and per-oscillator entropy are measured on this process. Both c
 the same characterisation structure, and this entry is the strongest argument yet for
 building it before anything else.
 
+## W-INTL-68  The debiasing figure was the worst method, and oscillator reuse turns out to be required
+
+Severity: high. It corrects a number this file published yesterday and strengthens the
+conclusion that number supported.
+
+W-INTL-67 used a factor of 4.4 for von Neumann debiasing. That is classic von Neumann,
+the least efficient method in the source. Maes, van der Leest, van der Sluis and Willems
+give three more, with debiasing overhead at four bias levels:
+
+| Method | Reusable | Overhead at bias 40 / 35 / 30 / 25 percent |
+|---|---|---|
+| Classic von Neumann | no | 4.4 / 4.4 / 5.3 / 5.3 |
+| Pair-output, 2O-VN | no | 2.31 / 2.45 / 2.66 / 2.99 |
+| Multi-pass tuple-output, 2P-TO-VN | no | 1.58 / 1.73 / 1.96 / 2.32 |
+| Pair-output with erasures, e-2O-VN | yes | 1.00, paid instead as a stronger inner code |
+
+The honest range is 1.58 to 5.3. Quoting the worst method as the cost overstated it by up
+to a factor of three, and this file did that.
+
+The conclusion survives and gets sharper. For BCH(127,15,27) with two oscillators per
+response bit, the most efficient method at the mildest bias in the table still needs 16.79
+tiles against a limit of 16 - and that method is not reusable. Classic von Neumann needs
+36.63. Every method fits at 6.07 tiles when oscillators are reused across pairs, because
+there the entropy floor binds rather than the position count, and the entropy floor does
+not move with debiasing overhead.
+
+So oscillator reuse is a requirement rather than an optimisation, conditional on debiasing
+being needed. That statement holds across the whole method table rather than resting on
+the one figure this file previously quoted.
+
+## W-INTL-69  Reusability of the key generator is a protocol constraint nobody has recorded
+
+Severity: high, and it is the first finding in this line that lands on the contracts
+rather than on the silicon.
+
+Three of the four debiasing methods are marked not reusable, and the source is precise:
+enrolling the same device twice leaks more than one enrolment does, because the debiasing
+step is stochastic and bit errors between enrolments shift which pairs are retained.
+
+This project's registry has a slashing path and no stated position on re-registration.
+`ChipRegistryV2` binds a nonce per chip and rejects double registration, which reads like
+one enrolment per device, but nothing states it as a requirement or explains what happens
+after a slash. If a die can ever be enrolled twice - after a slash, after key rotation,
+after a failed provisioning run - the three efficient methods are unavailable and only
+e-2O-VN remains.
+
+Its debiasing overhead is 1.00 because it discards nothing, replacing unretained pairs
+with erasures. The cost reappears as a longer inner repetition code, from 20 to 28 bits as
+bias worsens in the paper's design. That cost has not been derived for a BCH-only design
+and should not be guessed.
+
+What can be stated: the choice between one enrolment per device and many is a
+silicon-area decision as well as a protocol one, and the registry does not currently
+record which it is. Closes when the registry states its enrolment policy.
+
+## W-INTL-70  The instrument that answers the remaining questions is built and costs 0.69 tiles
+
+Severity: this is not a weakness. It is the work every entry from W-INTL-60 onwards has
+been pointing at.
+
+Three quantities of this process decide everything still open: the bit error rate across
+temperature, the min-entropy per oscillator, and the bias. One structure yields all three.
+
+Built 2026-07-30. It emits one frequency count per oscillator per sweep and nothing else -
+no comparator, no arbiter, no response bits. A structure emitting response bits could only
+report the error rate of the pairing wired into it, and the pairing is exactly what is in
+question. Pairing, discard thresholds, bias and entropy under any scheme are computed
+afterwards from the counts, and can be recomputed when the question changes.
+
+Verified against arithmetic: oscillators modelled as square waves of known distinct
+periods, counts asserted within three of the window divided by the period, and the
+frequency ordering asserted to be preserved. Two injected faults - removing the
+synchroniser, and failing to clear the accumulator between oscillators - each fail 14
+checks.
+
+Worth recording: the first run failed eight checks and every one was in the test model
+rather than the circuit, because half-periods are integers and odd periods collapsed onto
+their even neighbours. An instrument's own test is an instrument.
+
+| Component | Area | Tiles |
+|---|---|---|
+| Readout for a 272-oscillator bank | 5,223 | 0.29 |
+| The 272 oscillators | 7,151 | 0.40 |
+| Total | 12,374 | 0.69 |
+
+The measurement that decides whether the identity root fits in sixteen tiles costs 0.69 of
+one.
+
+It is an instrument, not a key generator, and must never ship in a part that holds a
+secret: raw frequency counts are exactly what an attacker wants and exactly what a key
+generator must never expose. That should be stated wherever this block is referenced.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2399,4 +2491,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-64 | resolved; BCH(127,15,27) clears leakage, error tolerance and area, decoder measured at 100,709 um^2 |
 | W-INTL-65 | open, high if a security level is claimed; the reported bias range is the one that needs a debiasing stage nobody has budgeted |
 | W-INTL-66 | corrected; the Chien stage omitted the locator constant term, found by decoding end to end, areas up 3 to 6 percent |
-| W-INTL-67 | open, critical; with debiasing the disjoint oscillator arrangement needs 36.63 tiles of 16 |
+| W-INTL-67 | open, critical; with debiasing the disjoint oscillator arrangement does not fit - figure corrected by W-INTL-68 |
+| W-INTL-68 | corrected; 4.4 was the worst debiasing method, range is 1.58 to 5.3, and oscillator reuse is required under all of them |
+| W-INTL-69 | open, high; the registry has no stated enrolment policy, and reusability of the key generator depends on it |
+| W-INTL-70 | built; the characterisation structure is verified and costs 0.69 tiles |

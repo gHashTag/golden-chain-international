@@ -103,6 +103,31 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Quote the range, not the worst member of a family
+
+A debiasing overhead was reported as 4.4. That is one method of four in the same source,
+and the least efficient; the family runs from 1.58 to 5.3. The conclusion happened to
+survive - every member still failed the same constraint - but the number was wrong by up
+to a factor of three and had already been published.
+
+When a source gives a family of methods, the figure to carry is the range with the method
+names attached. If a conclusion holds across the whole range, say so, because that is a
+much stronger statement than the same conclusion resting on one member.
+
+## Build the instrument so it does not embed the decision under test
+
+The question was which oscillator pairing to use. A structure that emitted response bits
+would have had a pairing wired into it, and could then only report the error rate of that
+pairing - measuring through the very decision being evaluated.
+
+Emitting raw counts instead moves every choice off the die: pairing, discard thresholds,
+bias and entropy are all computed afterwards, and recomputed when the question changes.
+One fabrication answers questions not yet asked.
+
+So when designing a measurement, ask what decision it silently fixes, and push that
+decision downstream of the data. And say plainly when the instrument must not ship: raw
+measurements are often exactly what an attacker wants.
+
 ## Parts measured correctly can still not work together
 
 Three stages of a decoder were synthesised and their areas quoted for five loops. Each
