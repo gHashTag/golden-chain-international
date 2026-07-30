@@ -308,13 +308,16 @@ def check_matrix_markers(matrix_text):
                         if re.search(r"\d", c) and re.search(r"tok/s|\bW\b|mW|bits per byte|percent", c)]
         if not quantitative:
             continue
+        # Promoted from notes in W-INTL-178. These could not fail, so the check that
+        # exists because a competitor was once understated by a fifth had never been
+        # able to stop anything. Third instance of the same pattern in this file.
         if not any(m in stripped for m in markers):
-            notes.append(
+            failures.append(
                 f"matrix: quantitative row without a provenance marker: "
                 f"{cells[0][:44]!r}"
             )
         if "[PUB]" in stripped and not re.search(r"arXiv:\d|ISSCC|TerEffic|\d{4}", stripped):
-            notes.append(
+            failures.append(
                 f"matrix: [PUB] row without a chaseable citation: {cells[0][:44]!r}"
             )
 
@@ -366,15 +369,28 @@ def check_references_resolve(paths):
     line says so. Documents here deliberately name unwritten files in order to
     stop promising them, and flagging that as a fault would train the reader to
     ignore the checker."""
+    # Widened and promoted in W-INTL-178. The original pattern matched backticked
+    # `dir/file.md` only - the one kind of reference these documents almost never make -
+    # while every document points constantly at .py, .sh and .v files, and the ledger
+    # tells a reader to go and read them. And it emitted a note, so it could not fail;
+    # a standing advisory is the pattern this project has promoted away twice already.
+    #
+    # The match is anchored on a repository top-level directory preceded by a
+    # non-path character, so that a cross-repository path like
+    # other-repo/research/foo.md is not read as a local research/foo.md. That case is
+    # real and present in the audit.
+    tops = "|".join(sorted(d.name for d in ROOT.iterdir()
+                           if d.is_dir() and not d.name.startswith(".")))
+    pattern = re.compile(r"(?:^|[\s`(\[])((?:" + tops +
+                         r")/[A-Za-z0-9_./-]+\.(?:py|md|sh|v|yml))")
     for path in paths:
-        text = path.read_text()
-        for line in text.splitlines():
-            for ref in set(re.findall(r"`([a-z]+/[a-z0-9_]+\.md)`", line)):
+        for line in path.read_text().splitlines():
+            for ref in set(pattern.findall(line)):
                 if (ROOT / ref).exists():
                     continue
                 if any(a in line.lower() for a in ACKNOWLEDGED):
                     continue
-                notes.append(f"reference: {path.name} points at missing {ref}")
+                failures.append(f"reference: {path.name} points at missing {ref}")
 
 
 def main():
@@ -401,8 +417,12 @@ def main():
         check_audit_structure(AUDIT.read_text())
     if MATRIX.exists():
         check_matrix_markers(MATRIX.read_text())
-    check_references_resolve([p for p, _ in docs])
     research = sorted((ROOT / "research").glob("*.md")) if (ROOT / "research").exists() else []
+    # The research documents were not in this list, so the file that carries most of this
+    # project's reasoning - and points a reader at a script on nearly every page - had
+    # never had a single reference checked. W-INTL-178: the check covered the wrong file
+    # type and the wrong file set, both silently.
+    check_references_resolve([p for p, _ in docs] + research)
     check_derived_percentages(docs + [(p, p.read_text()) for p in research])
 
     for note in notes:
