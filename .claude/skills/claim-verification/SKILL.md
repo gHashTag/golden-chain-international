@@ -103,6 +103,32 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Compute the sanity range before running the tool, not after reading its output
+
+A path tracer given a netlist whose sequential cells it could not recognise walked straight
+through them and reported 5,208 levels of logic depth. It was caught only because the number
+was absurd. The same misconfiguration producing a figure three times the truth would have
+been quoted without question.
+
+So before running a measurement, write down the range the answer must fall in and why - here,
+two multipliers plus a tree, so twenty-something. A tool that partly does not understand its
+input returns a plausible-shaped wrong answer, and a range computed in advance is the only
+thing that catches the plausible ones.
+
+## Keep a register of constraints with their status, not just their values
+
+Eleven constraints had been checked across this work and never appeared in one list. That
+absence caused three reversals, each one a constraint written down in a source and not in the
+project.
+
+A register with a status column - binds, slack, unchecked - does something a set of findings
+cannot: it makes the unchecked ones visible as a list rather than as an absence. Six were
+named the moment the register was written, and one of them is a security property whose
+reasoning had been inherited rather than reproduced.
+
+Write the register early. The value is not the constraints you have checked; it is the row
+you have to leave blank.
+
 ## When a method produces one implausible output, distrust the whole extraction
 
 An estimate was built from a standard-cell library, and one number it produced - the leakage -
