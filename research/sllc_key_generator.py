@@ -132,6 +132,26 @@ def sllc_reconstruct(noisy, hd):
     for p in pos: word[p] ^= 1
     return word[:K]
 
+# ── the helper-data manipulation countermeasure ─────────────────────────────
+# W-INTL-116: the field's answer to helper-data manipulation is not to choose a code
+# that resists it, but to fold the helper data into the key - K = S xor f(W). Hiller's
+# implementation hashes the helper data with SPONGENT so that 88 key bits are affected
+# by each helper data bit, corrupting the key the moment the helper data is touched.
+#
+# This project had four loops of an open question about which construction is immune,
+# and the answer is that the question does not arise once this is present. It was
+# absent from every design here. Present now, and tested: the key must survive an
+# honest reconstruction and must not survive a manipulated helper data.
+
+def key_from(info_blocks, helper_blocks):
+    """K = f(S) xor f(W): the secret and the helper data both folded in."""
+    s_bytes = bytes(sum((b for b in info_blocks), []))
+    w_bytes = bytes(sum((h for h in helper_blocks), []))
+    ks = hashlib.sha256(s_bytes).digest()
+    kw = hashlib.sha256(w_bytes).digest()
+    return bytes(a ^ b for a, b in zip(ks, kw))
+
+
 BLOCKS = 5
 print(f"\nSLLC over {BLOCKS} blocks, {N*BLOCKS} raw response bits, "
       f"{K*BLOCKS} key bits before compression")
@@ -151,3 +171,43 @@ for ber, trials in ((0.00, 30), (0.02, 60), (0.04, 200), (0.08, 120)):
     per = sum(comb(N,i)*ber**i*(1-ber)**(N-i) for i in range(T+1, N+1)) if ber else 0.0
     model = 1-(1-per)**BLOCKS
     print(f"{ber:6.2f} {trials:7d} {ok}/{trials:<8} {model:11.2e}")
+
+
+# ── the countermeasure, tested ──────────────────────────────────────────────
+print("\nHelper-data manipulation countermeasure, K = f(S) xor f(W):")
+ok_honest = ok_tamper = 0
+TRIALS = 60
+for _ in range(TRIALS):
+    blocks = [[rng.randint(0, 1) for _ in range(N)] for _ in range(BLOCKS)]
+    hds = [sllc_enrol(b) for b in blocks]
+    key = key_from([b[:K] for b in blocks], hds)
+
+    # honest reconstruction at two percent noise
+    rec, good = [], True
+    for b, hd in zip(blocks, hds):
+        noisy = [x ^ (1 if rng.random() < 0.02 else 0) for x in b]
+        got = sllc_reconstruct(noisy, hd)
+        if got is None:
+            good = False
+            break
+        rec.append(got)
+    if good and key_from(rec, hds) == key:
+        ok_honest += 1
+
+    # one helper-data bit flipped, everything else identical
+    bad = [h[:] for h in hds]
+    bad[0][rng.randrange(len(bad[0]))] ^= 1
+    rec2, good2 = [], True
+    for b, hd in zip(blocks, bad):
+        got = sllc_reconstruct(b[:], hd)
+        if got is None:
+            good2 = False
+            break
+        rec2.append(got)
+    if not good2 or key_from(rec2, bad) != key:
+        ok_tamper += 1
+
+print(f"  honest reconstruction recovers the key      {ok_honest}/{TRIALS}")
+print(f"  one flipped helper-data bit changes the key {ok_tamper}/{TRIALS}")
+print("  the second line is the property the countermeasure exists for: a tampered")
+print("  helper data must not yield the enrolled key, whatever the decoder does with it")

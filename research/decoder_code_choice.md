@@ -1919,3 +1919,71 @@ of several.
 The measurements survive. Thirteen decoders are still correctly measured, the checks still run,
 and the end-to-end chain still agrees with the model. What does not survive is any claim that the
 analysis found the best construction, because it never compared framings - only codes within one.
+
+---
+
+## 70. There are two families and this session only looked at one
+
+Recorded as W-INTL-121, and to be read alongside W-INTL-118, produced in parallel by the cloud
+routine, which measures the selection mechanism at this project's own error rate and finds that it
+transfers while its advantage does not.
+
+Chapter 3 of the dissertation is the map of framings this analysis never had. Its conclusion is
+one sentence: there are two main families of syndrome coding schemes for PUFs, linear approaches
+and pointer-based approaches.
+
+Every construction evaluated across twelve loops - Fuzzy Commitment, Code-Offset, Syndrome,
+Parity, SLLC - is in the **linear** family. The pointer-based family was never examined.
+
+What is in it, from section 3.4:
+
+**Index-Based Syndrome Coding.** The response is divided into blocks and, within each block, the
+bit that matches the intended codeword bit with highest probability is indexed; the pointer goes
+into the helper data. Two properties follow, and the thesis states both. It performs error
+reduction by selecting response bits of higher than average reliability. And **for i.i.d. PUF
+bits the pointers are uncorrelated with the code sequence, so no information leaks through the
+helper data**.
+
+So the pointer family gets zero leakage by construction - not by masking as SLLC does, nor by a
+random number as Fuzzy Commitment does, but because a pointer to a reliable bit says nothing
+about the bit's value.
+
+**Complementary IBS**, Hiller's own earlier work, fixes IBS's inefficiency: IBS ignores the
+majority of response bits, so C-IBS adds an intermediate encoding step to use more of them.
+
+**Maximum-Likelihood Symbol Recovery** indexes an entire response block rather than single bits,
+and the thesis says it is **especially suited for PUFs with bit error probabilities greater than
+twenty percent**. This project concluded nine percent was impossible.
+
+And the counterweight, which the same section supplies and which matters here more than
+anywhere. The output bits of a ring-oscillator sum-PUF are not fully independent, and IBS helper
+data can be attacked with machine learning on that basis. So the pointer family is not simply
+better: it trades a leakage-and-correction problem for a modelling problem, and this project's
+source is the type where that attack was demonstrated.
+
+That is the honest shape of the finding. Not that twelve loops backed the wrong family, but that
+they backed one of two without knowing there were two, and the second has a different failure
+mode that happens to be aimed at ring oscillators.
+
+## 71. The countermeasure is implemented and tested
+
+W-INTL-116 and W-INTL-120, and now closed by W-INTL-122, turned four loops of an open security question into a missing component: fold the
+helper data into the key, K = S xor f(W), so that touching the helper data corrupts the key.
+Absent from every design here.
+
+Present now, in `research/sllc_key_generator.py`, and tested on the property it exists for:
+
+| Check | Result |
+|---|---|
+<!-- derived:external --> | honest reconstruction at two percent noise recovers the key | 60/60 |
+<!-- derived:external --> | one flipped helper-data bit changes the key | 60/60 |
+
+The second line is the point. A manipulated helper data must not yield the enrolled key whatever
+the decoder does with it, and folding the helper data into the key achieves that without
+depending on the code at all.
+
+Cost, from the thesis rather than measured here: SPONGENT in its smallest configuration returning
+an 88-bit hash takes 85 slices on a Spartan-3E with 117 registers and 153 lookup tables. Not
+synthesised on this library, so it is a borrowed figure and labelled as one - but it is a
+lightweight hash and the decoder it sits beside is 249 slices in the same table, so the order of
+magnitude is settled even if the number is not.
