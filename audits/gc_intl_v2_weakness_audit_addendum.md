@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-89
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-92
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2897,6 +2897,67 @@ the direction is established, the value at scale is not.
 The policy stands on the direction rather than the value, since it forbids the second
 enrolment outright and is therefore correct whether the leak is a fifth or a half.
 
+## W-INTL-90  Power was never in the constraint set; checked, and it is slack
+
+Severity: none as a defect, and it is worth recording because of why it was missing.
+
+Thirteen decoders had been sized purely on area. Tiny Tapeout gives 1.8 volts for the
+digital core and states that around 20 milliamps produces a 0.1 volt drop through the power
+delivery network, roughly five ohms; no per-project power limit is published, so that drop
+is the practical constraint.
+
+Estimated from the liberty rather than guessed - input pin capacitance summed per
+instantiated cell, activity factor stated as the one assumption. BCH(127,29,21) has 10,586
+cells and 36.0 picofarads of switched capacitance, reaching 20 milliamps only at 2,059
+megahertz at fifteen percent activity; BCH(255,21,55) has 35,643 cells and 121.7 picofarads,
+reaching it at 609 megahertz. At ten megahertz the larger draws 0.33 milliamps and drops 1.6
+millivolts, and the decoder runs once at power-up for a few thousand cycles.
+
+Two limits on the figure, neither of which changes the answer. It counts gate capacitance
+and not interconnect, which at 130 nanometres can be comparable, so the true current could
+be two or three times higher - at three times the constraint still binds only above 200
+megahertz. And the leakage extracted comes to fractions of a microwatt, low enough that the
+units are probably being misread, so it is not relied on; a thousand times more would still
+be 61 microamps.
+
+The finding is that a whole constraint was absent from the analysis and turns out to be
+slack. Recorded rather than dropped because the reason it went unexamined - area was the
+interesting axis - is exactly the reason a binding constraint would also have gone
+unexamined. Three reversals in this project came from missing constraints.
+
+## W-INTL-91  The last blank cell is provably empty rather than unmeasured
+
+Severity: this is not a weakness. It converts an open gap into a closed result.
+
+W-INTL-88 left one cell blank: nine percent bit error rate or above at the measured entropy
+density of 0.9414. Enumerated over every narrow-sense binary BCH code from GF(2^6) to
+GF(2^10), exactly three satisfy both the leakage inequality and the nine percent target -
+BCH(511,76,85), BCH(511,67,87) and BCH(511,58,91). All three are n=511, and that family is
+excluded by the measured point at t=54, whose decoder is 16.88 tiles, already over the whole
+budget, plus monotonicity of area in t at fixed field.
+
+So the cell is empty, not unmeasured. No single BCH code answers nine percent at this entropy
+density within sixteen tiles, and concatenation cannot help because it multiplies code length
+while leaving dimension alone, which is what makes the leakage inequality fail. Closing it
+needs a larger area allocation, a different code family, or a lower error rate.
+
+That is more useful than a gap. A gap invites another loop of measurement; a proof redirects
+effort to the error rate.
+
+## W-INTL-92  The oscillator length caveat is discharged by test
+
+Severity: none. It closes a caveat carried for four loops on the grounds that it probably did
+not matter.
+
+The oscillator area of 26.3 square micrometres assumes seven inverters, from the published
+tile, where the literature calls ten to twenty typical for a usable frequency. Tested at
+seven, fourteen and twenty: the cheap cell moves from 4.92 to 5.42 to 5.85 tiles, the
+expensive one from 13.37 to 13.91 to 14.37, and no cell changes from fitting to not fitting.
+
+Tripling the length costs nineteen percent in the cheap cell and eight in the expensive one.
+The caveat is discharged, and the test cost one calculation - which is the point. A caveat
+carried because it probably does not matter is a caveat nobody can act on.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2986,3 +3047,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-87 | superseded by W-INTL-89; the single fraction quoted was over-specific |
 | W-INTL-88 | closed; the blank high-error column is answered up to eight percent at the measured entropy, one cell left blank explicitly |
 | W-INTL-89 | closed; the leak grows monotonically with scale rather than shrinking, and the policy stands on the direction |
+| W-INTL-90 | closed; power was absent from the constraint set and is slack - 20 mA needs 609 MHz on the largest decoder |
+| W-INTL-91 | closed; the last blank cell is provably empty, not unmeasured - the only three qualifying codes are excluded by a measured point |
+| W-INTL-92 | closed; tripling the oscillator length changes no fit verdict, so the borrowed seven-inverter figure is discharged |

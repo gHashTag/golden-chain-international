@@ -103,6 +103,38 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Check the constraint you never wrote down, and record it even when it is slack
+
+A design had been sized on area across thirteen configurations and nobody had asked about
+power. Checked, it turned out slack by two orders of magnitude - and that is worth writing
+down rather than dropping, because the reason it went unexamined was that area was the
+interesting axis, which is exactly the reason a binding constraint would also have gone
+unexamined.
+
+Three reversals in this work came from constraints that were absent rather than wrong. A
+constraint found slack costs one calculation and removes a class of future surprise; the
+same calculation deferred is how the next reversal arrives.
+
+## Turn a gap into a proof of emptiness where you can
+
+An unanswered cell in a design space was reported as blank for two loops. Enumerating the
+candidate space showed exactly three options satisfied the requirements and all three were
+already excluded by a measurement plus monotonicity - so the cell is empty, not unmeasured.
+
+A gap invites another loop of searching. A proof of emptiness redirects the effort somewhere
+it can succeed. When a gap persists, try to close it by exhausting the candidates rather
+than by finding one more candidate.
+
+## Discharge a caveat cheaply rather than carrying it because it probably does not matter
+
+A borrowed constant was flagged as possibly wrong by a factor of three and carried for four
+loops with the note that it probably did not change anything. Testing it at three times the
+value took one calculation and changed no conclusion.
+
+"Probably does not matter" is a prediction, and an untested prediction in a document is
+indistinguishable from an unexamined risk. If the test is cheap, run it and delete the
+caveat.
+
 ## Spend measurement on the blank cells, not the confident ones
 
 Two loops running, the useful measurements were the ones aimed at regions the analysis had
