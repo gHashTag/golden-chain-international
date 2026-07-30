@@ -239,6 +239,19 @@ def check_selection_entropy():
         check(doc.read_text(), "decoder_code_choice.md",
               "min-entropy density after selection",
               r"density after selection is ([0-9]\.[0-9]+)", rho_selected, 0.002)
+
+    # Every model that reports this density must report the same one. The search table
+    # used to display it by inverting a ceiled integer - KEY / need_k - which gave 0.9275
+    # where the density is 0.9293, so two files reported two densities for one operating
+    # point and neither was wrong on its own terms. Cross-checked here rather than
+    # trusted, because the fix (one definition, imported) can be undone by anyone who
+    # finds it convenient to recompute locally.
+    import selection_with_bch as SW
+    other = SW.density_at(1.0 - I.SELECTION_LOSS)
+    if abs(other - rho_selected) > 1e-9:
+        failures.append(
+            f"selection entropy: selection_with_bch reports a post-selection density of "
+            f"{other:.6f} where selection_entropy gives {rho_selected:.6f}")
     return rho_selected
 
 

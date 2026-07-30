@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-168
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-170
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4539,6 +4539,44 @@ Even at the most favourable corner of the favourable arm, burn-in costs eight pe
 life before enrolment, so the previous loop's conclusion stands: it supplements the aging-resistant
 oscillator and does not replace it.
 
+## W-INTL-169  Every division in the six models read, and one defect found
+
+Severity: low as a defect, and the sweep is what was asked for.
+
+The units check covers inputs.py; the two errors that motivated it lived in prose and in a model, so
+every division in the six research models was read. Five were clean. The sixth displayed the
+post-selection density as KEY / need_k, where need_k is the ceiled integer number of key bits
+required - round-tripping a ceiling through a division gives 0.9275 where the density is 0.9293.
+
+Two files reported two densities for one operating point and neither was wrong on its own terms: one
+printed a density, the other printed the density implied by a rounded requirement, under the same
+column heading. Small, and the same shape as the errors that were not: a quantity recomputed locally
+instead of imported, in units that were nearly right.
+
+Fixed with one definition imported, and cross-checked rather than trusted -
+check_figures_reproduce.py now compares what the two models report and fails on disagreement, because
+one definition imported can be undone by anyone who finds it convenient to recompute locally. The
+control, reintroducing the round-trip, fires.
+
+The sweep also found that selection_with_bch.py computed on import, which is why nothing could
+cross-check it. Its driver now sits under a main guard.
+
+## W-INTL-170  The error rate tracks whether a number is executed
+
+Severity: method finding, and it redirects the response to the last three loops of unit errors.
+
+Five of six models were clean and the sixth failed on a display column rather than a result. The
+instinct after two units errors was that the models were riddled with them. They were not.
+
+The two errors that mattered were in prose and in a comparison written for a report - places with no
+compiler, no import graph and no test. The models are the part of this work that gets executed, and
+execution is what has been keeping them honest.
+
+So the generalisation is not "audit the arithmetic more carefully". It is that the error rate tracks
+whether a number is executed, and the defence is to move numbers into code that runs rather than to
+read prose harder. The units check does that for the inputs, the cross-model check for a figure two
+files were free to disagree about, and what remains unprotected is what appears only in sentences.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4692,6 +4730,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-163 | open as a route; a silicon source gives burn-in before enrolment as a second way to meet the aging requirement, at no area cost, needing at most 28 percent of the degradation left to come |
 | W-INTL-165 | closed as a route; burn-in needs a quarter to two thirds of the service life before enrolment, so it supplements the aging-resistant oscillator rather than replacing it, and the 28 percent it was recorded with was 18.3 |
 | W-INTL-167 | closed with a check in CI; every ratio in the inputs declares its units, and the aging factor is a width ratio multiplying an area - kept as the conservative end |
+| W-INTL-169 | closed; every division in the six models read, one defect found and fixed with one definition imported plus a cross-model check |
+| W-INTL-170 | open as a method finding; the error rate tracks whether a number is executed, so move numbers into code rather than reading prose harder |
 | W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |
 | W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |
