@@ -1124,3 +1124,81 @@ over-specific. And five points spanning twelve to twenty raw bits do not extrapo
 
 The policy stands on the direction. It forbids the second enrolment outright, so it is
 correct whether the leak is a fifth or a half.
+
+---
+
+## 41. Power was never a constraint here, and now that is known rather than assumed
+
+Thirteen decoders had been sized purely on area. Tiny Tapeout's specifications give a
+supply of 1.8 volts for the digital core and state that a draw of around 20 milliamps
+produces a 0.1 volt drop through the power delivery network - about five ohms. No
+per-project power limit is published, so the practical constraint is that drop.
+
+Estimated from the library rather than from a guess: input pin capacitance summed per
+instantiated cell out of the liberty, with the activity factor as the single stated
+assumption.
+
+| Design | Cells | Switched capacitance | 20 mA reached at 15 percent activity |
+|---|---|---|---|
+<!-- derived:external --> | BCH(127,29,21) | 10,586 | 36.0 pF | 2,059 MHz |
+<!-- derived:external --> | BCH(255,21,55) | 35,643 | 121.7 pF | 609 MHz |
+
+At ten megahertz and fifteen percent activity the larger decoder draws 0.33 milliamps and
+drops 1.6 millivolts. The decoder runs once at power-up for a few thousand cycles, so this
+is also its whole duty cycle.
+
+Two honest limits on the figure. It counts gate input capacitance and not interconnect,
+which at 130 nanometres can be comparable, so the real current could be two or three times
+higher. And the leakage extracted from the library comes to fractions of a microwatt, which
+is low enough that the units are probably being read wrong - so it is not leaned on. Neither
+matters: at three times the estimate the constraint still binds only above 200 megahertz,
+and a thousand times the leakage would still be 61 microamps.
+
+So a constraint was missing from the analysis and turns out to be slack. That is worth
+recording as a result rather than dropping, because the reason it went unexamined - area was
+the interesting axis - is the same reason a binding constraint would have gone unexamined.
+
+## 42. The last blank cell cannot be closed, which is an answer
+
+Section 39 left one cell blank: nine percent bit error rate or above at the measured entropy
+density of 0.9414. Enumerated over every narrow-sense binary BCH code from GF(2^6) to
+GF(2^10), exactly three satisfy both the leakage inequality and the nine percent target:
+
+| Code | t | Blocks | rho_min | Max BER | Status |
+|---|---|---|---|---|---|
+<!-- derived:external --> | BCH(511,76,85) | 85 | 5 | 0.9014 | 9.55 percent | excluded |
+<!-- derived:external --> | BCH(511,67,87) | 87 | 5 | 0.9190 | 9.85 percent | excluded |
+<!-- derived:external --> | BCH(511,58,91) | 91 | 5 | 0.9366 | 10.46 percent | excluded |
+
+All three are n=511, and the family is excluded by the measured point at t=54 - 16.88 tiles
+of decoder, already over the whole budget - plus monotonicity of area in t at fixed field.
+
+**So the cell is not unmeasured; it is empty.** No single BCH code answers a nine percent
+error rate at this entropy density within sixteen tiles, and concatenation cannot help
+because it multiplies the code length while leaving the dimension alone, which is what makes
+the leakage inequality fail. Closing that cell would need a larger area allocation, a
+different code family, or a lower error rate.
+
+That is a better thing to know than a gap. A gap invites another loop of measurement; a
+proof redirects the effort to the error rate, where it belongs.
+
+## 43. The oscillator length does not matter, tested rather than assumed
+
+The oscillator area of 26.3 square micrometres assumes seven inverters, taken from the
+published tile, where Mansouri and Dubrova call ten to twenty typical for a usable
+frequency. That caveat had been carried for four loops on the grounds that oscillators are
+a small part of the budget.
+
+Tested at seven, fourteen and twenty inverters:
+
+| Cell | 7 inverters | 14 inverters | 20 inverters |
+|---|---|---|---|
+<!-- derived:external --> | rho 0.94, BER 4 percent | 4.92 | 5.42 | 5.85 |
+<!-- derived:external --> | rho 0.94, BER 8 percent | 13.37 | 13.91 | 14.37 |
+<!-- derived:external --> | rho 0.82, BER 4 percent | 4.92 | 5.42 | 5.85 |
+
+Tripling the oscillator length costs nineteen percent in the cheap cell and eight in the
+expensive one, and **no cell changes from fitting to not fitting**. The caveat is discharged.
+
+It was reasonable to defer and it is better closed: a caveat carried on the grounds that it
+probably does not matter is a caveat nobody can act on, and the test cost one calculation.
