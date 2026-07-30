@@ -116,13 +116,18 @@ MIN_ENTROPY_DENSITY = MIN_ENTROPY_BITS / MIN_ENTROPY_OVER
 # density above applies before this and not after it.
 # units: positions / positions
 #
-# Raised from 477 raw positions to 953 in W-INTL-185. The fraction was chosen against the
-# fresh-device error rate and never revisited against the aged one. At ten years on an
-# aging-resistant bank, with the nine enrolment reads this used to specify, the design sat
-# at 0.0403 against 0.0442 tolerated - a margin of 1.10, the thinnest number in this work.
-# Keeping forty percent and reading twenty-five times gives 0.0058, a margin of 7.6, for
-# five hundredths of a tile and no area beyond the extra oscillators.
-SELECTION_LOSS = 1 - 381 / 953
+# The fraction is not a free parameter. Enrolment ranks by how lopsided a majority vote
+# was, so the attainable fractions are the discrete vote margins, and the deepest is the
+# share of positions that never voted unanimously. At twenty-five reads that floor is
+# 54.4 percent kept; forty percent, which the previous loop specified, is not reachable by
+# this mechanism at any read count near it - discarding further means tie-breaking at
+# random among positions the vote cannot separate, which buys nothing. W-INTL-188.
+#
+# So the read count is the parameter and the fraction follows from it. Twenty-five reads,
+# keep the positions that were not unanimous: 54.4 percent, 701 raw positions for 381
+# selected, and a ten-year effective rate of 0.0064 against 0.0442 tolerated - a margin of
+# 6.9 where nine reads give 2.4.
+SELECTION_LOSS = 1 - 381 / 701
 
 # ── the requirement ─────────────────────────────────────────────────────────
 KEY_BITS = 128            # specified: the key the registry needs

@@ -2349,7 +2349,7 @@ true reliability, one by the nine-read majority vote the design actually perform
 <!-- derived:external --> | 67.4% | 0.9835 | 0.5392 | 0.5423 | 0.5236 | 0.8911 |
 <!-- derived:external --> | 90% | 1.6471 | 0.5534 | 0.5556 | 0.8535 | 0.8535 |
 
-The **density after selection is 0.8988** at the sixty percent the design now discards, against 0.9414
+The **density after selection is 0.9113** at the 45.6 percent the design now discards, against 0.9414
 before it. The requirement rises from 136.0 bits of k to 137.7, against 171 carried. The
 recommendation survives with thirty-three bits of margin.
 
@@ -3403,3 +3403,49 @@ The generalisation for the skill file is narrower than "sweep your registers". I
 computed from an *optimistic* model - here perfect ranking, explicitly labelled as a bound in the
 file that defines it - will be quoted downstream as if it were the achievable figure, because
 downstream reads the number and not the docstring. A bound should carry its direction in its name.
+
+## 123. The bound gets a name and a sibling, and the sibling contradicts last loop
+
+`selected_ber` is renamed `selected_ber_ideal`, and `selected_ber_achievable(sigma, fraction, reads)`
+is written beside it. The rename is W-INTL-186's own prescription applied to the function that
+motivated it: the docstring said "optimistic bound" for six loops and downstream read the name.
+
+Writing the sibling immediately contradicted the operating point adopted last loop.
+
+**The selection fraction is not a free parameter.** Enrolment ranks by how lopsided a majority vote
+was, so the attainable fractions are the discrete vote margins - and the deepest is the share of
+positions that never voted unanimously. Everything below that floor is tie-breaking at random among
+positions the vote cannot separate, which buys nothing at all:
+
+| Reads | Deepest attainable keep | Ten-year effective rate | Margin | Raw positions |
+|---|---|---|---|---|
+<!-- derived:external --> | 9 | 64.8% | 0.0186 | 2.4 | 588 |
+<!-- derived:external --> | **25** | **54.4%** | **0.0064** | **6.9** | **701** |
+<!-- derived:external --> | 49 | 48.8% | 0.0032 | 13.9 | 781 |
+<!-- derived:external --> | 99 | 43.8% | 0.0015 | 29.0 | 871 |
+
+Last loop specified "keep forty percent, read twenty-five times". Forty percent is **not reachable**
+at twenty-five reads, or at ninety-nine. The right form of the same decision is: **the read count is
+the parameter and the fraction follows from it.**
+
+Adopted: twenty-five reads, keep the positions that were not unanimous - 54.4 percent, 701 raw for
+381 selected, ten-year effective rate 0.0064 against 0.0442, a margin of 6.9. That is very close to
+what last loop claimed, and reached by a mechanism that exists. It is also cheaper than the
+unreachable version: 701 raw positions rather than 953, thirty-eight oscillators rather than
+forty-five, 3.44 tiles rather than 3.47.
+
+The conclusion held and the specification did not, which is the distinction this whole apparatus is
+for. A design that says "keep the most reliable forty percent" and a mechanism that can only keep
+54.4 or 48.8 are not the same design, and only one of them can be built.
+
+## 124. What else quotes a bound
+
+The other models were read for the same defect. `code_choice_model.py` uses the n-k leakage bound and
+an ordering bound on oscillator entropy, both labelled as bounds in the prose that quotes them and
+both used as upper limits on what is claimed, which is the direction a bound is safe in.
+`pointer_vs_linear.py` quotes a range rather than a point precisely to avoid it. `burn_in.py` sweeps
+its unverifiable assumption and reports against the unfavourable arm.
+
+So one instance, not a pattern - but the one instance sat under the design's tightest constraint for
+five loops, and it took writing the sibling function to find that the operating point it justified
+was unreachable.
