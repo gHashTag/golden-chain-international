@@ -180,12 +180,14 @@ jobs:
       - name: every declared area re-synthesised
         run: |
           set -e
-          # Exact comparison needs the declared build of yosys. The pinned suite ships a
-          # different one and finding the matching release means downloading 737 MB
-          # tarballs blind, so CI compares with a tolerance: wider than the measured
-          # cross-version spread of 7.3 percent, far tighter than the seventy percent
-          # convention error this check exists to catch. Exact remains the local run.
-          python3 scripts/verify_inputs.py --tolerance-percent 15
+          # The tolerance is now measured rather than guessed. Under the pinned build,
+          # 19 of the 22 declared areas reproduce exactly and three differ by at most
+          # 0.26 percent - all three the shared-multiplier solver, the one circuit with
+          # resource sharing for the mapper to exploit differently. The seven percent
+          # spread that motivated a tolerance at all came from the distribution's much
+          # older yosys, not from version drift as such. One percent, against a measured
+          # worst case of 0.26. Exact comparison remains the local run.
+          python3 scripts/verify_inputs.py --tolerance-percent 1
 
   rtl-verification:
     # Every area this project quotes is quoted for a circuit that decoded correctly, and

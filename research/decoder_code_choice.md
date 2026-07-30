@@ -3270,3 +3270,59 @@ This is the third distinct way a control in this project has managed to test not
 anchor that was not present, and a mutation the interpreter could not see. The pattern underneath all
 three: a control is an experiment, and an experiment that shares any surface with its subject is not
 measuring what it thinks it is. Here the shared surface was the file itself.
+
+## 119. The toolchain spread, measured instead of assumed
+
+W-INTL-175 concluded that synthesis areas are toolchain-dependent by up to seven percent, from a run
+where all twenty-two mismatched. That run used the distribution's yosys, which is several years
+behind. Under the pinned modern build the picture is different and much better:
+
+| Entry | yosys 0.65 | yosys 0.67+111 | Delta | Relative |
+|---|---|---|---|---|
+<!-- derived:external --> | nineteen of twenty-two | - | **0** | 0.000% |
+<!-- derived:external --> | GF(2^7) t=11, shared solver | 24,659 | 24,614 | -45 | 0.182% |
+<!-- derived:external --> | GF(2^7) t=13, shared solver | 28,958 | 29,015 | +57 | 0.197% |
+<!-- derived:external --> | GF(2^7) t=21, shared solver | 44,346 | 44,231 | -115 | **0.259%** |
+
+**Nineteen of twenty-two reproduce exactly, and the three that move are all the shared-multiplier
+solver** - the one circuit in this design with resource sharing for the mapper to exploit
+differently. That is a satisfying place for the only version sensitivity to sit: the circuit that
+exists because two multipliers are used where sixty-six were, and whose whole point is that the
+mapper has choices.
+
+So the seven percent was a statement about a stale tool, not about version drift. The CI tolerance
+goes from fifteen percent to **one**, against a measured worst case of 0.26. That is close enough to
+exact that the CI check is now worth what the local one is: a convention error of the kind it was
+built for - 24,659 against 42,069 - is seventy percent, three hundred times the noise.
+
+The earlier figure is corrected rather than quietly replaced. "Toolchain-dependent by up to seven
+percent" was true of the comparison that produced it and false as a general claim, and the difference
+between those two is the whole of what this project keeps learning.
+
+## 120. What the free aging mitigation has to prove
+
+Section 109 found that a NAND-gated ring gives the aging-resistant mechanism at zero area cost in
+this library, and declined to bank it because the ten-year flip rate belongs to the paper's custom
+cell. That left the question open. It can be made precise.
+
+In the source model the three arrangements sit at:
+
+| Arrangement | Ten-year flip rate | sigma |
+|---|---|---|
+<!-- derived:external --> | conventional ring | 32.41% | 1.6215 |
+<!-- derived:external --> | required by this construction | 9.20% | 0.2974 |
+<!-- derived:external --> | the paper's aging-resistant cell | 7.73% | 0.2477 |
+
+The requirement sits between the two, and **much closer to the aging-resistant end**. A NAND ring may
+sit 3.6 percent of the way from the ARO back toward a conventional ring - so it has to capture **at
+least 96.4 percent of the ARO's benefit**.
+
+That is a far tighter condition than "shares the mechanism, so it should be fine", which is what the
+argument amounted to. The mechanisms are not identical: the ARO holds the inverter input at
+VDD - VT with a dedicated transistor, while a NAND holds its output at VDD, and the paper's cell also
+stops the oscillation with a second device where the NAND does both jobs with one gate. Whether those
+differences cost more or less than 3.6 percent of the benefit is not answerable from the mechanism.
+
+The useful output is the number, not the verdict: **a NAND-gated ring qualifies if its ten-year
+unselected flip rate is at or below 9.2 percent**, and the margin between that and the ARO's 7.73 is
+one and a half points. Anyone simulating it now knows what counts as a pass.

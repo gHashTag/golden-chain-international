@@ -123,6 +123,32 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## One bad comparison is not a general law
+
+A single failing run - every figure out by a few percent - produced the conclusion "these numbers are
+toolchain-dependent by up to seven percent". Measured against a current build instead of a
+years-old distribution package, nineteen of twenty-two were *identical* and the rest differed by a
+quarter of a percent.
+
+The first conclusion was true of the comparison that produced it and false as a general claim, and
+the gap between those cost a check that was fifty times looser than it needed to be.
+
+When one comparison surprises you, get a second before generalising - and when you do generalise,
+name the comparison the number came from, so the next person can see how narrow it was.
+
+## Turn "it should be fine" into the number it would have to beat
+
+An argument said a cheaper component shares the mechanism of an expensive one, so it should satisfy
+the constraint. That is unfalsifiable as stated, and it was pointing in the direction the design
+wanted.
+
+Working out where the requirement sits between the two known arrangements turned it into: the cheap
+one qualifies only if it captures 96.4 percent of the expensive one's benefit. Same evidence, and now
+someone can test it.
+
+A mechanism argument is a hypothesis. The useful form of it is the threshold that would confirm or
+kill it, stated before anyone runs the experiment.
+
 ## A control must not share a surface with its subject
 
 A control fed a checker a fake commit message naming a nonexistent issue number, expecting the check

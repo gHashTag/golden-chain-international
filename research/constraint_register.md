@@ -197,6 +197,21 @@ manufacturing difference, which is what an aging differential must exceed - but 
 the aging differential at ten years is comparable to the manufacturing spread itself. Ranking by a
 signal buys little when the perturbation is as large as the signal.
 
+## The aging requirement, as a threshold anyone can test against, 2026-07-31
+
+The requirement is the unselected ten-year flip rate, at or below 9.2 percent. Three arrangements
+against it: a conventional ring at 32.41, the published aging-resistant cell at 7.73, and a
+NAND-gated ring - the same mechanism realised in a library cell at zero area cost - at an unknown
+value.
+
+The unknown is bounded usefully. In the source model the requirement sits 3.6 percent of the way from
+the aging-resistant cell back toward a conventional ring, so a NAND ring qualifies only if it
+captures at least 96.4 percent of that cell's benefit. That is much tighter than "it shares the
+mechanism", which is all the argument for it amounts to today.
+
+Recorded here because it is the one open question that changes the design rather than the apparatus,
+and because the number is what a simulation would have to beat.
+
 ## Process corners, partly closed
 
 Every area and delay figure is at `sky130_fd_sc_hd__tt_025C_1v80`, the typical corner, and the
