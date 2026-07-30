@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-152
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-153
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4219,6 +4219,28 @@ Declined again on the argument that has not changed: IBS needs a random number s
 and its helper data is attackable by machine learning on exactly the correlation this source is
 reported to have.
 
+## W-INTL-153  The new check was wired into CI and ran on an empty range
+
+Severity: medium, and it is this loop's own instance of the pattern it recorded.
+
+check_commit_claims.py went into the workflow and its first CI run printed "no commits in
+HEAD~1..HEAD, nothing to check" and exited zero. GitHub Actions checks out a merge commit at shallow
+depth, so the merge base with main was unreachable, the range collapsed to nothing, and the step
+passed green having read no commit message at all.
+
+The status dot was green and the step had done nothing. It was found by reading the run log rather
+than the dot, one loop after writing that a check pinned to the wrong thing is worse than no check,
+and in the same commit as a skill rule about replaying the motivating failure through a new check.
+Replaying it locally is not the same as watching it run where it will live.
+
+Fixed both ends. The workflow checks out full history and passes the pull request's base and head
+explicitly rather than relying on a default range, and the script grows --require-commits, under
+which an empty range is a failure instead of a polite exit. Controls: an empty range fails, a real
+range passes.
+
+The general form for the skill file is that a check has two places it can be inert - the logic, and
+the harness that invokes it - and only the first is testable from a shell.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4359,3 +4381,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-150 | closed; two standing advisories promoted to failures, four controls run and firing |
 | W-INTL-151 | closed with its scope stated; the commit-claims check cannot see the failure it was written for, which is why the fix is W-INTL-150 |
 | W-INTL-152 | closed; the pointer family re-costed at 0.20 of a tile ahead and declined again, and the entropy axis turns out to feed a slack constraint |
+| W-INTL-153 | closed; the new check ran on an empty range in CI and passed green having read nothing, fixed at both ends |
