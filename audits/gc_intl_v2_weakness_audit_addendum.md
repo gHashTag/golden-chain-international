@@ -650,9 +650,16 @@ Found by reading the source on 2026-07-29 rather than the deployment record.
 ChipRegistry does not verify anything. `registerChip` is external, has no access
 control and no signature check. It takes a 32-byte key, a family in the range one
 to three, and a value that must equal the contract's own public constant
-PHI_ANCHOR. Anyone who has read the contract can supply all three. The contract's
-own comment says the intended gate is an off-chain challenge and response, and
-that this minimal registry does not implement it.
+PHI_ANCHOR. Anyone who has read the contract can supply all three.
+
+Stated more precisely than this entry first did, on rereading the source on
+2026-07-30. The contract does not merely omit the gate; its documentation says the
+omission is deliberate, that the intended gate is an off-chain challenge and
+response verified against a separate attestor contract, and that this registry
+"exposes the gate-free path for Sepolia testnet". That is a labelled decision for a
+testnet rather than an oversight, and the entry should have said so. What remains
+true, and is the finding: MiningPool's chip check is described externally as
+device identity, and on this deployment it is not one.
 
 The consequence reaches MiningPool. Its settlement path checks that the submitting
 chip is registered. That check passes for any key someone previously self-declared,
@@ -682,9 +689,13 @@ Action.
    its absence. Until then MiningPool's chip check is a formality and should be
    described as one.
 
-   Drafted gate, offered as a specification rather than as code. A signature check
-   with a subtle error is a hole rather than a gate, so this should be reviewed and
-   tested before it is written into a contract that holds the supply.
+   Written 2026-07-30 as ChipRegistryV2 in gHashTag/trinity-contracts, with tests,
+   on a branch and not merged. It cannot be retrofitted here: MiningPool's
+   ownership was renounced at deployment, so the registry it consults can never be
+   replaced. It targets the next deployment.
+
+   The specification it implements, kept here because the reasoning is the part
+   worth reviewing:
 
    > registerChip takes an additional signature over a message binding four
    > things: the chip public key, the registrant address, the registry's own
@@ -701,9 +712,19 @@ Action.
    > answered by the hardware under a timing or physical constraint, which is
    > W-INTL-21's territory and remains partial.
 
-   The honest description while this is unbuilt: registration is open, and the
-   security of the arms that settle rests on the nullifier, the register cap and
-   sampled re-execution, not on chip identity.
+   What the implementation proves: whoever registered an identifier held the key
+   that identifier is derived from, at registration, for that registry, on that
+   chain, once. What it does not prove: that the key lives on a die rather than in
+   a file. No on-chain check establishes that, and the entry that would - a
+   challenge the hardware answers under a constraint software cannot meet - is
+   W-INTL-21, which is partial at best.
+
+   So the floor rises from "anyone may claim to be any chip" to "only the holder of
+   a chip's key may register that chip". That is the whole claim.
+
+   Until it is deployed the honest description is unchanged: registration is open,
+   and the security of the arms that settle rests on the nullifier, the register cap
+   and sampled re-execution, not on chip identity.
 4. Replace the placeholder verifying key before any external party is invited to
    submit a zero-knowledge proof.
 
