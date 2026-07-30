@@ -82,6 +82,14 @@ CHARACTERISER_AREA = {272: 5_223, 64: 3_435}
 # one input bit changes a mean of 46.5 of 88 output bits, and two injected faults fail it.
 COUNTERMEASURE_AREA = {"spongent_round": 2_215, "spongent_permutation": 6_215}
 
+# measured here: the key-equation solver with its multipliers shared rather than
+# replicated. The parallel form instantiates 3(t+1) general multipliers - 66 at t=21 - and
+# was 78 percent of the decoder while the decoder was 87 percent of the design. Sharing two
+# multipliers across about 1,850 cycles costs 185 microseconds once at power-up and saves
+# 62 percent of the solver. Verified differentially against the parallel solver on every
+# error weight, and an injected fault in the serial version alone fails all 42 cases.
+SOLVER_AREA = {"parallel_t21_m7": 57_571, "serial_t21_m7": 22_131}
+
 # a requirement on the provisioning flow, not an implementation detail. Reliable-bit
 # selection ranks positions by repeated reads, and the ranking quality is what sets the
 # effective error rate: one read makes selection counterproductive, nine gives 0.0133
