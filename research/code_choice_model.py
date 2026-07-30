@@ -250,20 +250,33 @@ def oscillators_disjoint(bits):
     return 2 * bits
 
 
-def oscillators_reused(bits):
-    """Oscillators shared across pairs, so R of them supply R(R-1)/2 positions, with
-    the entropy requirement enforced separately. Cheaper by an order of magnitude and
-    resting on the assumption that reuse does not degrade the extraction rate, which
-    is not measured."""
+def oscillators_reused(bits, leakage=0):
+    """Oscillators shared across pairs: R of them supply R(R-1)/2 positions and carry
+    log2(R!) bits of ordering. Both constraints are enforced, and the entropy one
+    binds by a wide margin - positions need 77 oscillators where entropy needs 360."""
     n = 2
     while n * (n - 1) // 2 < bits:
         n += 1
-    return max(n, entropy_floor())
+    return max(n, entropy_floor(leakage))
 
 
-def entropy_floor():
-    """Oscillators needed for 128 bits of min-entropy at the measured rate."""
-    return int(-(-128 // ENTROPY_PER_OSCILLATOR))
+def entropy_floor(leakage=0):
+    """Oscillators needed for 128 bits of min-entropy SURVIVING the helper data.
+
+    The version of this function that stood until 2026-07-30 returned 128 divided by
+    the measured bits per oscillator and ignored the leakage entirely - it asked for
+    128 bits of raw entropy rather than 128 bits that survive publication. That is
+    exactly the distinction W-INTL-59 drew for response bits, drawn there and left
+    undrawn here, in a second accounting feeding the same inequality.
+
+    At the floor it returned, 272 oscillators, the ordering carries 1,813 bits against
+    a leakage of 2,415: the residual is negative and the construction yields no key.
+    """
+    need = leakage + 128
+    n = 2
+    while ordering_entropy(n) < need:
+        n += 1
+    return n
 
 
 def report(p_b, debias=False):
@@ -279,7 +292,8 @@ def report(p_b, debias=False):
             bits = int(bits * DEBIAS_FACTOR + 0.5)
         fail = total_failure(rep, outer, p_b)
         dec = DECODER_AREA[key]
-        lo = dec + oscillators_reused(bits) * RO_AREA
+        leakage = bits - (outer[1] * (blocks_for_key(rep, outer) or 1))
+        lo = dec + oscillators_reused(bits, max(leakage, 0)) * RO_AREA
         hi = dec + oscillators_disjoint(bits) * RO_AREA
         ok = " " if fail <= 1e-6 else "!"
         star = lambda a: "*" if a / TILE > TILE_LIMIT else " "
@@ -292,8 +306,8 @@ def report(p_b, debias=False):
               f"{lo/TILE:6.2f}{star(lo)} {hi/TILE:8.2f}{star(hi)}")
     print("  ! word error probability worse than one in a million")
     print("  * does not fit the sixteen tiles a submission may use")
-    print(f"  reuse: oscillators shared across pairs, floor of {entropy_floor()} set by")
-    print("  128 bits of min-entropy at the measured 0.471 bits per oscillator.")
+    print("  reuse: oscillators shared across pairs, floor set by log2(R!) exceeding")
+    print("  the helper-data leakage plus 128, not by 128 alone - see W-INTL-77.")
     print("  disjoint: two oscillators per response bit, the arrangement the measured")
     print("  entropy figure was taken from. The bracket is wide because which one")
     print("  holds is not measured on this process.")

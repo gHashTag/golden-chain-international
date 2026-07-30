@@ -103,6 +103,28 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## When you correct one accounting, find the others feeding the same inequality
+
+A distinction was drawn six loops ago between raw quantity and quantity surviving a
+public leak, and the response-bit accounting was fixed. The oscillator accounting fed the
+same inequality, sat one column away in the same table, and kept the original error the
+whole time - asking for 128 bits of raw entropy where 128 bits of residual were needed.
+
+At the figure in use the residual was negative: the construction yielded no key.
+
+A correction is to a class of reasoning, not to a line. After making one, search for every
+other place the same quantity is computed and check each against the corrected form.
+
+## A wrong number that barely changes the answer is the hardest to find
+
+The bad floor moved the area by two percent, so every review of it was a review of whether
+the area looked plausible - and it did. What had changed was not the size but whether the
+thing worked at all.
+
+So when checking a derived figure, do not ask whether the result looks reasonable. Ask
+what the figure is a quantity *of*, and whether that is the quantity the constraint needs.
+Plausible magnitude is the disguise, not the evidence.
+
 ## Take a source's method, check its parameters
 
 A code was adopted from a paper that chose it well - for a different primitive, a
