@@ -63,6 +63,35 @@ def measure(m, t):
     return tables + solver, None
 
 
+def measure_serial(m, t):
+    """The same decoder with the shared-multiplier solver in place of the replicated one.
+
+    bm_serial.v instantiates gf_mul from bm_area_probe.v, so both files are read and the
+    top is set explicitly; reading one alone fails with an unresolved cell rather than a
+    wrong area, which is the failure this project prefers.
+    """
+    name = f"verify_s_m{m}t{t}"
+    gen = subprocess.run(
+        ["python3", "gen_bch_decoder.py", str(m), str(POLY[m]), str(t), name],
+        capture_output=True, text=True, cwd=RTL)
+    if gen.returncode:
+        return None, f"generator failed: {gen.stderr.strip().splitlines()[-1:]}"
+    (RTL / f"{name}_tables.v").write_text(gen.stdout)
+    tables = yosys_area(
+        f"read_verilog -sv {name}_tables.v; hierarchy -top {name}_tables; "
+        f"synth -top {name}_tables -flatten; dfflibmap -liberty {LIB}; "
+        f"abc -liberty {LIB}; opt_clean; stat -liberty {LIB}")
+    solver = yosys_area(
+        f"read_verilog -sv bm_serial.v bm_area_probe.v; chparam -set T {t} bm_serial; "
+        f"chparam -set M {m} bm_serial; chparam -set RED {POLY[m]} bm_serial; "
+        f"hierarchy -top bm_serial; synth -top bm_serial -flatten; "
+        f"dfflibmap -liberty {LIB}; abc -liberty {LIB}; opt_clean; stat -liberty {LIB}")
+    (RTL / f"{name}_tables.v").unlink(missing_ok=True)
+    if tables is None or solver is None:
+        return None, "synthesis produced no area"
+    return tables + solver, None
+
+
 def main():
     args = sys.argv[1:]
     only = None
@@ -100,6 +129,24 @@ def main():
             bad += 1
     if only is None:
         print()
+        print(f"{'code, shared solver':>22} {'declared':>10} {'measured':>10} {'delta':>8}")
+        print("-" * 54)
+        for (m, t) in sorted(I.DECODER_AREA_SERIAL):
+            declared = I.DECODER_AREA_SERIAL[(m, t)]
+            got, err = measure_serial(m, t)
+            if got is None:
+                print(f"  GF(2^{m}) t={t:<3} {declared:10d} {'-':>10} {err}")
+                bad += 1
+                continue
+            delta = got - declared
+            flag = "" if abs(delta) < 1.0 else "   MISMATCH"
+            print(f"{'GF(2^%d) t=%-3d' % (m, t):>22} {declared:10d} {got:10.0f} "
+                  f"{delta:8.0f}{flag}")
+            if abs(delta) >= 1.0:
+                bad += 1
+
+    if only is None:
+        print()
         print(f"{'module':>22} {'declared':>10} {'measured':>10} {'delta':>8}")
         print("-" * 54)
         for name, (src, declared, params) in sorted(FIXED.items()):
@@ -120,11 +167,15 @@ def main():
             if abs(delta) >= 1.0:
                 bad += 1
 
+    # Count what was actually synthesised, not what the first table held. The summary
+    # said "all 15" while eighteen areas had been checked, which is the kind of line that
+    # makes a passing gate mean less than it appears to.
+    total = len(todo) + (0 if only else len(I.DECODER_AREA_SERIAL) + len(FIXED))
     print()
     if bad:
-        print(f"verify_inputs: {bad} of {len(todo)} decoder areas do not reproduce")
+        print(f"verify_inputs: {bad} of {total} declared areas do not reproduce")
         return 1
-    print(f"verify_inputs: OK, all {len(todo)} declared decoder areas reproduce")
+    print(f"verify_inputs: OK, all {total} declared areas reproduce")
     return 0
 
 

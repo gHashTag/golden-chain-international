@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-143
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-147
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4023,6 +4023,86 @@ into a requirement for raw positions.
 What is new: nine enrolment reads per position at the operating temperature, without which selection
 is counterproductive rather than merely weaker; and the manipulation countermeasure, a component
 rather than a constraint but load-bearing and absent for four loops.
+
+## W-INTL-144  Selection was assumed free in entropy, and the check ran inside the assumption
+
+Severity: high. It was a live defect one loop ago and is not one now, by luck rather than method.
+
+Reliable-bit selection publishes which positions were kept, and the file that introduced it says
+that is safe because reliability |d| is independent of value sign(d) when d is symmetric - "a
+property of this source, and it is checked below rather than assumed". It is not checked. Every
+sampler in that file draws d from a zero-mean Gaussian, so the check reports a value share of 0.5000
+because the sampler was told to produce one. The symmetry is a parameter of the model and the check
+runs inside it: the broken-ruler error at the level of a source model rather than a signal.
+
+The measured source is not symmetric. 241.0 bits in 256 positions is a bias of 0.5207. Delvaux, Gu,
+Schellekens and Verbauwhede - the survey deferred for five loops, now read - state in their abstract
+that they "disprove the intuitive assumption that bit selection schemes have no leakage", and their
+section VII names global thresholding, the scheme used here, as the worst of the four on exactly
+this axis. The pointer family costed in W-INTL-121 is the one that does not amplify bias.
+
+Quantified in this project's own source model, in closed form and by two samplers: at the twenty
+percent the design discards, the bias goes from 0.5207 to 0.5251 and the density from 0.9414 to
+0.9293. The requirement rises from 136.0 bits of k to 137.7 against 171 carried. The recommendation
+survives with thirty-three bits of margin.
+
+The design one loop ago does not. BCH(127,29,21) in five blocks carried 145 bits of k: margin 7.3 at
+twenty percent discarded, 1.4 at the 67.4 percent the analysis borrowed from the literature, and
+failing at eighty and ninety. The re-choice in W-INTL-141 took the margin from nine bits to
+thirty-three as a side effect of choosing for area, which is the second time in three loops a
+constraint has been met by an accident of a decision taken for another reason.
+
+Guard added: scripts/check_figures_reproduce.py recomputes the post-selection density from inputs
+and fails if the recommendation's k does not cover it. All three of its failure modes were exercised
+before it was committed, including one that reproduces the previous design's failure.
+
+## W-INTL-145  A measured input carried its arrangement and not its selection status
+
+Severity: medium, and it is the general form of W-INTL-144.
+
+The entropy density is recorded with the pairing it was measured under, because an earlier loop
+found the figure swings with pairing distance. It is not recorded as measured on *unselected*
+positions, and the design selects. The provenance convention captured the variable that had already
+caused trouble and not the one that had not yet.
+
+Fixed in research/inputs.py, which now states the condition and points at the computation. The wider
+lesson is that a provenance note records the conditions someone thought to write down, and the
+conditions that matter are the ones a later decision changes.
+
+## W-INTL-146  Two numbers in the right place in the wrong dictionary, and a gate that was not run
+
+Severity: medium. Nothing quoted was wrong; everything declared was mis-declared.
+
+W-INTL-141 entered 24,659 and 28,958 into DECODER_AREA. Both were measured correctly and neither
+belonged there: every other entry is the table stages plus the replicated solver and these two were
+the table stages plus the shared one. The verifier synthesises what the dictionary says it holds, so
+it reported a seventeen-thousand-square-micrometre mismatch in a figure that was not wrong.
+
+It reported it one loop late. The previous loop reported gates green having run check_consistency
+and not verify_inputs - the slowest of the three and the only one that would have fired. "Gates
+green" is a claim about which gates.
+
+Fixed by naming the two conventions rather than merging them: DECODER_AREA for the replicated
+solver, DECODER_AREA_SERIAL for the shared one, decoder_area() for what the design would pay, and
+the verifier checks both. Its summary also counted fifteen areas where twenty had been checked.
+
+measure_all.sh had drifted the same way: it did not build the recommendation. No end-to-end decode
+at t=11 or t=13 and no differential test of the shared solver, though that testbench has been in the
+repository since W-INTL-136. Three testbench entries and five area probes added; all seventeen pass.
+
+## W-INTL-147  The figure-reproduction check is anchored to an operating point eight loops old
+
+Severity: medium, open, and named rather than fixed this loop.
+
+check_figures_reproduce.py recomputes its headline from cheapest(RHO, 0.04): no SLLC, no selection,
+a three-thousand-bit raw budget. The ledger states 8.49 tiles and the check recomputes 8.49 tiles,
+and they agree because both are anchored to the same superseded construction. The check written to
+stop documents drifting from the model is pinned to an old model, so it cannot notice that the
+recommendation is 3.50 tiles under a different construction entirely.
+
+The selection-entropy guard added this loop is anchored to the current operating point, which is the
+shape the rest of the file should take. Repointing it means rewriting the ledger's E31 row, which is
+the row the whole area claim rests on, and that is a change worth doing deliberately.
 
 ## Priority order
 

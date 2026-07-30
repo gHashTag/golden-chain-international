@@ -91,6 +91,18 @@ run_tb "full decode end to end, GF(2^7) t=21" \
 run_tb "full decode end to end, GF(2^8) t=31" \
     -DMVAL=8 -DTVAL=31 -DREDVAL="8'h1D" -DTOPNAME=bch255t31_tables \
     bch255t31_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^7) t=11" \
+    -DMVAL=7 -DTVAL=11 -DREDVAL="7'h09" -DTOPNAME=bch127t11_tables \
+    bch127t11_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^7) t=13" \
+    -DMVAL=7 -DTVAL=13 -DREDVAL="7'h09" -DTOPNAME=bch127t13_tables \
+    bch127t13_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "shared-multiplier solver vs replicated, GF(2^7) t=11" \
+    -DTVAL=11 -DMVAL=7 -DREDVAL="7'h09" bm_serial.v bm_area_probe.v tb_bm_diff.v
+run_tb "shared-multiplier solver vs replicated, GF(2^7) t=13" \
+    -DTVAL=13 -DMVAL=7 -DREDVAL="7'h09" bm_serial.v bm_area_probe.v tb_bm_diff.v
+run_tb "shared-multiplier solver vs replicated, GF(2^7) t=21" \
+    -DTVAL=21 -DMVAL=7 -DREDVAL="7'h09" bm_serial.v bm_area_probe.v tb_bm_diff.v
 run_tb "Reed-Muller decoder R(1,6)" rm_area_probe.v tb_rm.v
 run_tb "characterisation readout" ro_characteriser.v tb_ro_char.v
 
@@ -102,6 +114,17 @@ fi
 
 echo
 echo "== areas, SkyWater typical corner, one tile = 18,032 um^2 =="
+echo
+echo "  the recommendation, BCH(127,57,11) with the shared-multiplier solver:"
+area "syndrome bank + Chien search" bch127t11_tables "" bch127t11_tables.v
+area "key-equation solver, shared" bm_serial "T=11 M=7 RED=9" bm_serial.v bm_area_probe.v
+echo
+echo "  and the next code up, BCH(127,50,13):"
+area "syndrome bank + Chien search" bch127t13_tables "" bch127t13_tables.v
+area "key-equation solver, shared" bm_serial "T=13 M=7 RED=9" bm_serial.v bm_area_probe.v
+echo
+echo "  the construction it replaced, BCH(127,29,21), both solvers:"
+area "key-equation solver, shared" bm_serial "T=21 M=7 RED=9" bm_serial.v bm_area_probe.v
 echo
 echo "  the cheapest build if the error rate holds at four percent, BCH(127,29,21):"
 area "syndrome bank + Chien search" bch127t21_tables "" bch127t21_tables.v

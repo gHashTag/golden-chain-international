@@ -2307,3 +2307,104 @@ reduced by a factor of five.
 The constraint register was supposed to catch this and could not. It records what each constraint is
 and whether it binds; it does not record which decisions were taken against which constraint. When a
 constraint moves, nothing points at the decisions that rested on it.
+
+---
+
+## 84. Selection was assumed to be free in entropy, and the check ran inside the assumption
+
+Reliable-bit selection publishes which positions were kept. The file that introduced it states
+why that is safe:
+
+> The reliability of a position is |d|, and it is independent of the bit value sign(d) because the
+> distribution of d is symmetric. That independence is the whole reason pointers to reliable
+> positions can be published: they say which positions are stable, not what they hold. It is a
+> property of this source, and it is checked below rather than assumed.
+
+It is not checked. Every sampler in that file draws `d = rng.gauss(0, 1)` - mean zero, bias exactly
+one half - and the check reports a value share of 0.5000 because the sampler was told to produce
+one. The symmetry that makes the independence true is a parameter of the model, and the check runs
+inside it. This is the broken-ruler error at the level of a source model rather than a signal.
+
+The measured source is not symmetric. The entropy input is 241.0 bits in 256 positions, which is a
+bias of 0.5207. And the survey this project deferred reading for five loops states the consequence
+in its abstract:
+
+> We disprove the intuitive assumption that bit selection schemes have no leakage.
+
+Their section VII treats four selection schemes. The one used here, global thresholding, is the
+worst of the four on exactly this axis - "the larger Loss, the more bias amplification. Global
+thresholding amplifies bias the most" - and the pointer family costed in section 77 is the one that
+does not: "IBS and C-IBS do not amplify bias [...] Rather the opposite: they remove all bias."
+
+### How much
+
+Computed in this project's own source model, in closed form and by two samplers - one ranking by the
+true reliability, one by the nine-read majority vote the design actually performs:
+
+| Discarded | Threshold | Bias | Sampled | Vote-ranked | Density |
+|---|---|---|---|---|---|
+<!-- derived:external --> | 0% | 0.0000 | 0.5207 | 0.5209 | 0.5226 | 0.9414 |
+<!-- derived:external --> | **20%** | 0.2537 | **0.5251** | 0.5247 | 0.5249 | **0.9293** |
+<!-- derived:external --> | 40% | 0.5251 | 0.5301 | 0.5306 | 0.5247 | 0.9157 |
+<!-- derived:external --> | 67.4% | 0.9835 | 0.5392 | 0.5423 | 0.5236 | 0.8911 |
+<!-- derived:external --> | 90% | 1.6471 | 0.5534 | 0.5556 | 0.8535 | 0.8535 |
+
+The **density after selection is 0.9293** at the twenty percent the design discards, against 0.9414
+before it. The requirement rises from 136.0 bits of k to 137.7, against 171 carried. The
+recommendation survives with thirty-three bits of margin.
+
+The vote-ranked column stops tracking the closed form beyond about a third discarded, and the reason
+is worth keeping: nine reads give five distinct reliability levels, so once the split-vote positions
+are gone the ranking is arbitrary and discarding more neither improves the error rate nor amplifies
+the bias further. The coarseness that caps the benefit also caps the cost.
+
+### The design one loop ago did not survive it
+
+| Design | k | 20% | 67.4% | 80% | 90% |
+|---|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,29,21) x 5 (loop 78) | 145 | +7.3 | +1.4 | FAILS | FAILS |
+<!-- derived:external --> | BCH(127,57,11) x 3 (loop 79) | 171 | +33.3 | +27.4 | +24.6 | +21.0 |
+
+Margin in bits of k. The previous design fails the leakage bound at the deeper selection fractions
+the analysis was itself quoting, and had 1.4 bits of margin at the fraction borrowed from the
+literature. It was never noticed because the source model had no bias to amplify.
+
+The re-choice in section 82 took the leakage margin from nine bits to thirty-three as a side effect
+of choosing for area. That is luck, not method, and it is the second time in three loops that a
+constraint was met by an accident of a decision taken for another reason.
+
+`scripts/check_figures_reproduce.py` now recomputes the post-selection density from inputs and fails
+if the recommendation's k does not cover it.
+
+## 85. Two numbers in the right place in the wrong dictionary
+
+The re-choice in section 82 entered 24,659 and 28,958 into `DECODER_AREA`. Both were measured
+correctly. Neither belonged there: every other entry in that dictionary is the table stages plus the
+*replicated* solver, and these two were the table stages plus the *shared* one. The verifier
+synthesises what the dictionary says it holds, so it measured 42,069 against a declared 24,659 and
+reported a mismatch of seventeen thousand square micrometres in a figure that was not wrong.
+
+The gate caught it. It caught it one loop late, because the previous loop reported gates green
+having run `check_consistency` and not `verify_inputs` - the slowest of the three, and the only one
+that would have fired. A gate that is not run is not a gate, and "gates green" is a claim about which
+gates.
+
+Fixed by naming the two conventions rather than merging them: `DECODER_AREA` holds the replicated
+solver, `DECODER_AREA_SERIAL` holds the shared one, `decoder_area(m, t)` returns what the design
+would actually pay, and the verifier now checks both tables. It also counted twenty declared areas
+where it used to say fifteen, having only ever counted the first table.
+
+`measure_all.sh` had drifted the same way. It is the script that exists so every quoted figure can be
+reproduced in one run, and it did not build the recommendation: no end-to-end decode at t=11 or
+t=13, and no differential test of the shared solver against the replicated one, though the testbench
+for it has been in the repository since loop 77. Three testbench entries and five area probes added;
+all seventeen pass, and the two figures the headline rests on now come out of the same run as the
+rest.
+
+Still open, and named rather than fixed: `check_figures_reproduce.py` recomputes its headline from
+`cheapest(RHO, 0.04)` - a construction with no SLLC, no selection and a three-thousand-bit raw
+budget. That is the design as it stood eight loops ago. The ledger states 8.49 tiles and the check
+recomputes 8.49 tiles, and they agree because both are anchored to the same superseded operating
+point. The check written to stop documents drifting from the model is itself pinned to an old model.
+The new selection-entropy guard in the same file is anchored to the current one, which is the shape
+the rest of it should take.
