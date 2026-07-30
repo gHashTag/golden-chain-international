@@ -81,6 +81,39 @@ So when sizing an unbuilt block from a built one, name the property being carrie
 across and check that it holds. "Similar block, similar area" is not a measurement; it
 is a claim about what the blocks have in common, and that claim is the thing to test.
 
+## Check the configuration is admissible before measuring it carefully
+
+The strongest form of the rule below, and it cost five loops. An error-correcting code
+was sized repeatedly, with increasing precision, and never once checked against the
+error rate it had to survive. It does not survive it. The measurements were correct and
+the configuration was inadmissible, which no amount of measurement precision reveals.
+
+So for anything being characterised, write down its requirement first and check the
+candidate meets it. A careful measurement of an inadmissible configuration reads
+exactly like a useful result, and the more careful the measurement, the more convincing
+the wrong answer.
+
+## A ratio between two parts is not a ratio between two designs
+
+Reported a factor of 19.5 between two options, then found it was 4.4 once the rest of
+each design was counted - the smaller part paid for itself by making a different part
+six times larger. The direction of the conclusion held; the number did not, and it had
+already gone into a merged document and a pull request by then.
+
+Before quoting a ratio, name what is inside each side of it. If the two sides are
+subsystems rather than whole designs, say so in the same sentence as the number.
+
+## Combinatorial counts are usually not entropy counts
+
+A bank of R elements compared pairwise offers R(R-1)/2 pairs, and that was used as a
+count of independent bits. Comparison is transitive, so R elements carry an ordering:
+log2(R!) bits, not R(R-1)/2. At R=614 that is 4,807 against 188,191, a factor of 39.
+
+The flaw was not that the pairs might be correlated on some particular process - it was
+that they are provably dependent for every process. When a count of configurations is
+being used as a count of information, look for the structure that makes configurations
+predictable from each other, and expect to find one.
+
 ## Before sizing the thing, check it is the right thing
 
 Stronger than the rule above, and it arrived immediately after it. The measurement was

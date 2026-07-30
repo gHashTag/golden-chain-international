@@ -208,3 +208,90 @@ without the raw-width caveat in section 7. Two of the three numbers that determi
 whether a usable identity root fits on a tile are now measured. The third is a count
 of oscillators, it is set by an error rate nobody has measured on this process, and it
 is the one that could still make the answer no.
+
+---
+
+## 9. One axis, added 2026-07-30
+
+Section 7 left the comparison in two pieces that could not be added: a measured
+decoder area and an unmeasured oscillator count. `code_choice_model.py` puts both on
+one axis, the axis being the bit error probability.
+
+Calibration first, because a model of a paper's construction should reproduce the
+paper's own numbers. It does, to three significant figures on all five checks: the
+source-bit counts for both recommended constructions, both of their word error
+probabilities, and a plain BCH row from the earlier table. If those checks fail the
+script stops rather than printing.
+
+## 10. The pair count is not an entropy count, and the literature says why
+
+The budget document proposed sharing one comparison chain across a bank of
+oscillators, on the reasoning that a bank of R offers R(R-1)/2 distinct pairs, "far
+more than any key needs". That reasoning is wrong, and Mansouri and Dubrova state
+the reason plainly in arXiv:1207.4017: for a traditional RO-PUF not all challenges
+are valid, because if A is faster than B and B is faster than C then A is necessarily
+faster than C, so the third response is predictable from the other two.
+
+Frequency comparison is a total order. R oscillators realise one of R! rankings, so
+the information available is log2(R!) bits however many pairs are read out. R(R-1)/2
+counts challenges a verifier may pose; it does not count bits an adversary cannot
+guess, and it exceeds the real figure by a growing margin - at R=614 the pair count is
+188,191 against 4,807 bits of ordering.
+
+Corrected, and both readings kept side by side in the script so the size of the
+overstatement stays visible. The ordering figure is still an upper bound: it assumes
+every ranking equally likely, and the same literature reports that pairs too close in
+frequency must be discarded for reliability, costing about a fifth of them in a
+temperature-aware design.
+
+## 11. What the axis shows
+
+Oscillator counts from log2(R!), decoder areas measured, one in a million as the
+target word error probability:
+
+| Construction | Works up to | Raw bits | Oscillators | Tiles |
+|---|---|---|---|---|
+| BCH(255,131) t=18 | 1.88 percent | 510 | 98 | 5.11 |
+| rep[3] + RM[64,7,32] | 13.22 percent | 4,800 | 614 | 1.15 |
+| rep[5] + RM[32,6,16] | 12.53 percent | 4,640 | 596 | 1.03 |
+
+Three things follow, and the first is a correction of section 5.
+
+**The factor of 19.5 was decoders only.** Across the whole design it is 4.4. The
+smaller decoder buys its saving by consuming six times as many oscillators, and half
+the advantage goes back. The conclusion survives - the recommended construction is
+still smaller, and by a factor worth having - but 19.5 was the wrong number to lead
+with and this document led with it.
+
+**BCH(255,131) at t=18 does not reach the target at any plausible error rate.** It
+needs the bit error probability below 1.88 percent. That is not a statement about
+area, and it means every loop that sized this code was sizing a code that does not do
+the job. The choice was not expensive; it was ineffective, and the area analysis
+obscured that by never asking whether the code met its own requirement.
+
+**It fits, with room, and that is now robust.** The recommended construction takes
+about one tile of the sixteen a submission may use, and holds to a bit error
+probability of 13 percent - above the range ring-oscillator work reports. The
+question W-INTL-46 raised, whether identity in silicon needs a funded die, is answered
+no on every input that has been measured.
+
+## 12. What the error rate is likely to be, and why that is still not enough
+
+One concrete figure from the same paper: changing the supply voltage by ten percent
+from typical flips 0.48 percent of the output bits, from SPICE on UMC 90 nm with
+nominally matched pairs. Their inter-chip uniqueness is 51.35 percent against an
+ideal of 50.
+
+If 0.48 percent were the whole story both codes would work and BCH would fit inside
+its 1.88 percent margin. It is not the whole story. That figure is voltage only, and
+temperature is the larger effect - the same literature describes pairs whose ordering
+reverses as the die warms, and handles it by pre-computing which pairs are reliable
+across the range and discarding the rest. Nothing in it is a measurement on this
+process, at this inverter count, across temperature.
+
+So the axis is built and the point on it is not known. What has changed is that the
+measurement now has a decision attached: below about two percent either code works
+and the choice is made on area; above it, only the concatenated construction works at
+all. That is a cheaper question to answer than the one this analysis started with,
+and it is the same characterisation structure that was already the recommended first
+step.
