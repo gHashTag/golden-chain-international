@@ -103,6 +103,30 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Test the property the component is for, not the property it is named after
+
+A cryptographic primitive was implemented to price a countermeasure. Verifying it against the
+standard was impossible - no test vectors in hand - so the temptation was to report the area with a
+caveat and move on.
+
+The property the countermeasure actually relies on is diffusion, not standards compliance, and that
+is measurable directly: one input bit changing about half the output bits. Measuring it turned a
+caveat into a result, and two injected faults confirmed the measurement could fail.
+
+So when you cannot verify a component against its specification, find the property the design
+depends on and test that instead. Then say precisely what is verified and what is not - here, a
+permutation of the specified structure and cost with the required diffusion, not a permutation
+checked to be the standard one.
+
+## A control can rule out a design you were considering
+
+The control that used an identity S-box changed exactly one output bit. That is not just a failing
+test - it is the reason a linear mixer cannot do this job, since an attacker learns the key change
+exactly and compensates. An LFSR-based mixer had looked like a cheaper route to the same diffusion.
+
+Negative controls are usually read as confirming the check works. Some of them also answer a design
+question, and it is worth asking of each one what it rules out beyond itself.
+
 ## Resolve the bound another agent stated for itself, and reuse its instrument
 
 A parallel agent on the same prompt reached a conclusion and named its own limit precisely: only

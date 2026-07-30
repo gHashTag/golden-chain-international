@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-132
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-134
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3774,6 +3774,58 @@ than a mechanism and will hold only until one side needs seven entries.
 The mechanism that would work is a number derived from content rather than from a counter. Recorded
 as the fix not taken, because the convention is enough for now and the cost of being wrong is a
 rename rather than a lost finding.
+
+## W-INTL-133  The countermeasure's cost is measured, and an identity S-box shows why a linear mixer would not serve
+
+Severity: none as a defect. It closes the last borrowed figure in the project.
+
+The helper-data manipulation countermeasure's cost was taken from the thesis - 85 slices on a
+Spartan-3E, a different technology on a different process - and it is load-bearing, being what makes
+the code choice independent of manipulation.
+
+SPONGENT-88/80/8's permutation implemented and measured here: the round function 2,215 square
+micrometres, the full permutation with state and round counter 6,215. That is 7.8 percent of the
+decoder against SLLC's 6.0, and it moves the budget from 8.19 tiles to 8.79 at six percent raw error,
+8.23 to 8.83 at fifteen.
+
+Verified before quoted: the S-box and bit permutation each checked bijective at generation, and the
+testbench measures avalanche, which is the property the countermeasure relies on. One input bit
+changes a mean of 46.5 of 88 output bits over 24 trials, range 36 to 52, against an ideal of 44. Two
+injected faults fail it - two rounds instead of forty-five gives 6.2, an identity S-box gives exactly
+1.
+
+Not verified: there are no official test vectors in hand, so this is a SPONGENT-shaped permutation of
+the specified structure and round count rather than something checked against the standard. The area
+is what it is measured for.
+
+The identity-S-box control earns its place twice. Exactly one output bit changes, which is the
+concrete form of why a linear diffusion function will not serve: an attacker who flips a helper-data
+bit learns the key change exactly and compensates. Earlier in this work an LFSR-based mixer looked
+like a cheaper route to the same diffusion. It would have been cheaper and useless, and the control
+says so in one number.
+
+## W-INTL-134  Nine enrolment reads is a requirement on the provisioning flow and appeared in no document
+
+Severity: medium. It is a constraint the design now depends on and nobody had written down.
+
+Reliable-bit selection learns which positions are reliable by reading each several times at
+enrolment, and the read count sets the effective error rate: at one read selection makes things worse
+than not selecting, at nine it gives 0.0133 effective from 0.0600 raw, at twenty-five 0.0104. The
+budget in W-INTL-130 uses nine.
+
+Stated as a requirement: enrolment requires reading every candidate position at least nine times, at
+the operating temperature, before the reliable subset is chosen. Fewer reads do not degrade the
+design gracefully - at one read the selection is counterproductive, which is a failure mode worth
+naming because it is the opposite of the usual expectation that less effort gives a worse but working
+result.
+
+Two consequences. Provisioning is nine sweeps of the oscillator bank rather than one, negligible in
+time at 448 cycles per sweep but a step the flow must contain. And the reads must be at the operating
+temperature, or the ranking is of the wrong quantity - the same point the literature makes about
+oscillator pairs whose ordering reverses as the die warms.
+
+Recorded in `research/inputs.py` as ENROLMENT_READS so that it lives beside the measured quantities
+rather than in prose.
 
 ## Priority order
 

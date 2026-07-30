@@ -2051,3 +2051,54 @@ that took six loops collapses to one answer of about 8.2 tiles.
 That leaves, from the register: the pointer-based family still unexamined as a whole (W-INTL-121),
 the SPONGENT cost still borrowed rather than measured, and the enrolment procedure - nine reads per
 position - now a stated requirement on the provisioning flow rather than an implementation detail.
+
+---
+
+## 75. The countermeasure's cost, measured rather than borrowed
+
+The helper-data manipulation countermeasure was the last figure in this project taken from a paper
+rather than measured here - 85 slices on a Spartan-3E, a different technology on a different
+process. It is now load-bearing, since it is what makes the code choice independent of manipulation,
+so the borrowed number was the wrong thing to leave in place.
+
+SPONGENT-88/80/8's permutation implemented and measured on this library: the round function 2,215
+square micrometres, the full permutation with its state and round counter 6,215. That is 7.8 percent
+of the decoder, against SLLC's 6.0, and it moves the budget from 8.19 tiles to 8.79 at six percent
+raw error, or 8.23 to 8.83 at fifteen.
+
+What is verified and what is not, stated because the distinction is the whole value of measuring it
+here. The S-box and the bit permutation are each checked bijective at generation. The testbench
+measures avalanche - the property the countermeasure actually relies on - and one input bit changes
+a mean of 46.5 of 88 output bits over 24 trials, range 36 to 52, against an ideal of 44. Two
+injected faults fail it: two rounds instead of forty-five gives a mean of 6.2, and an identity
+S-box gives exactly 1.
+
+There are no official test vectors in hand, so this is not verified to *be* SPONGENT rather than a
+SPONGENT-shaped permutation of the same structure and cost. The area figure is what it is measured
+for, and it is measured on the right library for the first time.
+
+The identity-S-box control is worth keeping for a second reason. Exactly one output bit changes,
+which is the concrete form of why a linear diffusion function will not serve: an attacker who flips
+a helper-data bit learns the key change exactly and can compensate. Earlier in this work an
+LFSR-based mixer looked like a cheaper way to get the same diffusion. It would have been cheaper and
+useless, and the control says so in one number.
+
+## 76. The enrolment procedure is a requirement now, not an implementation detail
+
+Reliable-bit selection needs to know which positions are reliable, and it learns that by reading
+each position several times at enrolment. The figures in section 72 use nine reads, and the number
+is not incidental: at one read selection makes the error rate worse than not selecting, at nine it
+gives 0.0133 effective from 0.0600 raw, and at twenty-five 0.0104.
+
+So nine reads per position is a constraint on the provisioning flow, and it has not appeared in any
+document in this project. Stated here:
+
+**Enrolment requires reading every candidate position at least nine times, at the operating
+temperature, before the reliable subset is chosen.** Fewer reads do not degrade the design
+gracefully - at one read the selection is counterproductive.
+
+Two consequences worth naming. Provisioning time is nine sweeps of the oscillator bank rather than
+one, which at the characterisation structure's 448 cycles per sweep is negligible in absolute terms
+but is a step the flow must contain. And the reads must be at the temperature the device will
+operate at, or the reliability ranking is of the wrong quantity - which is the same point the
+literature makes about pairs whose ordering reverses as the die warms.
