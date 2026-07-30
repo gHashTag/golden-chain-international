@@ -103,6 +103,10 @@ run_tb "shared-multiplier solver vs replicated, GF(2^7) t=13" \
     -DTVAL=13 -DMVAL=7 -DREDVAL="7'h09" bm_serial.v bm_area_probe.v tb_bm_diff.v
 run_tb "shared-multiplier solver vs replicated, GF(2^7) t=21" \
     -DTVAL=21 -DMVAL=7 -DREDVAL="7'h09" bm_serial.v bm_area_probe.v tb_bm_diff.v
+run_tb "SLLC encoder vs polynomial division, BCH(127,57,11)" \
+    sllc127t11.v tb_sllc127t11.v
+run_tb "SLLC encoder vs polynomial division, BCH(127,29,21)" \
+    sllc127t21.v tb_sllc127t21.v
 run_tb "Reed-Muller decoder R(1,6)" rm_area_probe.v tb_rm.v
 run_tb "characterisation readout" ro_characteriser.v tb_ro_char.v
 
@@ -165,6 +169,12 @@ echo
 echo "  the construction withdrawn for negative residual entropy:"
 area "R(1,6) + repetition decoders" rm_area_probe "M=6 R=3" rm_area_probe.v
 area "R(1,5) + repetition decoders" rm_area_probe "M=5 R=3" rm_area_probe.v
+echo
+echo "  the SLLC stages, keyed by the generator degree which is n-k:"
+area "encoder, BCH(127,57,11), degree 70" sllc127t11_encoder "" sllc127t11.v
+area "unmask,  BCH(127,57,11)" sllc127t11_unmask "" sllc127t11.v
+area "encoder, BCH(127,29,21), degree 98" sllc127t21_encoder "" sllc127t21.v
+area "unmask,  BCH(127,29,21)" sllc127t21_unmask "" sllc127t21.v
 echo
 echo "  the instrument:"
 area "characterisation readout, 272 oscillators" ro_characteriser \

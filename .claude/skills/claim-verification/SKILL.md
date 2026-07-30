@@ -103,6 +103,40 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## An anchored edit must assert its anchor
+
+Two loops of edits were reported as made and were never in the file: a string replacement whose
+anchor did not exist returns the string unchanged, so the edit "succeeded", the commit message
+described the rows, and the diff did not contain them.
+
+Assert the anchor before replacing, every time. A silent no-op is worse than an error, because the
+error stops you and the no-op writes a commit message about work that does not exist.
+
+The deeper gap: checks compare documents against each other and against the model, and nothing
+compares a commit message against its diff. Until something does, the assert is the only guard.
+
+## An advisory that never escalates gets read as furniture
+
+The same failure was reported by a check on both occasions, as a *note* rather than a failure, in a
+list that grew by two entries a loop for four loops. It was true, it was visible, and it was
+scrolled past every time.
+
+If a note is still true after two runs, it is not a note. Either promote it to a failure or delete
+it - a permanent advisory trains you to skip the section it lives in, which costs more than the
+thing it was warning about.
+
+## A check pinned to an old model is worse than no check
+
+A script recomputed a headline from the design as it stood eight loops earlier. The document stated
+that figure, the script recomputed that figure, and they agreed - because both were anchored to the
+same superseded construction. The check reported green while the document described a design that
+had been replaced four times.
+
+No check leaves a document unverified, which you know. A stale check tells you it is verified.
+
+When the thing under test moves, the check moves with it or it stops being one. Ask, of every green
+check: what operating point is this computing, and is it the one we are in.
+
 ## A check that runs inside the assumption it is testing proves nothing
 
 A model asserted that a position's reliability says nothing about its value, "checked below rather
