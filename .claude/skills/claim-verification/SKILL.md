@@ -69,6 +69,24 @@ Roughly half of all corrections were the tool:
 Every check needs a negative control that fires. Every check that finds nothing
 should say whether it could have found something.
 
+## Reach the primary source, and record how far you got
+
+Search summaries and abstracts are a map, not a reading. Say which you did. Two
+conclusions here were reached at search depth and marked as such; when one was
+later confirmed against the vendor manual it did not merely confirm - it refined.
+
+The manual said a factory identifier is "most often unique. However, up to 32
+devices within the family can contain the same DNA value", and separately that a
+wider identifier "is always unique" but reachable only over a debug port, not from
+inside the device. The search-depth version had one identifier where there are two,
+and missed that the unique one is unreachable by the thing that needs it.
+
+So a primary source is not a formality. Reaching it changed what the finding meant.
+
+A negative result from a primary source is worth stating precisely: a term searched
+under three phrasings across a whole document with zero occurrences is a much
+stronger statement than "I could not find it", and it is the form to use.
+
 ## Findings in either direction count the same
 
 Two retractions ran in the project's favour, one of them large: a format reported
