@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-62
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-65
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2170,6 +2170,101 @@ The reasoning that prompted the sweep was that a class of error rarely occurs on
 Here it did occur once. The check's value is therefore prospective rather than a
 backlog, and the sweep is worth stating so nobody runs it again expecting a yield.
 
+## W-INTL-63  Helper-data leakage was never counted, and it invalidates the recommendation
+
+Severity: critical for the hardware plan. It withdraws the conclusion of W-INTL-55,
+W-INTL-57 and W-INTL-60, all of which this file published in the last three days.
+
+Publishing helper data costs min-entropy. For a secure sketch over an (n,k) linear code
+the loss is bounded by n-k. Gao, Su, Yang, Chen, Nepal and Ranasinghe (arXiv:1902.03031)
+call it the well-known min-entropy loss and use it directly as a design rule: prefer a
+small n and a small t, because a small t implies a large k, and a large k means fewer
+blocks to reach a k-bit secret.
+
+No area analysis in this project counted it. Residual min-entropy per block is
+`rho*n - (n-k)`, and at the measured rho of 0.9414:
+
+| Construction | n | k | Leak | Residual |
+|---|---|---|---|---|
+| rep[3] + RM[64,7,32] | 4,800 | 175 | 4,625 | -106 |
+| rep[5] + RM[32,6,16] | 4,640 | 174 | 4,466 | -98 |
+| BCH(255,131) t=18, two blocks | 510 | 262 | 248 | 232 |
+| BCH(127,15,27) | 127 | 15 | 112 | 7.6 |
+| BCH(63,16,11) | 63 | 16 | 47 | 12.3 |
+
+The construction recommended for the last three days has negative residual entropy. On
+the standard bound it delivers no secret at all. Withdrawn.
+
+The direction of the error is the interesting part. Leakage rewards a high code rate;
+error tolerance rewards a low one. Every conclusion this project reached about codes was
+drawn with only one of those in view, and each time the missing constraint pointed the
+other way.
+
+Two qualifications that must travel with this. The n-k figure is an upper bound, so a
+tighter analysis for a specific code and source could recover some of it - but it is the
+bound the field designs against, and a construction that needs a better bound than the
+field uses is not one to build on. And the same arithmetic applied to the CHES 2008
+source-bit column gives a negative residual at that paper's own assumed entropy density,
+which suggests that column answers how many bits the code delivers rather than how much
+secrecy survives publication. That is a reading of their table, not a defect found in it.
+
+## W-INTL-64  The code that satisfies all three constraints, measured
+
+Severity: this is not a weakness. It is the resolution of W-INTL-46, W-INTL-55,
+W-INTL-57 and W-INTL-63.
+
+BCH(127,15,27) over GF(2^7) with primitive polynomial x^7+x^3+1 clears leakage, error
+tolerance and area together, and it is the code Gao et al. selected for the same reasons.
+
+Measured 2026-07-30 on the same library, the solver verified in the new field before its
+area was quoted: the GF(2^8) case re-run as a regression and still passing, 82 patterns
+at t=27 in the new field passing, and an injected fault failing 77 of them.
+
+| Stage | Area |
+|---|---|
+| Syndrome bank + Chien search | 27,590 |
+| Key-equation solver | 73,119 |
+| Decoder total | 100,709 |
+
+Nineteen blocks for a 128-bit key, 2,413 raw response bits, and a bit error probability
+tolerated up to 7.06 percent - four times what BCH(255,131) at t=18 allowed.
+
+Total 5.98 tiles with oscillators reused across pairs, 12.62 with two per response bit.
+Both inside the sixteen a submission may use.
+
+Caveat on status. The solver is verified; the syndrome and Chien stages are structural
+area probes rather than verified decoders, the same status the GF(2^8) versions have
+carried since they were written. Their cell counts are correct for the structure
+described and no testbench has decoded through them.
+
+## W-INTL-65  The bias range reported for ring oscillators is the range that needs debiasing
+
+Severity: high if a security level is ever claimed. It sharpens W-INTL-61 from something
+worth measuring into something with a named remedy.
+
+Gao et al. state the operating range directly: for a PUF with low bias within [0.42,
+0.58], increasing the length of raw responses alone is an effective way to compensate for
+entropy loss. If the bias is severe, entropy compensation by increasing raw length
+becomes ineffective, and the biased responses must be debiased first, for example by
+classic von Neumann debiasing. Their own SRAM PUF measures 49.87 percent, comfortably
+inside the effective range.
+
+The ring oscillator bias distribution reported by Wilde, Hiller and Pehl reaches roughly
+plus or minus 0.4, so a substantial part of it falls outside [0.42, 0.58]. On Gao's
+criterion that is the regime where adding raw bits does not fix the problem and a
+debiasing stage is required first.
+
+Consequences, stated carefully because this rests on combining two papers rather than on
+one measurement. A debiasing stage is not in any area budget in this project. Von Neumann
+debiasing discards data, so it also raises the raw response width by a factor that
+depends on the bias, which is unmeasured here. And the responses in question are from an
+FPGA dataset, not from this process.
+
+So the finding is that a stage may be needed which has never been budgeted, and the
+quantity that decides it is the same unmeasured bias. It does not change any figure in
+W-INTL-64 today; it is a named candidate for the fourth constraint that analysis says it
+could still be missing.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2232,3 +2327,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-60 | open, high; measured entropy per oscillator is a sixteenth of the ordering bound, bracket 0.65 to 14.25 tiles |
 | W-INTL-61 | open, high if a security level is ever claimed; response bits are biased and key search is ordered |
 | W-INTL-62 | closed as a negative result; the derived-column check found nothing else in 79 revisions |
+| W-INTL-63 | open, critical for the hardware plan; helper-data leakage was never counted and the recommended construction has negative residual entropy |
+| W-INTL-64 | resolved; BCH(127,15,27) clears leakage, error tolerance and area, decoder measured at 100,709 um^2 |
+| W-INTL-65 | open, high if a security level is claimed; the reported bias range is the one that needs a debiasing stage nobody has budgeted |

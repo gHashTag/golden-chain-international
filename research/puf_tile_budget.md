@@ -104,6 +104,16 @@ only thing left to settle.
 
 ## 6. Answer
 
+Superseded again on 2026-07-30, and by a constraint rather than a measurement. The
+concatenated Reed-Muller construction recommended below has negative residual
+min-entropy once the n-k helper-data leakage bound is applied, so it delivers no secret
+at all. The code to build is BCH(127,15,27) over GF(2^7): decoder measured at 100,709
+square micrometres, nineteen blocks, 2,413 raw response bits, 5.98 to 12.62 of the
+sixteen tiles depending on the oscillator arrangement, tolerating a bit error
+probability up to 7.06 percent. See `decoder_code_choice.md` sections 13 and 14.
+
+The rest of this section is kept as the record of what it replaced.
+
 The construction to build is a short odd repetition code concatenated with a
 first-order Reed-Muller code, not BCH. It holds to a bit error probability of 13.2
 percent where BCH(255,131) at t=18 needs below 1.88, and its decoder measures 4,596
