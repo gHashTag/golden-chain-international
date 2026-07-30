@@ -1708,3 +1708,70 @@ n error-prone positions, but that is a belief and it is load-bearing.
 
 Until those are done this is a finding, not a decision. The numbers above are what would follow
 if it holds.
+
+---
+
+## 63. SLLC implemented, tested, and measured: the finding becomes a decision
+
+W-INTL-110 listed three things undone, all load-bearing. Two are now tests rather than beliefs
+and the third is scoped out.
+
+**Does the mask being response bits change the error-correction requirement?** No, and it is now
+measured rather than reasoned. SLLC is implemented in full: the generator polynomial computed from
+cyclotomic cosets, systematic encoding by long division, enrolment producing helper data as
+redundancy exclusive-ored with fresh response bits, reconstruction unmasking and decoding.
+
+Three things fell out of building it. The generator has degree 98, so k = 29 - a third
+independent confirmation of the parameter table, arrived at from the generator rather than from
+coset sizes. A systematic codeword has all syndromes zero and its first k bits equal the
+information bits, which is the property SLLC requires and which had been assumed. And recovery
+succeeds at every error rate tested, with the observed failures tracking the same binomial model
+over n positions:
+
+| Bit error rate | Trials | Recovered | Model |
+|---|---|---|---|
+<!-- derived:external --> | 0.00 | 30 | 30/30 | 0 |
+<!-- derived:external --> | 0.02 | 60 | 60/60 | 6.9e-14 |
+<!-- derived:external --> | 0.04 | 200 | 200/200 | 3.7e-08 |
+<!-- derived:external --> | 0.08 | 120 | 120/120 | 2.3e-03 |
+
+635 raw response bits over five blocks, against 2,921 over twenty-three under the leakage bound.
+
+**What does SLLC cost in gates?** Measured on the same library. The systematic encoder is a
+linear feedback shift register of degree 98 with fifty taps, at 3,887 square micrometres, and it
+is needed at enrolment only. Reconstruction adds nothing but an exclusive-or of 98 bits, at 858.
+Both on die is 4,745 - six percent of the decoder.
+
+**Does SLLC compose with a concatenated code?** Not answered, and not needed. The recommendation
+is a single BCH code, so the question does not arise for it; it arises only for the Reed-Muller
+alternative, which helper-data manipulation rules out independently. Recorded as out of scope
+rather than as open, which is a different thing.
+
+## 64. The payoff is not area, it is that one constraint dissolves
+
+The area gain is small. Without debiasing the budget moves from 8.49 tiles to 8.18 - three
+percent, because the decoder dominates and SLLC adds six percent of one.
+
+The gain is elsewhere:
+
+| Construction | Debiasing | Raw bits | Reuse | Disjoint |
+|---|---|---|---|---|
+<!-- derived:external --> | leakage bound | none | 2,921 | 8.49 | 22.33 does not fit |
+<!-- derived:external --> | leakage bound | 2O-VN | 6,368 | 9.45 | 39.68 does not fit |
+<!-- derived:external --> | SLLC | none | 635 | 8.18 | 11.28 |
+<!-- derived:external --> | SLLC | 2O-VN | 1,384 | 8.23 | **15.05** |
+
+**Under SLLC every combination fits, including debiasing with two oscillators per response bit.**
+
+That dissolves W-INTL-67, which found that debiasing turned the oscillator arrangement from a
+factor-of-two question about area into a question of fitting at all, and W-INTL-68, which
+concluded from the whole method table that oscillator reuse was a requirement rather than an
+optimisation. Both were correct under the leakage bound. Under SLLC the arrangement is a
+preference again.
+
+The register's fifth row - bias and debiasing, binding conditionally - moves to slack. That is
+two binding constraints removed by one construction: the leakage term itself, and the
+arrangement question that the leakage term's raw-width penalty created.
+
+So the finding is a decision for the recommended construction. SLLC should be used, at six
+percent more decoder area, for 4.6 times fewer response bits and one fewer binding constraint.

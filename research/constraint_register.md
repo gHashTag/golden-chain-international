@@ -18,7 +18,7 @@ a constraint nobody has written down is where the next reversal comes from.
 | 2 | Word failure rate at or below one in a million | the application's own requirement | **binding** - cliff at eight to nine percent bit error rate |
 | 3 | Sixteen tiles, 288,512 square micrometres | Tiny Tapeout specification | **binding, and was computed wrong** - cell area was divided by die area with no utilisation factor until W-INTL-99. At the measured 58 percent the design fits to six percent bit error rate and not above |
 | 4 | Min-entropy per response bit | Wilde, Hiller and Pehl, measured on FPGAs | **binding** - cliff at 0.7986, and the tightest input in the work |
-| 5 | Response bias, and whether debiasing is needed | Maes et al. and Gao et al. | **binding conditionally** - decides whether oscillator reuse is a requirement |
+| 5 | Response bias, and whether debiasing is needed | Maes et al. and Gao et al. | slack under SLLC - it still sets the raw width, but every arrangement fits either way once the leakage term is gone. It was binding conditionally under the leakage bound; see W-INTL-112 |
 | 6 | Oscillator entropy floor, log2(R!) above leakage plus 128 | derived here | **binding** - sets 360 to 380 oscillators, and was wrong once (W-INTL-77) |
 | 7 | One enrolment per device | Maes et al., verified here on this construction | **binding as policy** - written into the registry contract |
 | 8 | Supply current, 20 mA for a 0.1 volt drop | Tiny Tapeout specification | slack - 384 to 471 MHz against a clock of tens of MHz |

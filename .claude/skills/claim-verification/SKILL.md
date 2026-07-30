@@ -103,6 +103,28 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Implementing a scheme to test one claim checks several others for free
+
+A construction was implemented to settle whether one property held. Building it confirmed three
+more things that had been assumed: a code parameter, arrived at from the generator polynomial
+rather than from the coset sizes that had produced it before; a structural property the scheme
+requires, which had been taken on faith; and the agreement of a software model with the hardware,
+since both now compute the same quantity the same way rather than sharing a transcribed number.
+
+An implementation is a bundle of checks. When a claim is cheap to settle by building the thing,
+build it and then list what else the build just verified - those are free and they are the ones
+nobody would have thought to test.
+
+## Say "out of scope" rather than "open" when a question cannot arise
+
+An open item was recorded as undone for a loop: whether a scheme composes with a concatenated
+code. It turned out the recommendation uses a single code, so the question arises only for an
+alternative that a different constraint already rules out.
+
+That is not an open question, and filing it as one invites a loop of work on an unreachable
+branch. Distinguish what is unanswered from what cannot arise, and say which - the first is a
+task and the second is a note.
+
 ## Ask whether a binding constraint is a property of the problem or of your choice
 
 A bound had governed every design decision for six loops, sourced from the field's own design
