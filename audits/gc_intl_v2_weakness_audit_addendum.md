@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-46
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-47
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -1500,6 +1500,79 @@ Action.
 Closes when the external documents say the die is load-bearing for identity, and
 when the availability claim has been confirmed against the manuals.
 
+## W-INTL-47  Identity in silicon does not need a funded custom die; it needs a macro on the next shuttle
+
+Severity: this is not a weakness. It is recorded here because it corrects the
+conclusion of W-INTL-46, and because the correction is the most useful thing in
+this file for the project's schedule.
+
+W-INTL-46 concluded that the project's two constraints - identity rooted in the
+device, and hardware obtainable under any export regime - meet at exactly one
+point, a custom die on a mature node. That reasoning holds. What it got wrong was
+how far away that point is.
+
+Checked 2026-07-30. A ring-oscillator physically unclonable function has already
+been taped out on the same open 130 nm process the project's own shuttle tile uses,
+through the same Tiny Tapeout programme. It is public. Its architecture is eight
+independent blocks, each holding thirty-two seven-inverter ring oscillators; a
+challenge selects one oscillator from each half through muxes, two counters race to
+a threshold, and an arbiter declares a one-bit response. Eight bits of
+challenge-response pair in total.
+
+So the identity root does not require a mask set. It requires a macro on a shuttle
+submission, on a process the project is already using, in a programme it has
+already submitted to. That is a different order of cost and a different order of
+schedule from a funded custom run, and it is available now rather than after
+funding.
+
+The limitations, taken from the author's own documentation rather than inferred,
+and they are not small.
+
+Eight bits of challenge-response pair is two hundred and fifty-six challenges. That
+is a demonstration of feasibility on this process, not an identity. A usable
+identity needs far more response bits, which means far more area than a single
+shuttle tile.
+
+The metrics that decide whether a physical function is any good - uniqueness across
+parts, reliability across conditions, uniformity, entropy - are uncharacterised for
+this architecture on this process. The author is explicit about it and is
+crowdsourcing measurements from board owners. Nobody yet knows how well it works.
+
+Ring oscillators drift with temperature, and the author documents it: responses may
+change as the device warms and settle once it is at operating temperature. For a
+node deployed outdoors that is a first-order problem, and it is why production
+designs pair a physical function with error correction rather than reading it
+directly. None of that exists here.
+
+What this changes, stated precisely.
+
+The roadmap claim moves from "identity closes when a custom die is funded" to
+"identity closes when a characterised physical function with error correction fits
+on a tile, on a process we already use". The first is a funding request. The second
+is an engineering programme with a known first step, and it is a much better thing
+to put in front of a committee.
+
+What it does not change: nothing about identity may be claimed today. The current
+parts cannot host it, the demonstration that exists is eight bits with unmeasured
+quality, and the gap between that and a usable root is the actual work.
+
+Action.
+
+1. Restate the silicon roadmap again, this time with the shuttle path as the first
+   step and the custom die as what follows if the tile proves out.
+2. Read the existing implementation and decide whether the architecture scales in
+   the area a tile allows. That is a concrete engineering question with a public
+   artefact to answer it against.
+3. Whatever is built, characterise it - uniqueness, reliability across the
+   temperature range a deployed node sees, uniformity, entropy - before any
+   document calls it identity. The existing implementation is uncharacterised and
+   its author says so; repeating that would be worse than not building it.
+4. Plan for error correction from the start. A physical function read directly is
+   not an identity; the temperature behaviour the author documents is the reason.
+
+Closes when the external documents describe the shuttle path accurately and no
+document claims identity ahead of characterisation.
+
 ---
 
 ## Priority order
@@ -1547,4 +1620,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |
 | W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |
 | W-INTL-45 | corrected; ownership is renounced everywhere, freezing a known defect |
-| W-INTL-46 | open, critical; the identity scheme needs hardware neither part has, making the die load-bearing |
+| W-INTL-46 | open, critical; the identity scheme needs hardware neither part has - superseded in part by W-INTL-47 on how far away the fix is |
+| W-INTL-47 | not a weakness; the identity root needs a shuttle macro rather than a funded die |
