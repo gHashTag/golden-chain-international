@@ -129,6 +129,17 @@ Label every estimate as an estimate, and say what would settle it. An area budge
 built from cell-area guesses is a decision aid, not a result; the thing that settles
 it is synthesis.
 
+Then go and settle it. Naming what would replace an estimate is the easy half; the
+estimates here were replaced by cloning the published design and running it through
+a synthesiser against the real cell library, which took one download and one command.
+The measured numbers came out within a few percent of the guesses and the conclusion
+did not move - which is worth recording precisely because most checks in this work
+found errors. A check that confirms is still a check, and reporting the agreement is
+what makes the disagreements credible.
+
+Keep track of which inputs remain unmeasured after the pass. Here one did, and it
+was around half the total area, which makes it the finding rather than a footnote.
+
 ## Findings in either direction count the same
 
 Two retractions ran in the project's favour, one of them large: a format reported

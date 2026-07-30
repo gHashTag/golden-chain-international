@@ -1584,8 +1584,22 @@ Action.
    capturing it defeats the point of a key that is never stored. The decoder is in
    the budget and is the largest item in it.
 
-   So the blocker is architectural, not dimensional. All cell areas in that document
-   are estimates and it says so; the conclusion needs synthesis, not arithmetic.
+   So the blocker is architectural, not dimensional.
+
+   Confirmed by synthesis 2026-07-30. The published implementation was cloned and
+   run through yosys against the real SkyWater standard-cell library at the typical
+   corner. Measured: 3,784 cells, 20,900 square micrometres of cell area for eight
+   response bits, of which 6,730 is 1,792 oscillator inverters and 5,930 is 296
+   flip-flops, at 58 percent utilisation of the declared 1x2 footprint. The
+   inverter count is exactly eight blocks by thirty-two oscillators by seven
+   inverters, which confirms the architecture the budget was reasoned from.
+
+   Recomputed on measured areas the answer is 2.9 to 3.9 tiles of sixteen, against
+   2.9 to 4.1 estimated. The conclusion did not move.
+
+   One input is still an estimate and is now the dominant uncertainty: the
+   error-correction decoder at roughly three thousand gates, about half the total
+   area. Writing and synthesising one would close it the same way the rest closed.
 3. Whatever is built, characterise it - uniqueness, reliability across the
    temperature range a deployed node sees, uniformity, entropy - before any
    document calls it identity. The existing implementation is uncharacterised and
