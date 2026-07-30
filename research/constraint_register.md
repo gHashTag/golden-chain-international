@@ -27,7 +27,7 @@ a constraint nobody has written down is where the next reversal comes from.
 | 10 | Interconnect capacitance | estimated here | slack - a 1.4 to 1.6 times correction to power, which does not bind |
 | 11 | Oscillator length, seven against ten to twenty inverters | Mansouri and Dubrova | slack - nineteen percent of area, no fit verdict changes |
 
-Six binding, one binding as policy, four slack - and one of the binding rows had its arithmetic wrong when this register was written, which is recorded as W-INTL-99. A status column does not check a computation.
+Six binding, one binding as policy, four slack - and one of the binding rows had its arithmetic wrong when this register was written, which is recorded as W-INTL-99. A status column does not check a computation. All five remaining arithmetic rows were re-derived from their definitions in W-INTL-104 and reproduce; the area row now has scripts/check_figures_reproduce.py behind it, which recomputes the headline from inputs and runs in CI.
 
 ## Not checked
 
@@ -36,7 +36,7 @@ constraint someone could reasonably expect to have been considered, and none has
 
 | Constraint | Why it might matter | Named in |
 |---|---|---|
-| **Helper-data manipulation by an active adversary** | located, not closed. Gao et al. assert BCH with syndrome decoding is secure under these attacks, citing Becker; Becker's text returns 403 and its abstract names no code, so the claim is second-hand. The abstract does establish that no construction meeting practical error requirements has a robustness proof - see W-INTL-101 | Gao et al.; Becker |
+| **Helper-data manipulation by an active adversary** | corroborated, not verified. The line is code-offset against syndrome: BCH in a code-offset scheme is affected, BCH with syndrome helper data is the case proven immune, and this project is syndrome-based. Two secondary sources agree and the primary is unread - W-INTL-105. Formerly: Gao et al. assert BCH with syndrome decoding is secure under these attacks, citing Becker; Becker's text returns 403 and its abstract names no code, so the claim is second-hand. The abstract does establish that no construction meeting practical error requirements has a robustness proof - see W-INTL-101 | Gao et al.; Becker |
 | **Aging of the oscillators** | the literature reports ring-oscillator PUFs as resilient to temperature but *less* resilient to aging. Every error-rate figure here is a fresh-device figure | Mansouri and Dubrova, and the configurable-RO literature |
 
 | **Process corners** | every area and delay figure is at the typical corner. Timing has an order of magnitude of margin so the slow corner is unlikely to matter, but that is an argument rather than a check | standard practice |

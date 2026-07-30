@@ -1454,3 +1454,90 @@ That does not change what to build, since no alternative has a proof either. It 
 may be claimed. Any statement that this identity root resists an active adversary who can
 tamper with helper data would rest on a second-hand summary, and the honest position is that
 the question is open and the field says it is open.
+
+---
+
+## 53. A check that compares a document against a computation
+
+Every check in this project until now compares documents with each other. That is why
+W-INTL-99 survived eighteen loops: the prose said 4.92 tiles, the script computed 4.92 tiles,
+and both were wrong together because they shared the same missing step. Cross-document
+agreement cannot catch a shared omission.
+
+`scripts/check_figures_reproduce.py` recomputes the headline from its inputs - cell areas,
+oscillator floor, utilisation, tile size - and fails if a document disagrees. It is in CI.
+
+Three negative controls, and all three fire:
+
+- dropping the utilisation factor, which is the historical fault, makes the seven and eight
+  percent columns fit again and the check says so by name
+- changing a decoder area by ten percent makes the recomputed figure disagree with the ledger
+- changing the ledger's figure while leaving the inputs alone does the same in the other
+  direction
+
+A fourth control did not fire, and the reason is worth more than the control. I copied the
+script to a temporary directory to inject the fault, which moved the repository root two
+levels up, so the ledger comparison silently did nothing and the run printed a clean pass.
+`check_consistency.py` carries a warning about exactly this in its header - negative controls
+must be written with the same care as the checks - and it was written after two controls
+failed the same way. It caught me a third time.
+
+## 54. Stale figures found in the ledger while debugging
+
+The ledger's headline had been corrected to 8.49 tiles and two earlier sentences in the same
+row still carried 4.92 and 5.34 - the pre-correction values W-INTL-99 invalidated. One
+sentence was updated and the others were not.
+
+Found by accident, while looking at what the new check's regular expression matched. The
+check would not have caught it: it verifies one figure, and the stale ones sit in different
+sentences. Corrected, and it is a reminder that a correction applied to a document is applied
+to the sentence you are looking at.
+
+## 55. Every binding row, re-derived rather than re-read
+
+The rule from W-INTL-99 was that a register records which constraints exist and does not check
+the arithmetic under them. Applied to the remaining five arithmetic rows, for BCH(127,29,21)
+over 23 blocks:
+
+| Row | Derivation | Result |
+|---|---|---|
+<!-- derived:external --> | leakage | rho*n - (n-k) = 0.9414 x 2921 - 2254 | 496 against 128 needed |
+<!-- derived:external --> | error target | per block 7.39e-09 at four percent, over 23 blocks | 1.7e-07 against 1e-06 |
+<!-- derived:external --> | area | (79,787 + 341 x 26.3) / 0.58 / 18,032 | 8.49 of 16 tiles |
+<!-- derived:external --> | entropy density | 1 - (29 - 128/23)/127 | 0.8155, margin 0.1259 |
+<!-- derived:external --> | oscillator floor | log2(341!) against 2254 + 128 | 2,383 against 2,382 |
+
+All five reproduce. Only the area row had been wrong, and it is now the one with a check
+behind it.
+
+One detail the re-derivation sharpened: this code fails at five percent, not just above it -
+8.16e-06 against a target of 1e-06. The recommendation is four percent or below, and five
+percent requires moving to BCH(127,22,23). The documents said that; the derivation confirms
+the boundary is at four rather than near five.
+
+## 56. Helper-data manipulation: the distinction is code-offset against syndrome
+
+The register put this first among unchecked items and section 52 left it located but
+unverified, with Becker's text behind a 403.
+
+A second search over the literature returns a specific and consistent account, and it
+identifies the distinction that matters. The repetition code is vulnerable; other linear block
+codes including BCH, Reed-Muller and single parity check are affected by the same problem; and
+**linear BCH with syndrome decoding is the case proven immune**. An error pattern was found
+against the [16,5,8] Reed-Muller code by exhaustively testing all 2^16 possibilities.
+
+So the dividing line is not the code family, it is the construction. A BCH code used in a
+code-offset scheme is affected; BCH with syndrome-based helper data is not. This project uses
+syndrome-based helper data, so it lands on the immune side of a line a code-offset design with
+the same code would land on the wrong side of.
+
+Status, stated exactly. Two independent secondary sources now say this - Gao et al. in their
+own words, and this account - and both attribute it to Becker. The primary is still unread.
+That is corroboration rather than verification, and the difference is that corroboration can
+be wrong in the same way twice.
+
+One consequence for the record. The Reed-Muller construction this document recommended for
+two loops before the leakage bound withdrew it is the *named example* of the attack working.
+It was inadmissible on leakage and vulnerable to helper-data manipulation, and the leakage
+bound happened to catch it first. Being wrong for a reason you did not find is not the same as
+being right.

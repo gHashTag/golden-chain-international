@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-101
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-105
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3169,6 +3169,82 @@ the field says so.
 Closes when Becker's text is read. Until then the application must not claim resistance to
 helper-data manipulation.
 
+## W-INTL-102  A check that compares a document against a computation, and a fourth broken control
+
+Severity: none as a defect. It closes the class W-INTL-99 belongs to.
+
+Every check in this project compared documents with each other, which is why W-INTL-99 survived
+eighteen loops: the prose said 4.92 tiles, the script computed 4.92 tiles, and both were wrong
+together because they shared the same missing step. Cross-document agreement cannot catch a
+shared omission.
+
+`scripts/check_figures_reproduce.py` recomputes the headline from its inputs and fails if a
+document disagrees. It is in CI. Three negative controls fire: dropping the utilisation factor
+makes the seven and eight percent columns fit again and the check names the cause; changing a
+decoder area by ten percent makes the recomputation disagree with the ledger; changing the
+ledger while leaving inputs alone does the same in the other direction.
+
+A fourth did not fire, and that is the part worth keeping. I copied the script to a temporary
+directory to inject the fault, which moved the repository root two levels up, so the ledger
+comparison silently did nothing and the run printed a clean pass. `check_consistency.py` carries
+a warning about exactly this in its header, written after two controls failed the same way. Third
+time.
+
+## W-INTL-103  Stale pre-correction figures in the ledger, found by accident
+
+Severity: low, and it is a second instance of the drift in W-INTL-99 rather than a new class.
+
+The ledger's headline had been corrected to 8.49 tiles while two earlier sentences in the same
+row still carried 4.92 and 5.34 - the values W-INTL-99 invalidated. One sentence was updated and
+the others were not.
+
+Found while inspecting what the new check's regular expression matched, not by the check itself,
+which verifies one figure. Corrected. The lesson is narrow and real: a correction applied to a
+document is applied to the sentence in front of you, and the same number in the same row three
+sentences earlier does not follow.
+
+## W-INTL-104  The remaining binding rows re-derive correctly
+
+Severity: none. It discharges the rule W-INTL-99 produced.
+
+For BCH(127,29,21) over 23 blocks, each row derived from its definition rather than read:
+leakage gives 496 against 128 needed; the error target gives 1.7e-07 at four percent against
+1e-06; area gives 8.49 of sixteen tiles; entropy density gives a floor of 0.8155 with a margin
+of 0.1259; and the oscillator floor gives log2(341!) = 2,383 against 2,382 required.
+
+All five reproduce. Only the area row had been wrong, and it now has a check behind it.
+
+One boundary sharpened: this code fails at five percent rather than merely above it - 8.16e-06
+against 1e-06 - so the recommendation is four percent or below and five percent requires
+BCH(127,22,23).
+
+## W-INTL-105  Helper-data manipulation: the line is code-offset against syndrome, and the withdrawn construction was the named example
+
+Severity: high, and it moves from unlocated to corroborated without reaching verified.
+
+W-INTL-101 left this located but unverified, with Becker's text behind a 403. A second search over
+the literature returns a specific account and, more usefully, identifies the distinction.
+
+The repetition code is vulnerable; other linear block codes including BCH, Reed-Muller and single
+parity check are affected by the same problem; and linear BCH with syndrome decoding is the case
+proven immune. An error pattern was found against the [16,5,8] Reed-Muller code by exhaustively
+testing all 2^16 possibilities.
+
+So the dividing line is the construction rather than the code family. A BCH code in a code-offset
+scheme is affected; BCH with syndrome-based helper data is not. This project uses syndrome-based
+helper data and therefore lands on the immune side of a line a code-offset design with the same
+code would fall on the wrong side of.
+
+Status exactly: two independent secondary sources say this and both attribute it to Becker, whose
+text remains unread. That is corroboration rather than verification, and corroboration can be
+wrong the same way twice. The application still must not claim resistance to helper-data
+manipulation.
+
+One consequence for the record. The Reed-Muller construction recommended for two loops before the
+leakage bound withdrew it is the named example of this attack working. It was inadmissible on
+leakage and vulnerable to helper-data manipulation, and the leakage bound happened to catch it
+first. Being wrong for a reason you did not find is not the same as being right.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3269,4 +3345,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-98 | open, medium; eleven constraints now in one register, six named as unchecked with helper-data manipulation first |
 | W-INTL-99 | open, critical; cell area was divided by die area, every tile figure optimistic by 1.7, and W-INTL-88's headline withdrawn |
 | W-INTL-100 | closed; synchroniser metastability is 10^120 years at the intended clock, and collapses to 10 years at 100 MHz |
-| W-INTL-101 | open, high; helper-data manipulation resistance is located but second-hand, and no construction in this space has a robustness proof |
+| W-INTL-101 | superseded by W-INTL-105; the distinction is code-offset against syndrome |
+| W-INTL-102 | closed; a check now recomputes the headline from inputs, in CI, with three firing controls and a fourth of my own that was broken |
+| W-INTL-103 | corrected; two pre-correction figures survived in the same ledger row as the corrected one |
+| W-INTL-104 | closed; the five remaining binding rows re-derive correctly, and only the area row had been wrong |
+| W-INTL-105 | open, high; syndrome-based BCH is on the immune side of the code-offset line, corroborated twice and still unverified |

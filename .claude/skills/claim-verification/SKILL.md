@@ -103,6 +103,38 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Checks that compare documents cannot catch a shared omission
+
+Every check in a long analysis compared documents with each other, and a missing factor survived
+eighteen loops because the prose and the script agreed - they were wrong together, sharing the
+same missing step. Agreement between two derived artefacts is not evidence when both derive the
+same way.
+
+The check that closes this recomputes the headline from raw inputs and compares against what the
+documents say. One direction catches a document drifting from the computation; the other catches
+the computation drifting from its inputs. Build at least one check that crosses from
+computation to prose rather than prose to prose.
+
+## A correction is applied to the sentence in front of you
+
+A figure was corrected in a document and two earlier sentences in the same paragraph kept the old
+value. Nothing about the edit was wrong; it simply addressed the sentence being read.
+
+So after correcting a number, search the whole corpus for the old value before moving on - and
+prefer a form where the number appears once and everything else refers to it.
+
+## Corroboration by two secondary sources is not verification
+
+A claim was traced to two independent papers that both assert it and both cite the same primary,
+which is behind a paywall. That is better than one source and it is not verification: two
+summaries of the same paper can be wrong the same way, and neither author was writing to defend
+that particular sentence.
+
+Record the distinction explicitly - located, corroborated, verified - and say which one a claim
+has reached. The useful by-product is that chasing corroboration often surfaces the *distinction*
+the claim turns on, which is more actionable than the claim: here, that the vulnerability divides
+by construction rather than by code family.
+
 ## A register of constraints does not check the arithmetic inside its own rows
 
 One loop after writing a constraint register with a status column, the row marked binding for

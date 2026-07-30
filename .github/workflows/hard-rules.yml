@@ -35,6 +35,7 @@ jobs:
         run: |
           set -e
           python3 scripts/check_consistency.py
+          python3 scripts/check_figures_reproduce.py
       - name: catalog rules
         run: |
           set -e
