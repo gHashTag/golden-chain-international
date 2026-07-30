@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: banned vocab scan
         run: |
           set -e
@@ -39,8 +41,9 @@ jobs:
       - name: commit claims
         run: |
           set -e
-          git fetch --no-tags --depth=50 origin main || true
-          python3 scripts/check_commit_claims.py
+          python3 scripts/check_commit_claims.py \
+            "${{ github.event.pull_request.base.sha || github.event.before }}..${{ github.event.pull_request.head.sha || github.sha }}" \
+            --require-commits
       - name: catalog rules
         run: |
           set -e

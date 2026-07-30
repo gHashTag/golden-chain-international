@@ -103,6 +103,17 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Watch a new check run where it will live, not only where you wrote it
+
+A check was replayed against its motivating failure locally, kept with its scope written down, and
+wired into CI. Its first CI run printed "nothing to check" and exited zero: the runner's shallow
+checkout of a merge commit made the range collapse, so the step passed green having read nothing.
+
+A check has two places it can be inert - the logic and the harness that invokes it - and only the
+first is testable from your shell. Read the first run's log, not the status dot, and make an empty
+input a failure rather than a polite exit. "Nothing to check" is a result a green tick cannot
+distinguish from "checked and fine".
+
 ## Run a new check against the failure that motivated it, before trusting it
 
 A check was written to close a specific past failure. Run against the two commits that produced

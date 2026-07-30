@@ -23,9 +23,11 @@ verb list is a heuristic that reports coverage it does not have; in a verificati
 that is worse than an absent check. What survives is the narrow thing with a passing
 control: a commit claiming an audit entry that nothing in the diff mentions.
 
-Usage:  check_commit_claims.py [range]
+Usage:  check_commit_claims.py [range] [--require-commits]
 Default range is the merge base with origin/main to HEAD, so it covers a branch rather
-than one commit. Exit code 1 on any claim the diff does not support.
+than one commit. --require-commits turns an empty range into a failure, which is what CI
+passes: a range that collapses to nothing must not report success.
+Exit code 1 on any claim the diff does not support.
 """
 
 import pathlib
@@ -53,10 +55,20 @@ def default_range():
 
 
 def main():
-    rng = sys.argv[1] if len(sys.argv) > 1 else default_range()
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    rng = args[0] if args else default_range()
 
     messages = git("log", "--format=%B", rng)
     if not messages.strip():
+        # In CI this used to print "nothing to check" and exit zero. The workflow ran a
+        # shallow checkout of a merge commit, the merge base was unreachable, the range
+        # collapsed to nothing, and the step passed green having read no message at all -
+        # the failure mode this file's own docstring warns about, found by reading the
+        # log rather than the status dot. Under --require-commits an empty range fails.
+        if "--require-commits" in sys.argv:
+            print(f"FAIL: no commits in {rng}; the range is empty, so nothing was "
+                  f"checked and this step would have passed without reading a message")
+            return 1
         print(f"check_commit_claims: no commits in {rng}, nothing to check")
         return 0
 
