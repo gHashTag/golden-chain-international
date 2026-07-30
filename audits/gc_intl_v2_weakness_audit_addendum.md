@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-158
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-160
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4336,6 +4336,48 @@ reproducible somewhere else, and the first run on foreign ground is the measurem
 same lesson as W-INTL-153 arriving from the other direction: there the harness was inert, here the
 harness was the only thing that had ever been exercised.
 
+## W-INTL-159  Two sentences in the aging finding were wrong, from a passage already on disk
+
+Severity: medium. The finding stands; two of the statements supporting it did not.
+
+The 1.8 percent ten-year frequency degradation was read as a *common* drift shared by both
+oscillators of a pair and therefore cancelling. The sentence continues "in our proposed ARO whereas
+it is about 14.4% for a conventional RO" - it is the aging-resistant device's own degradation. The
+modelled quantities are the flip rates, so nothing computed changes, but the mechanism paragraph
+asserted something the source does not say.
+
+Worse, the same entry argued that low activation time made the conventional figure pessimistic here,
+because this design runs its bank once at power-up. The paper contradicts it: "when the conventional
+RO-PUF is put in the oscillating (AC stress) or non-oscillating mode (DC stress) when it is not
+used, it will experience significant amount of aging". An idle ring oscillator sits at DC stress,
+the worst case for NBTI on the pMOS. Not running it is not resting it, and holding those inputs away
+from zero while idle is the aging-resistant design's entire mechanism.
+
+Both passages were in the extracted text when the argument was written. The argument ran the wrong
+way, and the reason it was not checked harder is that it was the answer the design wanted. That is
+the failure mode worth recording: an unchecked step is likeliest exactly where the unchecked answer
+is convenient.
+
+## W-INTL-160  The aging-resistant oscillator costed, and it is seven hundredths of a tile
+
+Severity: closes W-INTL-154, which was the only open critical entry.
+
+Costed from the transistor sizes the paper states - inverters at Wn = 0.12u with Wp = 2.5 Wn, two
+added nMOS gates of 0.12u and 0.24u per stage - the aging-resistant stage is 1.86 times a
+conventional one by transistor width. The bank goes from 920 to 1,709 square micrometres, the design
+from 3.35 to 3.42 tiles of sixteen, and the ten-year effective error from 0.2888 to 0.0334 against a
+code tolerating 0.0442.
+
+Adopted. The recommendation is an aging-resistant bank and inputs.py carries the factor with its
+derivation and its two stacked approximations stated: transistor width is not layout area, and the
+base figure it multiplies is an inverter count from a published tile rather than a layout of this
+oscillator. A layout would settle it and the ledger's falsifier says so.
+
+What makes it cheap is a fact established four loops ago for an unrelated reason: the oscillators
+are 2.6 percent of the design, because the entropy work took the bank from 341 to 35. A constraint
+that would have been expensive at the old operating point is nearly free at this one - the mirror
+image of W-INTL-142, where decisions went stale because the operating point moved.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4477,8 +4519,10 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-151 | closed with its scope stated; the commit-claims check cannot see the failure it was written for, which is why the fix is W-INTL-150 |
 | W-INTL-152 | closed; the pointer family re-costed at 0.20 of a tile ahead and declined again, and the entropy axis turns out to feed a slack constraint |
 | W-INTL-153 | closed; the new check ran on an empty range in CI and passed green having read nothing, fixed at both ends |
-| W-INTL-154 | **open, critical**; aging is the first constraint the recommendation fails - 0.2888 against 0.0442 at ten years on a conventional bank, and the requirement is a ten-year flip rate at or below 9.2 percent |
+| W-INTL-154 | closed by W-INTL-160; aging is the first constraint the recommendation fails - 0.2888 against 0.0442 at ten years on a conventional bank, and the requirement is a ten-year flip rate at or below 9.2 percent |
 | W-INTL-155 | closed; two more CI steps that could not tell a clean scan from an empty one |
 | W-INTL-156 | half closed by argument, half named; area is corner-independent, and the slow-corner liberty is not in this environment |
 | W-INTL-157 | closed; the testbench half of measure_all.sh runs in CI on every pull request, with a failing-testbench control and a count guard |
 | W-INTL-158 | closed; the reproduction script had never run anywhere but the machine that wrote it, and failed all 21 testbenches on its first Linux run |
+| W-INTL-159 | closed; two sentences supporting the aging finding were contradicted by a passage already on disk, including one that ran the wrong way |
+| W-INTL-160 | **closes W-INTL-154**; the aging-resistant oscillator costs 0.07 of a tile and takes the ten-year effective error from 0.2888 to 0.0334 |

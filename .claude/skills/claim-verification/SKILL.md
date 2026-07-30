@@ -123,6 +123,18 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## The unchecked step is likeliest where the unchecked answer is convenient
+
+A published figure appeared to kill a design. The write-up argued that the figure's operating point
+did not match this one, so it was probably pessimistic here - and the source contradicted that
+directly, in a passage sitting in the same extracted file.
+
+The argument was not checked because it was the answer the design wanted. Nothing else in that
+session went unverified.
+
+So: when a step would rescue your conclusion, that is the step to verify twice, and the cheapest
+check is usually to search the source you already have for the thing you are about to assert.
+
 ## A figure from a paper carries the operating point it was measured at
 
 A published ten-year degradation figure looked like it killed a design outright. It was measured at

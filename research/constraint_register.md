@@ -129,9 +129,15 @@ every error-rate figure here is a fresh-device figure. It is now checked, and it
 anything else in the list.
 
 Rahman, Forte, Fahrny and Tehranipoor, DATE 2014: "After 10 years, the average error in response of
-the ARO-PUF is 7.73%, whereas it is 32.41% in the conventional RO-PUF." Their frequency degradation
-over ten years is 1.8 percent, and that part does not matter - a drift both oscillators of a pair
-share cancels in the comparison that makes the bit. What flips bits is the differential.
+the ARO-PUF is 7.73%, whereas it is 32.41% in the conventional RO-PUF." Ten-year frequency
+degradation is 1.8 percent for the aging-resistant oscillator and 14.4 percent for the conventional
+one. A response bit is a comparison, so what flips it is the difference between the two
+oscillators' degradations rather than either figure alone.
+
+**Corrected 2026-07-31.** The first version of this section read the 1.8 percent as a common drift
+shared by both oscillators of a pair and therefore harmless. It is the aging-resistant device's own
+degradation. The conclusion did not rest on it - the flip rates are the modelled quantity - but the
+mechanism was stated wrong.
 
 Carried into this project's own source model, calibrated so the unselected flip rate reproduces the
 published figure:
@@ -146,16 +152,23 @@ published figure:
 must be at or below 9.2 percent.** That is what the recommendation absorbs. The published
 conventional figure is 32.4 and the aging-resistant one is 7.7.
 
-Two conditions travel with those figures and both matter. They are HSPICE Monte Carlo at 90 nm, not
-silicon and not this process. And they are taken at 23 percent activation time - the fraction of
-wall-clock time the oscillators run - where this design runs its bank once at power-up for a few
-thousand cycles. The paper says outright that "the activation time of a PUF in security applications
-should be much less than 23%" and that lower activation reduces the error, but it gives that sweep
-for the aging-resistant variant only. The figure this design would see is not in the source.
+Conditions: HSPICE Monte Carlo at 90 nm, simulation rather than silicon and not this process.
 
-So the row becomes: **binding, with a stated requirement and an unmeasured input.** It is the first
-constraint in this work whose satisfaction depends on a property of the oscillator that has not been
-chosen yet, which makes the oscillator arrangement a design decision rather than a detail.
+**Also corrected.** The first version argued that this design's activation time is orders below the
+23 percent the figures were measured at, so the conventional number was probably pessimistic here.
+That is true of the aging-resistant device and false of the conventional one, and the paper says so
+in a passage that was already on disk when the argument was written: "when the conventional RO-PUF
+is put in the oscillating (AC stress) or non-oscillating mode (DC stress) when it is not used, it
+will experience significant amount of aging". An idle ring oscillator sits with its inverter inputs
+at a constant value, which is DC stress and the worst case for NBTI on the pMOS. Not running it is
+not resting it, and the aging-resistant design exists precisely to hold those inputs away from zero
+while idle. The 32.41 percent stands, and the requirement is met by choosing the oscillator.
+
+So the row becomes: **binding, met by choosing an aging-resistant oscillator.** It is the first
+constraint in this work whose satisfaction depends on a property of the oscillator, which makes the
+oscillator arrangement a design decision rather than a detail. Costed: two extra nMOS transistors
+per stage, 1.86 times the area by transistor width, 0.07 of a tile, taking the design from 3.35 to
+3.42 of sixteen. The factor is an estimate from the published transistor sizes and not a layout.
 
 What it changes elsewhere. Row 7, one enrolment per device, was recorded as binding as policy with
 no cost attached. It now has one: the ten-year figure is what the policy buys. And selection, which

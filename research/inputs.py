@@ -32,7 +32,24 @@ UTILISATION = 20_900 / 36_064
 # call ten to twenty typical, and W-INTL-92 shows tripling it changes no fit verdict.
 INVERTER_AREA = 6_730 / 1_792
 INVERTERS_PER_OSCILLATOR = 7
-OSCILLATOR_AREA = INVERTERS_PER_OSCILLATOR * INVERTER_AREA
+
+# estimated here, and labelled as an estimate rather than a measurement. W-INTL-154 makes
+# an aging-resistant oscillator a requirement rather than an option: a conventional bank
+# loses a third of its bits over ten years and the design tolerates 9.2 percent.
+#
+# The aging-resistant design in Rahman et al. is a conventional ring with two extra nMOS
+# transistors per stage - one to stop oscillation, one to hold the inverter input at
+# VDD - VT while idle so the pMOS never sees a zero. Their sizes are stated: inverters at
+# Wn = 0.12u with Wp = 2.5 Wn, and gates of 0.12u and 0.24u for the two additions. By
+# transistor width that is (0.42 + 0.36) / 0.42.
+#
+# Two approximations stacked, both stated: transistor width is not layout area, and the
+# base figure it multiplies is itself an inverter count from a published tile. It is the
+# right order and it is not a measurement. A layout would settle it.
+AGING_RESISTANT_FACTOR = (0.12 + 0.30 + 0.12 + 0.24) / (0.12 + 0.30)
+
+OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
+                   * AGING_RESISTANT_FACTOR)
 
 # ── the source ──────────────────────────────────────────────────────────────
 # measured there: Wilde, Hiller and Pehl from Maiti's dataset - 512 ring oscillators on
