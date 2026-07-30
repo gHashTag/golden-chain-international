@@ -2797,3 +2797,60 @@ was wrong by asserting *absence*. A claim that something is not in a document is
 summariser is worst placed to make and a reader is cheapest to check - one grep. The rule this
 project already had, read the primary source, needs the corollary: a summary saying there is nothing
 to read is not evidence there is nothing to read.
+
+## 101. Burn-in costed, and it is not the free route it was recorded as
+
+Section 99 took a lever from a silicon source - enrol after a burn-in, and the required masking ratio
+does not climb aggressively - and recorded it as a second route to the ten-year aging requirement at
+no area cost, needing "at most 28 percent of the degradation still to come".
+
+Both halves of that sentence were wrong.
+
+**The 28 percent was in the wrong units.** It compared flip rates: 9.2 percent absorbed against 32.41
+at ten years. The quantity that accumulates under an aging law is the degradation, and what the
+source model carries is sigma, the width of the aging differential. In sigma the requirement is
+0.2974 against 1.6215 - **18.3 percent**. Flip rate is a saturating function of sigma, so a ratio
+taken in flip rates flatters the requirement, and the direction of the error was the convenient one
+again.
+
+**And "no area cost" was not the cost that mattered.** Burn-in costs service life before enrolment.
+Under a power law in time with the exponent swept across its published range:
+
+| NBTI exponent n | Burn-in, equivalent years | Share of a ten-year life |
+|---|---|---|
+<!-- derived:external --> | 0.16 | 2.82 | 28% |
+<!-- derived:external --> | 0.20 | 3.63 | 36% |
+<!-- derived:external --> | 0.25 | 4.45 | 44% |
+<!-- derived:external --> | 0.30 | 5.09 | 51% |
+<!-- derived:external --> | 0.50 | 6.67 | 67% |
+
+Between a quarter and two thirds of the part's service life has to happen before it is enrolled. At
+the one acceleration figure available - 96 hours at 150 °C and 1.4 V for "several years" of nominal
+aging - that is roughly **54 to 320 hours of oven per part**, days each, and a provisioning step that
+has to be qualified rather than merely scheduled.
+
+**So burn-in cannot replace the aging-resistant oscillator.** It survives as a supplement: applied to
+a bank that already meets the requirement it widens the margin rather than creating it. The design is
+back to one route, and that route rests on the one estimate with no measurement behind it - which is
+now the sharpest thing to fix in this work.
+
+Three assumptions are named in the file rather than buried. The power law itself is standard. The
+exponent is technology-dependent, which is why it is swept. And the load-bearing one, unverified by
+any source read here: that the *differential* between two oscillators inherits the time dependence of
+the degradation. If the differential grows faster or slower than the common part, every number in the
+table moves.
+
+## 102. The same error twice in three loops, in the same direction
+
+W-INTL-159 recorded an argument that ran the wrong way and was not checked because it was the answer
+the design wanted. The 28 percent is the same failure three loops later: a ratio taken in whichever
+units were nearest to hand, where the units that were nearest to hand happened to make the
+requirement look reachable.
+
+The skill rule written after the first instance - verify twice where the answer is convenient - was
+in the file when the second one was written. A rule you have recorded is not a rule you have applied.
+
+What would have caught it is narrower and more mechanical than a disposition: **a ratio between two
+quantities must be taken in the units the mechanism operates in**, and when a model carries a
+parameter that the observable is a saturating function of, the parameter is the unit. Flip rate is
+what you measure. Sigma is what accumulates.
