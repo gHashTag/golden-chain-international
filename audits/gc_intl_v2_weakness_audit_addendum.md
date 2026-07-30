@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-92
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-95
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2958,6 +2958,66 @@ Tripling the length costs nineteen percent in the cheap cell and eight in the ex
 The caveat is discharged, and the test cost one calculation - which is the point. A caveat
 carried because it probably does not matter is a caveat nobody can act on.
 
+## W-INTL-93  Thirteen designs had no timing, and the file's own architectural claim now has a measurement
+
+Severity: none as a defect. It closes the last dimension nobody had checked.
+
+None of the thirteen decoders had closed timing, and `bm_area_probe.v` says so in its header:
+the critical path is one general multiply, an XOR tree over t+1 terms, and a second multiply,
+with a systolic reformulation available if the clock matters. Nobody had checked what clock it
+reaches.
+
+No static timing analyser is installed, so the measurement is logic depth - the longest
+topological path through the netlist, reported by the synthesiser. Eighteen levels at t=4 in
+GF(2^8), seventeen at t=23 in GF(2^7), twenty-one at t=18, twenty-three at t=55.
+
+The depth grows logarithmically in t, which is exactly what the header predicted: two
+multipliers at about m levels each plus a tree of log2(t+1), so sixteen plus six at t=55
+against twenty-three measured. The file's architectural claim is now confirmed by measurement
+rather than restated.
+
+At the per-level delays in the liberty - 220 to 350 picoseconds for the two-input gates the
+mapper uses - the solver reaches roughly 145 to 300 megahertz. Against a user clock of a few
+tens of megahertz that is threefold to thirtyfold of margin.
+
+Two limits: the depth is measured before technology mapping, which both merges levels into
+complex cells and inserts buffers, so it is a proxy; and there is no wire delay.
+
+## W-INTL-94  The power extraction has a second witness, which also settles the units doubt
+
+Severity: none as a defect, and it resolves a doubt W-INTL-90 raised about its own method.
+
+W-INTL-90 estimated dynamic current from input pin capacitance and flagged that the leakage
+from the same library looked implausibly small - a sign the units might be misread, which is a
+reason to distrust the whole extraction rather than only the leakage.
+
+Recomputed through a different part of the library: energy per switching event from the
+internal_power tables. BCH(127,29,21) reaches 20 milliamps at 2,059 megahertz by the
+capacitance route and 2,540 by the internal-power route; BCH(255,21,55) at 609 and 741. Both
+agree within twenty percent.
+
+That is a second witness for the dynamic figure and, more usefully, it validates the units
+interpretation the leakage anomaly had called into question.
+
+Interconnect, which the capacitance route omits, is not negligible: at 130 nanometres a local
+net carries roughly one to two femtofarads, comparable to the gate capacitance rather than a
+correction to it. Including it, BCH(255,21,55) reaches 20 milliamps at 384 to 471 megahertz.
+
+## W-INTL-95  Timing binds before power, against the intuition
+
+Severity: none. Recorded because the ordering is the useful part.
+
+For the largest decoder, timing runs out at 145 to 300 megahertz and power at 384 to 471.
+Timing is the tighter of the two - which the intuition had backwards, since a design with
+35,643 cells sounds like a power problem and is a depth problem.
+
+Neither binds. The user clock is a few tens of megahertz and the decoder runs once at power-up
+for a few thousand cycles, so both have at least an order of magnitude in hand.
+
+Three dimensions have now been checked that the analysis did not originally have - power,
+timing and interconnect - and all three are slack. Three for three, and the reason to keep
+checking is that the fourth might not be.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3050,3 +3110,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-90 | closed; power was absent from the constraint set and is slack - 20 mA needs 609 MHz on the largest decoder |
 | W-INTL-91 | closed; the last blank cell is provably empty, not unmeasured - the only three qualifying codes are excluded by a measured point |
 | W-INTL-92 | closed; tripling the oscillator length changes no fit verdict, so the borrowed seven-inverter figure is discharged |
+| W-INTL-93 | closed; logic depth measured across four sizes, 145 to 300 MHz, and the RTL header's architectural claim confirmed |
+| W-INTL-94 | closed; the power figure agrees within 1.2x by a second route through the library, settling the units doubt |
+| W-INTL-95 | closed; timing binds before power for the largest decoder, both by an order of magnitude |
