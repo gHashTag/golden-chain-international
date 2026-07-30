@@ -133,6 +133,17 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A slow check on a fast path is a check with a short life
+
+A sensitivity sweep was added to the job that runs document checks, taking it from twelve seconds to
+nearly eleven minutes. The check was right and the placement was not: every unrelated one-line change
+now waited on it, and the reliable end of that story is somebody deleting the check rather than
+waiting.
+
+Put expensive checks where expensive things already run, so the cost lands on work that was slow
+anyway. A check's cost is paid by whoever is doing something unrelated to it, and that is who
+eventually decides whether it survives.
+
 ## A derived quantity written as a literal outlives the thing it was derived from
 
 An acceptance threshold - "the code tolerates 0.0442" - appeared as a literal in three files. It was

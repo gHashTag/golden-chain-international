@@ -3601,3 +3601,18 @@ The generalisation this project has been circling for four loops now has its mec
 figures to a model makes documents hard to falsify. Perturbing inputs asks the complementary
 question - *which inputs can move without any bound figure moving* - and only the second one finds a
 constant that nothing reads.
+
+## 131. The check that made the fast job slow
+
+`check_input_coverage` went into the document job and took it from twelve seconds to **ten minutes
+and forty-four**. Thirteen inputs, each perturbed and each re-running two checks, one of which
+re-derives the recommendation from scratch.
+
+It is the right check in the wrong place. Every unrelated documentation change now waited on a
+sensitivity sweep, and the reliable consequence of that is somebody eventually removing the sweep
+rather than waiting for it. Split into its own job, where it runs beside the two synthesis jobs that
+already take six minutes and blocks nothing that finishes in twelve seconds.
+
+The general point is about how checks get abandoned. A check is not just correct or incorrect; it has
+a cost, and the cost lands on whoever is doing something unrelated. A ten-minute gate on a
+one-line documentation fix is a gate with a short life expectancy, however sound it is.
