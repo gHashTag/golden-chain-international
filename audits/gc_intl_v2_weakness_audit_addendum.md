@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-73
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-76
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2503,6 +2503,69 @@ serve.
 Run 2026-07-30: six testbenches pass, eight areas reproduce exactly the figures the
 documents quote.
 
+## W-INTL-74  The code was inherited from a paper along with that paper's operating point
+
+Severity: high. It explains W-INTL-72 rather than merely improving on it.
+
+BCH(127,15,27) came from Gao et al. and is the right code for their constraints: an SRAM
+PUF with near-full entropy density and a bit error rate around ten percent. This project
+has ring oscillators, a measured entropy density of 0.9414, and an unknown error rate.
+Adopting a parameter choice along with a method carries the source's operating point
+silently, and W-INTL-72 was the bill for that: the entropy margin turned out to be the
+tightest number in the entire analysis.
+
+The parameter space has now been searched rather than borrowed. Code parameters are
+computed rather than looked up - the generator polynomial is the lcm of the minimal
+polynomials of alpha^1 through alpha^2t, and the degree of each is the size of a
+cyclotomic coset, so the parity count is the size of a union of cosets. `bch_code_search.py`
+computes it and refuses to search unless the result reproduces every BCH code named in the
+sources this project has read. All four reproduce.
+
+The lesson generalises past this decision. Several figures in this project came from papers
+whose operating points were never compared with this project's. Where a source supplies a
+method, take the method; where it supplies a parameter, check the constraints it was chosen
+under.
+
+## W-INTL-75  A smaller code with four times the margin, measured
+
+Severity: this is not a weakness. It supersedes the recommendation in W-INTL-64.
+
+| Construction | Tiles | Entropy margin | Max BER | Raw bits |
+|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,15,27), inherited | 6.07 | 0.0157 | 6.96 percent | 2,921 |
+<!-- derived:external --> | BCH(127,22,23) | 5.22 | 0.0708 | 5.23 percent | 2,921 |
+<!-- derived:external --> | BCH(255,47,42), fallback | 11.86 | 0.0801 | 7.02 percent | 2,805 |
+
+Every decoder area measured and every decoder verified end to end before its area was
+quoted, including in GF(2^9) - a field this project had never used, which the generator and
+the parameterised solver both handled without change.
+
+BCH(127,22,23) is smaller than the inherited choice and carries four and a half times the
+margin on the binding constraint, at the cost of a quarter of the error tolerance. That is
+the right direction to trade: a shortfall in entropy density yields no key at all, while a
+shortfall in error rate calls for a stronger code.
+
+Two qualifications. Part of the inherited choice's margin as reported here - 0.0157 rather
+than the 0.0065 in W-INTL-72 - comes from spending the whole raw-bit budget on blocks
+rather than stopping at the minimum. That improvement was free and available all along and
+was not taken, which is its own small finding. And BCH(255,47,42) buys a little more margin
+and better error tolerance for more than double the area; it is the fallback if measurement
+shows both quantities worse than expected.
+
+## W-INTL-76  The best-margin code is excluded by measurement, not by estimate
+
+Severity: none. Recorded so the search is not re-run in hope.
+
+BCH(511,139,54) has by far the best entropy margin in the admissible set, 0.1633 against
+0.0708 for the recommendation. Its decoder measures 304,465 square micrometres - 16.88
+tiles, more than the entire sixteen a submission may use, before a single oscillator is
+placed.
+
+It was verified end to end and synthesised rather than estimated, because an estimate would
+have left the option open and the search will keep surfacing it. The whole n=511 family is
+excluded on the same grounds: the key-equation solver needs about 3(t+1) general multipliers
+of m bits, and both factors are at their largest there.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2576,3 +2639,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-71 | resolved; reusable debiasing does not exist for this construction, so one enrolment per device is forced and the registry now says so |
 | W-INTL-72 | open, high; the construction needs entropy density 0.9349 against a measured 0.9414, a margin of 0.0065 |
 | W-INTL-73 | closed; every synthesis figure reproduces from one script, testbenches first |
+| W-INTL-74 | open, high; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |
+| W-INTL-75 | resolved; BCH(127,22,23) is smaller than the inherited choice with 4.5x the entropy margin, superseding W-INTL-64 |
+| W-INTL-76 | closed by measurement; the best-margin code needs 16.88 tiles for its decoder alone |

@@ -103,6 +103,43 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Take a source's method, check its parameters
+
+A code was adopted from a paper that chose it well - for a different primitive, a
+near-full entropy density and an error rate of ten percent. This project has none of
+those. The choice travelled silently with the method, and the bill arrived four loops
+later as the tightest margin in the whole analysis.
+
+Searching the space instead found a code that is smaller and carries four and a half times
+the margin on the binding constraint.
+
+So when a source supplies a method, take it. When it supplies a parameter, find the
+constraints it was chosen under and compare them with yours. Every borrowed constant is a
+borrowed operating point.
+
+## Compute the table rather than looking it up, then calibrate on what you already trust
+
+The search needed BCH parameters, and a looked-up table would have been a new unverified
+input in the middle of the argument. They are computable: the parity count is the size of a
+union of cyclotomic cosets.
+
+Computing them turned a risk into a check, because every code named in the sources already
+read becomes a calibration point. All four reproduced, and the script refuses to search if
+any disagrees.
+
+Prefer computing a reference table to importing one, and use the values you already trust
+as the test rather than as the data.
+
+## Spending a budget you were given is not the same as using the minimum
+
+The inherited construction used the fewest blocks that satisfied the constraint. Using the
+whole raw-bit budget instead more than doubled its margin at no cost - the budget was
+already allocated and the improvement had been available from the start.
+
+Minimum-to-satisfy is the natural way to size something and it silently discards free
+margin. When a resource is already committed, check what the surplus buys before settling
+for the smallest configuration that works.
+
 ## Push the derivation until the answer stops being a number
 
 An option was left open for two loops as "cost not derived, do not guess". Deriving it
