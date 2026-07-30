@@ -1613,3 +1613,98 @@ for arithmetic. Corrected by distinguishing the document that must state a figur
 that merely may, and both controls still fire - a wrong figure and a missing one. Eighth time
 one of these checks has caught something in my own writing, and the first time it caught the
 text describing itself.
+
+---
+
+## 59b. Every declared area re-synthesised
+
+`scripts/verify_inputs.py` regenerates each decoder from `gen_bch_decoder.py`, synthesises both
+halves against the same library, and compares the sum against what `inputs.py` declares. All
+thirteen reproduce to within a square micrometre.
+
+That closes the last hand-carried link. Until now the declarations said they were measured here
+and reproducible, and nothing checked that a figure transcribed six loops ago still describes the
+design rather than the design as it stood then.
+
+## 60. The leakage bound is avoidable, and the paper saying so turned up while chasing a different question
+
+Going after Becker's text - the last inherited claim in this work - led to Hiller's
+dissertation, which cites it and is open access. Chapter 5 answers a question nobody here had
+asked.
+
+Read directly, not from an abstract. The chapter opens: previous work on secure key derivation
+with PUFs is either able to achieve zero leakage or helper data capacity, and Systematic Low
+Leakage Coding is the first practical approach to combine zero leakage with a helper data size
+close to capacity. It later states that SLLC is currently the only deterministic scheme that
+achieves the secret key and the helper data capacity, and also inherently ensures information
+theoretic security.
+
+The construction is simple enough to state. The response splits into an information part and a
+mask. Redundancy is computed from the information part with a systematic encoder, and the
+helper data is that redundancy exclusive-ored with the mask - **fresh PUF bits**. The thesis
+gives the algebraic core as an upper triangular full-rank matrix and concludes that the mutual
+information between secret and helper data is zero: no information leaks due to the structure
+of the algebraic core.
+
+**So the n-k leakage bound is a property of the constructions this project chose, not of the
+problem.** Every code decision here since loop 53 rests on
+
+    k_total >= 128 + n_total * (1 - rho)
+
+and under SLLC there is no leakage term at all. The requirement is on entropy alone, because
+the first k corrected bits are the key:
+
+    k_total >= 128 / rho = 136
+
+## 61. What that does to the numbers
+
+The recommendation does not change yet, and almost everything else does.
+
+| | Under the leakage bound | Under SLLC |
+|---|---|---|
+<!-- derived:external --> | blocks for BCH(127,29,21) | 23 | 5 |
+<!-- derived:external --> | raw response bits | 2,921 | **635** |
+<!-- derived:external --> | oscillators | 341 | 37 |
+<!-- derived:external --> | tiles | 8.49 | **7.73** |
+
+A factor of 4.6 in raw response bits. The area gain is modest because the decoder dominates,
+but raw width is what the debiasing overhead multiplies and what the oscillator count follows,
+so it is the more consequential number.
+
+And it readmits what the leakage bound eliminated:
+
+| Construction | Blocks | Raw bits | Oscillators | Tiles | Failure at 4 percent |
+|---|---|---|---|---|---|
+<!-- derived:external --> | rep[5] + RM[32,6,16] | 23 | 3,680 | 87 | **0.49** | 0 |
+<!-- derived:external --> | rep[3] + RM[64,7,32] | 20 | 3,840 | 89 | 0.66 | 0 |
+<!-- derived:external --> | BCH(127,29,21) | 5 | 635 | 37 | 7.73 | 3.7e-08 |
+
+The concatenated Reed-Muller construction, withdrawn in loop 53 for negative residual entropy,
+is admissible under SLLC and would be **the cheapest by a factor of twelve**.
+
+The reason not to build it has changed rather than gone away. It is no longer leakage; it is
+that Reed-Muller is corroborated as vulnerable to helper-data manipulation, and SLLC does not
+address that - zero leakage is a statement about a passive adversary, and manipulation is an
+active one. So the recommendation stands on the security property whose reasoning is still only
+corroborated, which makes reading Becker's text more urgent rather than less.
+
+## 62. Status of this finding, stated exactly
+
+The primary source is read: chapter 5 of the dissertation, quoted above, not an abstract or a
+summary.
+
+The consequence for this project is **my derivation, not the thesis's**. The thesis does not
+discuss this construction, these codes, or this tile budget. What I have done is take its stated
+property - no leakage - and replace one term in an inequality. That is a small step and it is
+still a step somebody else has not checked, and it overturns six loops of conclusions, which is
+exactly the combination that has been wrong before in this work.
+
+Three things I have not done. Verified that SLLC composes with a concatenated code, which needs
+a systematic encoder for the concatenation rather than for each part. Checked what SLLC costs in
+gates - the thesis has an implementation section and I have not measured it here. And checked
+whether the mask bits being response bits changes the error-correction requirement; I believe
+they do not, since the mask's errors land in the redundancy positions and the codeword still has
+n error-prone positions, but that is a belief and it is load-bearing.
+
+Until those are done this is a finding, not a decision. The numbers above are what would follow
+if it holds.

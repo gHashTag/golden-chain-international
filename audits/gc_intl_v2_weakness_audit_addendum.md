@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-108
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-110
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3307,6 +3307,72 @@ Three instances of one drift class in a single loop - a factor lost between docu
 that did not follow its code, and a chain validating a superseded design - all found by building
 the instrument rather than by looking harder.
 
+## W-INTL-109  The synthesis chain is machine-checked against the declarations
+
+Severity: none as a defect. It closes the last hand-carried link.
+
+`research/inputs.py` declares each decoder area once with a note saying it is measured here and
+reproducible - but nothing checked that a declaration matches what the tools produce today. A
+figure transcribed from a run six loops ago and never re-run agrees with the past rather than
+with the design.
+
+`scripts/verify_inputs.py` regenerates the table stages for each field and correction strength,
+synthesises both halves, and compares the sum against the declaration. All 13 reproduce exactly - every declared area equals a fresh synthesis to within a
+square micrometre, so the numbers in inputs.py describe the design as it stands rather than as
+it stood when they were written. Not in CI - two synthesis
+runs per code is too slow - so it is run when the RTL or the library moves.
+
+## W-INTL-110  The leakage bound is a property of the chosen constructions, not of the problem
+
+Severity: critical as a finding. It reopens every code decision since W-INTL-63 and it was found
+while chasing something else.
+
+Going after Becker's text led to Hiller's dissertation, which cites it and is open access.
+Chapter 5, read directly rather than from an abstract, introduces Systematic Low Leakage Coding.
+
+Its stated properties, quoted: previous work on secure key derivation with PUFs is either able to
+achieve zero leakage or helper data capacity, and SLLC is the first practical approach to combine
+zero leakage with a helper data size close to capacity; and SLLC is currently the only
+deterministic scheme that achieves the secret key and the helper data capacity, and also
+inherently ensures information theoretic security. The algebraic core is an upper triangular
+full-rank matrix and the mutual information between secret and helper data is zero.
+
+The construction: the response splits into an information part and a mask; redundancy is computed
+from the information part with a systematic encoder; the helper data is that redundancy exclusive-
+ored with fresh PUF bits.
+
+So the constraint every code decision here has rested on since W-INTL-63 -
+`k_total >= 128 + n_total(1-rho)` - has no leakage term under SLLC, and becomes
+`k_total >= 128/rho = 136`.
+
+Consequences. For the current recommendation, blocks fall from 23 to 5, raw response bits from
+2,921 to 635, oscillators from 341 to 37, and tiles from 8.49 to 7.73. The area gain is modest
+because the decoder dominates; the factor of 4.6 in raw width is the consequential part, since
+raw width is what debiasing multiplies and what the oscillator count follows.
+
+And the concatenated Reed-Muller construction that W-INTL-63 withdrew for negative residual
+entropy becomes admissible, at 0.49 to 0.66 tiles - cheapest by a factor of twelve. The reason
+not to build it has changed rather than vanished: it is now that Reed-Muller is corroborated as
+vulnerable to helper-data manipulation, which SLLC does not address, since zero leakage is a
+statement about a passive adversary. That makes W-INTL-105 more urgent, not less - the
+recommendation now stands on the one security property whose reasoning is still only corroborated.
+
+Status, exactly. The primary source is read and quoted. The consequence for this project is my
+derivation and not the thesis's: it does not discuss these codes or this tile budget, and what I
+have done is replace one term in an inequality using its stated property. A small step, unchecked
+by anyone else, overturning six loops of conclusions - which is the combination that has been
+wrong before here.
+
+Three things not done, all load-bearing. Whether SLLC composes with a concatenated code, which
+needs a systematic encoder for the concatenation rather than for each part. What SLLC costs in
+gates; the thesis has an implementation section and nothing is measured here. And whether the mask
+bits being response bits changes the error-correction requirement - I believe not, since the
+mask's errors land in the redundancy positions and the codeword still has n error-prone positions,
+but that is a belief and the analysis rests on it.
+
+Until those are settled this is a finding rather than a decision, and the recommendation does not
+move.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3415,3 +3481,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-106 | closed; every input declared once in research/inputs.py with its provenance, three scripts refactored to import |
 | W-INTL-107 | corrected; the oscillator floor was the previous code's, found by the extended check on its first run |
 | W-INTL-108 | corrected; the end-to-end chain had validated a superseded construction for six loops |
+| W-INTL-109 | closed; every declared decoder area is machine-checked against a fresh synthesis run |
+| W-INTL-110 | open, critical as a finding; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |
