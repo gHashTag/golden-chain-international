@@ -889,3 +889,71 @@ that nothing that has been measured works, and finding out would mean measuring 
 And the band's flatness is partly an artefact of restricting to five measured codes. With
 a denser measured set the area would likely fall somewhat as the density rises. The
 important part - that nothing changes across a six-point range - would survive.
+
+---
+
+## 33. The reuse claim, checked on this construction
+
+The registry's enrolment policy rests on a claim taken from Maes et al.: that classic and
+pair-output von Neumann debiasing are not reusable, so enrolling the same device twice
+leaks more than once does. That claim was written into `ChipRegistryV2` as the reason for
+refusing re-registration, and it had not been checked here.
+
+It needed checking, because the paper's demonstration is on a construction this project
+does not use. Its figure shows an inner two-bit repetition code and reasons about which
+bits land in the same codeword. There is no repetition code here.
+
+What generalises is the sentence beside the figure rather than the figure: enrolled bits
+can shift between code words, because the debiasing step is stochastic and bit errors
+between enrolments change which pairs are retained.
+
+Demonstrated on this construction. A 12,432-bit raw response, a second measurement of the
+same device differing in 259 bits at two percent noise:
+
+- enrolment one retains 3,062 bits, enrolment two retains 3,057
+- the public retention patterns differ at 253 pairs
+- of the 2,794 pairs retained in both, **124 land in a different BCH block the second
+  time** - four and a half percent - and every pair after the first divergence is displaced
+
+So each enrolment publishes a syndrome over a different partition of the same raw bits.
+The mechanism the source names does apply here, and the policy written into the contract
+stands on it.
+
+One thing this does not do, and the distinction matters. It demonstrates the mechanism,
+not the quantity: that bits shift between blocks is shown, that two enrolments leak
+strictly more than one follows from it, and how much more has not been computed. The
+policy is conservative either way, since it forbids the second enrolment entirely.
+
+## 34. The flat band was not an artefact of a sparse set
+
+Section 32 reported the recommendation as flat from entropy density 0.88 to 1.00, and
+qualified it: with only five measured decoders the flatness might be an artefact, and a
+denser set would probably show the area falling as density rises.
+
+Three more codes have been generated, verified end to end, and measured, chosen to
+populate the band and to probe below its edge:
+
+| Code | Decoder area | Tiles |
+|---|---|---|
+| BCH(127,8,31) | 116,194 | 6.44 |
+| BCH(255,45,43) | 211,985 | 11.76 |
+| BCH(255,37,45) | 222,024 | 12.31 |
+
+Swept at one-hundredth intervals across eight measured codes, the answer changes in
+exactly two places:
+
+| Entropy density | Best measured code | Tiles | Max BER |
+|---|---|---|---|
+<!-- derived:external --> | 1.00 down to 0.88 | BCH(127,22,23) | 5.34 | 5.23 percent |
+<!-- derived:external --> | 0.87 | BCH(255,47,42) | 11.96 | 7.02 percent |
+| 0.86 and below | none measured | - | - |
+
+The qualification is answered: the flatness survived densification. None of the three new
+codes improves on BCH(127,22,23) anywhere in the band, so the flat stretch is a property of
+the problem rather than of the sample.
+
+Two things sharpened. The edge is at 0.8613 rather than 0.87 - the earlier sweep stepped in
+units of 0.02 and hid a code that works just below its resolution, which is a reminder that
+a sweep's granularity is part of its result. And between the band and the edge there is a
+single step, not a slope: one point of entropy density costs more than double the area,
+because it forces the move from GF(2^7) to GF(2^8) and a correction strength of 42.
