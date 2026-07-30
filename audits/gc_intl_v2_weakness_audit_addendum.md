@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-112
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-114
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3427,6 +3427,62 @@ the leakage term's raw-width penalty created.
 The recommendation is therefore to use SLLC: six percent more decoder area for 4.6 times fewer
 response bits and one fewer binding constraint.
 
+## W-INTL-113  The n-k bound is confirmed first-hand, and Fuzzy Commitment escaped it in 1999
+
+Severity: high as a finding about this project's method rather than about its subject.
+
+Chapter 4 of the dissertation gives a first-hand comparison of the four state-of-the-art
+constructions. Table 4.2 lists the mutual information between secret and helper data for a nearly
+perfect PUF as n-k for the syndrome construction. That is the bound every code decision here has
+rested on since W-INTL-63, sourced second-hand from Gao et al., and it is confirmed. It was right.
+
+The same table gives Fuzzy Commitment a rank loss of zero and leakage below epsilon-nought. So the
+bound was escapable by the oldest construction in the field, and W-INTL-110 over-credited SLLC as
+the discovery.
+
+| Scheme | Helper bits | Leaks | Needs a random number |
+|---|---|---|---|
+| Syndrome | n-k | n-k | no |
+| Fuzzy Commitment | n | about zero | yes |
+| SLLC | n-k | zero | no |
+
+SLLC remains best on paper - zero leakage at the smallest helper data with no random number - and
+Fuzzy Commitment is the most widely deployed scheme in the field, has been available throughout,
+and was never considered here. Twelve loops took the leakage term as given while the oldest entry
+in the table does not have it.
+
+The thesis also places SLLC exactly, which makes it less surprising and more trustworthy: the
+Parity Construction stores the parities of the response with a systematic code and leaks 2k-n, and
+SLLC is that construction with the parities masked by fresh response bits. Not a new mechanism -
+the one scheme in the table repaired.
+
+## W-INTL-114  Under zero leakage the entropy density stops binding, which dissolves six loops of sensitivity work
+
+Severity: critical as a correction of scope. Every conclusion it withdraws was correct and
+conditional.
+
+Rebuilt with the leakage term removed, the requirement becoming k_total >= 128/rho met by adding
+blocks: the budget moves from 8.18 tiles at entropy density 1.00 to 8.21 at 0.50. Halving the
+tightest input in this work changes the answer by three hundredths of a tile.
+
+That withdraws, as conclusions about the problem rather than about a construction: the cliff at
+0.7986 located in W-INTL-86; the margin of 0.0065 that W-INTL-72 called the tightest number in the
+work; the flat band and its edge in W-INTL-82 and W-INTL-84; and the priority reversal in
+W-INTL-85, which found the error rate at least as binding as the entropy density. All of it was a
+property of the syndrome construction's leakage term.
+
+The mechanism is simple once the term is gone. A lower density needs more blocks; blocks are
+processed sequentially by one decoder, so more cost nothing in area, and only the oscillator count
+grows. Under the leakage bound each extra block also added n-k bits of leakage, which is what made
+the density bind.
+
+The error rate is now the only binding input: eight percent fits at 11.75 tiles and nine does not,
+at every density from a half upwards.
+
+Six loops of sensitivity analysis, three reversals of priority, and a register row marked as the
+tightest figure in the work - all correct, all conditional on a construction chosen in W-INTL-63
+without asking whether its leakage was avoidable. Asking took an hour.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3538,4 +3594,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-109 | closed; every declared decoder area is machine-checked against a fresh synthesis run |
 | W-INTL-111 | closed; SLLC implemented and measured, two open items closed and the third scoped out |
 | W-INTL-112 | closed; SLLC dissolves the oscillator-arrangement constraint, withdrawing W-INTL-67 and W-INTL-68 |
+| W-INTL-113 | closed; the n-k bound is confirmed first-hand for the syndrome construction, and Fuzzy Commitment has escaped it since 1999 |
+| W-INTL-114 | closed; under zero leakage the entropy density stops binding, withdrawing W-INTL-72, W-INTL-82, W-INTL-84, W-INTL-85 and W-INTL-86 as conclusions about the problem |
 | W-INTL-110 | decided rather than open, by W-INTL-111 and W-INTL-112; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |

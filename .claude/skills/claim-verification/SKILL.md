@@ -103,6 +103,30 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Read the taxonomy before optimising within one branch of it
+
+Twelve loops of code selection took a leakage term as a fact of the problem. One table in one
+chapter listed four standard constructions with their leakage, and the oldest of them - published
+in 1999, the most widely deployed in the field - does not have that term at all.
+
+The work inside the branch was correct. All of it was conditional on a choice made early, and the
+document that would have shown the choice existed was a comparison table in the standard reference
+for the area.
+
+So before optimising within an approach, find the field's own taxonomy of approaches and read the
+row your choice sits in alongside the others. It is usually one table, it is usually in the
+literature you have already cited, and it costs an hour against loops of conditional conclusions.
+
+## When a constraint dissolves, say which conclusions were conditional on it rather than wrong
+
+Removing one term withdrew six loops of sensitivity analysis, three reversals of priority, and the
+figure that had been called the tightest in the work. None of it was mistaken. All of it was
+conditional on a construction chosen without asking whether its leakage was avoidable.
+
+Report that distinction explicitly. A reader who is told the conclusions were wrong will distrust
+the measurements; a reader who is told they were conditional knows exactly what still holds and
+what to re-derive.
+
 ## Implementing a scheme to test one claim checks several others for free
 
 A construction was implemented to settle whether one property held. Building it confirmed three

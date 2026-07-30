@@ -1775,3 +1775,71 @@ arrangement question that the leakage term's raw-width penalty created.
 
 So the finding is a decision for the recommended construction. SLLC should be used, at six
 percent more decoder area, for 4.6 times fewer response bits and one fewer binding constraint.
+
+---
+
+## 65. The leakage bound, confirmed first-hand, and an escape I never considered
+
+Going back into the dissertation for the helper-data manipulation question turned up chapter 4,
+which contains a first-hand comparison of the four state-of-the-art constructions. Two things
+follow, and the first is reassuring.
+
+**The syndrome construction leaks n-k.** Table 4.2 gives the mutual information between secret
+and helper data for a nearly perfect PUF as n-k for the syndrome construction. That is the bound
+every code decision here has rested on since loop 53, sourced second-hand from Gao et al. and now
+confirmed in the primary literature. It was right.
+
+**And Fuzzy Commitment has zero leakage, and has since 1999.** The same table gives its rank loss
+as zero and its leakage as below epsilon-nought. So SLLC is not the only escape from the bound, and
+last loop over-credited it as the discovery.
+
+| Scheme | Helper bits | Leaks | Needs a random number |
+|---|---|---|---|
+<!-- derived:external --> | Syndrome | n-k | n-k | no |
+<!-- derived:external --> | Fuzzy Commitment | n | about 0 | yes |
+<!-- derived:external --> | SLLC | n-k | 0 | no |
+
+SLLC is best on paper - zero leakage at the smallest possible helper data, with no random number.
+But Fuzzy Commitment is the most widely deployed scheme in the field, it has been available for
+the whole life of this problem, and this project never considered it. Twelve loops of analysis
+took the leakage term as given when the oldest construction in the table does not have it.
+
+The thesis also places SLLC exactly, which is worth recording because it makes the idea less
+surprising and more trustworthy. The Parity Construction stores the parities of the response with
+a systematic code and leaks 2k-n. **SLLC is that construction with the parities masked by fresh
+response bits.** It is not a new mechanism bolted on; it is the one scheme in the table repaired.
+
+## 66. Under zero leakage the entropy density stops mattering
+
+Rebuilt with the leakage term removed - the requirement becoming k_total >= 128/rho, met by
+adding blocks:
+
+```
+                  4%     5%     6%     7%     8%     9%    10%
+  rho 1.00    8.18  8.87 10.36 10.36 11.74     -     -
+  rho 0.94    8.18  8.88 10.37 10.37 11.75     -     -   <- measured
+  rho 0.90    8.18  8.88 10.37 10.37 11.75     -     -
+  rho 0.80    8.19  8.89 10.38 10.38 11.75     -     -
+  rho 0.70    8.20  8.89 10.39 10.39 11.77     -     -
+  rho 0.60    8.20  8.90 10.40 10.40 11.78     -     -
+  rho 0.50    8.21  8.91 10.41 10.41 11.80     -     -
+```
+
+**The entropy density stops being a constraint.** Halving it, from 1.00 to 0.50, moves the budget
+by three hundredths of a tile. The cliff at 0.7986 that W-INTL-86 located, the margin of 0.0065
+that W-INTL-72 called the tightest number in the work, the flat band and its edge in W-INTL-82 and
+W-INTL-84, the reversal of priority in W-INTL-85 - all of it was a property of the syndrome
+construction's leakage term.
+
+The reason is simple once the term is gone. A lower entropy density needs more blocks, and blocks
+are processed sequentially by the same decoder, so more of them cost nothing in area. Only the
+oscillator count grows and that is a small term. Under the leakage bound each extra block also
+added n-k bits of leakage, which is what made the density bind.
+
+So the error rate is now the only binding input. Eight percent fits at 11.75 tiles and nine does
+not, at every entropy density from a half upwards.
+
+Six loops of sensitivity analysis, three reversals of priority, and a register row marked as the
+tightest figure in the work - all correct, all conditional on a construction chosen in loop 53
+without asking whether its leakage was avoidable. That question took one hour when it was finally
+asked.
