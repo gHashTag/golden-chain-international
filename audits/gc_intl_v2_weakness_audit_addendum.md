@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-110
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-112
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3373,6 +3373,60 @@ but that is a belief and the analysis rests on it.
 Until those are settled this is a finding rather than a decision, and the recommendation does not
 move.
 
+## W-INTL-111  SLLC implemented and measured: two of three open items closed, the third scoped out
+
+Severity: none as a defect. It converts W-INTL-110 from a finding into a decision.
+
+W-INTL-110 listed three load-bearing things undone.
+
+Whether the mask being response bits changes the error-correction requirement: no, and now
+measured. `research/sllc_key_generator.py` implements the scheme in full - generator polynomial
+from cyclotomic cosets, systematic encoding by long division, enrolment producing helper data as
+redundancy exclusive-ored with fresh response bits, reconstruction unmasking and decoding.
+Recovery succeeds at every error rate tested and the observed failures track the same binomial
+model over n positions: 30 of 30 at zero noise, 60 of 60 at two percent, 200 of 200 at four, 120
+of 120 at eight against a model of 2.3e-03. 635 raw response bits over five blocks against 2,921
+over twenty-three.
+
+Three things fell out of building it. The generator has degree 98, so k = 29 - a third independent
+confirmation of the parameter table, from the generator rather than from coset sizes. A systematic
+codeword has all syndromes zero and its first k bits equal the information bits, the property SLLC
+requires and which had been assumed. And the software and the RTL now share a derivation rather
+than a transcription, since both compute the generator the same way.
+
+What SLLC costs: the systematic encoder is a degree-98 linear feedback shift register with fifty
+taps at 3,887 square micrometres, needed at enrolment only; reconstruction adds an exclusive-or of
+98 bits at 858. Both on die is 4,745, six percent of the decoder.
+
+Whether it composes with a concatenated code: not answered and not needed. The recommendation is a
+single BCH code; the question arises only for the Reed-Muller alternative, which helper-data
+manipulation rules out independently. Out of scope rather than open.
+
+## W-INTL-112  SLLC dissolves the arrangement constraint, which is the real gain
+
+Severity: none as a defect. It withdraws the conclusions of W-INTL-67 and W-INTL-68 for the right
+reason.
+
+The area gain from SLLC is three percent - 8.49 tiles to 8.18 - because the decoder dominates and
+SLLC adds six percent of one. That is not where the value is.
+
+With debiasing at the pair-output overhead of 2.18: under the leakage bound the disjoint
+arrangement needs 39.68 tiles and does not fit; under SLLC it needs 15.05 and does. Without
+debiasing, 22.33 against 11.28.
+
+Under SLLC every combination fits. That withdraws W-INTL-67, which found debiasing turned the
+oscillator arrangement from a factor-of-two question about area into a question of fitting at all,
+and W-INTL-68, which concluded from the whole method table that oscillator reuse was a requirement
+rather than an optimisation. Both were correct under the leakage bound and neither survives its
+removal.
+
+The register's bias-and-debiasing row moves from binding conditionally to slack. So one
+construction removes two binding constraints: the leakage term, and the arrangement question that
+the leakage term's raw-width penalty created.
+
+The recommendation is therefore to use SLLC: six percent more decoder area for 4.6 times fewer
+response bits and one fewer binding constraint.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3482,4 +3536,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-107 | corrected; the oscillator floor was the previous code's, found by the extended check on its first run |
 | W-INTL-108 | corrected; the end-to-end chain had validated a superseded construction for six loops |
 | W-INTL-109 | closed; every declared decoder area is machine-checked against a fresh synthesis run |
-| W-INTL-110 | open, critical as a finding; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |
+| W-INTL-111 | closed; SLLC implemented and measured, two open items closed and the third scoped out |
+| W-INTL-112 | closed; SLLC dissolves the oscillator-arrangement constraint, withdrawing W-INTL-67 and W-INTL-68 |
+| W-INTL-110 | decided rather than open, by W-INTL-111 and W-INTL-112; Systematic Low Leakage Coding removes the leakage term, cutting raw width 4.6x and readmitting the withdrawn construction |
