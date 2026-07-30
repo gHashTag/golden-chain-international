@@ -24,6 +24,7 @@ TILE_LIMIT = 16           # specified: largest submission is 8x2 tiles
 # measured there: the published PUF tile declares 1x2 tiles, 36,064 um^2, and holds
 # 20,900 um^2 of standard cells. Same flow, same process. Cell area is not die area and
 # this is the factor between them.
+# units: standard-cell area / die area, both square micrometres
 UTILISATION = 20_900 / 36_064
 
 # ── the oscillator ──────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ UTILISATION = 20_900 / 36_064
 # published tile's oscillators are built from drive-1 inverters and nothing was lost in
 # the borrowing. Forty loops of budgets rested on that and it had never been checked. Seven inverters per oscillator is that design's choice; Mansouri and Dubrova
 # call ten to twenty typical, and W-INTL-92 shows tripling it changes no fit verdict.
+# units: square micrometres / inverters, giving square micrometres per inverter
 INVERTER_AREA = 6_730 / 1_792
 INVERTERS_PER_OSCILLATOR = 7
 
@@ -57,6 +59,11 @@ INVERTERS_PER_OSCILLATOR = 7
 # ratio is kept rather than replaced, because a tristate inverter is an analogue and not
 # the circuit; what the bracket buys is knowing which way the estimate errs. A layout
 # would settle it.
+# units: transistor width / transistor width - and it multiplies an AREA, which is the
+# mismatch W-INTL-167 names. Widths and laid-out areas do not scale together, which is
+# why the library bracket below disagrees with it. Kept because it is the conservative
+# end; adopting the area-grounded 1.67 would shrink the budget, and the convenient
+# direction is not the one to move in on an unmeasured quantity.
 AGING_RESISTANT_FACTOR = (0.12 + 0.30 + 0.12 + 0.24) / (0.12 + 0.30)
 
 OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
@@ -79,10 +86,12 @@ OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
 # model: at the twenty percent the design discards, 0.9414 becomes 0.9293.
 MIN_ENTROPY_BITS = 241.0
 MIN_ENTROPY_OVER = 256
+# units: bits of min-entropy / response bits
 MIN_ENTROPY_DENSITY = MIN_ENTROPY_BITS / MIN_ENTROPY_OVER
 
 # the fraction of positions the recommendation discards: 477 raw, 381 selected. The
 # density above applies before this and not after it.
+# units: positions / positions
 SELECTION_LOSS = 1 - 381 / 477
 
 # ── the requirement ─────────────────────────────────────────────────────────
@@ -180,6 +189,7 @@ ENROLMENT_READS = 9
 # bias 40/35/30/25 percent. Computed for a 1,000-bit output; the dependence runs through
 # an inverse binomial, so these are the published values and the constraint is
 # reimplemented in key_generator_e2e.py rather than these being rescaled.
+# units: raw bits in / retained bits out
 DEBIAS_OVERHEAD = {
     "CVN":      {40: 4.40, 35: 4.40, 30: 5.30, 25: 5.30},
     "2O-VN":    {40: 2.31, 35: 2.45, 30: 2.66, 25: 2.99},

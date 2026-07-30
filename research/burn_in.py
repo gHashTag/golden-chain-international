@@ -25,9 +25,16 @@ The chain, with every assumption named:
      standard and the exponent is technology-dependent; the literature range is roughly
      0.15 to 0.5, so n is swept rather than chosen.
   2. The *differential* degradation between the two oscillators of a pair inherits that
-     time dependence. This is the load-bearing assumption and it is not verified by any
-     source read here. If the differential grows faster or slower than the common part,
-     the answer moves.
+     time dependence. This is the load-bearing assumption. It is not verified by any
+     source read here, so it is swept rather than assumed: the differential is taken as
+     t^(k*n) with k of 1.0 (it inherits the law) and 0.5 (it grows as the square root of
+     the mean, which is what a trap-counting picture gives, since a Poisson number of
+     trapped charges has a standard deviation going as the square root of its mean).
+
+     The literature searched supports only the direction - aging-induced threshold-voltage
+     variability grows with stress and correlates with gate-oxide area - and no source
+     read here gives the functional form. Both arms are therefore reported, and the k=0.5
+     arm is the convenient one, which is reason to quote it rather than adopt it.
   3. sigma_age scales with the differential, which is how it was calibrated.
   4. Enrolling at burn-in time Tb leaves the fraction 1 - (Tb/T)^n of the ten-year
      differential still to come.
@@ -44,6 +51,7 @@ TEN_YEARS = 10.0
 FLIP_TEN_YEAR = 0.3241        # conventional bank, DATE 2014
 FLIP_ABSORBED = 0.092         # what this construction absorbs post-enrolment
 EXPONENTS = (0.16, 0.20, 0.25, 0.30, 0.50)
+DIFFERENTIAL_SCALING = (1.0, 0.5)   # k in differential ~ t^(k*n); see assumption 2
 
 # measured there: He, Li, Yu and Yang, ASCH-PUF in JSSC. "A stressing of 96 hours in
 # total was applied, resulting in equivalent effects of several years' aging under
@@ -69,17 +77,24 @@ if __name__ == "__main__":
     print(f"   flip rate saturates in sigma, so that ratio flattered the requirement")
 
     print("\n2. how much of the service life must be burned in first")
-    print(f"   {'exponent n':>11} {'burn-in, years':>15} {'share of ten-year life':>24}")
+    print(f"   {'exponent n':>11} " +
+          "".join(f"{'k=%.1f years' % k:>16}" for k in DIFFERENTIAL_SCALING) +
+          f"{'share, k=1':>12}{'share, k=0.5':>14}")
     for n in EXPONENTS:
-        tb = TEN_YEARS * (1 - ratio) ** (1 / n)
-        print(f"   {n:11.2f} {tb:15.2f} {tb/TEN_YEARS:23.0%}")
+        tbs = [TEN_YEARS * (1 - ratio) ** (1 / (k * n)) for k in DIFFERENTIAL_SCALING]
+        print(f"   {n:11.2f} " + "".join(f"{t:16.2f}" for t in tbs) +
+              f"{tbs[0]/TEN_YEARS:11.0%}{tbs[1]/TEN_YEARS:14.0%}")
     print("   the exponent is technology-dependent and this is the published range, so")
-    print("   the answer is a bracket: between a quarter and two thirds of the service")
-    print("   life has to happen before the part is enrolled")
+    print("   the answer is a bracket. Under k=1 it is between a quarter and two thirds of")
+    print("   the service life; under k=0.5, where the differential grows as the square")
+    print("   root of the mean degradation, it is between eight and forty-five percent.")
+    print("   k=0.5 is the convenient arm and no source read here establishes the form,")
+    print("   so the requirement is quoted against k=1 and the other is a sensitivity.")
 
     print("\n3. in oven hours, with the one acceleration figure available")
     lo = TEN_YEARS * (1 - ratio) ** (1 / max(EXPONENTS))
     hi = TEN_YEARS * (1 - ratio) ** (1 / min(EXPONENTS))
+    # quoted against k = 1, the arm that is not the convenient one
     print(f"   {ACCEL_HOURS} hours at 150 C and 1.4 V is 'several years' of nominal "
           f"aging;")
     print(f"   reading 'several' as {ACCEL_YEARS_LOW:.0f} to {ACCEL_YEARS_HIGH:.0f} "
