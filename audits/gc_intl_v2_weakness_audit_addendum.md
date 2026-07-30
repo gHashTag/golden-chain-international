@@ -1561,8 +1561,31 @@ Action.
 1. Restate the silicon roadmap again, this time with the shuttle path as the first
    step and the custom die as what follows if the tile proves out.
 2. Read the existing implementation and decide whether the architecture scales in
-   the area a tile allows. That is a concrete engineering question with a public
-   artefact to answer it against.
+   the area a tile allows. Done 2026-07-30, research/puf_tile_budget.md. It does
+   not scale as written and it does not need to.
+
+   The existing design declares 1x2 tiles for eight response bits, so about 4,508
+   square micrometres per bit. Scaled naively a 128-bit response wants thirty-two
+   tiles against a limit of sixteen. But it replicates a whole measurement chain
+   per bit - thirty-two oscillators, two multiplexers, two counters and an arbiter,
+   eight times over. The oscillators are entropy and must be distinct; the counters
+   and arbiter are apparatus and need not be. Sharing one chain and driving it
+   sequentially, a bank of 128 oscillators offers 8,128 distinct pairs, which is far
+   more than a key needs.
+
+   With the decoder inside the budget the estimate is three to five tiles of the
+   sixteen available. It fits.
+
+   One correction inside that calculation, recorded because it was mine. The first
+   attempt assumed the error correction could run in software on the processing
+   system using public helper data, leaving only the oscillators on the tile. The
+   literature is explicit that post-processing belongs on the same integrated
+   circuit, because a raw response that leaves the die can be captured, and
+   capturing it defeats the point of a key that is never stored. The decoder is in
+   the budget and is the largest item in it.
+
+   So the blocker is architectural, not dimensional. All cell areas in that document
+   are estimates and it says so; the conclusion needs synthesis, not arithmetic.
 3. Whatever is built, characterise it - uniqueness, reliability across the
    temperature range a deployed node sees, uniformity, entropy - before any
    document calls it identity. The existing implementation is uncharacterised and
