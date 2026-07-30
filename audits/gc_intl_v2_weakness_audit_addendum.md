@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-79
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-82
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2657,6 +2657,74 @@ directly. Should be removed rather than left looking load-bearing.
 **Tile geometry** - Tiny Tapeout, and the only borrowed constants here that are a
 published specification rather than someone else's measurement.
 
+## W-INTL-80  The debiasing overhead is computed now, and the borrowed figures were conservative
+
+Severity: low as an error, and it closes the one item W-INTL-79 flagged as knowingly wrong.
+
+Maes et al. compute their overheads for a 1,000-bit output; this construction needs 2,921.
+The overhead depends on output length through an inverse binomial, so scaling their figures
+was an approximation rather than a lookup, and this project had been doing that.
+
+Implemented rather than borrowed. For an n-bit response at bias p the retained count is
+binomially distributed with parameters (floor(n/2), 2p(1-p)), and n must be large enough
+that the failure-rate quantile still reaches the required output length. The implementation
+reproduces all three figures the paper states - 4,446 and 2,322 at fifty percent bias,
+5,334 at thirty - exactly.
+
+Rescaled to 2,921 bits, every figure is three to five percent lower than the one borrowed:
+CVN 4.26 against 4.40, 2O-VN 2.18 against 2.31. Relative binomial fluctuation shrinks as
+the output grows, so less slack is needed. The project was conservative rather than wrong,
+which is the better direction to have erred.
+
+No conclusion moves. At 2.18 the disjoint arrangement still needs 23.4 tiles.
+
+## W-INTL-81  Debiasing in the chain, and a third witness for the formula
+
+Severity: this is not a weakness.
+
+The end-to-end run now includes the debiasing stage. Across twelve trials at each of four
+method-and-bias combinations, the retained counts run from 3,050 to 3,344 against the 2,921
+the construction needs - clearing it every time, with the margin a constraint sized for one
+failure in a million should leave.
+
+The stage also does what it is for, demonstrated rather than cited: sources at bias 0.50,
+0.30 and 0.20 yield retained bits at 0.4999, 0.5014 and 0.4995 over tens of thousands of
+bits.
+
+So the debiasing sizing now has three independent witnesses: the paper's stated figures,
+the constraint implemented from its definition, and a Monte Carlo of the chain.
+
+## W-INTL-82  The answer is flat across a six-point band and then stops
+
+Severity: this is the most useful framing this analysis has produced, and it replaces the
+margin in W-INTL-72 rather than contradicting it.
+
+The entropy density is the weakest input in this work - measured on Spartan-3E parts, at
+room temperature, with adjacent pairing, by other people for another purpose. Reporting a
+conclusion at one value of it is reporting a conclusion at someone else's operating point,
+which is the error W-INTL-74 was written about.
+
+Across the plausible range, restricted to codes whose decoders have been measured:
+
+| Entropy density | Best code | Tiles | Max BER |
+|---|---|---|---|
+<!-- derived:external --> | 1.00 down to 0.88 | BCH(127,22,23) | 5.34 | 5.23 percent |
+| 0.87 and below | none among measured codes | - | - |
+
+The recommendation does not move at all between 0.88 and 1.00 - same code, same area, same
+error tolerance - and then stops. The measured value sits 0.07 above the edge.
+
+That is a better shape of answer than a margin. A margin invites the question of how much is
+enough; a flat band with an edge says the decision is insensitive to the weak input over a
+wide range, and names the point where it is not.
+
+Two qualifications. The edge is an edge in the measured set: the search finds codes with
+margin down to 0.78, but their decoders are unmeasured or, for the n=511 family, measured
+and too large. Below 0.87 the answer is not that nothing works, but that nothing measured
+works and finding out means measuring more. And the band's flatness is partly an artefact of
+five measured codes; a denser set would probably show area falling as density rises. The
+part that would survive is that nothing changes across a six-point range.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2735,4 +2803,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-76 | closed by measurement; the best-margin code needs 16.88 tiles for its decoder alone |
 | W-INTL-77 | corrected; the oscillator floor asked for raw entropy instead of residual, and at the figure in use the construction yields no key |
 | W-INTL-78 | closed; the chain runs end to end and an independent implementation confirms the model across four orders of magnitude |
-| W-INTL-79 | open, medium; every borrowed constant listed with the operating point it arrived with |
+| W-INTL-79 | partly closed; borrowed constants listed, and the one applied wrongly is now computed |
+| W-INTL-80 | closed; debiasing overhead computed from its definition, borrowed figures were conservative by 3 to 5 percent |
+| W-INTL-81 | closed; the chain runs with debiasing and gives the sizing a third independent witness |
+| W-INTL-82 | closed; the recommendation is flat from entropy density 1.00 down to 0.88 and stops below 0.87 |

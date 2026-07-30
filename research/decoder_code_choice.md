@@ -805,3 +805,87 @@ a number that looks load-bearing.
 **Tile geometry, 18,032 square micrometres and a sixteen-tile limit.** Tiny Tapeout, and
 the only borrowed constants here that are a published specification rather than a
 measurement of something else.
+
+---
+
+## 30. The debiasing overhead, computed rather than borrowed
+
+W-INTL-79 listed the debiasing overheads as the one borrowed constant being applied
+knowingly wrong: Maes et al. compute them for a 1,000-bit output, and this construction
+needs 2,921. The overhead depends on output length through an inverse binomial, so
+scaling the figures was an approximation rather than a lookup.
+
+The constraint is now implemented. For an n-bit response at bias p, the number of bits
+retained by von Neumann debiasing is binomially distributed with parameters
+(floor(n/2), 2p(1-p)), and n must be large enough that the failure-rate quantile of that
+distribution still reaches the required output length.
+
+Calibration first: the implementation reproduces all three figures the paper states -
+4,446 and 2,322 at fifty percent bias, and 5,334 at thirty - exactly.
+
+Rescaled to 2,921 response bits:
+
+| Method | Bias | Raw bits needed | Overhead | Figure borrowed until now |
+|---|---|---|---|---|
+<!-- derived:external --> | CVN | 50 percent | 12,432 | 4.26 | 4.40 |
+<!-- derived:external --> | CVN | 30 percent | 14,868 | 5.09 | 5.30 |
+<!-- derived:external --> | 2O-VN | 50 percent | 6,376 | 2.18 | 2.31 |
+<!-- derived:external --> | 2O-VN | 30 percent | 7,638 | 2.61 | 2.66 |
+
+Every corrected figure is lower than the borrowed one, by three to five percent, because
+relative binomial fluctuation shrinks as the output grows and less slack is needed. So the
+project has been conservative rather than wrong, which is the better direction to have
+erred - and it is now computed rather than approximated.
+
+The conclusion of section 18 is unaffected: at 2.18 the disjoint arrangement still needs
+6,368 response bits and 23.4 tiles, well over the sixteen available.
+
+## 31. Debiasing in the chain, and a third witness
+
+The end-to-end run now includes the debiasing stage, so the formula above has an
+independent check.
+
+| Method | Bias | Raw needed by formula | Retained over 12 trials |
+|---|---|---|---|
+<!-- derived:external --> | CVN | 50 percent | 12,432 | 3,050 to 3,163 |
+<!-- derived:external --> | CVN | 30 percent | 14,868 | 3,066 to 3,221 |
+<!-- derived:external --> | 2O-VN | 50 percent | 6,376 | 3,132 to 3,322 |
+<!-- derived:external --> | 2O-VN | 30 percent | 7,638 | 3,056 to 3,344 |
+
+Every trial clears the 2,921 the construction needs, with the margin a constraint sized
+for one failure in a million should leave.
+
+And the stage does what it is for. Sources at bias 0.50, 0.30 and 0.20 produce retained
+bits at 0.4999, 0.5014 and 0.4995 over tens of thousands of bits - which is the von
+Neumann property, demonstrated rather than cited.
+
+## 32. How much the answer depends on the number measured elsewhere
+
+The entropy density is the weakest input in this work: 0.9414, from ring oscillators on
+Spartan-3E parts, at room temperature, with adjacent pairing, gathered by other people for
+another purpose. Reporting a conclusion at one value of it would be reporting a conclusion
+at someone else's operating point, which is the error W-INTL-74 was written about.
+
+So, across the plausible range, restricted to codes whose decoders have been measured:
+
+| Entropy density | Best code | Tiles | Max BER |
+|---|---|---|---|
+<!-- derived:external --> | 1.00 to 0.88 | BCH(127,22,23) | 5.34 | 5.23 percent |
+| 0.87 and below | none among measured codes | - | - |
+
+**The recommendation does not move at all between 0.88 and 1.00** - same code, same area,
+same error tolerance - and then stops entirely. The measured value sits 0.07 above the
+cliff.
+
+That is a better shape of answer than a margin. A margin invites the question of how much
+is enough; a flat band with an edge says the decision is insensitive to the weak input
+over a wide range, and names the point where it is not.
+
+Two honest qualifications. The cliff is a cliff in the *measured* set: the search finds
+codes with margin down to 0.78, but their decoders are either unmeasured or, for the n=511
+family, measured and too large. So below 0.87 the answer is not that nothing works, it is
+that nothing that has been measured works, and finding out would mean measuring more.
+
+And the band's flatness is partly an artefact of restricting to five measured codes. With
+a denser measured set the area would likely fall somewhat as the density rises. The
+important part - that nothing changes across a six-point range - would survive.
