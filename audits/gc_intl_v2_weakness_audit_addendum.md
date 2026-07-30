@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-190
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-192
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4985,6 +4985,44 @@ The selection fraction was not, and its quantisation came from a choice of archi
 from arithmetic. That kind looks continuous in the model right up until someone asks which instrument
 does the ranking, which is why it survived five loops and the arithmetic ones survived none.
 
+## W-INTL-191  Renaming made the defect legible and nobody fixed the callers
+
+Severity: medium, and the lesson is about what a rename does.
+
+selected_ber became selected_ber_ideal last loop so a caller wanting the achievable figure would
+notice. Every caller still called the bound - the aging analysis, the code search and the CI figure
+check - all reading R.selected_ber_ideal in plain sight. A rename converts an invisible defect into a
+visible one, not into a fixed one, and a line reading _ideal is conspicuous only to someone already
+asking.
+
+All three now use the achievable rate, which needed a deterministic estimator first: the count-ranked
+sampler was a Monte Carlo, and a check that moves by a thousandth between runs teaches people to
+re-run it until it passes. selected_ber_counts_exact derives it in closed form and agrees with the
+sampler to within a tenth of a thousandth.
+
+It caught its own arithmetic on the way. The first version integrated the wrong tail and made the
+error rate rise with deeper selection; the sign of the slope caught it, not the magnitude.
+
+What it changes: the ten-year rate at the design's point goes from 0.0064 to 0.0040, the margin from
+6.9 to 11.1, and the absorbable unselected ten-year flip rate from 9.2 percent to 15.5. So a NAND
+ring must now capture 79.4 percent of the aging-resistant cell's benefit rather than 96.4 - the
+requirement on a component moved because a decision about provisioning moved.
+
+## W-INTL-192  A control that changed nothing, and coverage that was not coverage
+
+Severity: medium. Twenty-two bound figures and an input none of them could see.
+
+Setting the enrolment read count to one and running the figure check produced no failure. The design
+depends on that number - it is the difference between a ten-year margin of 11.1 and one of 2.2 - and
+no bound figure referred to it.
+
+Two now do: the ten-year margin and the absorbable flip rate, both recomputed from inputs including
+the read count. The control fires with "ten-year margin says 11.1, recomputing from inputs gives
+2.192".
+
+The shape is worth keeping. Coverage of a document is not coverage of a model: the question is not
+how many numbers are checked, but which inputs can change without any of them moving.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5148,6 +5186,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-185 | closed; the selection fraction and read count were never revisited against the aged error rate, leaving a ten-year margin of 1.10 - now 7.6 at forty percent kept and twenty-five reads |
 | W-INTL-187 | closed; the bound renamed and given an achievable sibling, and the other models read for the same defect |
 | W-INTL-189 | closed; the enrolment model ranked by a vote of sign bits while this project's own instrument emits frequency counts - count-based ranking is continuous and takes the ten-year margin from 6.9 to 11.3 at no area cost, at the price of an interface that must be disabled after enrolment |
+| W-INTL-191 | closed; every caller still used the bound one loop after the rename made it legible, and the achievable rate now has a deterministic closed form |
+| W-INTL-192 | closed; the enrolment read count could be set to one without any bound figure moving, so two figures now depend on it |
 | W-INTL-190 | closed; four of five continuous-looking parameters were quantised by arithmetic and already handled, and the fifth was quantised by an architectural choice, which is the kind that hides |
 | W-INTL-188 | closed; the selection fraction is quantised by the vote margin, so the forty percent adopted last loop is unreachable - twenty-five reads and the non-unanimous positions gives 54.4 percent and a margin of 6.9 |
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |

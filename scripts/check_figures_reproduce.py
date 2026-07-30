@@ -166,7 +166,9 @@ def recommendation():
         SE.selected_bias(SE.mean_for_density(RHO), I.SELECTION_LOSS)[0])
     need_k = KEY_BITS / rho_sel
     sigma = R.sigma_for_raw_ber(0.06)
-    eff = R.selected_ber_ideal(sigma, fraction)[0]
+    # The achievable rate, not the bound - see W-INTL-191. Deterministic, so the check
+    # does not move between runs.
+    eff = R.selected_ber_counts_exact(sigma, fraction, I.ENROLMENT_READS)
 
     best = None
     for m in (7, 8):
@@ -262,6 +264,32 @@ def check_selection_entropy():
     return rho_selected
 
 
+def aged_margin():
+    """How much room the construction has at ten years on an aging-resistant bank."""
+    import reliable_bit_selection as R
+    from math import sqrt
+    keep = 1.0 - I.SELECTION_LOSS
+    sig = sqrt(R.sigma_for_raw_ber(0.06) ** 2 + R.sigma_for_raw_ber(0.0773) ** 2)
+    return 0.0442 / R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS)
+
+
+def absorbable_flip():
+    """The unselected ten-year flip rate the construction still survives."""
+    import reliable_bit_selection as R
+    from math import sqrt
+    keep = 1.0 - I.SELECTION_LOSS
+    base = R.sigma_for_raw_ber(0.06) ** 2
+    lo, hi = 0.0, 0.99
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
+        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS) <= 0.0442:
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
 def check_ledger_figures(rec):
     """Bind the numbers in the ledger's area row to the model that produces them.
 
@@ -301,6 +329,11 @@ def check_ledger_figures(rec):
         ("measured density",     r"the measured ([\d.]+) - selection amplif", RHO, 0.0005),
         ("aging factor",         r"above the estimated ([\d.]+) times", I.AGING_RESISTANT_FACTOR, 0.005),
         ("aging cost in tiles",  r"per stage and ([\d.]+) of a tile", delta_tiles, 0.005),
+        # The read count had no bound figure, so a control that set it to one changed
+        # nothing a check could see - W-INTL-192. These two depend on it.
+        ("ten-year margin",      r"a ten-year margin of ([\d.]+)", aged_margin(), 0.15),
+        ("absorbable flip rate", r"flip rate exceeds ([\d.]+) percent unselected",
+         absorbable_flip() * 100, 0.15),
     ]
     # Two counts that describe the apparatus rather than the design, and were both
     # stale in prose: the testbench count and the number of declared areas. Counted from
@@ -415,7 +448,7 @@ def main():
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
     n_bound = check_ledger_figures(rec) + check_register_figures(rec)
-    if n_bound < 22:
+    if n_bound < 24:
         failures.append(
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "
             f"how a number goes back to being a sentence")
