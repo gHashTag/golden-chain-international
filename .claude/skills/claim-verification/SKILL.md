@@ -103,6 +103,16 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## A rule enforced by memory is a rule that has already failed twice
+
+A project rule - no area is quoted for a circuit that has not been exercised - had a script behind
+it that ran when somebody remembered. In five loops it was violated twice: once by a testbench that
+existed but was not wired into the script, once by a component that had no testbench at all.
+
+The rule was good and the enforcement was a habit. Move the part that a machine can run to where the
+machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
+guard on every change beats a whole guard on the changes you remember.
+
 ## A figure from a paper carries the operating point it was measured at
 
 A published ten-year degradation figure looked like it killed a design outright. It was measured at

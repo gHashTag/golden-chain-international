@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-156
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-157
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4295,6 +4295,29 @@ The rest stays open with its missing artefact named: the slow-corner liberty
 sky130_fd_sc_hd__ss_100C_1v60 is not in this environment, so no derate has been measured. An
 argument that a constraint is slack by a factor of ten is not a measurement of it.
 
+## W-INTL-157  The rule that no area is quoted for an unexercised circuit is now enforced by a machine
+
+Severity: medium. The rule has held for eighty loops on memory alone, and it failed twice.
+
+measure_all.sh runs every testbench before printing any area and refuses to print if one fails. That
+is the mechanism behind this project's central claim about its own figures, and for eighty loops it
+ran only when somebody remembered. It failed twice in five loops: the shared-multiplier solver had
+its differential testbench in the repository and not in this script (W-INTL-146), and the SLLC
+encoder had no testbench at all while its area was quoted (W-INTL-148).
+
+Split so the half that can run in CI does. --verify-only runs the testbenches and stops; the
+synthesis half needs a 13 MB standard-cell liberty that is not in this repository and stays local.
+The job installs iverilog and runs 21 testbenches on every pull request.
+
+Two guards on the guard, both controlled. A failing testbench fails the run - checked by turning an
+exclusive-or into an and. And the run fails if fewer than twenty testbenches ran, because a suite
+that compiles nothing looks exactly like a clean one otherwise, which is the shape of W-INTL-153;
+checked by truncating the suite to one entry.
+
+Named and not done: the synthesis half. Putting it in CI means fetching a PDK, and the areas it
+would check are already re-synthesised by scripts/verify_inputs.py locally. That is a real gap and
+it is smaller than the one just closed.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4439,3 +4462,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-154 | **open, critical**; aging is the first constraint the recommendation fails - 0.2888 against 0.0442 at ten years on a conventional bank, and the requirement is a ten-year flip rate at or below 9.2 percent |
 | W-INTL-155 | closed; two more CI steps that could not tell a clean scan from an empty one |
 | W-INTL-156 | half closed by argument, half named; area is corner-independent, and the slow-corner liberty is not in this environment |
+| W-INTL-157 | closed; the testbench half of measure_all.sh runs in CI on every pull request, with a failing-testbench control and a count guard |

@@ -62,3 +62,18 @@ jobs:
         run: |
           set -e
           python3 scripts/check_catalog.py
+
+  rtl-verification:
+    # Every area this project quotes is quoted for a circuit that decoded correctly, and
+    # for eighty loops that rule was enforced by whoever remembered to run measure_all.sh.
+    # The verification half needs only iverilog, so it runs here. The synthesis half needs
+    # a 13 MB standard-cell liberty that is not in this repository, and does not.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install iverilog
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq iverilog
+      - name: every testbench
+        run: |
+          set -e
+          bash research/rtl/measure_all.sh --verify-only

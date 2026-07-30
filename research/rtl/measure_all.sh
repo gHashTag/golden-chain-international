@@ -16,20 +16,35 @@
 # corner. Exit code 1 if any testbench fails.
 
 set -u
-LIB="${1:-/tmp/sky130.lib}"
 cd "$(dirname "$0")"
 
-if [ ! -f "$LIB" ]; then
+# --verify-only runs the testbenches and stops. The synthesis half needs a standard-cell
+# liberty, which is 13 MB of PDK and is not in this repository; the verification half
+# needs only iverilog, so it is the half that can run in CI. Splitting them is what makes
+# "every quoted figure comes from a circuit that was exercised" enforceable by a machine
+# rather than by whoever remembered to run this.
+VERIFY_ONLY=0
+if [ "${1:-}" = "--verify-only" ]; then
+    VERIFY_ONLY=1
+    shift
+fi
+
+LIB="${1:-/tmp/sky130.lib}"
+
+if [ "$VERIFY_ONLY" -eq 0 ] && [ ! -f "$LIB" ]; then
     echo "liberty file not found: $LIB" >&2
     echo "areas below would be meaningless without it; stopping" >&2
+    echo "run with --verify-only to check the testbenches without synthesising" >&2
     exit 1
 fi
 
 fail=0
+ran=0
 
 run_tb () {   # name, output-regex, iverilog args...
     local name="$1"; shift
     local bin; bin="$(mktemp -t tb)"
+    ran=$((ran + 1))
     if ! iverilog -g2012 -o "$bin" "$@" 2>/dev/null; then
         echo "  FAIL  $name (did not compile)"; fail=1; return
     fi
@@ -110,10 +125,26 @@ run_tb "SLLC encoder vs polynomial division, BCH(127,29,21)" \
 run_tb "Reed-Muller decoder R(1,6)" rm_area_probe.v tb_rm.v
 run_tb "characterisation readout" ro_characteriser.v tb_ro_char.v
 
+# The count is checked, not just the failures. A run that compiles nothing and reports
+# nothing looks identical to a clean one otherwise - the shape of W-INTL-153.
+if [ "$ran" -lt 20 ]; then
+    echo
+    echo "only $ran testbenches ran; expected the full set" >&2
+    exit 1
+fi
+
 if [ "$fail" -ne 0 ]; then
     echo
     echo "a testbench failed; areas are not printed" >&2
     exit 1
+fi
+
+echo
+echo "  $ran testbenches ran, $fail failed"
+
+if [ "$VERIFY_ONLY" -eq 1 ]; then
+    echo "  --verify-only: stopping before synthesis"
+    exit 0
 fi
 
 echo
