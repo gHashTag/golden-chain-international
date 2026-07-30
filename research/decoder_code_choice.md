@@ -1202,3 +1202,80 @@ expensive one, and **no cell changes from fitting to not fitting**. The caveat i
 
 It was reasonable to defer and it is better closed: a caveat carried on the grounds that it
 probably does not matter is a caveat nobody can act on, and the test cost one calculation.
+
+---
+
+## 44. Timing, measured for the first time across thirteen designs
+
+None of the thirteen decoders had closed timing, and `bm_area_probe.v` says so in its own
+header: the critical path is one general multiply, an XOR tree over t+1 terms, and a second
+multiply, with a systolic reformulation available if the clock matters. Nobody had checked
+what clock it does reach.
+
+No static timing analyser is installed here, so the measurement is logic depth rather than
+delay - the longest topological path through the mapped netlist, which the synthesiser
+reports directly:
+
+| Design | Logic depth |
+|---|---|
+<!-- derived:external --> | solver, GF(2^8), t=4 | 18 |
+<!-- derived:external --> | solver, GF(2^7), t=23 | 17 |
+<!-- derived:external --> | solver, GF(2^8), t=18 | 21 |
+<!-- derived:external --> | solver, GF(2^8), t=55 | 23 |
+
+The depth grows logarithmically in t - eighteen at t=4, twenty-three at t=55 - which is what
+the header predicted: two multipliers at about m levels each plus a tree of log2(t+1). At
+t=55 that is sixteen plus six, and twenty-three is measured. **The file's own architectural
+claim is confirmed by measurement rather than restated.**
+
+Converting to a clock needs a per-level delay, taken from the liberty: the median table entry
+for the two-input gates the mapper actually uses runs 220 to 350 picoseconds. At those
+figures the solver reaches roughly 145 to 300 megahertz, the slowest case being t=55.
+
+Two limits. The depth is measured before technology mapping, and the mapper both merges
+levels into complex cells and inserts buffers, so it is a proxy. And there is no wire delay.
+Against a Tiny Tapeout user clock of a few tens of megahertz, the margin is three-fold to
+thirty-fold either way.
+
+## 45. The power figure has a second witness, and it agrees
+
+Section 41 estimated dynamic current from input pin capacitance and flagged that the
+leakage extracted from the same library looked implausibly small - a sign the units might be
+misread. That is a reason to distrust the whole extraction, not just the leakage.
+
+Computed a second way, through a different part of the library: energy per switching event
+from the internal_power tables, which is a different quantity arrived at by a different
+route.
+
+| Design | Capacitance route | Internal-power route | Ratio |
+|---|---|---|---|
+<!-- derived:external --> | BCH(127,29,21) | 20 mA at 2,059 MHz | 20 mA at 2,540 MHz | 1.2x |
+<!-- derived:external --> | BCH(255,21,55) | 20 mA at 609 MHz | 20 mA at 741 MHz | 1.2x |
+
+Agreement within twenty percent. That is a second witness for the dynamic figure and, more
+usefully, it validates the units interpretation the leakage anomaly had called into
+question.
+
+Interconnect, which the capacitance route omits, is not negligible: at 130 nanometres a local
+net carries roughly one to two femtofarads, and with one net per cell output that is
+comparable to the gate capacitance rather than a correction to it.
+
+| BCH(255,21,55) | Wire capacitance | Total | 20 mA at |
+|---|---|---|---|
+<!-- derived:external --> | 1 fF per net | 36 pF | 157 pF | 471 MHz |
+<!-- derived:external --> | 2 fF per net | 71 pF | 193 pF | 384 MHz |
+
+## 46. Timing binds before power, and both by an order of magnitude
+
+Putting the two together for the largest decoder: timing runs out at 145 to 300 megahertz,
+power at 384 to 471. **Timing is the tighter of the two**, which is worth knowing because
+the intuition ran the other way - a design with 35,643 cells sounds like a power problem and
+is a depth problem.
+
+Neither binds. A Tiny Tapeout user clock is a few tens of megahertz and the decoder runs once
+at power-up for a few thousand cycles, so both constraints have at least an order of
+magnitude in hand.
+
+Three dimensions have now been checked that the analysis did not originally have: power,
+timing, and interconnect. All three are slack. That is three for three, and the reason to
+keep recording them is that the fourth might not be.

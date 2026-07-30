@@ -103,6 +103,31 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## When a method produces one implausible output, distrust the whole extraction
+
+An estimate was built from a standard-cell library, and one number it produced - the leakage -
+came out orders of magnitude too small. The dynamic figure from the same extraction was used
+anyway, with a note that the leakage looked wrong.
+
+That was the wrong response. An implausible output is evidence about the method, not about one
+field. Recomputing through a different part of the same library gave agreement within twenty
+percent, which validated the dynamic figure and the units interpretation together.
+
+So when one output of a derivation fails a sanity check, find a second route to a different
+output of the same derivation. Either it agrees and the anomaly is local, or it does not and
+you have found something larger than the field you noticed.
+
+## Measure the proxy you can when the instrument you want is absent
+
+No static timing analyser was available, so nothing had been checked about timing across
+thirteen designs for many loops. Logic depth was available from the synthesiser the whole
+time, and depth times a per-level delay from the library brackets the clock well enough to
+show the constraint is slack by an order of magnitude.
+
+A proxy with its limits stated beats an unchecked dimension. Name what the proxy omits - here
+technology mapping and wire delay - and say what margin would be needed before the omission
+matters.
+
 ## Check the constraint you never wrote down, and record it even when it is slack
 
 A design had been sized on area across thirteen configurations and nobody had asked about
