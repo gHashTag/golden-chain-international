@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-170
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-172
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4577,6 +4577,44 @@ whether a number is executed, and the defence is to move numbers into code that 
 read prose harder. The units check does that for the inputs, the cross-model check for a figure two
 files were free to disagree about, and what remains unprotected is what appears only in sentences.
 
+## W-INTL-171  The ledger's area row bound to the model, and three stale claims fell out
+
+Severity: medium. The binding is the deliverable; what it caught on the first run is the argument
+for it.
+
+W-INTL-170 established that the error rate tracks whether a number is executed. The row carrying
+this project's externally visible area claim held sixteen numbers, four of them recomputed by a
+check and the rest sentences. Fifteen now recompute from research/inputs.py on every run: cell area,
+utilisation, four component areas, raw and selected positions, k carried and required, the measured
+density, the aging factor and its cost in tiles, and two counts describing the apparatus.
+
+Three stale claims fell out immediately, none visible to any existing check. The aging-resistant
+oscillator's cost was stated as 0.07 of a tile and is 0.08. measure_all.sh was said to run nineteen
+testbenches and runs twenty-one. And the row still described oscillator aging as "named as
+unchecked" two loops after it became the constraint that drove the oscillator choice - in the same
+paragraph that described the oscillators as aging-resistant. Prose does not notice when it
+contradicts itself.
+
+External figures are deliberately left unbound - the literature's flip rates, the process node, the
+key length. Binding those would assert that a constant equals itself, which is what coverage counted
+for its own sake looks like.
+
+## W-INTL-172  The count that caught itself
+
+Severity: low, and it is a clean example of why two counts beat one.
+
+The testbench count was bound by counting run_tb lines in the script, which returned twenty-two
+where the script's own counter reports twenty-one: the function definition line, run_tb () {, also
+begins with run_tb.
+
+The disagreement was the value. The number to distrust is the one obtained by pattern-matching over
+source; the check against it is the artefact's own report of what it did, since the script
+increments its counter inside the function and therefore counts execution rather than appearance.
+
+A floor was added with the binding: the check fails if fewer than fifteen figures bind, because a
+list of bindings can shrink silently and a number that stops being checked goes back to being a
+sentence without anyone deciding that it should.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4731,6 +4769,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-165 | closed as a route; burn-in needs a quarter to two thirds of the service life before enrolment, so it supplements the aging-resistant oscillator rather than replacing it, and the 28 percent it was recorded with was 18.3 |
 | W-INTL-167 | closed with a check in CI; every ratio in the inputs declares its units, and the aging factor is a width ratio multiplying an area - kept as the conservative end |
 | W-INTL-169 | closed; every division in the six models read, one defect found and fixed with one definition imported plus a cross-model check |
+| W-INTL-171 | closed; fifteen ledger figures bound to the model, and three stale prose claims fell out on the first run |
+| W-INTL-172 | closed; a count taken by pattern-matching source disagreed with the artefact's own counter, and the artefact was right |
 | W-INTL-170 | open as a method finding; the error rate tracks whether a number is executed, so move numbers into code rather than reading prose harder |
 | W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |

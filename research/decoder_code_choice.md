@@ -2956,3 +2956,44 @@ whether a number is executed**, and the defence is to move numbers into code tha
 read prose more carefully. The units check does that for the inputs; the cross-model check does it
 for a figure that two files were free to disagree about; the parts still unprotected are the ones
 that appear only in sentences.
+
+## 107. The ledger's area row, bound to the model that produces it
+
+W-INTL-170 said the error rate tracks whether a number is executed. The row carrying this project's
+externally visible area claim held sixteen numbers, of which four were recomputed by a check and the
+rest were sentences. Fifteen are now recomputed from `research/inputs.py` on every run: cell area,
+utilisation, the four component areas, raw and selected positions, k carried and k required, the
+measured density, the aging factor and its cost in tiles, and two counts describing the apparatus.
+
+Binding them found three stale claims in the row immediately, none of which any existing check could
+see:
+
+| Claim | Said | Is |
+|---|---|---|
+<!-- derived:external --> | cost of the aging-resistant oscillator | 0.07 of a tile | **0.08** |
+<!-- derived:external --> | testbenches in `measure_all.sh` | nineteen | **twenty-one** |
+<!-- derived:external --> | oscillator aging | "named as unchecked" | checked, binding, and met |
+
+The third is the one that matters. The row still described aging as an open question two loops after
+it became the constraint that drove the oscillator choice, in the same paragraph that described the
+oscillators as aging-resistant. Prose does not notice when it contradicts itself.
+
+The figures deliberately left unbound are the external ones - the literature's flip rates, the
+process node, the key length. Binding those would assert that a constant equals itself, which is the
+failure mode of coverage counted for its own sake.
+
+## 108. The count that caught itself
+
+The testbench count was bound by counting `run_tb` lines in the script. That regex returned
+twenty-two where the script's own counter reports twenty-one, because the function *definition*
+line - `run_tb () {` - also begins with `run_tb `.
+
+Two independent counts of the same thing disagreed, and the disagreement was the whole value: the
+first number to distrust is the one you obtained by pattern-matching over source, and the check
+against it is the artefact's own report of what it did. The script prints "21 testbenches ran"
+because it increments a counter inside the function, which is the count that reflects execution
+rather than appearance.
+
+A floor was added with it. The check fails if fewer than fifteen figures bind, because a list of
+bindings can shrink silently and a number that stops being checked goes back to being a sentence
+without anyone deciding that it should.

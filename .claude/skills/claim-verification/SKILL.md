@@ -123,6 +123,28 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## Count by execution, not by appearance
+
+A script's testbench count was taken by matching lines in its source and came out one too high - the
+function definition line matched the same pattern as the calls. The script's own counter, incremented
+inside the function, was right.
+
+Pattern-matching over source counts what looks like the thing. A counter inside the thing counts what
+ran. When both are available, the second is the measurement and the first is a guess that happens to
+be usually correct - and when they disagree, that disagreement is worth more than either number.
+
+## Bind prose figures to the model, and put a floor under how many are bound
+
+A document row carrying an externally visible claim held sixteen numbers, four checked and twelve
+written. Binding eleven more of them to the model that produces them found three stale claims on the
+first run - including one describing a constraint as unchecked in the same paragraph that described
+the design built to satisfy it. Prose does not notice when it contradicts itself.
+
+Two cautions came with it. Do not bind constants that came from outside: asserting that an input
+equals itself is coverage counted for its own sake. And put a floor under the count of bindings,
+because the list can shrink silently, and a number that stops being checked returns to being a
+sentence without anyone deciding that it should.
+
 ## The error rate tracks whether a number is executed
 
 After two errors in the same class, every division in six models was read expecting to find more.

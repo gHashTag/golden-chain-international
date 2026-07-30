@@ -39,6 +39,7 @@ TILE = I.TILE_AREA
 TILE_LIMIT = I.TILE_LIMIT
 UTILISATION = I.UTILISATION
 OSC = I.OSCILLATOR_AREA
+INVERTERS = I.INVERTERS_PER_OSCILLATOR
 RHO = I.MIN_ENTROPY_DENSITY
 KEY_BITS = I.KEY_BITS
 DECODER = I.DECODER_AREA
@@ -255,6 +256,90 @@ def check_selection_entropy():
     return rho_selected
 
 
+def check_ledger_figures(rec):
+    """Bind the numbers in the ledger's area row to the model that produces them.
+
+    W-INTL-170: the error rate tracks whether a number is executed, and both errors that
+    mattered lived in prose. The ledger row that carries this project's externally visible
+    area claim held sixteen numbers, of which four were recomputed by this file and twelve
+    were sentences.
+
+    Each entry below is recomputed from research/inputs.py. Figures that are external -
+    the literature's aging rates, the process node, the key length - are deliberately not
+    here; they are inputs, not derivations, and binding them would only assert that a
+    constant equals itself.
+    """
+    if rec is None:
+        return 0
+    tiles, n, k, t, blocks, raw, osc, rho_sel = rec
+    decoder = I.decoder_area(7, t)
+    sllc = I.SLLC_AREA[t]
+    counter = I.COUNTERMEASURE_AREA["spongent_permutation"]
+    osc_area = osc * OSC
+    cells = decoder + sllc + counter + osc_area
+    conventional_osc = osc * INVERTERS * I.INVERTER_AREA
+    delta_tiles = (cells / UTILISATION / TILE) - (
+        (decoder + sllc + counter + conventional_osc) / UTILISATION / TILE)
+
+    bound = [
+        ("cell area",            r"from ([\d,]+) square micrometres of standard cells", cells, 1),
+        ("tile utilisation",     r"measured (\d+) percent tile utilisation", UTILISATION * 100, 0.5),
+        ("decoder area",         r"decoder ([\d,]+),", decoder, 1),
+        ("SLLC area",            r"SLLC stages ([\d,]+),", sllc, 1),
+        ("countermeasure area",  r"countermeasure ([\d,]+),", counter, 1),
+        ("oscillator area",      r"oscillators ([\d,]+)\.", osc_area, 1),
+        ("raw positions",        r"([\d,]+) raw positions", raw, 0),
+        ("selected positions",   r"([\d,]+) selected, \d+ oscillators", n * blocks, 0),
+        ("k carried",            r"carries ([\d,]+) bits of k", k * blocks, 0),
+        ("k required",           r"against the ([\d.]+) the key needs", KEY_BITS / rho_sel, 0.05),
+        ("measured density",     r"the measured ([\d.]+) - selection amplif", RHO, 0.0005),
+        ("aging factor",         r"above the estimated ([\d.]+) times", I.AGING_RESISTANT_FACTOR, 0.005),
+        ("aging cost in tiles",  r"per stage and ([\d.]+) of a tile", delta_tiles, 0.005),
+    ]
+    # Two counts that describe the apparatus rather than the design, and were both
+    # stale in prose: the testbench count and the number of declared areas. Counted from
+    # the artefacts rather than remembered.
+    # The obvious regex counts the function definition too - "run_tb () {" starts with
+    # "run_tb " - and reported twenty-two where the script runs twenty-one. Caught by the
+    # script's own count disagreeing with it, which is the point of counting twice.
+    tb_count = len(re.findall(r'(?m)^run_tb "',
+                              (ROOT / "research" / "rtl" / "measure_all.sh").read_text()))
+    declared = (len(I.DECODER_AREA) + len(I.DECODER_AREA_SERIAL)
+                + len(I.SLLC_AREA) + len(I.COUNTERMEASURE_AREA))
+    WORDS = {19: "nineteen", 20: "twenty", 21: "twenty-one", 22: "twenty-two",
+             23: "twenty-three", 24: "twenty-four"}
+    bound += [
+        ("testbench count", r"measure_all\.sh runs ([a-z-]+) testbenches",
+         WORDS.get(tb_count, str(tb_count)), None),
+        ("declared areas", r"re-synthesised by scripts/verify_inputs\.py - ([a-z-]+) of them",
+         WORDS.get(declared, str(declared)), None),
+    ]
+
+    text = LEDGER.read_text() if LEDGER.exists() else ""
+    if not text:
+        failures.append("evidence_ledger.md missing, so no ledger figure was bound")
+        return 0
+    flat = re.sub(r"\s+", " ", text)
+    for label, pattern, expected, tol in bound:
+        m = re.search(pattern, flat)
+        if not m:
+            failures.append(f"evidence_ledger.md: no figure found for {label} "
+                            f"(pattern {pattern!r})")
+            continue
+        if tol is None:                      # a word rather than a number
+            if m.group(1) != expected:
+                failures.append(
+                    f"evidence_ledger.md: {label} says '{m.group(1)}', counting the "
+                    f"artefact gives '{expected}'")
+            continue
+        got = float(m.group(1).replace(",", ""))
+        if abs(got - expected) > tol:
+            failures.append(
+                f"evidence_ledger.md: {label} says {got:g}, recomputing from inputs "
+                f"gives {expected:.4g} (tolerance {tol})")
+    return len(bound)
+
+
 def main():
     check_selection_entropy()
 
@@ -278,6 +363,12 @@ def main():
                   0.002, required)
             check(text, name, "oscillator floor",
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
+
+    n_bound = check_ledger_figures(rec)
+    if n_bound < 15:
+        failures.append(
+            f"only {n_bound} ledger figures were bound; the list has shrunk, which is "
+            f"how a number goes back to being a sentence")
 
     at_measured = cheapest(RHO, 0.04)
     if at_measured is None:
@@ -308,7 +399,8 @@ def main():
     print(f"check_figures_reproduce: OK "
           f"(recommendation BCH({n},{k},{t}) x {blocks} at {tiles:.2f} of {TILE_LIMIT} "
           f"tiles, {raw} raw positions, {osc} oscillators, "
-          f"post-selection density {rho_sel:.4f})")
+          f"post-selection density {rho_sel:.4f}; "
+          f"{n_bound} ledger figures bound)")
     return 0
 
 
