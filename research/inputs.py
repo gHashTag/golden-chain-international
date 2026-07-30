@@ -75,6 +75,19 @@ DECODER_AREA = {
 # is a physical structure, not a logic cell - and are scaled from INVERTER_AREA above.
 CHARACTERISER_AREA = {272: 5_223, 64: 3_435}
 
+# measured here: the helper-data manipulation countermeasure. SPONGENT-88/80/8's
+# permutation, one round per clock. This replaces a figure borrowed from the thesis - 85
+# slices on a Spartan-3E - which was the last number in this project taken from a paper
+# rather than measured on the right library. Diffusion verified before the area was quoted:
+# one input bit changes a mean of 46.5 of 88 output bits, and two injected faults fail it.
+COUNTERMEASURE_AREA = {"spongent_round": 2_215, "spongent_permutation": 6_215}
+
+# a requirement on the provisioning flow, not an implementation detail. Reliable-bit
+# selection ranks positions by repeated reads, and the ranking quality is what sets the
+# effective error rate: one read makes selection counterproductive, nine gives 0.0133
+# effective from 0.0600 raw, twenty-five gives 0.0104. Nine is the figure the budget uses.
+ENROLMENT_READS = 9
+
 # ── debiasing ───────────────────────────────────────────────────────────────
 # measured there: Maes, van der Leest, van der Sluis and Willems, Table 2, overhead at
 # bias 40/35/30/25 percent. Computed for a 1,000-bit output; the dependence runs through
