@@ -103,6 +103,32 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Resolve the bound another agent stated for itself, and reuse its instrument
+
+A parallel agent on the same prompt reached a conclusion and named its own limit precisely: only
+one pairing was measured, and a stronger one could reverse it. Testing exactly that reversed it.
+
+Two things made this cheap. Its bound was stated in a form that said what experiment would settle
+it. And its model was already validated against a large sample, so reusing it rather than building
+another meant the two results were comparable and the validation was inherited.
+
+So when another agent - or an earlier loop - leaves an explicit bound, treat it as the highest-value
+next experiment, and reuse the instrument rather than writing a second one. A second instrument
+gives you two numbers to reconcile; the same instrument gives you an answer.
+
+## Check another agent's arithmetic against its own stated conditions
+
+A figure in a parallel agent's comparison was correct for four percent and quoted at six, which
+changed a loss into a tie. Its mechanism measurements were all sound; one number had travelled from
+a different operating point.
+
+Neither agent would have caught it alone, because each reads its own figures as familiar. The check
+that found it was mechanical: take each quoted number, find the condition it was derived under, and
+confirm that condition is the one it is being quoted for.
+
+That is worth doing to your own figures too, and it is easier on someone else's - which is the
+argument for the parallel arrangement, against which the branch collisions are the argument.
+
 ## The taxonomy's top level is the one that matters, and it is usually one sentence
 
 The map of framings turned out to be a single sentence in a chapter conclusion: there are two main

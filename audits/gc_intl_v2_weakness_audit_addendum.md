@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-123
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-132
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3708,6 +3708,72 @@ than trusting the pull request state.
 The fix adopted here: session branches carry a `-session` suffix. The deeper point is that two
 agents given the same prompt and the same naming convention will collide, and the collision is
 silent on one side - the routine had no way to know.
+
+## W-INTL-130  Selection paired with BCH reverses the parallel routine's conclusion, as it predicted
+
+Severity: this resolves the bound W-INTL-118 stated for itself, and it settles the error-rate
+constraint.
+
+W-INTL-118 measured reliable-bit selection against repetition and named its own limit: the source
+pairs selection with a convolutional code, only repetition was measured, and a stronger inner code
+could reverse the conclusion.
+
+Paired with the BCH codes whose decoders are measured here, reusing the routine's selection model
+rather than rebuilding it - that model is validated against a 120,000-position sample to within
+half a thousandth. With nine enrolment reads: at six percent raw, keeping eighty percent gives an
+effective 0.0133 and needs 794 raw positions at 8.19 tiles; at ten percent, the same fraction gives
+0.0466 and the same 794 positions; at fifteen percent, keeping forty percent gives 0.0374 and needs
+1,588 positions at 8.23 tiles.
+
+Nine reads, one code, about 8.2 tiles at every error rate from six to fifteen percent. Without
+selection: 10.37 tiles at six, 26.33 at ten which does not fit, nothing at fifteen.
+
+So the reversal happens and the routine called it correctly. Its conclusion holds for repetition and
+not for BCH.
+
+Two things preserved rather than discarded. These figures use a finite enrolment budget, not the
+perfect ranking W-INTL-119 warned against. And at a single enrolment read selection makes things
+worse - 0.0823 effective against 0.0600 raw - because ranking on one noisy measurement selects for
+what the noise did rather than for what the device is.
+
+## W-INTL-131  A figure in the parallel routine's comparison did not follow its own condition
+
+Severity: medium, and the way it was found matters as much as the correction.
+
+W-INTL-118 compares selection plus repetition at 1,211 to 1,765 response bits against SLLC needing
+635 at the same rate. The 635 is five blocks of BCH(127,29,21), and at six percent raw that gives a
+word failure rate of 3.44e-05 against a target of one in a million. It does not meet the target
+there: 635 is the figure for four percent, where that code tolerates up to 4.42 percent. SLLC at six
+percent needs BCH(127,15,27) at ten blocks and 1,270 response bits.
+
+So the comparison is 1,211 to 1,765 against 1,270 - roughly a tie rather than a loss - and selection
+paired with BCH needs 794, which wins outright.
+
+The routine's mechanism measurements stand and are used above: the selection model, the 0.150 to
+0.0066 figure, the sample agreement, and the enrolment-cost curve. What was wrong was one figure
+carried from a different operating point, the same class as W-INTL-99 and W-INTL-107 - a number that
+did not follow the condition it was computed under.
+
+How it was found is worth recording. Two agents on the same prompt, one checking the other's
+arithmetic against its own stated conditions. Neither would have caught it alone, because each reads
+its own figures as familiar. That is an argument for the parallel arrangement that W-INTL-123 was
+otherwise a case against.
+
+## W-INTL-132  Audit numbering collides between agents, and a suffix on branches does not fix it
+
+Severity: low, and it is the second half of W-INTL-123.
+
+W-INTL-123 fixed branch collisions with a `-session` suffix. The numbering collided independently:
+both agents reached W-INTL-118 and both reached W-INTL-120, each incrementing from what it saw on
+main, and the session had to renumber twice in one loop.
+
+A suffix on the branch does not help, because the number is in the file. This loop takes 130 and
+above for session entries, leaving 124 to 129 free for the routine, which is a convention rather
+than a mechanism and will hold only until one side needs seven entries.
+
+The mechanism that would work is a number derived from content rather than from a counter. Recorded
+as the fix not taken, because the convention is enough for now and the cost of being wrong is a
+rename rather than a lost finding.
 
 ## Priority order
 
