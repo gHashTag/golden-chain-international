@@ -123,6 +123,29 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## When a disposition fails twice, replace it with a check that runs
+
+A rule that said "be careful where the answer is convenient" was in the skill file when the same
+error was made again, three loops later. The rule was right and unusable: it names a mood.
+
+The replacement is a script that requires every ratio in the inputs file to declare its numerator
+and denominator units, and fails otherwise. It cannot tell whether the units are correct - it forces
+the claim into the open, which was enough to surface a width ratio being applied to an area.
+
+The general move: when you catch yourself writing the same lesson a second time, stop writing
+lessons. Ask what mechanical artefact would have made that instance impossible to commit, and build
+that instead. A disposition scales with attention; a check does not need any.
+
+## Sweep the assumption you cannot verify, and quote the arm that is not convenient
+
+A calculation rested on an unverified step about how a quantity scales with time. Rather than pick
+the plausible value, both plausible forms were computed - and one of them made the answer twice as
+favourable.
+
+Report both, and state the requirement against the *unfavourable* arm. The favourable one is a
+sensitivity, not a result. If the conclusion survives the unfavourable arm you have something; if it
+only survives the favourable one you have a question, and saying so is the finding.
+
 ## Take a ratio in the units the mechanism operates in
 
 A requirement was expressed as "the residual may be 28 percent of the ten-year value", computed from

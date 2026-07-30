@@ -58,6 +58,10 @@ jobs:
           python3 scripts/check_commit_claims.py \
             "${{ github.event.pull_request.base.sha || github.event.before }}..${{ github.event.pull_request.head.sha || github.sha }}" \
             --require-commits
+      - name: units on every ratio
+        run: |
+          set -e
+          python3 scripts/check_units.py
       - name: catalog rules
         run: |
           set -e

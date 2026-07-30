@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-166
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-168
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4498,6 +4498,47 @@ quantities must be taken in the units the mechanism operates in, and when a mode
 that the observable is a saturating function of, the parameter is the unit. Flip rate is what you
 measure; sigma is what accumulates.
 
+## W-INTL-167  Every ratio in the inputs declares its units, and one of them is in the wrong ones
+
+Severity: medium. The check is mechanical; what it found is a real mismatch that was already known
+and had never been named as this class.
+
+W-INTL-166 found the same units error twice in three loops, with the disposition written after the
+first instance already in the skill file when the second was made. So scripts/check_units.py
+requires every ratio in research/inputs.py to carry a units line naming numerator and denominator,
+and fails otherwise. On its first run six of six were undeclared. It cannot verify that the units
+are right; it forces the claim into the open.
+
+Writing them out found one that is wrong. AGING_RESISTANT_FACTOR is a ratio of transistor widths and
+it multiplies an area. Widths and laid-out areas do not scale together, which is precisely why the
+library bracket for two added devices - 1.33 to 1.67 - sits below the 1.857 the width calculation
+gives.
+
+Kept anyway, and the reasoning is recorded at the point of definition. Adopting the area-grounded
+1.67 would shrink the budget; the width figure is the conservative end of a quantity with no
+measurement behind it; and on an unmeasured quantity the convenient direction is not the one to move
+in. That is the third loop running in which the convenient direction has been the thing to watch.
+
+## W-INTL-168  The burn-in assumption swept rather than asserted
+
+Severity: low, and it strengthens the previous loop's conclusion rather than changing it.
+
+The burn-in numbers rest on one unverified step: that the differential between two oscillators
+inherits the time dependence of the degradation. Swept now, with the differential taken as t^(k*n).
+k = 0.5 is what a trap-counting picture gives, since a Poisson number of trapped charges has a
+standard deviation going as the square root of its mean, so the spread grows more slowly than the
+mean and more of it lands early.
+
+Under k = 1 burn-in needs a quarter to two thirds of the service life before enrolment; under k = 0.5
+it needs eight to forty-five percent. The literature searched supports only the direction - aging
+induced threshold-voltage variability grows with stress and correlates with gate-oxide area - and no
+source read here gives the functional form.
+
+Both arms are reported and the requirement is quoted against k = 1, the arm that is not convenient.
+Even at the most favourable corner of the favourable arm, burn-in costs eight percent of the service
+life before enrolment, so the previous loop's conclusion stands: it supplements the aging-resistant
+oscillator and does not replace it.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4650,5 +4691,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-162 | closed; the aging factor bracketed against the library at 1.33 to 1.67 laid out, so the 1.86 in use is conservative |
 | W-INTL-163 | open as a route; a silicon source gives burn-in before enrolment as a second way to meet the aging requirement, at no area cost, needing at most 28 percent of the degradation left to come |
 | W-INTL-165 | closed as a route; burn-in needs a quarter to two thirds of the service life before enrolment, so it supplements the aging-resistant oscillator rather than replacing it, and the 28 percent it was recorded with was 18.3 |
+| W-INTL-167 | closed with a check in CI; every ratio in the inputs declares its units, and the aging factor is a width ratio multiplying an area - kept as the conservative end |
+| W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |
 | W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |

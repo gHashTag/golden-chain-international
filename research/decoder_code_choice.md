@@ -2854,3 +2854,57 @@ What would have caught it is narrower and more mechanical than a disposition: **
 quantities must be taken in the units the mechanism operates in**, and when a model carries a
 parameter that the observable is a saturating function of, the parameter is the unit. Flip rate is
 what you measure. Sigma is what accumulates.
+
+## 103. Every ratio in the inputs now says what it divides by what
+
+W-INTL-166 found the same units error twice in three loops, and the disposition written after the
+first instance was in the skill file when the second was made. So it is mechanised.
+
+`scripts/check_units.py` requires every ratio in `research/inputs.py` to carry a `units:` line naming
+numerator and denominator, and fails otherwise. It cannot verify that the units are *right*. What it
+does is force the claim into the open, and on its first run six of six ratios were undeclared.
+
+Writing them out found one that is wrong:
+
+| Quantity | Units | |
+|---|---|---|
+| `UTILISATION` | cell area / die area | consistent |
+| `INVERTER_AREA` | square micrometres / inverters | consistent |
+| `MIN_ENTROPY_DENSITY` | entropy bits / response bits | consistent |
+| `SELECTION_LOSS` | positions / positions | consistent |
+| `DEBIAS_OVERHEAD` | raw bits in / retained bits out | consistent |
+| `AGING_RESISTANT_FACTOR` | **transistor width / transistor width** | **multiplies an area** |
+
+The aging factor is a ratio of transistor widths applied to an area. Widths and laid-out areas do not
+scale together, which is exactly why the library bracket - 1.33 to 1.67 for two added devices - sits
+below the 1.857 the width calculation gives.
+
+It is kept anyway, and the reason is worth stating because it cuts against the usual instinct.
+Adopting the area-grounded 1.67 would shrink the budget; the width figure is the conservative end of
+a quantity with no measurement behind it; and on an unmeasured quantity the convenient direction is
+not the one to move in. The units line now says so at the point of definition, where the next person
+to read it will be deciding exactly that.
+
+## 104. The burn-in assumption swept rather than assumed
+
+The burn-in numbers rest on one unverified step: that the *differential* between two oscillators
+inherits the time dependence of the degradation. It is now swept rather than asserted, with the
+differential taken as `t^(k*n)`:
+
+| NBTI exponent n | k = 1.0 | k = 0.5 | share, k=1 | share, k=0.5 |
+|---|---|---|---|---|
+<!-- derived:external --> | 0.16 | 2.82 | 0.79 | 28% | 8% |
+<!-- derived:external --> | 0.25 | 4.45 | 1.98 | 44% | 20% |
+<!-- derived:external --> | 0.50 | 6.67 | 4.45 | 67% | 44% |
+
+k = 0.5 is what a trap-counting picture gives: a Poisson number of trapped charges has a standard
+deviation going as the square root of its mean, so the spread grows more slowly than the mean and
+more of it lands early. Under that arm burn-in needs eight to forty-five percent of the service life
+rather than a quarter to two thirds.
+
+The literature searched supports the direction - aging-induced threshold-voltage variability grows
+with stress and correlates with gate-oxide area - and no source read here gives the functional form.
+So both arms are reported and **the requirement is quoted against k = 1**, which is the arm that is
+not convenient. Even at the most favourable corner of the favourable arm, burn-in is eight percent of
+the service life before enrolment, so the conclusion of the previous loop stands: it supplements the
+aging-resistant oscillator and does not replace it.
