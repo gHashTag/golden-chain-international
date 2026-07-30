@@ -93,6 +93,7 @@ the level was lowered rather than the artefact restated.
 | E28 | Hardware class can be proven by response deadline | refuted | a native optimised software implementation completes the sequential work faster than the target device | already falsified; retained so the idea is not reintroduced |
 | E29 | Hardware class can be narrowed by parallel-width challenge | partial | model | separation holds against a general-purpose processor and fails against a many-lane accelerator |
 | E30 | Correctness is enforced economically | modelled | re-execution of a sampled fraction with stake forfeiture; operating point 1 percent sampling at 100x stake | a parameter set where the expected value of cheating is positive |
+| E31 | A usable identity root fits the shuttle area budget | test, synthesis not silicon | three decoder stages and an alternative code synthesised against the SkyWater library at the typical corner on 2026-07-30, each verified in a self-checking testbench before its area was quoted and each check shown able to fail on injected faults. BCH(255,131) decoder 89,515 um^2 at t=18, five of the sixteen tiles a submission may use; the construction the standard reference recommends instead - repetition concatenated with first-order Reed-Muller - 4,596 um^2, a quarter of one tile. See research/decoder_code_choice.md | the oscillator count, which is not measured: the recommended construction needs 4,800 source bits at a bit error probability of 0.15, against the 384 this budget assumes from an untied multiplier. A measured error rate on this process could make the answer no. Nothing here is fabricated; see audits W-INTL-53 and W-INTL-55 |
 
 ---
 
@@ -105,12 +106,12 @@ the level was lowered rather than the artefact restated.
   conjecture    1 row
   modelled      2 rows
   refuted       2 rows
-  test          2 rows   (1 of them independently reproduced by execution)
+  test          3 rows   (1 of them independently reproduced by execution)
   not built     2 rows
   not measured  1 row
   partial       1 row
   undefined     1 row
-  total        30 rows
+  total        31 rows
 
 The economics section is the weakest part of this table and was the last to be
 checked. Of its five rows, one is confirmed on a public chain, one is refuted by
@@ -125,6 +126,14 @@ the submission history, and the withdrawal record that was there is both true an
 more useful. E14 strengthened by reproduction. E19 from inconsistent to verified.
 E26 from written to conjecture, the attestation root having a published bypass
 whose fix status is unchecked.
+
+E31 added 2026-07-30, and it is the only row in this table whose evidence was
+produced rather than found. Three synthesis runs answer a question W-INTL-46 left
+open - whether identity in silicon needs a funded die - with an area that fits a
+shuttle tile. The row is deliberately levelled at test rather than hardware: these are
+circuits that decode correctly in simulation against a real library, which is a
+different claim from silicon, and the falsifier named is the input that is still not
+measured rather than the ones that now are.
 
 E21, E22 and E23 moved up, and that movement was a correction of this ledger
 rather than of the project. All three had been downgraded on 2026-07-29 on the

@@ -5,13 +5,13 @@ which found that the primitive has been fabricated on the process this project
 already uses but at eight bits of response, and did not establish whether a usable
 one fits in the area a shuttle allows.
 
-Confirmed by synthesis on 2026-07-30, twice. First the published oscillator
-implementation, then a decoder written for the purpose. Every area below is measured
-except the key-equation solver, which is stated as a multiplier and flagged where it
-appears.
+Confirmed by synthesis on 2026-07-30, three times. First the published oscillator
+implementation, then two of the decoder's three stages, then the third stage and an
+alternative code. Every area below is now measured.
 
-The second pass moved the answer. The decoder estimate was low, and the decoder is
-the dominant cost.
+Each pass moved the answer, and the third moved it furthest. The decoder estimate was
+low twice over, and then the code the decoder was sized for turned out to be the wrong
+code - see `decoder_code_choice.md`, which this section now defers to.
 
 ---
 
@@ -92,7 +92,10 @@ only thing left to settle.
 
 ## 6. Answer
 
-Three to five tiles of the sixteen available. It fits, with room.
+Superseded twice; see section 7 and `decoder_code_choice.md`. On the code this
+document was written around it is four to nine tiles of the sixteen available, and on
+the code the literature recommends the decoder falls to a quarter of one. It fits
+either way. What remains open is the oscillator count, not the area.
 
 The blocker is architectural rather than dimensional. The existing implementation
 does not scale because it replicates apparatus that should be shared, not because
@@ -112,36 +115,49 @@ parameters depend on the error rate, and the error rate is what nobody has measu
 Whether the decoder budget was right. It was not, and this is now measured.
 
 A decoder was written for BCH(255,131) over GF(2^8) with the primitive polynomial
-0x11D, and its two area-dominant stages - the syndrome bank and the Chien search -
-were synthesised against the same library. The key-equation solver was deliberately
-left out rather than written unverified in one pass and reported as measured.
+0x11D. All three stages are now measured - the syndrome bank, the Chien search and the
+key-equation solver, the last of them verified against constructed error patterns
+before any area was quoted from it.
 
-Measured, and linear in the correction strength at about 1,212 square micrometres
-per unit of t:
+| t | Syndrome + Chien | Solver | Decoder | Tiles |
+|---|---|---|---|---|
+| 4 | 5,694 | 17,503 | 23,197 | 1.3 |
+| 8 | 10,475 | 31,620 | 42,095 | 2.3 |
+| 12 | 15,350 | 45,878 | 61,228 | 3.4 |
+| 18 | 22,668 | 66,847 | 89,515 | 5.0 |
 
-| t | Syndrome + Chien | Tiles |
-|---|---|---|
-| 4 | 5,694 | 0.3 |
-| 8 | 10,475 | 0.6 |
-| 12 | 15,350 | 0.9 |
-| 18 | 22,668 | 1.3 |
+The solver had been budgeted as comparable to the two stages beside it. It is nearly
+three times larger, because those two multiply by compile-time constants and fold into
+XOR trees while it multiplies two runtime values, about 3(t+1) times. The estimate
+assumed one kind of arithmetic and got another.
 
-The previous estimate was eighteen thousand square micrometres for the whole
-decoder. Two of its three stages at t=18 measure 22,668, so the estimate was low
-before the third stage is counted at all.
-
-Full budget with the decoder measured, everything else as in section 5, and the
-solver taken as comparable to the two measured stages:
+Full budget with all three stages measured, everything else as in section 5:
 
 | t | Decoder | Total | Tiles | Decoder share |
 |---|---|---|---|---|
-| 4 | 11,388 | 54,170 | 3.0 | 36 percent |
-| 8 | 20,950 | 70,657 | 3.9 | 51 percent |
-| 12 | 30,700 | 87,467 | 4.9 | 61 percent |
-| 18 | 45,336 | 112,701 | 6.3 | 69 percent |
+| 4 | 23,197 | 65,979 | 3.7 | 35 percent |
+| 8 | 42,095 | 91,802 | 5.1 | 46 percent |
+| 12 | 61,228 | 117,995 | 6.5 | 52 percent |
+| 18 | 89,515 | 156,880 | 8.7 | 57 percent |
 
-So the answer is five to seven tiles rather than three to four, and the decoder is
-two thirds of it at the strength published designs use.
+The decoder-share column in the version of this table that stood before today did not
+follow from the two columns beside it - it read 36, 51, 61 and 69 percent where its own
+figures give 21, 30, 35 and 40, high by a consistent factor of about 1.72 against a
+denominator that cannot be reconstructed. The column above is computed from the two
+beside it.
+
+So on this code the answer is four to nine tiles rather than five to seven, and at
+t=18 it takes 8.7 of the 16 a submission may use.
+
+And the code is the wrong code. The standard reference on area-efficient helper data
+extraction discards BCH before implementing it, on exactly these grounds, and its
+recommended construction - a short repetition code concatenated with a first-order
+Reed-Muller code - measures 4,596 square micrometres against 89,515 on this same
+library, a quarter of one tile. That is a factor of 19.5, and it is set out with its
+verification and its one significant catch in `decoder_code_choice.md`. The catch is
+that the raw response width the construction needs is tied to a measured error rate,
+and this project's error rate is unmeasured, so the saving is real and the count it
+depends on is not yet known.
 
 It still fits in sixteen. The margin is smaller than this document previously said,
 and the reason is worth stating plainly: the correction strength drives everything,
