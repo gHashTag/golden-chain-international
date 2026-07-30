@@ -55,7 +55,9 @@ RAW_BUDGET = 3000         # a design choice, not a constraint: how many response
 # end to end before its area was quoted - injected errors located exactly, every weight
 # from one to t, in every field. Reproduce with research/rtl/measure_all.sh.
 DECODER_AREA = {
-    (7, 21):  79_787,
+    (7, 11):  24_659,   # tables 11,021 + serial solver 13,638 - the recommendation
+    (7, 13):  28_958,   # tables 13,448 + serial solver 15,510
+    (7, 21):  79_787,   # tables 22,215 + parallel solver 57,571; 44,346 with the serial
     (7, 23):  86_896,
     (7, 27): 102_267,
     (7, 31): 116_194,

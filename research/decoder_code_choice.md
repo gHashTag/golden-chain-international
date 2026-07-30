@@ -2256,3 +2256,54 @@ My own header for the serial Chien predicted a smaller saving than the solver's,
 reason - a general multiplier costs more than the constant one it replaces. It predicted the sign
 wrong. Writing the reason down before measuring made the negative result immediately interpretable
 rather than confusing, which is most of what that habit is for.
+
+---
+
+## 82. The code was chosen before selection existed
+
+Reliable-bit selection arrived in loop 74 and made the effective error rate 0.0127 where the raw rate
+is six percent. The code was chosen in loop 61 against the raw rate. It was never revisited.
+
+BCH(127,29,21) tolerates 4.42 percent and is being asked to survive 1.27. Re-searched at the rate
+that actually applies:
+
+| Code | t | Blocks | Selected bits | Word failure | Measured before |
+|---|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,57,11) | 11 | 3 | 381 | 2.94e-07 | no |
+<!-- derived:external --> | BCH(127,50,13) | 13 | 3 | 381 | 3.44e-09 | no |
+<!-- derived:external --> | BCH(127,43,14) | 14 | 4 | 508 | 4.42e-10 | no |
+<!-- derived:external --> | BCH(127,29,21) | 21 | 5 | 635 | 0 | yes |
+
+Every code that fits the operating point was unmeasured, and every measured code at n=127 has t of
+21 or more - all chosen when high error tolerance was needed. The measured set was built for an
+operating point that no longer applies, so the search could only return the best of the wrong
+candidates.
+
+Generated, verified end to end and differentially, and measured:
+
+| Construction | Decoder | Raw positions | Oscillators | Cell area | Tiles |
+|---|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,29,21), 5 blocks | 44,346 | 794 | 41 | 56,383 | 5.40 |
+<!-- derived:external --> | BCH(127,50,13), 3 blocks | 28,958 | 477 | 35 | 40,838 | 3.91 |
+<!-- derived:external --> | **BCH(127,57,11), 3 blocks** | **24,659** | **477** | 35 | **36,539** | **3.50** |
+
+Leakage checked first, since the code changed: k total is 57 times 3, which is 171 against the 136
+required.
+
+## 83. Two loops, two revisits, and the same shape
+
+| Loop | Change | Tiles |
+|---|---|---|
+<!-- derived:external --> | 76 | as it stood | 8.79 |
+<!-- derived:external --> | 77 | shared the solver's multipliers | 5.40 |
+<!-- derived:external --> | 79 | re-chose the code at the operating point | 3.50 |
+
+**Sixty percent of the design removed in two loops, and neither required a new measurement technique,
+a new paper, or a new constraint.** Both were decisions correct at the operating point where they were
+made, in a design whose operating point had since moved - the solver's multiplier count assumed a
+throughput requirement this has never had, and the code assumed an error rate that selection had since
+reduced by a factor of five.
+
+The constraint register was supposed to catch this and could not. It records what each constraint is
+and whether it binds; it does not record which decisions were taken against which constraint. When a
+constraint moves, nothing points at the decisions that rested on it.

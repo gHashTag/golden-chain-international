@@ -103,6 +103,32 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## When a constraint moves, revisit the decisions that were taken against it
+
+Sixty percent of a design came off in two loops, and neither change needed a new technique, a new
+source, or a new constraint. Both were decisions that had been correct at the operating point where
+they were made, in a design whose operating point had since moved.
+
+A register of constraints does not catch this. It records what each constraint is and whether it
+binds; it does not record which decisions rested on it. So when a constraint changes - and in this
+work several changed completely - nothing points at what to redo.
+
+Keep, for each constraint, the list of decisions taken against it. When the constraint moves, that
+list is the work queue. Without it the decisions stay correct-as-of-a-date and nobody notices the
+date.
+
+## Your measured set encodes the operating point you had when you built it
+
+A search over measured candidates kept returning the same answer, and the answer was the best of the
+wrong candidates: every measured option had been chosen when a constraint was five times tighter, so
+the set contained nothing suited to the current operating point.
+
+The search was not wrong and neither were the measurements. The candidate set was a fossil.
+
+So when the operating point moves, ask what the *candidate set* was assembled for before trusting a
+search over it - and expect that the right answer is something you have not measured, precisely
+because you had no reason to measure it before.
+
 ## Sharing pays only when the replicated unit is expensive
 
 One component compressed by 62 percent when its replicated multipliers were shared. The same trade
