@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-194
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-195
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5065,6 +5065,22 @@ one.
 Binding figures to a model makes documents hard to falsify. Perturbing inputs asks which inputs can
 move without any bound figure moving, and only the second finds a constant nothing reads.
 
+## W-INTL-195  The check that made the fast job slow
+
+Severity: low, and it is about how good checks get removed.
+
+check_input_coverage went into the document job and took it from twelve seconds to ten minutes and
+forty-four. Thirteen inputs, each perturbed and each re-running two checks, one of which re-derives
+the recommendation from scratch.
+
+Right check, wrong place. Every unrelated documentation change waited on a sensitivity sweep, and the
+reliable consequence is somebody eventually deleting the sweep rather than waiting for it. Split into
+its own job, beside the two synthesis jobs that already take six minutes.
+
+A check is not only correct or incorrect - it has a cost, and the cost lands on whoever is doing
+something unrelated. A ten-minute gate on a one-line documentation fix has a short life expectancy
+however sound it is.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5230,6 +5246,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-189 | closed; the enrolment model ranked by a vote of sign bits while this project's own instrument emits frequency counts - count-based ranking is continuous and takes the ten-year margin from 6.9 to 11.3 at no area cost, at the price of an interface that must be disabled after enrolment |
 | W-INTL-191 | closed; every caller still used the bound one loop after the rename made it legible, and the achievable rate now has a deterministic closed form |
 | W-INTL-193 | closed; the tolerated error rate was a literal belonging to the superseded code, so every aging verdict was measured against a bar three times too low - the design still fits at 0.0040 against 0.0143 |
+| W-INTL-195 | closed; the coverage sweep took the fast job from twelve seconds to ten minutes and is now its own job |
 | W-INTL-194 | closed; input coverage is a check in CI, perturbing every declared scalar by a factor of four in each direction |
 | W-INTL-192 | closed; the enrolment read count could be set to one without any bound figure moving, so two figures now depend on it |
 | W-INTL-190 | closed; four of five continuous-looking parameters were quantised by arithmetic and already handled, and the fifth was quantised by an architectural choice, which is the kind that hides |

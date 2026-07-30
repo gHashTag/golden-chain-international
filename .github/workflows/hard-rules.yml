@@ -118,10 +118,6 @@ jobs:
             echo "::error::the commit-claims control did not fire"; exit 1
           fi
           echo "control on the commit message: the check FIRED"
-      - name: every input is covered by a check
-        run: |
-          set -e
-          python3 scripts/check_input_coverage.py
       - name: units on every ratio
         run: |
           set -e
@@ -192,6 +188,19 @@ jobs:
           # older yosys, not from version drift as such. One percent, against a measured
           # worst case of 0.26. Exact comparison remains the local run.
           python3 scripts/verify_inputs.py --tolerance-percent 1
+
+  input-coverage:
+    # Split out of the document job in W-INTL-195. Perturbing thirteen inputs and
+    # re-running two checks each took the fast job from twelve seconds to ten minutes and
+    # forty-four, which makes every unrelated documentation change wait on a sensitivity
+    # sweep. It is the right check and the wrong place for it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: every input is covered by a check
+        run: |
+          set -e
+          python3 scripts/check_input_coverage.py
 
   rtl-verification:
     # Every area this project quotes is quoted for a circuit that decoded correctly, and
