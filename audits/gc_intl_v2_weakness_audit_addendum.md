@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-65
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-67
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2265,6 +2265,74 @@ quantity that decides it is the same unmeasured bias. It does not change any fig
 W-INTL-64 today; it is a named candidate for the fourth constraint that analysis says it
 could still be missing.
 
+## W-INTL-66  A measured stage did not work, and stage-wise measurement could not tell
+
+Severity: high as a method finding, small as an area correction.
+
+Two of the decoder's three stages had been synthesised and quoted since 2026-07-30 without
+ever decoding anything. They were labelled structural area probes rather than verified
+decoders, which was honest, and the label turned out to be load-bearing.
+
+Wired to the solver and driven end to end, the Chien stage was wrong. It summed t of the
+t+1 coefficients of the error locator and left out the constant term, so its zero test was
+not the polynomial's zero test. The circuit was the right size and shape and its cells were
+correctly counted, which is exactly why stage-wise synthesis could not find it.
+
+The end-to-end test needs no encoder: BCH is linear, so a received word equal to the error
+pattern alone is the all-zero codeword received with errors. The assertion is that the set
+of positions located equals the set injected, exactly, with locator degree equal to the
+error count. Every weight from one to t, two patterns each, both fields - 54 decodes at
+t=27 and 36 at t=18, all passing. The historical defect, injected back, fails all 54; a
+corrupted Chien constant fails 8.
+
+Corrected areas, both higher than what they replace:
+
+| Stages | Was | Now |
+|---|---|---|
+| Syndrome + Chien, GF(2^7), t=27 | 27,590 | 29,148 |
+| Syndrome + Chien, GF(2^8), t=18 | 22,668 | 23,407 |
+
+The GF(2^8) figure had stood for five loops. The decoder for the recommended code is
+102,267 square micrometres, and W-INTL-64's figure is superseded.
+
+The method point is the one worth keeping. Three stages, each measured correctly, one of
+them broken. No amount of care applied to a stage in isolation would have shown it; the
+smallest end-to-end path that produces a checkable answer did, immediately.
+
+## W-INTL-67  Debiasing turns the oscillator arrangement into a fit-or-not question
+
+Severity: critical for the hardware plan, and unresolvable without a measurement.
+
+W-INTL-65 named debiasing as a candidate fourth constraint with no budget. Maes, van der
+Leest, van der Sluis and Willems supply the cost: classic von Neumann debiasing carries an
+overhead factor of about 4.4 at 50 percent bias and 5.3 at 30 percent. They also note that
+a PUF's usual reusability across enrolments does not necessarily hold once a debiasing step
+is used, which bears on a registry that may re-enrol a die.
+
+For BCH(127,15,27), needing 2,413 response bits:
+
+| | No debiasing | With von Neumann |
+|---|---|---|
+| Raw response bits | 2,413 | 10,617 |
+| Oscillators reused across pairs | 6.07 tiles | 6.07 tiles |
+| Two oscillators per response bit | 12.71 tiles | 36.63 tiles |
+
+The last cell is the first configuration in this project's analysis that does not fit the
+sixteen tiles available.
+
+Until now the oscillator arrangement was a factor-of-two question about area, and the
+answer was yes either way. It is now the difference between fitting and not fitting, and it
+becomes that only once debiasing is in the picture. Two unmeasured properties decide it
+together: how biased the responses are, and whether reusing oscillators across pairs
+degrades extraction.
+
+Three of four combinations fit. The one that does not is where both unmeasured properties
+go the wrong way, and nothing rules that out.
+
+Closes when bias and per-oscillator entropy are measured on this process. Both come from
+the same characterisation structure, and this entry is the strongest argument yet for
+building it before anything else.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2330,3 +2398,5 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-63 | open, critical for the hardware plan; helper-data leakage was never counted and the recommended construction has negative residual entropy |
 | W-INTL-64 | resolved; BCH(127,15,27) clears leakage, error tolerance and area, decoder measured at 100,709 um^2 |
 | W-INTL-65 | open, high if a security level is claimed; the reported bias range is the one that needs a debiasing stage nobody has budgeted |
+| W-INTL-66 | corrected; the Chien stage omitted the locator constant term, found by decoding end to end, areas up 3 to 6 percent |
+| W-INTL-67 | open, critical; with debiasing the disjoint oscillator arrangement needs 36.63 tiles of 16 |

@@ -381,3 +381,73 @@ finally did.
 
 The answer now rests on three constraints from three sources, one measured entropy
 density, and four synthesis runs. It could still be missing a fourth constraint.
+
+---
+
+## 16. Decoding through the stages, added 2026-07-30
+
+Sections 1 through 15 quoted an area for a syndrome bank and a Chien search that had
+never decoded anything. They were called structural area probes, which was honest about
+their status, and the status turned out to matter.
+
+Wired to the solver and driven end to end, the Chien stage was wrong. It summed t of the
+t+1 coefficients of the error locator, leaving out the constant term, so its zero test
+was not the polynomial's zero test. Stage-wise synthesis cannot find that: the circuit is
+the right size and shape and its cells are correctly counted. Only decoding through it
+does.
+
+The test needs no encoder. BCH is linear, so a received word equal to the error pattern
+alone is the all-zero codeword received with errors, and the all-zero word is a codeword.
+Errors go in at known positions, the hardware locates them, and the assertion is that the
+located set equals the injected set exactly, with the locator degree equal to the error
+count.
+
+Every weight from one error to t, two patterns each, in both fields. 54 decodes at t=27
+and 36 at t=18, all passing. Two injected faults: the historical defect, which fails all
+54; and one corrupted Chien constant, which fails 8.
+
+Corrected areas, and both are higher than the figures they replace:
+
+| Stages | Was | Now | Change |
+|---|---|---|---|
+| Syndrome + Chien, GF(2^7), t=27 | 27,590 | 29,148 | +5.6 percent |
+| Syndrome + Chien, GF(2^8), t=18 | 22,668 | 23,407 | +3.3 percent |
+
+The GF(2^8) figure had stood for five loops. The BCH(127,15,27) decoder is therefore
+102,267 square micrometres rather than 100,709, and 5.67 tiles rather than 5.58.
+
+The lesson is about the shape of the check rather than its result. Three stages were each
+measured correctly and one of them did not work, and no amount of care applied to a stage
+in isolation would have shown it. What showed it was the smallest end-to-end path that
+produces a checkable answer.
+
+## 17. The debiasing stage, and the first thing in this analysis that does not fit
+
+W-INTL-65 named a candidate fourth constraint: if the response bias falls outside the
+range where adding raw bits compensates, a debiasing stage must come first, and it is in
+no budget here.
+
+Maes, van der Leest, van der Sluis and Willems put a number on it. Classic von Neumann
+debiasing costs an overhead factor of about 4.4 at 50 percent bias and about 5.3 at 30
+percent. They also record that a PUF's usual reusability across enrolments does not
+necessarily survive a debiasing step - which bears directly on a registry that may need
+to re-enrol a die.
+
+Applied to BCH(127,15,27), which needs 2,413 response bits:
+
+| | No debiasing | With von Neumann |
+|---|---|---|
+| Raw response bits | 2,413 | 10,617 |
+| Oscillators reused across pairs | 6.07 tiles | 6.07 tiles |
+| Two oscillators per response bit | 12.71 tiles | **36.63 tiles** |
+
+That last cell is the first configuration in this entire analysis that does not fit the
+sixteen tiles a submission may use.
+
+So the oscillator arrangement is no longer a factor-of-two question about area. It is the
+difference between fitting and not fitting, and it becomes that only once debiasing is in
+the picture. Two unmeasured properties now decide the outcome together: how biased the
+responses are, and whether reusing oscillators across pairs degrades extraction.
+
+Three of the four combinations fit. The one that does not is the one where both unmeasured
+properties turn out unfavourable, and nothing currently rules that out.

@@ -103,6 +103,33 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## Parts measured correctly can still not work together
+
+Three stages of a decoder were synthesised and their areas quoted for five loops. Each
+cell count was right. One of the stages did not work - it summed t of the t+1 coefficients
+of a polynomial, so its zero test was not that polynomial's zero test. The circuit was the
+right size and shape, which is exactly why measuring it in isolation could not tell.
+
+Wiring them together and running one decode found it immediately.
+
+So when parts are measured separately, the number that matters is not any part's - it is
+whether the smallest end-to-end path produces a checkable answer. Build that path early,
+even a degenerate version: here the all-zero codeword made an encoder unnecessary, because
+linearity means a received word equal to the error pattern is already a valid test case.
+Look for the degenerate case that removes the machinery you would otherwise have to build
+first.
+
+## A label like "not verified" is a debt, and debts come due
+
+The two stages carried an honest note saying they were structural area probes rather than
+verified decoders. That note was correct, was written deliberately, and was then quoted
+around for five loops as though the caveat neutralised the risk. It did not. One of them
+was broken.
+
+Writing down that something is unverified is worth doing and is not a substitute for
+verifying it. Track those notes as work items rather than as disclaimers, and treat any
+number that rests on one as provisional in the arithmetic, not merely in the prose.
+
 ## Enumerate the constraint set before optimising against it
 
 Three loops running, a recommendation was made and withdrawn. Each measurement was
