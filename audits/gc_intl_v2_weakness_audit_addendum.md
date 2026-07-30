@@ -171,10 +171,32 @@ matches. Never let a settlement path accept a bench-tier signature regardless.
 
 Severity: medium. Matters for resistance to fabricated node identities.
 
-The factory-programmed device identifier on the bench-tier family is documented
-by the vendor as potentially shared by up to thirty-two devices, and the
-register is readable by anyone with physical access. It is a serial number, not
-a secret and not an identity.
+Confirmed and refined against the vendor manual on 2026-07-30, UG470, the 7 Series
+Configuration User Guide, read as a fetched document rather than at search depth.
+Its exact wording:
+
+  Each device is programmed with a 57-bit DNA value that is most often unique.
+  However, up to 32 devices within the family can contain the same DNA value.
+
+  The JTAG FUSE_DNA command can be used to read the entire 64-bit value that is
+  always unique.
+
+So the original finding holds and the picture is sharper than it recorded. There
+are two identifiers, not one:
+
+The 57-bit Device DNA is what a design running inside the fabric can reach, through
+the DNA_PORT primitive. It is the one that may be shared by up to thirty-two parts.
+
+The 64-bit FUSE_DNA is always unique. It is reachable only through the JTAG port,
+by an external application - the manual states the split explicitly: external
+applications can read either value over JTAG, and FPGA designs can access the DNA
+only through DNA_PORT.
+
+That is the identity problem in one sentence. A running node can self-report only
+the possibly-shared value. The unique one requires an external tool on the JTAG
+port, which is not something a deployed node has. And the readable side is not
+merely readable by an attacker with physical access - the vendor's own programming
+software reads it as a documented feature.
 
 Action: never let identity rest on the identifier alone. Identity must come from
 per-device secret material. Closes when the enrolment procedure documents this
@@ -1438,7 +1460,14 @@ Action.
    identity closes, not a later nicety. State that identity on the current parts is
    asserted rather than rooted.
 2. Confirm the availability claim against the vendor technical reference manuals
-   before it appears anywhere external. This entry was written at search depth.
+   before it appears anywhere external. Done 2026-07-30: UG470, the 7 Series
+   Configuration User Guide, was fetched and searched. The terms "physically
+   unclonable", "physical unclonable" and "PUF" appear nowhere in it - zero
+   occurrences across the whole document under all three phrasings. What the
+   document does describe is a factory-programmed identifier readable over JTAG by
+   the vendor's own tools, and the security section characterises identification by
+   that route as a lower level of security than the encryption options. The finding
+   stands on the primary source.
 3. Do not describe a fabric-built physical function as device identity on these
    parts. Given the two published bitstream attacks it would not be one.
 4. If a part with a hardened function is being considered, write down the
