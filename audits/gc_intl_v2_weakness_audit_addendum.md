@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-95
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-98
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -3018,6 +3018,73 @@ Three dimensions have now been checked that the analysis did not originally have
 timing and interconnect - and all three are slack. Three for three, and the reason to keep
 checking is that the fourth might not be.
 
+## W-INTL-96  The solver does own the critical path, and one property predicts both ratios
+
+Severity: none as a defect. It closes an assumption W-INTL-93 rested on without stating it.
+
+W-INTL-93 measured the solver's depth and gave a clock without measuring the other two
+stages, so the conclusion assumed the solver is deepest. The Chien search carries an XOR tree
+over t+1 terms too.
+
+Measured at t=55 in GF(2^8): syndrome bank six levels, Chien search eleven, both table stages
+together eleven, solver twenty-three. The solver is roughly twice either, so it does own the
+path.
+
+The reason is the property that also made it three times the area: its multiplies are between
+two runtime values at about m levels each, while the table stages multiply by compile-time
+constants that fold into shallow trees. Chien's eleven is a constant multiplier of about five
+plus log2(56); the solver's twenty-three is two general multipliers of eight plus the same
+tree. One architectural property predicts both the area ratio and the depth ratio.
+
+## W-INTL-97  Depth after mapping, and a path tracer that returned a meaningless number
+
+Severity: low, and the failure is worth more than the correction.
+
+W-INTL-93's depth was measured before technology mapping and flagged as a proxy. Measured
+after mapping, with the flip-flops left generic so the path tracer cuts at them: seventeen
+levels become thirteen at t=23, twenty-three become seventeen at t=55. The mapper removes about
+a quarter of the depth, so the earlier figure was conservative rather than optimistic.
+Corrected, the solver reaches 220 to 350 megahertz at t=23 and 168 to 267 at t=55.
+
+The first attempt is the part worth recording. Reading the standard-cell library as blackboxes
+makes the path tracer fail to recognise the sequential cells, so it walks straight through them
+and reports a path of 1,709 levels at t=23 and 5,208 at t=55. Those numbers look like depths.
+They were caught only because they were absurd - the same error producing a figure three times
+the truth would have been quoted without question.
+
+The rule that follows: a measurement tool given a netlist it partly does not understand
+returns a plausible-shaped wrong answer, and the defence is a sanity range computed before
+running it, not after reading the output.
+
+## W-INTL-98  Eleven constraints, in one list, and six more named as unchecked
+
+Severity: medium as a finding about the process rather than the subject.
+
+`research/constraint_register.md` now lists every constraint this analysis has checked, with
+its source and whether it binds. Six bind, one binds as policy, four are checked and slack.
+
+The register exists because the absence of one caused three reversals: a code chosen on area
+that failed the error target (W-INTL-57), a replacement that failed the leakage bound
+(W-INTL-63), and a priority ordering that was an artefact of sweeping one input while holding
+another (W-INTL-85). Each time the missing constraint was written down somewhere in a source
+and not in this project.
+
+Six are named as unchecked, ordered by what a bad answer would cost:
+
+Helper-data manipulation by an active adversary is first. Gao et al. state that not all codes
+and decoding strategies guarantee security of the derived key and that resistance to
+manipulation must be evaluated alongside overhead. This project uses syndrome-based helper
+data, which they chose partly for that reason - and the argument was inherited rather than
+reproduced. That is the same pattern as the reuse claim in W-INTL-83, which was checked and
+held.
+
+Then: aging of the oscillators, which the literature reports as the weaker of the two
+robustness properties while every error figure here is a fresh-device figure; synchroniser
+metastability in the characterisation structure, which nothing names and which is an omission
+of mine; process corners, since every figure is typical-corner; routing feasibility at 84
+percent tile utilisation; and the 128-bit target itself, inherited and never questioned
+against what the registry needs.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -3113,3 +3180,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-93 | closed; logic depth measured across four sizes, 145 to 300 MHz, and the RTL header's architectural claim confirmed |
 | W-INTL-94 | closed; the power figure agrees within 1.2x by a second route through the library, settling the units doubt |
 | W-INTL-95 | closed; timing binds before power for the largest decoder, both by an order of magnitude |
+| W-INTL-96 | closed; the solver owns the critical path at twice either table stage, and one property predicts both the area and depth ratios |
+| W-INTL-97 | corrected; mapped depth is a quarter lower, and a path tracer returned a plausible-shaped meaningless number on the first attempt |
+| W-INTL-98 | open, medium; eleven constraints now in one register, six named as unchecked with helper-data manipulation first |

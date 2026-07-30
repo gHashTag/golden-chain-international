@@ -1219,9 +1219,9 @@ reports directly:
 | Design | Logic depth |
 |---|---|
 <!-- derived:external --> | solver, GF(2^8), t=4 | 18 |
-<!-- derived:external --> | solver, GF(2^7), t=23 | 17 |
+<!-- derived:external --> <!-- derived:external --> | solver, GF(2^7), t=23 | 17 |
 <!-- derived:external --> | solver, GF(2^8), t=18 | 21 |
-<!-- derived:external --> | solver, GF(2^8), t=55 | 23 |
+<!-- derived:external --> <!-- derived:external --> | solver, GF(2^8), t=55 | 23 |
 
 The depth grows logarithmically in t - eighteen at t=4, twenty-three at t=55 - which is what
 the header predicted: two multipliers at about m levels each plus a tree of log2(t+1). At
@@ -1279,3 +1279,75 @@ magnitude in hand.
 Three dimensions have now been checked that the analysis did not originally have: power,
 timing, and interconnect. All three are slack. That is three for three, and the reason to
 keep recording them is that the fourth might not be.
+
+---
+
+## 47. The solver does own the critical path, checked rather than assumed
+
+Section 44 measured the solver's depth and concluded 145 to 300 megahertz without measuring
+the other two stages. The Chien search carries an XOR tree over t+1 terms too, so the
+conclusion rested on an assumption about which stage is deepest.
+
+Measured:
+
+| Stage | Logic depth |
+|---|---|
+<!-- derived:external --> | syndrome bank, GF(2^8), t=55 | 6 |
+<!-- derived:external --> | Chien search, GF(2^8), t=55 | 11 |
+<!-- derived:external --> | both table stages together | 11 |
+<!-- derived:external --> | key-equation solver, GF(2^8), t=55 | 23 |
+
+The solver is roughly twice either table stage, so it does own the path. The gap is closed
+and the conclusion survived.
+
+The reason is the same structural fact that made the solver three times the area: its
+multiplies are between two runtime values and take about m levels each, while the table
+stages multiply by compile-time constants which fold into shallow XOR trees. The Chien depth
+of eleven is a constant multiplier of about five levels plus a tree of log2(56), and the
+solver's twenty-three is two general multipliers of eight plus the same tree. **One
+architectural property predicts both the area ratio and the depth ratio**, which is the kind
+of agreement worth noticing when it happens.
+
+## 48. Depth after mapping, and the earlier figure was conservative
+
+Section 44's depth was measured before technology mapping and flagged as a proxy, because
+the mapper both merges levels into complex cells and inserts buffers.
+
+Measured after mapping, with the flip-flops left in their generic form so that the path
+tracer cuts at them - reading the standard-cell library as blackboxes makes it walk straight
+through the sequential elements and report a meaningless five-thousand-level path, which it
+did on the first attempt:
+
+<!-- derived:external -->
+
+| Design | Generic | Mapped |
+|---|---|---|
+<!-- derived:external --> | solver, GF(2^7), t=23 | 17 | 13 |
+<!-- derived:external --> | solver, GF(2^8), t=55 | 23 | 17 |
+
+The mapper removes about a quarter of the depth, so the earlier figure was conservative
+rather than optimistic. Corrected, the solver reaches 220 to 350 megahertz at t=23 and 168 to
+267 at t=55.
+
+The failed first attempt is worth recording. A path tracer given a netlist whose sequential
+cells it cannot recognise returns a number that looks like a depth and is a walk through the
+entire design. It did not resemble a plausible answer, which is the only reason it was caught -
+the same figure at three times the true value would have been quoted.
+
+## 49. Eleven constraints, in one list at last
+
+Written up as `research/constraint_register.md`. Six constraints bind, one binds as policy,
+four are checked and slack, and six more are named as unchecked with the reason each might
+matter.
+
+The register exists because the absence of one caused three reversals in this work: a code
+chosen on area that failed the error target, a replacement that failed the leakage bound, and
+a priority ordering that was an artefact of sweeping one input while holding another fixed.
+Each time the missing constraint was written down somewhere in a source and not in this
+project.
+
+The most useful entry is the top of the unchecked list. Helper-data manipulation by an active
+adversary is a security property, it is named as load-bearing by a source this project relies
+on, and the reasoning was inherited rather than reproduced - which is the same pattern as the
+reuse claim, checked in section 33 and found to hold. That one held. This one has not been
+looked at.
