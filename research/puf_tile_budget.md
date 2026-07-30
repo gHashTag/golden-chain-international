@@ -58,9 +58,21 @@ multiplexers and the arbiter are measurement apparatus and do not.
 
 Share one comparison chain and drive it sequentially. The oscillators stay
 distinct; the counters and arbiter are used once per response bit rather than once
-per design. A bank of n oscillators offers n(n-1)/2 distinct pairs, so 128
-oscillators offer 8,128 - far more than any key needs, and the constraint moves from
-oscillator count to how many pairs are independent enough to count as entropy.
+per design.
+
+The paragraph that stood here also claimed a bank of n oscillators offers n(n-1)/2
+pairs, "far more than any key needs", with the constraint moving to pair
+independence. Two corrections, both recorded as audit entries.
+
+The pair count is not an entropy count: frequency comparison is transitive, so if A
+beats B and B beats C then A beats C and that response is predictable. R oscillators
+carry at most log2(R!) bits however many pairs are read (W-INTL-56).
+
+And the constraint does not move to independence, because there are two constraints
+rather than one. The code needs response bit *positions*, and those need not be
+independent - a decoder consumes correlated bits as happily as uncorrelated ones. The
+extractor needs 128 bits of *min-entropy*, and that is where independence bears. The
+two are separate and were collapsed into one (W-INTL-59).
 
 ## 4. A correction to the first attempt at this
 
@@ -92,10 +104,26 @@ only thing left to settle.
 
 ## 6. Answer
 
-Superseded twice; see section 7 and `decoder_code_choice.md`. On the code this
-document was written around it is four to nine tiles of the sixteen available, and on
-the code the literature recommends the decoder falls to a quarter of one. It fits
-either way. What remains open is the oscillator count, not the area.
+The construction to build is a short odd repetition code concatenated with a
+first-order Reed-Muller code, not BCH. It holds to a bit error probability of 13.2
+percent where BCH(255,131) at t=18 needs below 1.88, and its decoder measures 4,596
+square micrometres against 89,515.
+
+Total area, decoder measured and oscillators bracketed by the arrangement:
+
+| Arrangement | Oscillators | Total | Tiles of 16 |
+|---|---|---|---|
+| oscillators reused across pairs | 272 | 11,752 | 0.65 |
+| two oscillators per response bit | 9,600 | 257,036 | 14.25 |
+
+Both fit. The lower figure rests on reuse not degrading the extraction rate, which is
+not measured; the upper is the arrangement the one measured entropy figure was taken
+from. A factor of twenty-two between them, and the whole of it is one unmeasured
+property of this process.
+
+Everything below this line in sections 2 to 5 and 7 was written around BCH and is kept
+as a record. The area figures in it are measured and correct; the configuration they
+describe is not the one to build.
 
 The blocker is architectural rather than dimensional. The existing implementation
 does not scale because it replicates apparatus that should be shared, not because
@@ -149,7 +177,11 @@ beside it.
 So on this code the answer is four to nine tiles rather than five to seven, and at
 t=18 it takes 8.7 of the 16 a submission may use.
 
-And the code is the wrong code. The standard reference on area-efficient helper data
+And the code is the wrong code - not merely the expensive one. BCH(255,131) at t=18
+reaches one error in a million only if the bit error probability stays below 1.88
+percent, which ring oscillator responses across temperature do not reliably do. Every
+table above sizes a configuration that does not meet its own requirement, and they are
+kept as a record of that rather than as a plan (W-INTL-57). The standard reference on area-efficient helper data
 extraction discards BCH before implementing it, on exactly these grounds, and its
 recommended construction - a short repetition code concatenated with a first-order
 Reed-Muller code - measures 4,596 square micrometres against 89,515 on this same
