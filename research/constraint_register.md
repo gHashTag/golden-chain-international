@@ -78,6 +78,16 @@ recommended construction meets at 171. And the word failure rate, which sets the
 | raw bit error rate | binding, cliff at eight to nine percent | slack up to fifteen percent with reliable-bit selection, which converts it into a requirement for raw positions |
 | tile area | binding and computed wrong | binding, and now with a check that recomputes it from inputs |
 
+**A second route to the aging requirement, added 2026-07-31.** Burn-in before enrolment, from a
+silicon source rather than a simulated one: He, Li, Yu and Yang report that enrolling after some
+accelerated aging keeps the required masking ratio from rising aggressively. It is a requirement on
+the provisioning flow, like the nine enrolment reads, and it costs no area. Quantified: burn-in must
+leave at most 28 percent of the ten-year degradation still to come, against a construction that
+absorbs 9.2 percent post-enrolment flip rate and a conventional ten-year figure of 32.41. Whether a
+practical burn-in achieves that is not answerable from the sources read. Two independent routes to
+one requirement, with different failure modes - the oscillator route rests on the only estimate in
+the design with no measurement behind it.
+
 **What is new since the register was written.** Nine enrolment reads per position, at the operating
 temperature, without which selection is counterproductive rather than merely weaker. And the
 manipulation countermeasure, which is a component rather than a constraint but is load-bearing and was

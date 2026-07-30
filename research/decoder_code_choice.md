@@ -2707,3 +2707,93 @@ What makes this cheap is a fact established four loops ago for an unrelated reas
 are 2.6 percent of the design. The entropy work drove the bank from 341 oscillators to 35, and a
 1.86 times multiplier on 2.6 percent is not a decision anyone needs to agonise over. A constraint
 that would have been expensive at the old operating point is nearly free at this one.
+
+## 97. A borrowed input checked against the library, forty loops late
+
+`INVERTER_AREA` comes from a published Tiny Tapeout PUF tile: 6,730 square micrometres of ring
+oscillators across 1,792 inverters, so 3.7556 each. Every oscillator budget in this project has been
+built on it and nobody had ever checked it against the standard-cell library that everything else
+here is measured on.
+
+`sky130_fd_sc_hd__inv_1` is **3.7522** square micrometres. The ratio is 1.0009.
+
+The published tile's oscillators are built from drive-1 inverters, and nothing was lost in the
+borrowing. That is a clean result and it took one grep of a file that had been on disk for forty
+loops. The reason to record it is not the confirmation - it is that a borrowed number sat under
+every budget for forty loops with a one-command check available and unrun.
+
+## 98. The aging factor, bracketed against the library
+
+The aging-resistant oscillator's 1.86 factor came from the transistor widths the paper states. It is
+the one number in the recommendation with neither a measurement nor a synthesis behind it.
+
+It can be bracketed without being replaced. A tristate inverter is an inverter with two extra series
+devices - the same device count the ARO adds, though not the same placement:
+
+| Cell | Area | Ratio to `inv_1` |
+|---|---|---|
+<!-- derived:external --> | `sky130_fd_sc_hd__inv_1` | 3.75 | 1.000 |
+<!-- derived:external --> | `sky130_fd_sc_hd__einvn_0` | 5.00 | 1.333 |
+<!-- derived:external --> | `sky130_fd_sc_hd__einvn_1` | 6.25 | 1.666 |
+<!-- derived:external --> | in use, from transistor widths | - | **1.857** |
+
+So two added devices in this library cost between 1.33 and 1.67 in laid-out area, and the figure in
+use is conservative by eleven to forty percent.
+
+The ratio is kept rather than replaced. A tristate inverter is an analogue, not the circuit - its
+enable devices sit in the output stacks where the ARO's second device is a pull-up on the input node.
+What the bracket buys is not a better number but knowing **which way the estimate errs**, which is
+the difference between an unbounded approximation and a conservative one.
+
+## 99. A second source on aging, pointing the other way, and what it adds
+
+The ten-year requirement rests on one paper: simulation, 90 nm, HSPICE Monte Carlo. A second source
+was sought for exactly that reason.
+
+He, Li, Yu and Yang, "ASCH-PUF" (IEEE JSSC), report **silicon** measurements under accelerated aging:
+96 hours at 150 °C and 1.4 V, "resulting in equivalent effects of several years' aging under nominal
+conditions". Their device is a subthreshold inverter array rather than a ring-oscillator bank, so it
+does not refute the RO figure - but their result has a different shape. Aging shows up as an
+increase in the *masking ratio*, which is their name for reliable-bit selection: for their D-ASCH
+scheme the ratio "at the start of aging is 24% and maintained below 26% throughout the aging
+experiment".
+
+Two percentage points of extra selection over several equivalent years, measured, against a third of
+all bits flipping over ten, simulated. Different devices, and ring oscillators are the ones the
+literature singles out as aging-sensitive - so the two are not in contradiction. What the second
+source establishes is that the catastrophic figure is a property of the conventional ring oscillator
+specifically, and not a general fact about PUFs that this project should have expected.
+
+### The lever it hands over: burn-in before enrolment
+
+The same paper: "S-ASCH benefits from having a burn-in process prior to enrollment", because "if the
+enrollment is run after some time of accelerated aging, the masking ratio will not have such an
+aggressive increase".
+
+That is a requirement on the provisioning flow, not on the die - the same class as the nine enrolment
+reads. NBTI damage accumulates fast and then slows, so enrolling *after* a burn-in means the enrolled
+values already describe an aged device and only the remainder has to be survived.
+
+Quantified against this design: the construction absorbs a post-enrolment flip rate of 9.2 percent,
+and the conventional ten-year figure is 32.41. **Burn-in before enrolment must leave at most 28
+percent of the ten-year degradation still to come.** Whether a practical burn-in does that is not
+answerable from either source, and it is now a stated number rather than a hope.
+
+It is a second, independent route to the same requirement, and it costs no area at all - which
+matters because the route already adopted, the aging-resistant oscillator, rests on the one estimate
+in the design that has no measurement behind it.
+
+## 100. The summariser said the paper had no aging content, and it has twenty-one mentions
+
+The fetch of the ASCH paper returned: "this paper contains no discussion of PUF aging, NBTI effects,
+bit error rate degradation over time, or lifetime stability measurements", with a list of absent
+topics and a note that it would not fabricate numbers.
+
+Extracted and grepped, the same PDF has twenty-one occurrences of "aging", two of "NBTI", a
+subsection headed "D. Aging", and the burn-in result above.
+
+Third time in this project a fetched summary has been wrong about a source, and the first time it
+was wrong by asserting *absence*. A claim that something is not in a document is exactly the claim a
+summariser is worst placed to make and a reader is cheapest to check - one grep. The rule this
+project already had, read the primary source, needs the corollary: a summary saying there is nothing
+to read is not evidence there is nothing to read.
