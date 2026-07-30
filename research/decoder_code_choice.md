@@ -2349,7 +2349,7 @@ true reliability, one by the nine-read majority vote the design actually perform
 <!-- derived:external --> | 67.4% | 0.9835 | 0.5392 | 0.5423 | 0.5236 | 0.8911 |
 <!-- derived:external --> | 90% | 1.6471 | 0.5534 | 0.5556 | 0.8535 | 0.8535 |
 
-The **density after selection is 0.9293** at the twenty percent the design discards, against 0.9414
+The **density after selection is 0.8988** at the sixty percent the design now discards, against 0.9414
 before it. The requirement rises from 136.0 bits of k to 137.7, against 171 carried. The
 recommendation survives with thirty-three bits of margin.
 
@@ -3326,3 +3326,80 @@ differences cost more or less than 3.6 percent of the benefit is not answerable 
 The useful output is the number, not the verdict: **a NAND-gated ring qualifies if its ten-year
 unselected flip rate is at or below 9.2 percent**, and the margin between that and the ARO's 7.73 is
 one and a half points. Anyone simulating it now knows what counts as a pass.
+
+## 121. The decisions column swept, and the thinnest number in this work
+
+The register has carried a column naming, for each constraint, the decisions taken against it. It has
+never been swept. Swept now, constraint by constraint: has this constraint moved since those
+decisions were taken, and were they revisited.
+
+Six of eight are clean. Word failure moved and the code was re-chosen. Helper-data leakage no longer
+applies. The oscillator entropy floor has not moved. One enrolment per device acquired a cost and it
+was analysed. Throughput was slack and then used. Sixteen tiles went from binding to slack with 12.5
+tiles spare - and nothing should move with it, because the decisions taken against it (sharing the
+solver's multipliers, leaving the Chien search parallel, the field) each won on their own terms and
+would win again.
+
+**The raw error rate row was not clean, and what it hid is the thinnest number in this project.**
+
+Its decisions were the selection fraction, the number of enrolment reads and the code. The constraint
+moved when aging entered: what matters at ten years is the aged rate, not the fresh one. The code was
+revisited. The fraction and the read count were not.
+
+Worse, the aging analysis computed the aged rate with `selected_ber`, which is the **perfect-ranking
+bound** - the file that defines it says so in its docstring. Enrolment cannot rank perfectly; it ranks
+by a majority vote over a handful of reads. Recomputed against what nine reads actually achieve:
+
+| Kept | Ideal ranking | 9 reads | 25 reads | Tolerated |
+|---|---|---|---|---|
+<!-- derived:external --> | 80% | 0.0337 | **0.0403** | 0.0376 | 0.0442 |
+<!-- derived:external --> | 60% | 0.0065 | 0.0183 | 0.0089 | 0.0442 |
+<!-- derived:external --> | 40% | 0.0004 | 0.0177 | **0.0058** | 0.0442 |
+<!-- derived:external --> | 32.6% | 0.0001 | 0.0172 | 0.0064 | 0.0442 |
+
+At the design's eighty percent and nine reads, the ten-year effective rate is **0.0403 against 0.0442
+tolerated - a margin of 1.10**. The figure the aging work reported, 0.0334, was the perfect-ranking
+bound and the achievable number is a tenth of the way from it to failure.
+
+And the lever is not the one the fraction column suggests. Deeper selection with nine reads plateaus
+at about 0.017, because past a third discarded **the ranking is the limit, not the fraction** - nine
+reads give five distinct reliability levels and cannot separate what is left. The two have to move
+together.
+
+Adopted: keep forty percent, read twenty-five times. Ten-year effective rate **0.0058, a margin of
+7.6**, for 953 raw positions instead of 477, forty-five oscillators instead of thirty-five, and 0.05
+of a tile. The reads cost provisioning time and no area at all.
+
+| | Before | After |
+|---|---|---|
+<!-- derived:external --> | kept | 80% | 40% |
+<!-- derived:external --> | enrolment reads | 9 | 25 |
+<!-- derived:external --> | ten-year effective rate | 0.0403 | 0.0058 |
+<!-- derived:external --> | margin against 0.0442 | 1.10 | 7.6 |
+<!-- derived:external --> | raw positions | 477 | 953 |
+<!-- derived:external --> | tiles of sixteen | 3.42 | 3.47 |
+
+A thirteenth thing failed, in CI rather than locally: one of the controls carried the old value as
+its anchor, and the harness refused to run it - "the control's anchor is not in research/inputs.py,
+so nothing would be broken". Before the harness existed that control would have mutated nothing,
+found no failure, and reported that the check does not work. A stale control is the most expensive
+kind of stale thing, because it reads as evidence.
+
+Twelve bound figures across the ledger and the register failed the moment the inputs changed, and
+each named itself. That is the three loops of binding prose to the model paying for themselves in one
+edit.
+
+## 122. What the sweep was actually for
+
+The column was added six loops ago as "the change not made", with a note that the next loop was a
+better place to make it. It was then carried, unswept, for six loops - which is the same shape as the
+constraint register itself going stale for three, and the notes nobody read for dozens.
+
+**An artefact that records what to revisit is not a revisit.** The sweep took one pass and found a
+margin of 1.10 where the documents claimed comfort, in the row whose constraint had moved most
+recently and most consequentially.
+
+The generalisation for the skill file is narrower than "sweep your registers". It is that a bound
+computed from an *optimistic* model - here perfect ranking, explicitly labelled as a bound in the
+file that defines it - will be quoted downstream as if it were the achievable figure, because
+downstream reads the number and not the docstring. A bound should carry its direction in its name.

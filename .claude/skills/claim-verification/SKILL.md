@@ -123,6 +123,34 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## A bound should carry its direction in its name
+
+A function returning the error rate under *perfect* ranking was called `selected_ber`, with the
+optimism documented in its docstring and measured separately in the same file. Two loops later
+another analysis called it and reported the result as the design's actual rate. The real figure was a
+tenth of the way from that number to failure.
+
+Downstream reads the name and the number, never the docstring. `selected_ber_ideal` would have made
+the caller ask where the achievable one lives.
+
+Name bounds as bounds - `_ideal`, `_bound`, `_optimistic` - and when you write one, write the
+achievable counterpart next to it even if nothing calls it yet.
+
+## An artefact that records what to revisit is not a revisit
+
+A register gained a column naming, for each constraint, the decisions taken against it - precisely so
+that a constraint moving would point at the work to redo. It was then carried for six loops without
+anyone reading it, and the first sweep found a safety margin of 1.10 where the documents claimed
+comfort.
+
+The same shape had already happened twice in the same project: a register that went stale for three
+loops, and advisory notes nobody read for dozens. Writing down what to check is the easy half and it
+feels like the whole thing.
+
+If a document exists to trigger periodic work, the trigger has to live somewhere that fires - a
+checklist step, a check that fails, a scheduled sweep with an owner. A column that waits to be read
+will be read the loop after it mattered.
+
 ## One bad comparison is not a general law
 
 A single failing run - every figure out by a few percent - produced the conclusion "these numbers are
