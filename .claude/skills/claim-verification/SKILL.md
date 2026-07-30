@@ -103,6 +103,40 @@ already gone into a merged document and a pull request by then.
 Before quoting a ratio, name what is inside each side of it. If the two sides are
 subsystems rather than whole designs, say so in the same sentence as the number.
 
+## A sweep's granularity is part of its result
+
+A conclusion was swept in steps of 0.02 and reported an edge at 0.87. Re-swept at 0.01, the
+edge was at 0.8613 - a code had been working just below the resolution of the first sweep
+and did not appear in it.
+
+Nothing was wrong with either sweep; the first simply could not see what it did not sample.
+So report the step size alongside the range, and re-sweep finer near any boundary before
+quoting where it is. A boundary found at the resolution of the sweep is a boundary of the
+sweep.
+
+## Check a borrowed claim before it becomes a decision, and again after
+
+A claim from a paper was written into a contract as the reason for a policy. It had been
+taken on faith, and the paper demonstrates it on a construction with a component this
+project does not have.
+
+Checking it cost an hour. The claim survived - the mechanism generalises even though the
+example does not - but it might not have, and by then it was already load-bearing in code.
+
+When a borrowed claim is about to determine a decision, verify it on your own
+configuration rather than on the source's. And when demonstrating it, be explicit about
+whether you have shown the mechanism or measured the quantity: showing that bits move is
+not the same as showing how much is lost.
+
+## Answer your own qualifications
+
+A result was published with a caveat that its shape might be an artefact of a sparse
+sample. That caveat was honest and it was also a task, and caveats that are never
+discharged accumulate into a document nobody can act on.
+
+Densifying the sample took one loop and the shape survived. Track your own qualifications
+as work, and close them by test rather than by repetition.
+
 ## Report a conclusion over a range of the weakest input, not at a point
 
 The weakest input in a long analysis was a constant measured on someone else's process for

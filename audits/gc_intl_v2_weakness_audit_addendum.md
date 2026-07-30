@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-82
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-84
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -2725,6 +2725,67 @@ works and finding out means measuring more. And the band's flatness is partly an
 five measured codes; a denser set would probably show area falling as density rises. The
 part that would survive is that nothing changes across a six-point range.
 
+## W-INTL-83  The reuse claim that set the contract policy, checked on this construction
+
+Severity: medium. The policy stands; the justification needed the check it had not had.
+
+`ChipRegistryV2` refuses re-registration, and the reason written into it is a claim from
+Maes et al.: classic and pair-output von Neumann debiasing are not reusable, so enrolling
+the same device twice leaks more than once does. That claim was taken on faith, and it had
+already determined a contract.
+
+It needed checking because the paper demonstrates it on a construction this project does
+not use - its figure has an inner two-bit repetition code and reasons about which bits
+share a codeword, and there is no repetition code here. What generalises is the sentence
+beside the figure rather than the figure: enrolled bits can shift between code words,
+because the debiasing step is stochastic and bit errors between enrolments change which
+pairs are retained.
+
+Demonstrated here. A 12,432-bit raw response, a second measurement of the same device
+differing in 259 bits at two percent noise: enrolment one retains 3,062 bits and enrolment
+two 3,057; the public retention patterns differ at 253 pairs; and of the 2,794 pairs
+retained in both, 124 land in a different BCH block the second time - four and a half
+percent, with every pair after the first divergence displaced.
+
+So each enrolment publishes a syndrome over a different partition of the same raw bits.
+The mechanism applies to this construction and the policy stands on it.
+
+What this does not do: it demonstrates the mechanism, not the quantity. That bits shift
+between blocks is shown; that two enrolments leak strictly more than one follows; how much
+more has not been computed. The policy is conservative either way, since it forbids the
+second enrolment outright.
+
+The general point is the one from W-INTL-74 a level up: a conclusion was borrowed and
+acted on, and the borrowing was from a construction with a component this project does not
+have. Checking cost an hour and the claim survived. It might not have.
+
+## W-INTL-84  The flat band survived densification, and the sweep's granularity had hidden the edge
+
+Severity: none as a defect. It answers the qualification W-INTL-82 attached to itself.
+
+W-INTL-82 reported the recommendation as flat from entropy density 0.88 to 1.00 and
+qualified it: with only five measured decoders the flatness might be an artefact, and a
+denser set would probably show area falling as density rises.
+
+Three more codes were generated, verified end to end and measured - BCH(127,8,31) at
+116,194 square micrometres, BCH(255,45,43) at 211,985, BCH(255,37,45) at 222,024 - chosen
+to populate the band and probe below its edge.
+
+Swept at one-hundredth intervals over eight measured codes, the answer changes in exactly
+two places: BCH(127,22,23) at 5.34 tiles from 1.00 down to 0.88, BCH(255,47,42) at 11.96
+tiles at 0.87, and nothing measured at 0.86 and below.
+
+The qualification is answered. None of the three new codes improves on the recommendation
+anywhere in the band, so the flat stretch is a property of the problem rather than of the
+sample.
+
+Two things sharpened. The edge is at 0.8613, not 0.87: the earlier sweep stepped in units
+of 0.02 and hid a code working just below its resolution, which is worth recording as a
+reminder that a sweep's granularity is part of its result and should be reported with it.
+And between band and edge there is a single step rather than a slope - one point of entropy
+density costs more than double the area, because it forces the move from GF(2^7) to GF(2^8)
+and a correction strength of 42.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -2806,4 +2867,6 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-79 | partly closed; borrowed constants listed, and the one applied wrongly is now computed |
 | W-INTL-80 | closed; debiasing overhead computed from its definition, borrowed figures were conservative by 3 to 5 percent |
 | W-INTL-81 | closed; the chain runs with debiasing and gives the sizing a third independent witness |
-| W-INTL-82 | closed; the recommendation is flat from entropy density 1.00 down to 0.88 and stops below 0.87 |
+| W-INTL-82 | closed; the recommendation is flat from entropy density 1.00 down to 0.88, refined by W-INTL-84 |
+| W-INTL-83 | closed; the reuse claim behind the contract's enrolment policy verified on this construction, mechanism shown not quantified |
+| W-INTL-84 | closed; the flat band survived densification to eight measured codes, and the edge is at 0.8613 |

@@ -76,6 +76,15 @@ run_tb "full decode end to end, GF(2^8) t=42" \
 run_tb "full decode end to end, GF(2^9) t=54" \
     -DMVAL=9 -DTVAL=54 -DREDVAL="9'h011" -DTOPNAME=bch511t54_tables \
     bch511t54_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^7) t=31" \
+    -DMVAL=7 -DTVAL=31 -DREDVAL="7'h09" -DTOPNAME=bch127t31_tables \
+    bch127t31_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=43" \
+    -DMVAL=8 -DTVAL=43 -DREDVAL="8'h1D" -DTOPNAME=bch255t43_tables \
+    bch255t43_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=45" \
+    -DMVAL=8 -DTVAL=45 -DREDVAL="8'h1D" -DTOPNAME=bch255t45_tables \
+    bch255t45_tables.v bm_area_probe.v tb_bch_e2e.v
 run_tb "Reed-Muller decoder R(1,6)" rm_area_probe.v tb_rm.v
 run_tb "characterisation readout" ro_characteriser.v tb_ro_char.v
 
@@ -99,6 +108,14 @@ echo
 echo "  the fallback if both error rate and entropy come in poor, BCH(255,47,42):"
 area "syndrome bank + Chien search" bch255t42_tables "" bch255t42_tables.v
 area "key-equation solver" bm_area_probe "T=42 M=8 RED=29" bm_area_probe.v
+echo
+echo "  measured to test whether the flat band is an artefact of a sparse set:"
+area "BCH(127,8,31)  syndrome + Chien" bch127t31_tables "" bch127t31_tables.v
+area "BCH(127,8,31)  solver" bm_area_probe "T=31 M=7 RED=9" bm_area_probe.v
+area "BCH(255,45,43) syndrome + Chien" bch255t43_tables "" bch255t43_tables.v
+area "BCH(255,45,43) solver" bm_area_probe "T=43 M=8 RED=29" bm_area_probe.v
+area "BCH(255,37,45) syndrome + Chien" bch255t45_tables "" bch255t45_tables.v
+area "BCH(255,37,45) solver" bm_area_probe "T=45 M=8 RED=29" bm_area_probe.v
 echo
 echo "  rejected: BCH(511,139,54), decoder alone exceeds the whole budget"
 area "syndrome bank + Chien search" bch511t54_tables "" bch511t54_tables.v

@@ -109,8 +109,9 @@ def search(raw_budget, min_ber):
 
 
 # Decoder areas, measured against the SkyWater library and verified end to end first.
-MEASURED_AREA = {(7, 23): 86_896, (7, 27): 102_267, (8, 18): 90_254,
-                 (8, 42): 206_630, (9, 54): 304_465}
+MEASURED_AREA = {(7, 23): 86_896, (7, 27): 102_267, (7, 31): 116_194,
+                 (8, 18): 90_254, (8, 42): 206_630, (8, 43): 211_985,
+                 (8, 45): 222_024, (9, 54): 304_465}
 TILE = 18_032
 OSC_AREA = 7 * (6_730 / 1_792)
 ENTROPY_FLOOR_OSC = 272
