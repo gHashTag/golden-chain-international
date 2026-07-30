@@ -1616,6 +1616,16 @@ text describing itself.
 
 ---
 
+## 59b. Every declared area re-synthesised
+
+`scripts/verify_inputs.py` regenerates each decoder from `gen_bch_decoder.py`, synthesises both
+halves against the same library, and compares the sum against what `inputs.py` declares. All
+thirteen reproduce to within a square micrometre.
+
+That closes the last hand-carried link. Until now the declarations said they were measured here
+and reproducible, and nothing checked that a figure transcribed six loops ago still describes the
+design rather than the design as it stood then.
+
 ## 60. The leakage bound is avoidable, and the paper saying so turned up while chasing a different question
 
 Going after Becker's text - the last inherited claim in this work - led to Hiller's

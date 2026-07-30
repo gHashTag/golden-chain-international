@@ -3317,8 +3317,9 @@ figure transcribed from a run six loops ago and never re-run agrees with the pas
 with the design.
 
 `scripts/verify_inputs.py` regenerates the table stages for each field and correction strength,
-synthesises both halves, and compares the sum against the declaration. The first entry
-reproduces exactly: GF(2^7) t=21 declared 79,787, measured 79,787. Not in CI - two synthesis
+synthesises both halves, and compares the sum against the declaration. All 13 reproduce exactly - every declared area equals a fresh synthesis to within a
+square micrometre, so the numbers in inputs.py describe the design as it stands rather than as
+it stood when they were written. Not in CI - two synthesis
 runs per code is too slow - so it is run when the RTL or the library moves.
 
 ## W-INTL-110  The leakage bound is a property of the chosen constructions, not of the problem
