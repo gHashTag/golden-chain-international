@@ -55,10 +55,20 @@ def default_range():
 
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    argv = list(sys.argv[1:])
+    if "--message-file" in argv:
+        i = argv.index("--message-file")
+        del argv[i:i + 2]
+    args = [a for a in argv if not a.startswith("--")]
     rng = args[0] if args else default_range()
 
-    messages = git("log", "--format=%B", rng)
+    # --message-file substitutes the commit message while leaving the diff alone. It
+    # exists so this check can have a control: the message is the only input, and there
+    # is no way to mutate it with a file edit. W-INTL-179.
+    override = None
+    if "--message-file" in sys.argv:
+        override = pathlib.Path(sys.argv[sys.argv.index("--message-file") + 1]).read_text()
+    messages = override if override is not None else git("log", "--format=%B", rng)
     if not messages.strip():
         # In CI this used to print "nothing to check" and exit zero. The workflow ran a
         # shallow checkout of a merge commit, the merge base was unreachable, the range

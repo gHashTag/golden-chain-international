@@ -93,6 +93,30 @@ jobs:
           python3 scripts/control.py research/constraint_register.md \
             '58 percent' '57 percent' \
             -- python3 scripts/check_figures_reproduce.py
+          # The catalog lives in another repository, so it is fetched to a path first and
+          # the controls mutate the copy. Four checks, four controls.
+          python3 - <<'FETCH'
+          import base64, subprocess, pathlib, sys
+          out = subprocess.run(["gh","api","repos/gHashTag/t27/contents/specs/numeric/formats_catalog.t27","--jq",".content"],
+                               capture_output=True, text=True)
+          if out.returncode or not out.stdout.strip():
+              sys.exit("could not fetch the catalog; the controls below need it")
+          pathlib.Path("/tmp/catalog.t27").write_text(base64.b64decode(out.stdout).decode())
+          FETCH
+          for m in 'bias=15:bias=16' 'bits=16 s=1 e=5 m=10:bits=17 s=1 e=5 m=10' \
+                   'id=binary16:id=binary32'; do
+            python3 scripts/control.py /tmp/catalog.t27 "${m%%:*}" "${m##*:}" \
+              -- python3 scripts/check_catalog.py /tmp/catalog.t27
+          done
+          python3 scripts/control.py /tmp/catalog.t27 \
+            'name="binary16 (fp16, half)"' 'name="binary16 runs at 250 MHz"' \
+            -- python3 scripts/check_catalog.py /tmp/catalog.t27
+          printf 'probe: closes W-INTL-999\n' > /tmp/probe_msg.txt
+          if python3 scripts/check_commit_claims.py HEAD~1..HEAD \
+               --message-file /tmp/probe_msg.txt --require-commits; then
+            echo "::error::the commit-claims control did not fire"; exit 1
+          fi
+          echo "control on the commit message: the check FIRED"
       - name: units on every ratio
         run: |
           set -e

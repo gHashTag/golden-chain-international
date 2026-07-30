@@ -123,6 +123,26 @@ The rule was good and the enforcement was a habit. Move the part that a machine 
 machine runs it, even when that means splitting the tool so the cheap half can go first. Half a
 guard on every change beats a whole guard on the changes you remember.
 
+## An observation about something you do not control is still a number you can pin
+
+A check watched an artefact in another repository, so a failure would have demanded a fix nobody on
+this side could make. It emitted a note instead - and the note was read past on every run for as long
+as it existed.
+
+The third option is a declared count: state how many outstanding observations there are, check it
+every run, pass while it matches and fail when it moves. That is exactly when a human is needed, and
+it needs no authority over the thing being watched.
+
+## "Skips rather than failing" in a docstring is a defect describing itself
+
+A checker fetched its input from elsewhere and, when the fetch failed, printed "skipped" and returned
+success - with the docstring praising this so the build would not depend on another repository.
+
+A green tick that read nothing is the thing to hunt, and here it was announced in the file's own
+documentation and survived every reading of that file. Make the skip something a caller asks for
+explicitly, and let the default be failure. If a build genuinely must not depend on a fetch, that is a
+decision to write at the call site where someone can see it, not a default buried in a library.
+
 ## Check the checker's inputs, not just its logic
 
 A reference-resolving check was given six documents and not the research directory - so the file
