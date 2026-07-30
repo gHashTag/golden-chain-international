@@ -93,11 +93,38 @@ jobs:
           python3 scripts/control.py research/constraint_register.md \
             '58 percent' '57 percent' \
             -- python3 scripts/check_figures_reproduce.py
+          # The catalog lives in another repository. Fetched over https rather than
+          # through the GitHub CLI, because the CLI needs a token the controls step does
+          # not have - which is how the first run of this step failed. Four checks, four
+          # controls; the fetch failing fails the step rather than skipping it.
+          curl -fsSL -o /tmp/catalog.t27 \
+            https://raw.githubusercontent.com/gHashTag/t27/master/specs/numeric/formats_catalog.t27
+          test -s /tmp/catalog.t27
+          for m in 'bias=15:bias=16' 'bits=16 s=1 e=5 m=10:bits=17 s=1 e=5 m=10' \
+                   'id=binary16:id=binary32'; do
+            python3 scripts/control.py /tmp/catalog.t27 "${m%%:*}" "${m##*:}" \
+              -- python3 scripts/check_catalog.py /tmp/catalog.t27
+          done
+          python3 scripts/control.py /tmp/catalog.t27 \
+            'name="binary16 (fp16, half)"' 'name="binary16 runs at 250 MHz"' \
+            -- python3 scripts/check_catalog.py /tmp/catalog.t27
+          # The probe number comes from the clock. Any fixed number, written anywhere -
+          # this file, the audit, the document describing the control - lands in the diff
+          # the check reads, and the check then finds the number it was told to look for.
+          # That happened twice, in two different files. W-INTL-181.
+          printf 'probe: closes W-INTL-%s\n' "$(date +%s)" > /tmp/probe_msg.txt
+          if python3 scripts/check_commit_claims.py HEAD~1..HEAD \
+               --message-file /tmp/probe_msg.txt --require-commits; then
+            echo "::error::the commit-claims control did not fire"; exit 1
+          fi
+          echo "control on the commit message: the check FIRED"
       - name: units on every ratio
         run: |
           set -e
           python3 scripts/check_units.py
       - name: catalog rules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -e
           python3 scripts/check_catalog.py

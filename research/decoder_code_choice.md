@@ -3206,3 +3206,67 @@ check it exercises.
 The remaining untested surface is written down rather than left implicit: `check_catalog` has four
 internal checks and no controls, and `check_commit_claims` has one arm with a control that is not in
 CI.
+
+## 116. The catalog checker, and the fourth silent-skip in the same codebase
+
+`check_catalog.py` has four internal checks and had no controls. All four have them now, and getting
+there found two defects of a kind this project has been finding for four loops running.
+
+**It skipped silently.** Its own docstring says so approvingly: "If neither a path nor the CLI is
+available it skips rather than failing, so it can sit in CI without making the build depend on
+another repository being reachable." That is a green tick that read nothing - the failure mode of
+W-INTL-153, sitting in this file the whole time and *documented as a feature*. Skipping is now
+something a caller asks for with `--allow-missing`, and a missing catalog otherwise fails.
+
+**Its metadata check could not fail.** `check_no_measurements_in_metadata` appends to notes, and it
+is the check written for W-INTL-41 - an entry marked verified that asserted an FPGA frequency in a
+metadata field. The check written to stop that recurring could not stop anything. Fourth instance of
+this pattern.
+
+Here the note had a real justification the earlier three did not: the catalog is in another
+repository that this project cannot edit, so a failure would demand a fix nobody here can make. The
+resolution is neither a note nor a bare failure but a declared count - one outstanding observation,
+`EXPECTED_METADATA_OBSERVATIONS = 1`, checked on every run. It passes while the number matches and
+fails when it moves, which is exactly when a human is needed. **An observation about something you do
+not control is still a number you can pin.**
+
+An unreadable catalog path also used to raise a `FileNotFoundError`. A traceback is not a diagnosis,
+and "the catalog says something wrong" and "you gave me a path that is not there" are different
+problems for whoever is reading.
+
+## 117. The last check without a control
+
+`check_commit_claims.py` had one arm and no way to control it: its only input is the commit message,
+and a message cannot be mutated by editing a file. A `--message-file` override now substitutes the
+message while leaving the diff alone, which is the smallest thing that makes the check testable.
+
+That completes the sweep. Every check in this repository now has at least one control, and every
+control runs in CI: the harness self-test, nine breakages against `check_consistency` and
+`check_figures_reproduce`, four against the catalog, and one against the commit-claims check.
+
+The tally for four loops of this work is worth stating plainly, because it is the argument for having
+done it. Of the checks this project trusted, **one could not see its own motivating failure, four
+could not fail at all, one was reading the wrong files, one skipped silently while documenting the
+skip as a feature, and one had no controls of any kind.** None of that was visible from a green run.
+
+## 118. The control that landed inside the thing it was checking
+
+The commit-claims control passed in CI, which for a control means it failed: the check it was meant to
+break reported OK.
+
+The probe message named a nonexistent entry number, written as a literal in the workflow file. The
+workflow file is part of the diff the check reads. So the check looked for a line mentioning that
+number, found one - its own instructions - and correctly reported no problem.
+
+Writing this section repeated the mistake: describing the control with the number spelled out put the
+number back into a document the check reads, and the second CI run failed the same way for a
+different file. The number is generated at run time now, from a clock, and no document here contains
+it - including this one, which is why it is described rather than quoted.
+
+The control was not wrong about the check. It was wrong about the world: **writing the probe put the
+probe's evidence into the evidence**.
+
+This is the third distinct way a control in this project has managed to test nothing - after an
+anchor that was not present, and a mutation the interpreter could not see. The pattern underneath all
+three: a control is an experiment, and an experiment that shares any surface with its subject is not
+measuring what it thinks it is. Here the shared surface was the file itself.

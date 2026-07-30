@@ -38,6 +38,13 @@ DEFAULT_REPO = "gHashTag/t27"
 DEFAULT_PATH = "specs/numeric/formats_catalog.t27"
 
 EXPECTED_FORMATS = 83
+
+# The metadata-measurement check observes an artefact in another repository, which this
+# project cannot edit. That is a real reason for a note rather than a failure - and a note
+# nobody counts is the pattern this project has now promoted away four times. So the
+# number of outstanding observations is declared instead: the check passes while it
+# matches and fails when it moves, which is the part that needs a human either way.
+EXPECTED_METADATA_OBSERVATIONS = 1
 EXPECTED_CLUSTERS = 13
 
 # A metadata field is for identifying a format, not for reporting a measurement.
@@ -54,7 +61,14 @@ notes: list[str] = []
 
 def load(argv):
     if len(argv) > 1:
-        return pathlib.Path(argv[1]).read_text()
+        # An unreadable path used to raise, and a traceback is not a diagnosis. It is
+        # also the difference between "the catalog says something wrong" and "you gave
+        # me a path that is not there", which are different problems for the reader.
+        try:
+            return pathlib.Path(argv[1]).read_text()
+        except OSError as exc:
+            print(f"FAIL: cannot read the catalog at {argv[1]}: {exc}", file=sys.stderr)
+            sys.exit(1)
     cmd = f"gh api repos/{DEFAULT_REPO}/contents/{DEFAULT_PATH} --jq .content"
     try:
         out = subprocess.run(shlex.split(cmd), capture_output=True, text=True, timeout=60)
@@ -182,10 +196,18 @@ def check_counts(entries):
 
 
 def main():
-    text = load(sys.argv)
+    allow_missing = "--allow-missing" in sys.argv
+    text = load([a for a in sys.argv if a != "--allow-missing"])
     if text is None:
-        print("check_catalog: catalog not reachable and no path given - skipped")
-        return 0
+        # This used to return 0 with the word "skipped", which is a green tick that read
+        # nothing - the failure mode of W-INTL-153, sitting in this file the whole time.
+        # Skipping is now something a caller asks for explicitly.
+        if allow_missing:
+            print("check_catalog: catalog not reachable; --allow-missing given, skipped")
+            return 0
+        print("FAIL: catalog not reachable and no path given. Pass a path, or "
+              "--allow-missing to say the skip is intended.", file=sys.stderr)
+        return 1
 
     entries = parse(text)
     if not entries:
@@ -196,6 +218,11 @@ def main():
     check_field_rule(entries)
     check_width_rule(entries)
     check_no_measurements_in_metadata(entries)
+    if len(notes) != EXPECTED_METADATA_OBSERVATIONS:
+        failures.append(
+            f"catalog: {len(notes)} metadata-measurement observations, "
+            f"{EXPECTED_METADATA_OBSERVATIONS} declared in this script - if the upstream "
+            f"catalog changed, decide what the new number means and declare it")
 
     for n in notes:
         print(f"note: {n}")

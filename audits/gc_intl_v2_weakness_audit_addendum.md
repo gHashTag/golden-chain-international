@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-178
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-181
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -4757,6 +4757,63 @@ Ten controls now run in CI, the harness self-test and nine deliberate breakages.
 that remains is written down rather than left implicit: check_catalog has four internal checks and no
 controls, and check_commit_claims has one arm whose control is not in CI.
 
+## W-INTL-179  The catalog checker skipped silently, and its motivating check could not fail
+
+Severity: medium, and it is the fourth instance of each pattern.
+
+check_catalog.py has four internal checks and had no controls. All four have them now, and two
+defects came out of writing them.
+
+It skipped silently, and its docstring described the skip approvingly - "it skips rather than
+failing, so it can sit in CI without making the build depend on another repository being reachable".
+A green tick that read nothing, documented as a feature. Skipping is now requested with
+--allow-missing and a missing catalog otherwise fails. An unreadable path also raised a traceback
+rather than reporting; a traceback is not a diagnosis, and a bad path and a bad catalog are different
+problems for the reader.
+
+check_no_measurements_in_metadata appended to notes and could not fail. It is the check written for
+W-INTL-41 - an entry marked verified asserting an FPGA frequency in a metadata field - so the check
+written to stop that recurring could not stop anything.
+
+Here the note had a justification the earlier three did not: the catalog is in a repository this
+project cannot edit. The resolution is a declared count rather than a note or a bare failure -
+EXPECTED_METADATA_OBSERVATIONS = 1, checked every run, passing while it matches and failing when it
+moves. An observation about something you do not control is still a number you can pin.
+
+## W-INTL-180  The last check without a control, and the tally
+
+Severity: low as a change, and the tally is the point.
+
+check_commit_claims.py had one arm and no way to control it: its only input is a commit message, and
+a message cannot be mutated by editing a file. A --message-file override substitutes the message
+while leaving the diff alone, which is the smallest thing that makes it testable.
+
+That completes the sweep. Every check in this repository has at least one control and every control
+runs in CI: the harness self-test, nine breakages against check_consistency and
+check_figures_reproduce, four against the catalog, one against the commit-claims check.
+
+The tally over four loops: of the checks this project trusted, one could not see its own motivating
+failure, four could not fail at all, one was reading the wrong files, one skipped silently while
+documenting the skip as a feature, and one had no controls of any kind. None of that was visible from
+a green run.
+
+## W-INTL-181  The control that landed inside the thing it was checking
+
+Severity: medium, and it is the third distinct way a control here has tested nothing.
+
+The commit-claims control passed in CI, which for a control means it failed - the check it was meant
+to break reported OK. The probe message was written as a literal in the workflow file, and the
+workflow file is part of the diff the check reads. So the check looked for a line mentioning the
+probe number, found one - its own instructions - and correctly reported no problem.
+
+The control was not wrong about the check. It was wrong about the world: writing the probe put the
+probe's evidence into the evidence. The number is assembled at run time now, so the literal never
+appears in the file being examined.
+
+Third way after an anchor that was not present and a mutation the interpreter could not see. The
+pattern underneath all three: a control is an experiment, and an experiment sharing any surface with
+its subject is not measuring what it thinks it is. Here the shared surface was the file itself.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -4914,6 +4971,9 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-171 | closed; fifteen ledger figures bound to the model, and three stale prose claims fell out on the first run |
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |
 | W-INTL-176 | closed with a harness in CI; an equal-length mutation within one second is invisible to the interpreter, so a control can test nothing and look like a broken check |
+| W-INTL-179 | closed; the catalog checker skipped silently with the skip documented as a feature, and the check written for W-INTL-41 could not fail |
+| W-INTL-181 | closed; the commit-claims probe was written literally into the workflow file, which is in the diff the check reads, so the control passed for the wrong reason |
+| W-INTL-180 | closed; every check in the repository now has a control and every control runs in CI |
 | W-INTL-178 | closed; the oldest check had no controls, two of its nine parts could not fail, and one was reading the wrong files - ten controls now run in CI |
 | W-INTL-177 | closed; a default filled in a missing masking-stage measurement, letting the search recommend a construction not measured end to end |
 | W-INTL-175 | closed at both ends; all twenty-two areas mismatched on the first foreign run because the toolchain was undeclared, and a measurement carries its instrument |
