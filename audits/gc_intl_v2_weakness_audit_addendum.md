@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-50
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-51
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -117,10 +117,36 @@ who reads a submitted Tiny Tapeout tile as evidence of a funded tape-out will ha
 been misled by the vocabulary rather than by any single false sentence. The
 application text already says silicon remains an open item, which is correct.
 
-Action: use two distinct terms in every external document - shuttle tile for the
-Tiny Tapeout work, custom die for the funded path - and never let a claim about one
-carry over to the other. Closes when no external document uses an unqualified
-silicon to span both.
+REOPENED 2026-07-30, severity back to high. The revision above checked one
+repository and generalised.
+
+The DePIN daemon repository's README carries, in a warning block, a scheduled
+hardware tape-out date of 2026-12-16, with a performance projection described as
+pending that tape-out. That is a dated fabrication commitment in a public README -
+which is what this entry originally said and what the revision denied. The revision
+was right about tt-trinity-gamma and wrong about the account.
+
+Two things plainly. The revision was made by inspecting one file and concluding about
+the whole, which is the error recorded in W-INTL-32 and again in the family-inference
+correction inside W-INTL-46. It keeps arriving in different clothes: an entry revised
+on partial inspection is not revised, it is guessed at with more confidence.
+
+And the projection beside that date is handled well - labelled projected and pending
+tape-out, which is the discipline the account applies unevenly. The problem is the
+date, not the number.
+
+Action.
+
+1. Use two distinct terms in every external document - shuttle tile for the Tiny
+   Tapeout work, custom die for the funded path - and never let a claim about one
+   carry over to the other.
+2. Remove the tape-out date from the public README or state the funding position
+   beside it. A scheduled fabrication date in a public file is read as a commitment.
+3. Re-audit the remaining repositories for dated commitments rather than assuming the
+   two inspected so far are representative.
+
+Closes when no external document uses an unqualified silicon to span both, and no
+public document carries a fabrication date without its funding position stated.
 
 ## W-INTL-19  Both tiers have published bitstream attacks, and the difference between them is not the one stated  [REVISED 2026-07-29]
 
@@ -1721,6 +1747,46 @@ as a monopoly to a buyer who purchases in it.
 
 Closes when no external document claims a single satellite vendor.
 
+## W-INTL-51  The proof types are not produced; they are stubs, and three documents say so
+
+Severity: high. It is the sentence the business model rests on.
+
+The application says three of the four proof types are produced today by the node
+daemon at software-signed level, and carefully distinguishes produced from settled.
+That distinction was the right one to draw and it is drawn around the wrong verb.
+
+Three sources, all the project's own.
+
+The mesh roadmap lists the four-arm DePIN proofs - transport, compute, coverage,
+sensor - with status `-sim` and the word mock beside them, and elsewhere in the same
+file counts "three mock DePIN proofs".
+
+The mesh daemon does not produce proofs at all. It is 111 lines: take a datagram,
+choose a next hop, write it to the radio transport. Searching it for proof, receipt,
+attestation or claim returns nothing, and reading it confirms why.
+
+The daemon that would produce them is a separate repository, and it exists. It holds
+attestation, miner, proof-of-capacity, proof-of-replication and validator modules -
+of two kilobytes, one point seven, one, under one, and one point five respectively.
+Its own README states, in a warning block: pre-silicon status, and all
+hardware-touching code paths are mock or stub implementations that compile and pass
+tests.
+
+So what exists is stub code that compiles. Produced at software-signed level says
+something else: that real proofs are being generated and signed in software today.
+They are not.
+
+The correction is small and the difference is not. Say that the proof interfaces are
+implemented as stubs against the chip that does not exist yet, that they compile and
+pass their tests, and that nothing has produced a proof over real work. That is a
+defensible statement about a pre-silicon system and it is what the project's own
+files say.
+
+Action: replace produced with implemented as stubs, everywhere. Do not describe stub
+code as output.
+
+Closes when no external document says proofs are produced today.
+
 ---
 
 ## Priority order
@@ -1742,7 +1808,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 |---|---|
 | W-INTL-16 | closed, verified |
 | W-INTL-17 | open, formulation drafted, decision required |
-| W-INTL-18 | revised, severity lowered, restated |
+| W-INTL-18 | REOPENED; the revision checked the wrong repository, a dated tape-out is public |
 | W-INTL-19 | revised, severity raised; both tiers have published attacks |
 | W-INTL-20 .. W-INTL-22 | open, unchanged |
 | W-INTL-23 | open, hardware present, gate not run |
@@ -1773,3 +1839,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-48 | open, high; the Solution section asserts GPS that is not on the boards |
 | W-INTL-49 | open, high; two radios have never been up together |
 | W-INTL-50 | open, high before this committee; the single-satellite-vendor claim is false |
+| W-INTL-51 | open, high; proof types are stubs, not produced |

@@ -268,12 +268,20 @@ milestone.
 
 ## Business model
 
-Operators acquire nodes and earn for verified contribution; the network charges
-for delivered service. Three of the four proof types are produced today by the
-node daemon at software-signed level - produced, not settled, since the contract
-that would settle them is not written. Near-term revenue is node sales and paid
-pilots with operators who need connectivity and local inference in the same
-enclosure - infrastructure, remote industry, and civil resilience.
+Operators acquire nodes and earn for verified contribution; the network is designed
+to charge for delivered service and does not charge for anything yet.
+
+On the proofs we correct our own earlier wording. The four proof interfaces are
+implemented as stubs against a chip that does not exist, in a daemon whose README
+says exactly that: pre-silicon, with all hardware-touching paths mock or stub, and
+they compile and pass their tests. Our mesh roadmap lists the four arms as
+simulation. So nothing has produced a proof over real work, and the distinction that
+matters is not produced-versus-settled but implemented-versus-exercised.
+
+Near-term revenue is intended to be node sales and paid pilots with operators who
+need connectivity and local inference in the same enclosure - infrastructure, remote
+industry, civil resilience. We have no revenue and no signed operator today, and the
+letter of intent that would change that is the highest-value item on our list.
 
 ## Traction
 
