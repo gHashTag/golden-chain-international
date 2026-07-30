@@ -69,6 +69,19 @@ Roughly half of all corrections were the tool:
 Every check needs a negative control that fires. Every check that finds nothing
 should say whether it could have found something.
 
+## When the index fails, fetch the files
+
+An account-wide code search returned nothing for a phrase that was demonstrably
+present in a file in that account - the phrase had been read directly minutes
+earlier. The index did not cover it.
+
+So a search that returns nothing has two readings, and they are not
+distinguishable from the result: the thing is absent, or the instrument does not
+reach it. **Before reporting absence from an index, confirm the index can find
+something you know is there.** If it cannot, enumerate and fetch instead - fifteen
+files fetched and grepped locally took one command and gave an answer the index
+could not.
+
 ## Reach the primary source, and record how far you got
 
 Search summaries and abstracts are a map, not a reading. Say which you did. Two
@@ -228,6 +241,20 @@ the subject.
 raising a concern and loose when withdrawing one, because withdrawal feels like
 humility. It is not - an entry revised on partial inspection is not revised, it is
 guessed at with more confidence.
+
+That entry went on to be rated high, medium, high, and medium again. The final
+lowering is the only one that stands, because it came from fetching fifteen files and
+searching them rather than from inspecting one and generalising. Two lessons sit in
+the oscillation. A rating that moves on each new sample is telling you the sample is
+too small, not that the subject is ambiguous. And when the systematic pass finally
+runs, it can settle a finding in the same direction an unjustified guess had gone -
+which does not retroactively justify the guess.
+
+**A repeated correction is a finding about method, not about the subject.** The same
+error - inspect one, conclude about all - appeared as a family inference about a chip,
+as a downgrade on one repository, and as an absence reported from one query. Three
+different clothes, one mistake. When a class of error recurs, stop fixing instances
+and write the rule.
 
 Watch for verbs that survive a correction. Here the distinction between "produced"
 and "settled" had been carefully drawn and defended twice, and both sides of it were
