@@ -67,7 +67,7 @@ jobs:
           # verifies the file was restored by hash.
           python3 scripts/control.py --self-test
           python3 scripts/control.py research/inputs.py \
-            'SELECTION_LOSS = 1 - 381 / 477' 'SELECTION_LOSS = 0.0' \
+            'SELECTION_LOSS = 1 - 381 / 953' 'SELECTION_LOSS = 0.0' \
             -- python3 scripts/check_figures_reproduce.py
           python3 scripts/control.py research/inputs.py \
             '# units: positions / positions' '' \

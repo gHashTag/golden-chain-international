@@ -3379,6 +3379,12 @@ of a tile. The reads cost provisioning time and no area at all.
 <!-- derived:external --> | raw positions | 477 | 953 |
 <!-- derived:external --> | tiles of sixteen | 3.42 | 3.47 |
 
+A thirteenth thing failed, in CI rather than locally: one of the controls carried the old value as
+its anchor, and the harness refused to run it - "the control's anchor is not in research/inputs.py,
+so nothing would be broken". Before the harness existed that control would have mutated nothing,
+found no failure, and reported that the check does not work. A stale control is the most expensive
+kind of stale thing, because it reads as evidence.
+
 Twelve bound figures across the ledger and the register failed the moment the inputs changed, and
 each named itself. That is the three loops of binding prose to the model paying for themselves in one
 edit.
