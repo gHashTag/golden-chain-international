@@ -118,7 +118,12 @@ jobs:
       - name: every declared area re-synthesised
         run: |
           set -e
-          python3 scripts/verify_inputs.py
+          # Exact comparison needs the declared build of yosys. The pinned suite ships a
+          # different one and finding the matching release means downloading 737 MB
+          # tarballs blind, so CI compares with a tolerance: wider than the measured
+          # cross-version spread of 7.3 percent, far tighter than the seventy percent
+          # convention error this check exists to catch. Exact remains the local run.
+          python3 scripts/verify_inputs.py --tolerance-percent 15
 
   rtl-verification:
     # Every area this project quotes is quoted for a circuit that decoded correctly, and

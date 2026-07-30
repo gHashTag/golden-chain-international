@@ -3090,6 +3090,17 @@ comparing anything - so a version difference now reports itself as a version dif
 as twenty-two wrong numbers. And CI installs the pinned build rather than the distribution's,
 cached, so the comparison is against the tool the figures were taken with.
 
+CI cannot install the declared build without a blind search through 737 MB release tarballs, so it
+compares with a fifteen percent tolerance instead - wider than the measured cross-version spread of
+7.3 percent and far tighter than the seventy percent convention error this check was created to
+catch. Exact comparison stays where the declared build is.
+
+Two smaller things fell out of doing it. A control that mutates a file and restores it by copy left
+the checker reading a stale `__pycache__`, so a run reported the mutated value after the restore -
+which means a control can lie in the direction of the thing it was testing. And the version gate is
+worth more than the fix: its output is one accurate sentence where the same condition previously
+arrived as twenty-two wrong numbers.
+
 The general form is worth keeping: **a measurement carries its instrument**. This project has been
 careful to record the conditions of every borrowed number - the pairing distance, the temperature,
 the activation time, the process node - and did not record the version of the program that produced
