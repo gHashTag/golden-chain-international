@@ -97,6 +97,53 @@ def selected_ber_ideal(sigma, fraction):
     return total / steps, thresh
 
 
+def aged_selected_ber(sigma_noise, sigma_age, fraction, reads, steps=4000):
+    """Error rate at ten years, with the drift where it actually happens. W-INTL-232.
+
+    The aging figure was folded into the read noise by quadrature and the sum handed to
+    selected_ber_counts_exact, which uses one sigma for two different jobs: the noise on
+    each enrolment read, averaged over `reads`, and the noise on the regeneration read.
+    Aging is neither. It is a per-position drift that accumulates AFTER enrolment, so
+    averaging twenty-five enrolment reads does nothing to it, and it is fixed rather than
+    resampled at each read.
+
+    Folding it in makes the model believe the enrolment estimate is noisier than it is,
+    which degrades the ranking and overstates the error. The direction is safe and the
+    size is 8 percent in the selected error rate - real enough to be worth having right,
+    and small enough that nothing about the recommendation turned on it.
+
+    Structurally the two differ in one term. Writing t^2 for the variance of the enrolment
+    estimate's error, the folded model uses (sigma_noise^2 + sigma_age^2)/reads and this
+    one uses sigma_noise^2/reads. Everything after that is identical.
+
+    One assumption, stated: no aging has occurred at enrolment. That is right for a part
+    enrolled at manufacture and wrong under a burn-in policy, which deliberately ages the
+    device first - see research/burn_in.py. Under burn-in some of the drift precedes
+    enrolment and the truth lies between the two models.
+    """
+    sig2 = sigma_noise * sigma_noise + sigma_age * sigma_age
+    if fraction >= 1.0:
+        total = 0.0
+        for i in range(steps):
+            d = ND.inv_cdf((i + 0.5) / steps)
+            total += ND.cdf(-abs(d) / math.sqrt(sig2))
+        return total / steps
+    tau2 = sigma_noise * sigma_noise / reads      # only the read noise is averaged
+    var_v = 1.0 + tau2
+    sd_v = math.sqrt(var_v)
+    cond_var = tau2 / var_v
+    denom = math.sqrt(cond_var + sig2)
+    thr = ND.inv_cdf(1 - fraction / 2) * sd_v
+    total, kept = 0.0, 0
+    for i in range(steps):
+        v = ND.inv_cdf((i + 0.5) / steps) * sd_v
+        if abs(v) < thr:
+            continue
+        total += ND.cdf(-(abs(v) / var_v) / denom)
+        kept += 1
+    return total / kept if kept else 0.0
+
+
 def selected_ber_counts_exact(sigma, fraction, reads, steps=4000):
     """The count-ranked error rate in closed form, so a check can use it.
 

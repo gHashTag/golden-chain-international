@@ -175,6 +175,41 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## The right quantity can still be combined the wrong way
+
+Asking "which quantity is this?" of a second borrowed input found the definition sound and the
+*combination* wrong. A ten-year aging drift was added in quadrature to per-read noise and the sum
+handed to a function that averages its sigma over twenty-five enrolment reads — averaging away a
+drift that does not exist until years after enrolment.
+
+Before combining two uncertainties, ask of each: **is it resampled per measurement, or fixed once?
+and does it exist before or after the calibration step?** Quadrature is for independent
+per-measurement noise. A systematic drift shares neither property, and putting it through a path that
+averages will silently scale it by the number of averages.
+
+The error here was pessimistic, which is why it survived: nothing failed, so nothing looked. A model
+that is wrong in the safe direction is still wrong, and it will not stay safe when someone combines
+it with something else.
+
+## Prose next to code is not a check on the code
+
+The file containing the defect printed, two lines below it: *"the enrolment reads that rank it are
+taken fresh, which is the part that does not transfer."* That sentence is the defect, stated
+correctly, adjacent to six copies of an expression assuming the opposite, for six loops.
+
+Third instance in one project of a correct statement sitting beside incorrect code. When you write a
+sentence describing what the code must not do, that is the moment to assert it — a docstring is not
+a test, and the person best placed to notice already didn't.
+
+## A duplicated model is worse than a duplicated constant
+
+One bisection appeared in six places across four files, so correcting it meant six hand edits and any
+missed one would have left a document stating a number no model computes. The single-source rule
+people apply to constants applies to derivations.
+
+And a checker that keeps its own transcribed copy of a filter is not independent of the model —
+independence is recomputing by a *different route*. A copy is just a second home for the same bug.
+
 ## Read the source for which quantity it computed, not for the number
 
 A figure carried as `MIN_ENTROPY_BITS` for thirty loops was a Shannon entropy. The source paper

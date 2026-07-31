@@ -4289,8 +4289,8 @@ recommendation failed:
 |---|---|---|---|---|
 <!-- derived:external --> | inverter area | 3.756 | 269.5 above | **71.8x** | a published tile's inverter count; cross-checked against the library |
 <!-- derived:external --> | tile utilisation | 0.5795 | 0.1244 below | **4.66x** | a 1x2-tile design, applied to one of 3.4 tiles |
-<!-- derived:external --> | fresh error rate | 0.06 | 0.09638 above | **1.61x** | this project's own working figure rather than a measurement |
-<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1072 above | **1.39x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
+<!-- derived:external --> | fresh error rate | 0.06 | 0.09768 above | **1.63x** | this project's own working figure rather than a measurement |
+<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1095 above | **1.42x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
 <!-- derived:external --> | min-entropy density | 0.716 | 0.5506 below | **1.3x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
 
 **The tightest is the min-entropy density, not the aging figure.**
@@ -4321,10 +4321,10 @@ one knob. A worse flip rate is answered by selecting harder, and selecting harde
 
 | declared density | flip 8% | 9% | 11% | 13% | 15% |
 |---|---|---|---|---|---|
-<!-- derived:external --> | 0.7162 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.7000 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.6500 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.6000 | 65% | 60% | 50% | 40% | --- |
+<!-- derived:external --> | 0.7162 | 65% | 60% | 50% | 45% | 35% |
+<!-- derived:external --> | 0.7000 | 65% | 60% | 50% | 45% | 35% |
+<!-- derived:external --> | 0.6500 | 65% | 60% | 50% | 45% | 35% |
+<!-- derived:external --> | 0.6000 | 65% | 60% | 50% | 45% | --- |
 <!-- derived:external --> | 0.5506 | 65% | 60% | --- | --- | --- |
 Each cell is the largest fraction of positions that can be retained while meeting both constraints; `---` is none. Read across the
 top row and the flip rate is not the 1.41x its own row reports - fifteen percent is absorbed, because

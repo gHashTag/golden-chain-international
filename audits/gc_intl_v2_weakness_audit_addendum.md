@@ -5960,6 +5960,79 @@ pointed explicitly at the Shannon figure because the arrangement it guards is th
 The check scans `scripts/` now, and its value rule learned to ignore a literal multiplying a string -
 `print("-" * 54)` three times, where 54 is the oscillator count.
 
+## W-INTL-232  The drift was folded into the read noise, and averaged over reads taken before it existed
+
+Severity: modelling. It is the second borrowed input put through the "which quantity is this" question,
+and it turned out to be the right quantity used the wrong way.
+
+W-INTL-231 asked what the entropy figure was and found the wrong kind of entropy. Applying the same
+question to the aging figure: the definition holds - `AGED_FLIP_RESISTANT` is a response-bit flip
+probability at ten years and the model uses it as one. What does not hold is how it is combined.
+
+Every aging calculation did
+
+    sigma = sqrt(sigma_noise^2 + sigma_drift^2)
+    error = selected_ber_counts_exact(sigma, keep, ENROLMENT_READS)
+
+and that function uses its one sigma for two different jobs: the noise on each of the twenty-five
+enrolment reads, which it averages, and the noise on the regeneration read, which it does not. Aging
+is neither. It is a per-position drift that accumulates AFTER enrolment and is fixed rather than
+resampled per read, so averaging enrolment reads does nothing to it.
+
+The consequence is one term. Writing t^2 for the variance of the enrolment estimate's error, the
+folded model uses (sigma_noise^2 + sigma_drift^2)/reads where the truth is sigma_noise^2/reads.
+Everything downstream is identical. A larger t^2 means a worse enrolment estimate, a worse ranking
+and a higher error - so the model was **pessimistic**, by 8 percent in the selected error rate.
+
+  ten-year margin      3.356 -> 3.631
+  absorbable flip      10.72% -> 10.95%
+  recommendation       unchanged at BCH(127,57,11) x 6, 3.51 tiles
+
+The recommendation not moving is why this is recorded rather than spent. Nothing was sized on the
+recovered margin.
+
+### The file said so
+
+`aging_margin.py` prints, two lines below the code that violated it:
+
+    "selection ranks by the manufacturing difference, and a large difference is exactly what an
+     aging differential has to exceed - so it helps here for the same reason it helps against
+     noise, and the enrolment reads that rank it are taken fresh, which is the part that does
+     not transfer"
+
+The last clause is exactly the defect. The physics was stated correctly, in prose, adjacent to six
+copies of an expression that assumed the opposite, for six loops. This is the third time in this
+project that a correct statement sat next to incorrect code - a comment predicting the stale-default
+failure in this same file was the second.
+
+### Six copies
+
+The same bisection appeared in `aging_margin.py` twice, `burn_in.py`, `borrowed_margins.py` twice and
+`check_figures_reproduce.py` twice. Correcting it meant editing the same expression by hand in six
+places, which is the arrangement `research/inputs.py` exists to prevent, one level up: not a constant
+in several files but a **model** in several files. One copy is now deleted - the checker's
+`absorbable_flip_for` delegates to the model's - and the rest call one function.
+
+A checker keeping its own copy of a filter is not independence. Independence is recomputing a figure
+by a different route; a transcribed duplicate is a second place for the same bug, and it behaved like
+one.
+
+### One assumption, and where it fails
+
+`aged_selected_ber` assumes no aging at enrolment. That is right for a part enrolled at manufacture.
+Under a burn-in policy - deliberately aging the device before enrolment, which `research/burn_in.py`
+exists to evaluate - part of the drift precedes enrolment and the truth lies between the two models.
+Stated in the function and not modelled, because burn-in is not the recommended flow.
+
+### What could not be checked
+
+The ARO paper is closed access. Its abstract confirms 7.7 percent and 32 percent to the precision it
+states; the second decimal in this project's 0.0773 and 0.3241, and the declared conditions - HSPICE
+Monte Carlo, 100 instances, 90 nm, 64 oscillators, 23 percent activation - cannot be re-verified from
+any source reachable now. That is a provenance status rather than a doubt about the figures, and it
+is the difference between this input and the entropy one, where the paper was open and reading it
+found a 31 percent error.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6135,6 +6208,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-232 | closed; the ten-year drift was combined with read noise in quadrature and the sum averaged over enrolment reads taken before the drift exists - pessimistic by 8 percent, six copies of the expression, one deleted, recommendation unchanged |
 | W-INTL-231 | closed; the borrowed entropy figure is a bitwise Shannon sum that the source paper calls an upper bound, not the min-entropy a fuzzy extractor needs - 0.9414 becomes 0.7162 on the paper's own model, six blocks instead of four, 3.46 to 3.51 tiles |
 | W-INTL-230 | closed; a control anchor matched twice and mutated the copy the tripwire does not read, reporting success while testing nothing - control.py and check_control_anchors now reject an ambiguous anchor, two more found and narrowed, two more pointed at mutations that could not fail |
 | W-INTL-229 | closed; the end-to-end chain and the SLLC generator were exercising BCH(127,29,21) while the recommendation is BCH(127,57,11) in four blocks - both re-pointed, a check added, and the check missed its own bug twice before its controls fired |
