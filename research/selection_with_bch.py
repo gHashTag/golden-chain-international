@@ -59,9 +59,20 @@ def _r(positions):
     return x
 
 
+# Two densities, kept apart by name. RHO is what the source paper measured; RHO_SIZED is
+# that figure derated by DENSITY_HEADROOM (W-INTL-228). The design is SIZED against the
+# derated one so a wrong borrowed figure does not cost the key, and REPORTS the expected
+# one, because what a document says the density is should be the measurement.
+#
+# Merging them was the first attempt here, and it made the model report 0.6399 as "the
+# post-selection density" - a number no measurement predicts and no document should carry.
+# Same shape as W-INTL-224 and W-INTL-227: the arithmetic was right and the name was the
+# defect.
 RHO = I.MIN_ENTROPY_DENSITY
+RHO_SIZED = SE.working_density()
 KEY = I.KEY_BITS
 MU = SE.mean_for_density(RHO)
+MU_SIZED = SE.mean_for_density(RHO_SIZED)
 
 
 def need_k_at(fraction):
@@ -73,7 +84,7 @@ def need_k_at(fraction):
     was an understatement that grew with the selection fraction, and it is why the
     deeper rows of this table used to look free.
     """
-    return int(KEY / density_at(fraction) + 0.999)
+    return int(KEY / sized_density_at(fraction) + 0.999)
 
 
 def density_at(fraction):
@@ -86,6 +97,11 @@ def density_at(fraction):
     project keeps arriving at: compute it once and let everything import it.
     """
     return SE.density_for_bias(SE.selected_bias(MU, 1.0 - fraction)[0])
+
+
+def sized_density_at(fraction):
+    """The same, at the derated density the design is sized against. W-INTL-228."""
+    return SE.density_for_bias(SE.selected_bias(MU_SIZED, 1.0 - fraction)[0])
 
 # The sweep runs under a main guard so that a checker can import this module and
 # call density_at() without executing three tables. A module that computes on

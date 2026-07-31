@@ -98,10 +98,15 @@ OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
 # immediate neighbours, giving 241.0 bits of min-entropy in 256 response bits. The same
 # paper shows this figure swinging widely with pairing distance, so it carries its
 # arrangement with it. It is the tightest input in this work - confirmed in W-INTL-223,
-# where every borrowed figure was swept: this one has 1.13 times in hand against the
-# aging figure's 1.41 and the utilisation factor's 4.66, and three of its conditions
-# differ from this design. The 1.13 is W-INTL-224: the first sweep compared this
+# where every borrowed figure was swept: it had 1.13 times in hand against the aging
+# figure's 1.41 and the utilisation factor's 4.66, and three of its conditions differ
+# from this design. The 1.13 is W-INTL-224: the first sweep compared this
 # before-selection figure against an after-selection floor and read 1.26.
+#
+# It now has 1.35, because W-INTL-228 applied DENSITY_HEADROOM to it and the fourth
+# BCH block that buys moved the floor from 0.8303 to 0.6957. Still the tightest
+# borrowed input, and now within four percent of the aging figure's 1.40 rather than
+# twenty behind it.
 #
 # It is measured on UNSELECTED positions, and the design selects. Reliable-bit
 # selection discards the positions whose difference is closest to zero, which are the
@@ -158,6 +163,27 @@ TARGET_FAILURE = 1e-6     # specified: word error probability the application al
 # The cost is 0.9 of a tile out of 12.5 spare. Area stopped binding four loops ago and the
 # aging input did not, which is the whole of the argument. W-INTL-196.
 AGING_HEADROOM = 1.25
+
+# The same rule, applied to the input that turned out to need it more. W-INTL-228.
+#
+# The sentence justifying AGING_HEADROOM says the aging figure is the least trustworthy
+# in this work, and 0.9 of a tile was spent on that belief. Sweeping every borrowed
+# number (W-INTL-223) put the aging figure at 1.41 times in hand and the min-entropy
+# density at 1.13 - the density is tighter, and it had no rule at all. Provenance and
+# margin are different questions and the design had been answering the first one.
+#
+# So the same multiple, on the tightest input, for the same reason: the density is
+# borrowed from Spartan-3E FPGAs at room temperature under disjoint pairing, three of
+# which differ from this design, and nobody here has measured it on this process.
+#
+# 1.25 rather than a number chosen for this input because the granularity is a whole BCH
+# block: everything from 1.15 to 1.30 buys the same fourth block and costs the same 0.03
+# of a tile, and even 1.90 costs 0.11. Matching AGING_HEADROOM keeps one rule rather than
+# two, and the flatness is what makes that free rather than lucky.
+#
+# The cost is 0.03 of a tile: 3.44 to 3.46, a fourth BCH block and six more oscillators.
+# The same rule on a looser input cost thirty times as much.
+DENSITY_HEADROOM = 1.25
 # Vestigial as of W-INTL-193: it feeds only cheapest(), which is kept solely as the
 # guard on the utilisation factor and is no longer the source of any recommended
 # figure. Left declared rather than deleted so that the guard keeps its provenance.

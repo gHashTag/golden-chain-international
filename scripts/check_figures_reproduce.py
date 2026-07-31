@@ -40,7 +40,16 @@ TILE_LIMIT = I.TILE_LIMIT
 UTILISATION = I.UTILISATION
 OSC = I.OSCILLATOR_AREA
 INVERTERS = I.INVERTERS_PER_OSCILLATOR
+import selection_entropy as _SE
+# Two names, because they are two quantities and the last three corrections in this
+# project were all one quantity wearing another's name. RHO is what the source paper
+# measured; RHO_SIZED is that figure derated by DENSITY_HEADROOM, and only the sizing
+# path uses it. A document stating the measurement is checked against RHO, and the
+# vestigial utilisation guard keeps RHO because it is about area, not margin.
 RHO = I.MIN_ENTROPY_DENSITY
+RHO_SIZED = _SE.working_density()   # W-INTL-228
+SE_SIZED_DENSITY = _SE.density_for_bias(
+    _SE.selected_bias(_SE.mean_for_density(RHO_SIZED), I.SELECTION_LOSS)[0])
 KEY_BITS = I.KEY_BITS
 DECODER = I.DECODER_AREA
 LN2 = 0.6931471805599453
@@ -162,9 +171,14 @@ def recommendation():
     import selection_entropy as SE
 
     fraction = 1.0 - I.SELECTION_LOSS
+    # Sized against the derated density, reported at the measured one. The construction
+    # has to survive the borrowed figure being wrong (W-INTL-228); the number a document
+    # states as "the post-selection density" is what the measurement predicts, and that is
+    # 0.9113 whatever margin the sizing carries.
+    need_k = KEY_BITS / SE.density_for_bias(
+        SE.selected_bias(SE.mean_for_density(RHO_SIZED), I.SELECTION_LOSS)[0])
     rho_sel = SE.density_for_bias(
         SE.selected_bias(SE.mean_for_density(RHO), I.SELECTION_LOSS)[0])
-    need_k = KEY_BITS / rho_sel
     sigma = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     # The achievable rate, not the bound - see W-INTL-191. Deterministic, so the check
     # does not move between runs.
@@ -384,7 +398,14 @@ def check_ledger_figures(rec):
         ("raw positions",        r"([\d,]+) raw positions", raw, 0),
         ("selected positions",   r"([\d,]+) selected, \d+ oscillators", n * blocks, 0),
         ("k carried",            r"carries ([\d,]+) bits of k", k * blocks, 0),
-        ("k required",           r"against the ([\d.]+) the key needs", KEY_BITS / rho_sel, 0.05),
+        ("k required at the measured density",
+         r"against the ([\d.]+) the key needs", KEY_BITS / rho_sel, 0.05),
+        # W-INTL-228: the design is sized against the derated density, so the number
+        # it is actually built to is the second one, and a ledger stating only the
+        # first would describe a construction with 88 spare bits of k for no reason.
+        ("k required at the derated density",
+         r"and the ([\d.]+) it needs once the borrowed figure is derated",
+         KEY_BITS / SE_SIZED_DENSITY, 0.05),
         ("measured density",     r"the measured ([\d.]+) - selection amplif", RHO, 0.0005),
         ("aging factor",         r"above the estimated ([\d.]+) times", I.AGING_RESISTANT_FACTOR, 0.005),
         ("aging cost in tiles",  r"per stage and ([\d.]+) of a tile", delta_tiles, 0.005),

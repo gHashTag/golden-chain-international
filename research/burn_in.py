@@ -46,6 +46,7 @@ import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import inputs as I
+import aging_margin as AM
 import reliable_bit_selection as R
 
 TEN_YEARS = 10.0
@@ -73,18 +74,15 @@ def absorbed_flip():
     return lo
 
 
-def tolerated_ber(n=127, t=11, blocks=3):
-    """Largest bit error rate at which the recommendation still meets the target."""
-    from math import comb
-    lo, hi = 0.0, 0.5
-    for _ in range(60):
-        mid = (lo + hi) / 2
-        per = sum(comb(n, i) * mid**i * (1 - mid)**(n - i) for i in range(t + 1, n + 1))
-        if 1 - (1 - per) ** blocks <= I.TARGET_FAILURE:
-            lo = mid
-        else:
-            hi = mid
-    return lo
+def tolerated_ber():
+    """Largest bit error rate at which the recommendation still meets the target.
+
+    Was a third copy of the same bisection, carrying the same stale blocks=3 default that
+    W-INTL-228 found in aging_margin.py. One quantity in three files is the arrangement
+    research/inputs.py exists to end, and this copy had drifted the moment the density
+    rule added a fourth block. Imported now.
+    """
+    return AM.tolerated_ber()
 EXPONENTS = (0.16, 0.20, 0.25, 0.30, 0.50)
 DIFFERENTIAL_SCALING = (1.0, 0.5)   # k in differential ~ t^(k*n); see assumption 2
 

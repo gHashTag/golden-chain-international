@@ -65,7 +65,7 @@ selection was added, the manipulation countermeasure was measured, the solver wa
 code was re-chosen. Brought up to date, and one lesson recorded about why it went stale.
 
 **What binds now.** Two things. The min-entropy requirement, `k_total >= 128/rho = 136`, which the
-recommended construction meets at 171. And the word failure rate, which sets the correction strength
+recommended construction meets at 228. And the word failure rate, which sets the correction strength
 - but only against the *effective* error rate after selection, not the raw one.
 
 **What no longer binds, and why.**
@@ -187,8 +187,8 @@ while idle. The 32.41 percent stands, and the requirement is met by choosing the
 So the row becomes: **binding, met by choosing an aging-resistant oscillator.** It is the first
 constraint in this work whose satisfaction depends on a property of the oscillator, which makes the
 oscillator arrangement a design decision rather than a detail. Costed: two extra nMOS transistors
-per stage, 1.86 times the area by transistor width, 0.08 of a tile, taking the design from 3.35 to
-3.44 of sixteen. The factor is an estimate from the published transistor sizes and not a layout.
+per stage, 1.86 times the area by transistor width, 0.09 of a tile, taking the design from 3.37 to
+3.46 of sixteen. The factor is an estimate from the published transistor sizes and not a layout.
 
 What it changes elsewhere. Row 7, one enrolment per device, was recorded as binding as policy with
 no cost attached. It now has one: the ten-year figure is what the policy buys. And selection, which

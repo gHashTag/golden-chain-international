@@ -88,12 +88,22 @@ jobs:
           # The margin column, restored to the figure it carried before W-INTL-224. That
           # value stood in the document for an interval with nothing able to contradict it.
           python3 scripts/control.py research/decoder_code_choice.md \
-            '| **1.13x** |' '| **1.26x** |' \
+            '| **1.35x** |' '| **1.13x** |' \
             -- python3 scripts/check_figures_reproduce.py
           # A joint cell flipped from infeasible to feasible.
           python3 scripts/control.py research/decoder_code_choice.md \
-            '| 0.8300 | 65% | 60% | --- | --- | --- |' \
-            '| 0.8300 | 65% | 60% | 50% | --- | --- |' \
+            '| 0.8300 | 65% | 60% | 50% | 40% | 35% |' \
+            '| 0.8300 | 65% | 60% | --- | 40% | 35% |' \
+            -- python3 scripts/check_figures_reproduce.py
+          # The density headroom rule, from both ends: the declared multiple and the
+          # function that applies it. Either one silently reverting takes the design back
+          # to sizing against a borrowed number with no margin - W-INTL-228.
+          python3 scripts/control.py research/inputs.py \
+            'DENSITY_HEADROOM = 1.25' 'DENSITY_HEADROOM = 1.00' \
+            -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py research/selection_entropy.py \
+            'return I.MIN_ENTROPY_DENSITY / I.DENSITY_HEADROOM' \
+            'return I.MIN_ENTROPY_DENSITY' \
             -- python3 scripts/check_figures_reproduce.py
           python3 scripts/control.py research/rtl/sllc127t7.v \
             'module sllc127t7_unmask' 'module sllc127t7_unmask2' \
@@ -282,7 +292,7 @@ jobs:
             'nand / inv:.4f' 'nand / inv * 2:.4f' \
             -- python3 scripts/check_models_run.py --only nand_ring.py
           python3 scripts/control.py research/borrowed_margins.py \
-            'K_TOTAL = 57 * 3' 'K_TOTAL = 57 * 4' \
+            'K_TOTAL = _k_total()' 'K_TOTAL = _k_total(71)' \
             -- python3 scripts/check_models_run.py --only borrowed_margins.py
           # Drops the selection term from the density floor, which is the bug this model
           # shipped with for one interval: it made the margin read 1.26 instead of 1.13.
