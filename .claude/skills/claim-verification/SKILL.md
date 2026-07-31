@@ -133,6 +133,28 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Spend the slack constraint to buy margin on the untrustworthy input
+
+A search found a construction twenty-six percent smaller that still met every stated requirement. It
+was declined, because the requirement it met most narrowly was the one resting on the least
+trustworthy number in the work - a simulated figure, from a different process, for a different cell.
+
+The constraint it saved on had stopped binding four loops earlier. Spending a slack resource to buy
+margin on a shaky input is almost always right, and it feels wrong because the saving is measured and
+the risk is not.
+
+Write it as a rule with a number - a required multiple of the untrusted figure - not as a judgement
+in prose. A search re-run every loop will keep finding the same smaller answer, and a rule with a
+control is the only thing that keeps re-deciding it the same way.
+
+## Precision beyond the input it filters on is pure cost
+
+A filter bisected forty times over a four-thousand-point integral, resolving to a part in a billion,
+to compare against a published figure known to two significant figures.
+
+Match the effort to the weakest number in the comparison. The extra digits are not conservatism -
+they are a slower check, and a slower check is one somebody eventually removes.
+
 ## A slow check on a fast path is a check with a short life
 
 A sensitivity sweep was added to the job that runs document checks, taking it from twelve seconds to

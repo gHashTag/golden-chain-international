@@ -3616,3 +3616,52 @@ already take six minutes and blocks nothing that finishes in twelve seconds.
 The general point is about how checks get abandoned. A check is not just correct or incorrect; it has
 a cost, and the cost lands on whoever is doing something unrelated. A ten-minute gate on a
 one-line documentation fix is a gate with a short life expectancy, however sound it is.
+
+## 132. The smaller code, measured and declined
+
+Both halves of the comparison that chose BCH(127,57,11) had moved: the tolerance was corrected from a
+stale literal, and the effective rate now comes from the achievable estimator rather than the bound.
+So the search was run again.
+
+At the aged achievable rate of 0.00398, **BCH(127,78,7) in two blocks** meets one in a million with
+word failure 1.1e-07. Generated, verified end to end, differentially against the replicated solver,
+and against a software polynomial division for its masking stage. Measured:
+
+| Construction | Blocks | Selected | Raw | Osc | Decoder | SLLC | Cells | Tiles |
+|---|---|---|---|---|---|---|---|---|
+<!-- derived:external --> | BCH(127,57,11) x3 | 3 | 381 | 701 | 38 | 24,659 | 3,176 | 35,905 | 3.44 |
+<!-- derived:external --> | BCH(127,78,7) x2 | 2 | 254 | 468 | 35 | 16,333 | 2,158 | 26,415 | **2.53** |
+
+Twenty-six percent smaller, and **declined**.
+
+The reason is the same shape as the pointer family two dozen loops ago, and stronger. A weaker code
+tolerates less, so it absorbs less aging: BCH(127,78,7) survives an unselected ten-year flip rate of
+**8.4 percent** against the published 7.73, where BCH(127,57,11) survives 10.9. That is an eight
+percent margin on **the least trustworthy input in this work** - a figure that is simulated, at 90 nm,
+for a cell this design does not use.
+
+The trade is 0.9 of a tile against 12.5 spare, bought with margin on the number most likely to be
+wrong. **Area stopped binding four loops ago and the aging input did not.**
+
+Recorded as a rule rather than a preference, because a search that is re-run every loop will keep
+finding the smaller code: `AGING_HEADROOM = 1.25` in `inputs.py`, requiring a candidate to absorb at
+least 1.25 times the published rate. Its control - relaxing it to 1.0 - brings the smaller code back,
+which is the only way to know the rule is doing the work.
+
+The t=7 areas are kept, declared and verified rather than discarded. A measured alternative that lost
+is worth more in the table than in a sentence, and if the aging figure is ever replaced by a
+measurement on the right cell, the candidate that was 26 percent smaller is already costed.
+
+## 133. Two performance lessons inside one script
+
+Putting the headroom rule inside the search loop took `check_figures_reproduce` from twelve seconds to
+**eighty-six**: a bisection over a numerical integral, evaluated for every code in two fields. Applied
+after sorting by area and walked in order, it is evaluated for one or two candidates and the check
+runs in thirty-three seconds.
+
+That is W-INTL-195 arriving inside a single script rather than across two CI jobs - a correct check in
+an expensive place - one loop after it was recorded. The lesson transfers less readily than it reads.
+
+The second is smaller and worth stating: the filter is memoised and its bisection is twenty steps over
+a six-hundred-point integral rather than forty over four thousand. It resolves to a millionth, against
+an input known to two significant figures. **Precision beyond the input it filters on is pure cost.**

@@ -37,8 +37,8 @@ TOOLCHAIN = {"yosys": "0.65"}
 #
 # Named individually so that a tolerance applies where it is earned and nowhere else: a
 # blanket tolerance would have let the other nineteen drift silently.
-VERSION_SENSITIVE = {("decoder_serial", 7, 11), ("decoder_serial", 7, 13),
-                     ("decoder_serial", 7, 21)}
+VERSION_SENSITIVE = {("decoder_serial", 7, 7), ("decoder_serial", 7, 11),
+                     ("decoder_serial", 7, 13), ("decoder_serial", 7, 21)}
 
 # ── the shuttle ─────────────────────────────────────────────────────────────
 TILE_AREA = 18_032        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
@@ -140,6 +140,20 @@ SELECTION_LOSS = 1 - 381 / 701
 # ── the requirement ─────────────────────────────────────────────────────────
 KEY_BITS = 128            # specified: the key the registry needs
 TARGET_FAILURE = 1e-6     # specified: word error probability the application allows
+
+# A design rule rather than a measurement, and the reason is written here because the
+# number is a judgement. The aging input - 7.73 percent ten-year flip rate for an
+# aging-resistant bank - is the least trustworthy figure in this work: simulated, at 90 nm,
+# for a cell this design does not use. A construction that meets the requirement with two
+# percent to spare on that figure is not meeting it.
+#
+# So a candidate must absorb at least this multiple of the published rate. At 1.25,
+# BCH(127,78,7) in two blocks is excluded - it is 26 percent smaller and absorbs 8.4
+# percent against 7.73 published - and BCH(127,57,11) in three blocks is admitted at 10.9.
+#
+# The cost is 0.9 of a tile out of 12.5 spare. Area stopped binding four loops ago and the
+# aging input did not, which is the whole of the argument. W-INTL-196.
+AGING_HEADROOM = 1.25
 # Vestigial as of W-INTL-193: it feeds only cheapest(), which is kept solely as the
 # guard on the utilisation factor and is no longer the source of any recommended
 # figure. Left declared rather than deleted so that the guard keeps its provenance.
@@ -151,6 +165,7 @@ RAW_BUDGET = 3000         # a design choice, not a constraint: how many response
 # end to end before its area was quoted - injected errors located exactly, every weight
 # from one to t, in every field. Reproduce with research/rtl/measure_all.sh.
 DECODER_AREA = {
+    (7, 7):   27_857,   # tables 6,708 + parallel solver 21,149
     (7, 11):  42_069,   # tables 11,021 + parallel solver 31,048
     (7, 13):  50_143,   # tables 13,448 + parallel solver 36,695
     (7, 21):  79_787,   # tables 22,215 + parallel solver 57,571
@@ -177,6 +192,7 @@ DECODER_AREA = {
 # the dictionary said it described. scripts/verify_inputs.py checks this table too now,
 # which is what found it.
 DECODER_AREA_SERIAL = {
+    (7, 7):   16_333,   # tables 6,708 + serial solver 9,625 - the recommendation
     (7, 11):  24_659,   # tables 11,021 + serial solver 13,638 - the recommendation
     (7, 13):  28_958,   # tables 13,448 + serial solver 15,510
     (7, 21):  44_346,   # tables 22,215 + serial solver 22,131
@@ -202,7 +218,7 @@ def decoder_area(m, t):
 # information words before its area is quoted - it had no testbench at all. The
 # generated t=21 encoder reproduces the hand-written file it replaces to within one
 # square micrometre, which is what makes the replacement safe to make.
-SLLC_AREA = {11: 3_176, 21: 4_746}
+SLLC_AREA = {7: 2_158, 11: 3_176, 21: 4_746}
 
 # measured here: the characterisation structure's readout for a 272-oscillator bank, and
 # the smaller variant. The oscillators themselves are not synthesised - a ring oscillator

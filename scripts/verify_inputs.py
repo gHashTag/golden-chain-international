@@ -160,7 +160,9 @@ def main():
     }
     # SLLC is declared as a sum of two modules per code, so it is verified as a sum
     # rather than added to FIXED, which holds single modules.
-    SLLC = {11: ("sllc127t11.v", "sllc127t11"), 21: ("sllc127t21.v", "sllc127t21")}
+    SLLC = {7: ("sllc127t7.v", "sllc127t7"),
+            11: ("sllc127t11.v", "sllc127t11"),
+            21: ("sllc127t21.v", "sllc127t21")}
     bad = 0
     print(f"{'code':>12} {'declared':>10} {'measured':>10} {'delta':>8}")
     print("-" * 44)

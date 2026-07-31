@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-195
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-197
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5081,6 +5081,49 @@ A check is not only correct or incorrect - it has a cost, and the cost lands on 
 something unrelated. A ten-minute gate on a one-line documentation fix has a short life expectancy
 however sound it is.
 
+## W-INTL-196  The smaller code, measured and declined
+
+Severity: medium, and it is the first time this project has declined an area win on a stated rule
+rather than an argument.
+
+Both halves of the comparison that chose BCH(127,57,11) had moved - the tolerance was corrected from
+a stale literal and the effective rate now comes from the achievable estimator - so the search was
+re-run. At the aged achievable rate of 0.00398, BCH(127,78,7) in two blocks meets one in a million
+with word failure 1.1e-07. Generated, verified end to end, differentially and against a software
+polynomial division, and measured at 2.53 tiles against 3.44 - twenty-six percent smaller.
+
+Declined. A weaker code tolerates less and therefore absorbs less aging: it survives an unselected
+ten-year flip rate of 8.4 percent against the published 7.73, where the incumbent survives 10.9. An
+eight percent margin on the least trustworthy input in this work - simulated, at 90 nm, for a cell
+this design does not use.
+
+The trade is 0.9 of a tile against 12.5 spare, bought with margin on the number most likely to be
+wrong. Area stopped binding four loops ago and the aging input did not.
+
+Recorded as a rule rather than a preference, because a search re-run every loop will keep finding the
+smaller code: AGING_HEADROOM = 1.25 in inputs.py. Its control - relaxing it to 1.0 - brings the
+smaller code back, which is the only way to know the rule is doing the work.
+
+The t=7 areas are kept, declared and verified rather than discarded. If the aging figure is ever
+replaced by a measurement on the right cell, the candidate that was twenty-six percent smaller is
+already costed.
+
+## W-INTL-197  The same performance lesson, one loop later, inside one script
+
+Severity: low, and the repetition is the finding.
+
+Putting the headroom rule inside the search loop took check_figures_reproduce from twelve seconds to
+eighty-six - a bisection over a numerical integral evaluated for every code in two fields. Applied
+after sorting by area and walked in order, it is evaluated for one or two candidates and the check
+runs in thirty-three seconds.
+
+That is W-INTL-195 arriving inside a single script rather than across two CI jobs, one loop after it
+was recorded. A correct check in an expensive place transfers less readily as a lesson than it reads.
+
+Also recorded: the filter is memoised, and its bisection is twenty steps over a six-hundred-point
+integral rather than forty over four thousand. It resolves to a millionth against an input known to
+two significant figures, and precision beyond the input it filters on is pure cost.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5246,6 +5289,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-189 | closed; the enrolment model ranked by a vote of sign bits while this project's own instrument emits frequency counts - count-based ranking is continuous and takes the ten-year margin from 6.9 to 11.3 at no area cost, at the price of an interface that must be disabled after enrolment |
 | W-INTL-191 | closed; every caller still used the bound one loop after the rename made it legible, and the achievable rate now has a deterministic closed form |
 | W-INTL-193 | closed; the tolerated error rate was a literal belonging to the superseded code, so every aging verdict was measured against a bar three times too low - the design still fits at 0.0040 against 0.0143 |
+| W-INTL-196 | closed; BCH(127,78,7) is twenty-six percent smaller and declined, because it absorbs 8.4 percent ten-year flip against a published 7.73 - recorded as AGING_HEADROOM rather than as a preference |
+| W-INTL-197 | closed; the headroom filter inside the search loop took the check from twelve seconds to eighty-six, and is applied after sorting now |
 | W-INTL-195 | closed; the coverage sweep took the fast job from twelve seconds to ten minutes and is now its own job |
 | W-INTL-194 | closed; input coverage is a check in CI, perturbing every declared scalar by a factor of four in each direction |
 | W-INTL-192 | closed; the enrolment read count could be set to one without any bound figure moving, so two figures now depend on it |
