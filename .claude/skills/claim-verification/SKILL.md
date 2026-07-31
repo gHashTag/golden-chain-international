@@ -133,6 +133,29 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A status that is only ever appended to will overstate what is open
+
+Forty-four findings were marked open. Ten had been answered by later work and never updated, and only
+three of those could be spotted mechanically - the ones whose own text happened to name their
+successor. The other seven took reading each row against the current design.
+
+Closing a finding is not the same event as fixing what it found, and nobody is ever assigned the
+first. The consequence is a backlog that grows monotonically and stops meaning anything, which is the
+state in which people stop reading it.
+
+When you close something, name the entry or the change that closed it. Then a periodic read costs an
+afternoon instead of an archaeology, and the count means what it says.
+
+## Split the backlog by what it is about before reporting its size
+
+"Thirty-four open" invited the reading that one workstream had thirty-four loose ends. Fifteen
+concerned it; the rest were earlier findings about other parts of the project, mostly needing an
+owner or hardware nobody here has.
+
+A single number over a heterogeneous backlog is worse than no number, because it is confidently
+wrong in whichever direction the reader is inclined. Split it by scope, in the same place the count
+appears.
+
 ## Generate the status page, and let it count what you have been avoiding
 
 A body of work with two hundred findings, thirteen checks and a recommendation that had moved four

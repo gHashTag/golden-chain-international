@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-221
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-222
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5578,6 +5578,37 @@ deployed contracts, radio figures, the attestation root - rather than about the 
 work has been on for ninety loops. The part with a hundred and sixty sections of analysis and
 thirteen checks is not the part with the open findings.
 
+## W-INTL-222  The forty-four open rows, triaged
+
+Severity: medium, and the count is the finding.
+
+The status page made the open rows visible as one list for the first time. Read, all of them.
+
+Ten were answered by later work and never updated - not three. The three the generator could spot
+were the ones whose text happened to name their successor; the other seven had to be read against the
+current design. The decoder sized for a code the literature advises against, the pair count used as
+entropy, the code that misses its own error target, entropy per oscillator against the ordering
+bound, helper-data leakage never counted, debiasing unbudgeted and the arrangement that will not fit
+with it, the entropy margin of 0.0065, the utilisation factor, and selection reaching fifteen
+percent. Each closure names the entry that answered it, so the claim is checkable rather than
+asserted.
+
+Forty-four became thirty-four. One row carried a stale figure rather than a stale state: the NAND ring
+threshold said 96.4 percent where it has been 92.0 since the tolerance was corrected in W-INTL-193.
+
+Of the thirty-four, fifteen concern the identity root and the rest are earlier findings about the
+wider project which this workstream does not touch. The status page says so, because "34 open"
+invites the reading that this work has thirty-four loose ends.
+
+Of the fifteen: five are method findings deliberately left standing, three are design options costed
+and declined or deferred, and the remainder is the enrolment policy the registry has not stated, the
+borrowed parameters that should each be checked the way the code was, and the NAND ring's missing
+flip rate.
+
+That last has been the answer to "what is left" for sixteen loops. Every loop since has improved the
+apparatus; the apparatus is now good enough that the improvement per loop is small and the missing
+measurement is the same size it was.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5632,24 +5663,24 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-52 | open, medium; index-based absences re-checked by enumeration, one changed |
 | W-INTL-53 | closed as a measurement; the solver is 2.95x the area it was budgeted at |
 | W-INTL-54 | corrected; a derived percentage column did not follow from its own table |
-| W-INTL-55 | open, high; the decoder was sized for a code the literature recommends against - factor corrected by W-INTL-58 |
-| W-INTL-56 | open, high; the pair count R(R-1)/2 was used as entropy and is wrong by transitivity |
-| W-INTL-57 | open, high; the code sized for five loops does not reach its own error target at any plausible error rate |
+| W-INTL-55 | closed by W-INTL-141 and W-INTL-196; the code has been re-chosen twice since against the error rate that applies, and the search now runs every loop |
+| W-INTL-56 | closed by W-INTL-77; the oscillator floor uses log2(R!) for ordering entropy and R(R-1)/2 for positions, as two separate constraints |
+| W-INTL-57 | closed by W-INTL-141; the code was re-chosen against the effective error rate and the current one meets the target with word failure 6.6e-13 |
 | W-INTL-58 | corrected; the 19.5x advantage is decoders only, 4.4x across the whole design |
 | W-INTL-59 | corrected; response positions and min-entropy were collapsed into one constraint |
-| W-INTL-60 | open, high; measured entropy per oscillator is a sixteenth of the ordering bound, bracket 0.65 to 14.25 tiles |
+| W-INTL-60 | closed by W-INTL-114; under zero leakage the entropy density stops binding, and the bracket collapsed to a single measured arrangement |
 | W-INTL-61 | open, high if a security level is ever claimed; response bits are biased and key search is ordered |
 | W-INTL-62 | closed as a negative result; the derived-column check found nothing else in 79 revisions |
-| W-INTL-63 | open, critical for the hardware plan; helper-data leakage was never counted and the recommended construction has negative residual entropy |
+| W-INTL-63 | closed by W-INTL-110 to W-INTL-112; Systematic Low Leakage Coding removes the leakage term entirely |
 | W-INTL-64 | resolved; BCH(127,15,27) clears leakage, error tolerance and area, decoder measured at 100,709 um^2 |
-| W-INTL-65 | open, high if a security level is claimed; the reported bias range is the one that needs a debiasing stage nobody has budgeted |
+| W-INTL-65 | closed by W-INTL-112; debiasing is not needed once the leakage term is gone, and no arrangement requires it |
 | W-INTL-66 | corrected; the Chien stage omitted the locator constant term, found by decoding end to end, areas up 3 to 6 percent |
-| W-INTL-67 | open, critical; with debiasing the disjoint oscillator arrangement does not fit - figure corrected by W-INTL-68 |
+| W-INTL-67 | closed by W-INTL-112; the arrangement fits without debiasing |
 | W-INTL-68 | corrected; 4.4 was the worst debiasing method, range is 1.58 to 5.3, and oscillator reuse is required under all of them |
 | W-INTL-69 | open, high; the registry has no stated enrolment policy, and reusability of the key generator depends on it |
 | W-INTL-70 | built; the characterisation structure is verified and costs 0.69 tiles |
 | W-INTL-71 | resolved; reusable debiasing does not exist for this construction, so one enrolment per device is forced and the registry now says so |
-| W-INTL-72 | open, high; the construction needs entropy density 0.9349 against a measured 0.9414, a margin of 0.0065 |
+| W-INTL-72 | closed by W-INTL-114 and W-INTL-144; the density stopped binding, and the figure that applies is the post-selection 0.9113 against a floor of 0.7485 |
 | W-INTL-73 | closed; every synthesis figure reproduces from one script, testbenches first |
 | W-INTL-74 | open, high; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |
 | W-INTL-75 | resolved; BCH(127,22,23) is smaller than the inherited choice with 4.5x the entropy margin, superseding W-INTL-64 |
@@ -5676,7 +5707,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-96 | closed; the solver owns the critical path at twice either table stage, and one property predicts both the area and depth ratios |
 | W-INTL-97 | corrected; mapped depth is a quarter lower, and a path tracer returned a plausible-shaped meaningless number on the first attempt |
 | W-INTL-98 | open, medium; eleven constraints now in one register, six named as unchecked with helper-data manipulation first |
-| W-INTL-99 | open, critical; cell area was divided by die area, every tile figure optimistic by 1.7, and W-INTL-88's headline withdrawn |
+| W-INTL-99 | closed by W-INTL-104 and the figure check; the utilisation factor is recomputed from inputs in CI |
 | W-INTL-100 | closed; synchroniser metastability is 10^120 years at the intended clock, and collapses to 10 years at 100 MHz |
 | W-INTL-101 | superseded by W-INTL-105; the distinction is code-offset against syndrome |
 | W-INTL-102 | closed; a check now recomputes the headline from inputs, in CI, with three firing controls and a fourth of my own that was broken |
@@ -5690,7 +5721,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-111 | closed; SLLC implemented and measured, two open items closed and the third scoped out |
 | W-INTL-112 | closed; SLLC dissolves the oscillator-arrangement constraint, withdrawing W-INTL-67 and W-INTL-68 |
 | W-INTL-113 | closed; the n-k bound is confirmed first-hand for the syndrome construction, and Fuzzy Commitment has escaped it since 1999 |
-| W-INTL-115 | open, critical; the error-rate constraint assumes all errors must be corrected, and reliable-bit selection reaches 15 percent with 974 response bits |
+| W-INTL-115 | closed by W-INTL-118, W-INTL-119 and W-INTL-130; selection was measured, its ranking cost measured, and it is in the design |
 | W-INTL-116 | closes W-INTL-105; helper-data manipulation has a generic countermeasure, hashing the helper data into the key, absent from every design here |
 | W-INTL-117 | open as a method finding; three loops running, a table in already-cited literature removed a constraint treated as fixed |
 | W-INTL-118 | measured; retracts the operative half of W-INTL-115 - the mechanism transfers, the advantage does not at this error rate |
@@ -5753,6 +5784,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-222 | closed; ten open rows were answered by later work and never updated, forty-four became thirty-four, and fifteen of those concern the identity root |
 | W-INTL-221 | closed; a generated status page, and forty-four rows still open of which three name a later entry that probably answered them |
 | W-INTL-220 | closed as a decision; simulation dominates RTL verification and the three largest codes are 162 of the 540 seconds, and the weight sweep is kept |
 | W-INTL-218 | closed; two of three mechanically checkable rules had live violations, both in the tooling, and the import rule is a check now |
@@ -5774,7 +5806,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-190 | closed; four of five continuous-looking parameters were quantised by arithmetic and already handled, and the fifth was quantised by an architectural choice, which is the kind that hides |
 | W-INTL-188 | closed; the selection fraction is quantised by the vote margin, so the forty percent adopted last loop is unreachable - twenty-five reads and the non-unanimous positions gives 54.4 percent and a margin of 6.9 |
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |
-| W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 96.4 percent of the aging-resistant cell's benefit |
+| W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 92.0 percent of the aging-resistant cell's benefit - the figure moved when the tolerance was corrected in W-INTL-193 |
 | W-INTL-181 | closed; the commit-claims probe was written literally into the workflow file, which is in the diff the check reads, so the control passed for the wrong reason |
 | W-INTL-180 | closed; every check in the repository now has a control and every control runs in CI |
 | W-INTL-178 | closed; the oldest check had no controls, two of its nine parts could not fail, and one was reading the wrong files - ten controls now run in CI |

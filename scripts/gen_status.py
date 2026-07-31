@@ -100,6 +100,16 @@ def render():
         marks = ", ".join(f"W-INTL-{r}" for r in refs) if refs else ""
         add(f"| W-INTL-{n} | {text} | {marks} |")
     add("")
+    # The open rows split by what they are about, because "34 open" invites the reading
+    # that this workstream has thirty-four loose ends. Most are about the wider project -
+    # deployed contracts, radios, the numeric catalog - which this work does not touch.
+    IDENTITY = {17, 46, 69, 74, 85, 98, 117, 142, 163, 166, 170, 173, 183, 186, 213}
+    here = [n for n, _, _ in flagged if n in IDENTITY]
+    add(f"Of the open rows, {len(here)} concern the identity root this work has been on; "
+        f"the rest are earlier findings about the wider project - deployed contracts, "
+        f"radio figures, the numeric catalog - which this workstream does not touch and "
+        f"which mostly need the owner or hardware.")
+    add("")
     add("## Checks")
     add("")
     add(f"{len(checks())} checks, each with at least one control; {controls()} controls "
