@@ -146,12 +146,15 @@ def absorbable_flip_for(t, k, blocks):
         else:
             hi = mid
     tol = lo
-    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     lo, hi = 0.0, 0.99
     for _ in range(20):
         mid = (lo + hi) / 2
-        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
+        # The drift is passed separately from the read noise - W-INTL-232. Quadrature into
+        # one sigma also averaged the drift over the enrolment reads, which happen before
+        # it exists.
+        if R.aged_selected_ber(base, R.sigma_for_raw_ber(max(mid, 1e-6)),
+                               keep, I.ENROLMENT_READS, steps=600) <= tol:
             lo = mid
         else:
             hi = mid
@@ -203,10 +206,9 @@ if __name__ == "__main__":
     # the pattern inputs.py exists to prevent - see W-INTL-193.
     TOLERATED = tolerated_ber()
     for label, s_age in (("conventional", sigma_age), ("aging-resistant", sigma_age_r)):
-        for when, sig in (("fresh", combined_sigma(sigma_noise)),
-                          ("10 years", combined_sigma(sigma_noise, s_age))):
+        for when, drift in (("fresh", 0.0), ("10 years", s_age)):
             for keep in (1.0, KEEP):
-                eff = effective(sig, keep)
+                eff = R.aged_selected_ber(sigma_noise, drift, keep, I.ENROLMENT_READS)
                 ok = "fits" if eff <= TOLERATED else "FAILS"
                 print(f"   {label:>16} {when:>8} {keep:10.0%} {eff:14.4f} "
                       f"{TOLERATED:15.4f} {ok:>9}")
@@ -215,8 +217,11 @@ if __name__ == "__main__":
     lo, hi = 0.0, 0.99
     for _ in range(200):
         mid = (lo + hi) / 2
-        s = combined_sigma(sigma_noise, R.sigma_for_raw_ber(max(mid, 1e-6)))
-        if effective(s, KEEP) <= TOLERATED:
+        # W-INTL-232: the sixth site of the same quadrature, and the one this file
+        # prints. combined_sigma stays for the fresh-noise cases; a drift does not
+        # belong in it.
+        if R.aged_selected_ber(sigma_noise, R.sigma_for_raw_ber(max(mid, 1e-6)),
+                               KEEP, I.ENROLMENT_READS) <= TOLERATED:
             lo = mid
         else:
             hi = mid
@@ -242,11 +247,15 @@ if __name__ == "__main__":
 
     print("\n5. what selection buys against aging, which is not what it was adopted for")
     for label, s_age in (("conventional", sigma_age), ("aging-resistant", sigma_age_r)):
-        sig = combined_sigma(sigma_noise, s_age)
-        print(f"   {label:>16}: {effective(sig, 1.0):.4f} unselected -> "
-              f"{effective(sig, KEEP):.4f} at {KEEP:.0%} kept "
-              f"-> {effective(sig, 0.326):.4f} at 32.6%")
+        aged = lambda keep, s=s_age: R.aged_selected_ber(sigma_noise, s, keep,
+                                                         I.ENROLMENT_READS)
+        print(f"   {label:>16}: {aged(1.0):.4f} unselected -> "
+              f"{aged(KEEP):.4f} at {KEEP:.0%} kept "
+              f"-> {aged(0.326):.4f} at 32.6%")
     print("   selection ranks by the manufacturing difference, and a large difference is")
     print("   exactly what an aging differential has to exceed - so it helps here for the")
     print("   same reason it helps against noise, and the enrolment reads that rank it")
     print("   are taken fresh, which is the part that does not transfer")
+    print("   W-INTL-232: that last sentence was true and this file computed as though it")
+    print("   were not, folding the drift into the enrolment noise for six loops. The")
+    print("   physics was stated correctly in prose two lines below the code violating it.")

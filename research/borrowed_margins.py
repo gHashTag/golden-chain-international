@@ -94,12 +94,12 @@ def aged_flip_ceiling():
     """Above this ten-year flip rate, the construction misses its word failure target."""
     keep = 1.0 - I.SELECTION_LOSS
     tol = AM.tolerated_ber()
-    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     lo, hi = 0.0, 0.99
     for _ in range(20):   # 1e-6 on a range under 1; the figures are read to four decimals
         mid = (lo + hi) / 2
-        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
+        if R.aged_selected_ber(base, R.sigma_for_raw_ber(max(mid, 1e-6)),
+                               keep, I.ENROLMENT_READS, steps=600) <= tol:
             lo = mid
         else:
             hi = mid
@@ -110,12 +110,12 @@ def raw_noise_ceiling():
     """Above this fresh-device error rate, the construction misses its target."""
     keep = 1.0 - I.SELECTION_LOSS
     tol = AM.tolerated_ber()
-    aged = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2
+    aged = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
     lo, hi = 0.0, 0.49
     for _ in range(20):   # 1e-6 on a range under 1; the figures are read to four decimals
         mid = (lo + hi) / 2
-        sig = sqrt(aged + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
+        if R.aged_selected_ber(R.sigma_for_raw_ber(max(mid, 1e-6)), aged,
+                               keep, I.ENROLMENT_READS, steps=600) <= tol:
             lo = mid
         else:
             hi = mid
@@ -149,12 +149,12 @@ def _keeps_meeting_error(flip):
     33 to 59 seconds, and check_input_coverage runs it once per declared input in both
     directions - sixty times - so a half-minute here is half an hour there. W-INTL-227.
     """
-    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
-    sigma = sqrt(base + R.sigma_for_raw_ber(max(flip, 1e-6)) ** 2)
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    drift = R.sigma_for_raw_ber(max(flip, 1e-6))
     tol = AM.tolerated_ber()
     return frozenset(
         keep for keep in KEEPS
-        if R.selected_ber_counts_exact(sigma, keep, I.ENROLMENT_READS, steps=600) <= tol)
+        if R.aged_selected_ber(base, drift, keep, I.ENROLMENT_READS, steps=600) <= tol)
 
 
 def largest_retained(density, flip):

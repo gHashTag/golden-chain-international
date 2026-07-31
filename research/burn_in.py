@@ -62,12 +62,16 @@ def absorbed_flip():
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
     tol = tolerated_ber()
-    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     lo, hi = 0.0, 0.99
     for _ in range(30):
         mid = (lo + hi) / 2
-        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
+        # Post-enrolment by this function's own definition, so the drift is separate from
+        # the read noise - W-INTL-232. Burn-in is the one place where part of the drift
+        # precedes enrolment; that is the caveat named in aged_selected_ber and it is not
+        # modelled here, because this function is about what is absorbed AFTER enrolment.
+        if R.aged_selected_ber(base, R.sigma_for_raw_ber(max(mid, 1e-6)),
+                               keep, I.ENROLMENT_READS, steps=600) <= tol:
             lo = mid
         else:
             hi = mid

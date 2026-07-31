@@ -315,8 +315,11 @@ def aged_margin():
     import reliable_bit_selection as R
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
-    sig = sqrt(R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2 + R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2)
-    return tolerated_ber() / R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS)
+    # W-INTL-232: the drift is not read noise and is not averaged at enrolment.
+    aged = R.aged_selected_ber(R.sigma_for_raw_ber(I.RAW_NOISE_BER),
+                               R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT),
+                               keep, I.ENROLMENT_READS)
+    return tolerated_ber() / aged
 
 
 def absorbable_flip():
@@ -324,12 +327,15 @@ def absorbable_flip():
     import reliable_bit_selection as R
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
-    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     lo, hi = 0.0, 0.99
     for _ in range(60):
         mid = (lo + hi) / 2
-        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS) <= tolerated_ber():
+        # W-INTL-232: this was the third copy of the quadrature, and it is the one the
+        # documents' absorbable figure comes from. Missing it would have left the ledger
+        # stating a number no model computes.
+        if R.aged_selected_ber(base, R.sigma_for_raw_ber(max(mid, 1e-6)),
+                               keep, I.ENROLMENT_READS) <= tolerated_ber():
             lo = mid
         else:
             hi = mid
@@ -351,19 +357,12 @@ def absorbable_flip_for(t, k, blocks):
     key = (t, k, blocks)
     if key in _ABSORB_CACHE:
         return _ABSORB_CACHE[key]
-    import reliable_bit_selection as R
-    from math import sqrt
-    keep = 1.0 - I.SELECTION_LOSS
-    tol = max_ber(127, t, blocks)
-    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
-    lo, hi = 0.0, 0.99
-    for _ in range(20):
-        mid = (lo + hi) / 2
-        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
-        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
-            lo = mid
-        else:
-            hi = mid
+    # Delegated. This was the fourth copy of one bisection across four files, and
+    # W-INTL-232 had to correct the same expression in five of them by hand. The model
+    # owns the rule; a checker keeping its own copy of a filter is not independence, it
+    # is a second place for the same bug.
+    import aging_margin as AM
+    lo = AM.absorbable_flip_for(t, k, blocks)
     _ABSORB_CACHE[key] = lo
     return lo
 
