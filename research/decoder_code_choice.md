@@ -4119,3 +4119,37 @@ sweep that motivated the audit kept its own enumeration.
 Both were found by turning the rule back on the tooling rather than on the subject. That is a cheap
 sweep to run whenever a rule is written down - **who else does this?** - and it is cheaper still to run
 it before the rule is filed rather than three loops later.
+
+## 156. Running the recorded rules across everything
+
+The previous loop's rule - when you write a rule down, ask who else breaks it - applied to the rules
+already written. Three of them are mechanically checkable, and two had live violations.
+
+**No module may compute on import.** Recorded in loop 88 from one model, fixed there, and found again
+in the coverage sweep last loop. Swept across all twenty-seven modules: `sllc_key_generator.py` ran
+its entire demonstration on import - the SLLC round trip, the failure-rate Monte Carlo and the
+manipulation-countermeasure avalanche - so importing it to reach one constant cost the whole thing.
+Driver under a guard; the tables above it stay at module level, because they are definitions.
+
+**No default may substitute a missing measurement.** Recorded as W-INTL-177 and fixed in the checker.
+`selection_with_bch.py` still had `SLLC_AREA.get(t, max(SLLC_AREA.values()))` - so the search could
+recommend a construction whose masking stage was never measured, using the largest measured one as a
+stand-in. **Third instance of a rule living in the checker and not in the model.** Codes without a
+measured masking stage are skipped now; the recommendation is unchanged.
+
+**No silent skip.** Clean - every skip in the tree names itself and its reason.
+
+`scripts/check_module_hygiene.py` makes the first one a check. Its own first version flagged a
+two-line power-table build as a violation, which would have taught its reader to add exemptions
+rather than fix anything: the property that matters is that importing is **silent**, not that no loop
+appears at module level. It tests for output, so a table build stays and a printing loop does not.
+
+## 157. Two of three rules had live violations
+
+That is the number worth carrying. The rules were correct, recorded, and in a file that gets read at
+the start of every loop - and two of the three were being broken somewhere else in the same
+repository at the moment they were written.
+
+A rule filed without a sweep is a description of one incident. The sweep costs one search per rule
+and it found, over two loops, four violations in three files, every one of them in the tooling rather
+than in the subject.
