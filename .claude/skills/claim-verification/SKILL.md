@@ -133,6 +133,19 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A check whose first version flags a legitimate case teaches people to add exemptions
+
+A newly written check for "no module computes on import" flagged a two-line loop that builds a lookup
+table. That is a definition, not a demonstration, and the check was testing the wrong property -
+shape rather than effect.
+
+Had it shipped, the fix would have been an exemption list, and the next person would have added one
+without asking whether the check was right. A check that produces a false positive on its first run
+trains its readers to route around it.
+
+Before shipping a check, run it on the whole corpus and read every hit. If a hit is legitimate,
+change the property being tested, not the corpus.
+
 ## When you write a rule down, immediately ask who else breaks it
 
 Two rules in this project were learned from one file and violated by another - and in both cases the

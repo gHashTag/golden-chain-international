@@ -128,7 +128,15 @@ if __name__ == "__main__":
                     sel_bits = n * blocks
                     raw_pos = int(sel_bits / frac + 0.999)
                     osc = max(floor_ent(KEY), _r(raw_pos))
-                    sllc = I.SLLC_AREA.get(t, max(I.SLLC_AREA.values()))
+                    if t not in I.SLLC_AREA:
+                        # The masking encoder's degree is n-k, so its area is a property
+                        # of the code. Substituting the largest measured one - which this
+                        # line did - lets the search recommend a construction whose
+                        # masking stage has never been measured. Fixed in the checker as
+                        # W-INTL-177 and left here for three loops, which is the third
+                        # instance of a rule living in the checker and not in the model.
+                        continue
+                    sllc = I.SLLC_AREA[t]
                     tiles = I.tiles(area + sllc + osc * I.OSCILLATOR_AREA)
                     if row_best is None or tiles < row_best[0]:
                         row_best = (tiles, n, k, t, blocks, sel_bits, raw_pos)

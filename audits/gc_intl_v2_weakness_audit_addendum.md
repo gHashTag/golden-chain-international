@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-217
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-218
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5487,6 +5487,36 @@ Twice in one file, and the pattern is the point: the place a rule is first learn
 gets applied. Both were found by turning the rule back on the tooling - who else does this - which is
 cheap to run when a rule is written down and cheaper before it is filed than three loops later.
 
+## W-INTL-218  Two of three recorded rules had live violations
+
+Severity: medium, and the ratio is the finding.
+
+The previous loop's rule - when you write a rule down, ask who else breaks it - applied to the rules
+already written. Three are mechanically checkable and two had live violations.
+
+No module may compute on import, recorded in loop 88 and found again in the coverage sweep last loop:
+sllc_key_generator.py ran its entire demonstration on import - the SLLC round trip, the failure-rate
+Monte Carlo, the manipulation-countermeasure avalanche - so importing it to reach one constant cost
+all of it. Driver under a guard; the tables above stay at module level because they are definitions.
+
+No default may substitute a missing measurement, recorded as W-INTL-177 and fixed in the checker:
+selection_with_bch.py still had SLLC_AREA.get(t, max(SLLC_AREA.values())), so the search could
+recommend a construction whose masking stage was never measured. Third instance of a rule living in
+the checker and not in the model. Skipped now; the recommendation is unchanged.
+
+No silent skip: clean.
+
+scripts/check_module_hygiene.py makes the first a check. Its own first version flagged a two-line
+power-table build, which would have taught its reader to add exemptions rather than fix anything -
+the property that matters is that importing is silent, not that no loop appears at module level. It
+tests for output.
+
+The rules were correct, recorded, and in a file read at the start of every loop, and two of three
+were being broken elsewhere in the same repository at the moment they were written. A rule filed
+without a sweep is a description of one incident; the sweep costs one search per rule and has now
+found four violations in three files across two loops, every one in the tooling rather than the
+subject.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5661,6 +5691,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-218 | closed; two of three mechanically checkable rules had live violations, both in the tooling, and the import rule is a check now |
 | W-INTL-217 | closed; the coverage sweep named two of seven checks and computed on import, breaking two rules it had itself motivated |
 | W-INTL-216 | closed; five documents read by nothing, an escape hatch scoped to a line in a hard-wrapped corpus, and one declared area entry never measured - four checks asked, four gaps |
 | W-INTL-215 | closed; three declared decoder areas had no end-to-end testbench, all three pass, and the invariant is a check now |
