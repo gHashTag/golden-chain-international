@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-206
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-209
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5263,6 +5263,50 @@ whose every row is a candidate rather than a conclusion, and a tripwire wants on
 exists to produce. "Unbound" and "has nothing to bind" look identical in a count, which is why the
 distinction is written down.
 
+## W-INTL-207  The search never evaluated the design's own operating point
+
+Severity: high. The model that exists to justify the selection fraction had never evaluated the
+fraction the design uses.
+
+selection_with_bch.py sweeps a hand-written list of fractions and prints the cheapest as best:. The
+declared operating point is 54.4 percent and it was not in the list, so that best: row was the best
+of seven arbitrary points, one of which happened to be close.
+
+SELECTION_LOSS was importable from that file for six loops and the file did not import it - the same
+shape as the aging rule that lived only in the checker, one layer down. A declared input that the
+model producing the recommendation cannot see is not an input to the recommendation.
+
+The declared fraction is in the sweep now and marked, and at 54.4 percent the search agrees with the
+recommendation. Rounding it to four places first turned 701 raw positions into 702, a model
+disagreeing with its own declared input by one position; removed by not rounding.
+
+## W-INTL-208  Where each declared rule can actually be seen
+
+Severity: medium as an audit, and the method is the useful part.
+
+Run over every declared rule and constant: TARGET_FAILURE reaches six files including both search
+models, MIN_ENTROPY_DENSITY seven, ENROLMENT_READS five, AGING_HEADROOM one and the search through
+it. SELECTION_LOSS reached four files and not the search.
+
+Four of five were fine and the fifth was the one nobody would have guessed, because that file does
+import inputs and uses four other things from it. A rule can be absent from a file that imports the
+module it lives in, and no import error will ever say so.
+
+The check is not "does this file import the inputs" but "does this file read the input that governs
+what it computes". That is a question about pairs, answerable only by listing the declared rules and
+asking which file each is supposed to constrain.
+
+## W-INTL-209  The third arrival of the same CI placement lesson
+
+Severity: low, and the repetition is the whole of it.
+
+Three controls in the document job took it from twelve seconds to thirteen minutes, because each
+invokes check_models_run and that takes four. W-INTL-195 recorded this for the coverage sweep,
+W-INTL-197 for a filter inside a search loop, and this is the third arrival.
+
+They live in the models-run job now. Stated as a placement rule rather than a lesson: a control
+belongs in the job that runs the check it breaks.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5433,6 +5477,9 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-200 | closed; four more derived or duplicated literals, one of which had already drifted from 9.2 percent to 10.9 |
 | W-INTL-201 | closed; the pointer datapath area was the one measured figure in its decision that the verifier never re-synthesised |
 | W-INTL-205 | closed; the aging-headroom rule existed only in the checker, so the search model still recommended the excluded code - one implementation now, in research/ |
+| W-INTL-207 | closed; the search swept a hand-written list that did not contain the declared operating point |
+| W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
+| W-INTL-209 | closed; a control belongs in the job that runs the check it breaks - third arrival |
 | W-INTL-206 | closed; seven of twelve models have a bound figure and the other five are named as having nothing to bind |
 | W-INTL-203 | closed; one output figure per model is now checked against the model, and the control found aging_margin computing a tolerance for a code nobody would be building |
 | W-INTL-202 | closed; nothing ran the models, and one had not run since the decoder areas were re-keyed |
