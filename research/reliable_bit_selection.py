@@ -97,6 +97,40 @@ def selected_ber_ideal(sigma, fraction):
     return total / steps, thresh
 
 
+def aged_selected_ber_with_burn_in(sigma_noise, sigma_age, pre_fraction, fraction,
+                                   reads, steps=4000):
+    """The same, when a burn-in has already applied part of the drift before enrolment.
+
+    W-INTL-234, closing the assumption aged_selected_ber names and does not model.
+
+    Split the ten-year drift by variance: a fraction f of it lands before enrolment and
+    the rest after. The pre-enrolment part is not an error at all - the enrolled reference
+    already contains it - so only the remainder can cause a mismatch. That much burn_in.py
+    already assumed.
+
+    What it did not carry is that the quantity selection ranks on is now d + drift_pre,
+    which is WIDER than d by that drift. Reliable-bit selection keeps the positions
+    furthest from zero, and a wider distribution puts more of them further out, so
+    burn-in improves the ranking as well as shrinking the residual. Rescaling by
+    s = sqrt(1 + sigma_pre^2) puts the problem back in the model's own units, which is
+    why this needs no new integral.
+
+    The effect is worth 11 percent at half the drift and 26 percent at nine tenths.
+
+    WHERE THIS STOPS BEING BELIEVABLE, and it is not far past the table it feeds. The
+    split assumes the post-enrolment drift is independent of the pre-enrolment drift.
+    That is reasonable while the drift is small against the manufacturing difference and
+    stops being so when it dominates: at nine tenths the identity is mostly a record of
+    burn-in stress rather than of manufacturing, continuing degradation is unlikely to be
+    independent of what came before, and a change of workload would move it. Past about
+    half, read the figures as a direction and not as a number.
+    """
+    scale = math.sqrt(1.0 + sigma_age * sigma_age * pre_fraction)
+    remaining = sigma_age * math.sqrt(max(0.0, 1.0 - pre_fraction))
+    return aged_selected_ber(sigma_noise / scale, remaining / scale, fraction, reads,
+                             steps)
+
+
 def aged_selected_ber(sigma_noise, sigma_age, fraction, reads, steps=4000):
     """Error rate at ten years, with the drift where it actually happens. W-INTL-232.
 

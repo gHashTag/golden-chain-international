@@ -189,6 +189,20 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: burn-in widens the difference selection ranks on
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only burn_in.py
+          # Removing the widening term, which is what burn_in.py assumed for six loops.
+          # W-INTL-234.
+          python3 scripts/control.py research/reliable_bit_selection.py \
+            '    scale = math.sqrt(1.0 + sigma_age * sigma_age * pre_fraction)' \
+            '    scale = 1.0' \
+            -- python3 scripts/check_models_run.py --only burn_in.py
+          # A determined figure returned bare from a function that names it.
+          python3 scripts/control.py research/pointer_vs_linear.py \
+            '    return S.recommended_code()[3]' '    return 6' \
+            -- python3 scripts/check_no_stale_literals.py
       - name: every declared area is re-measurable or recorded as not
         run: |
           set -e
