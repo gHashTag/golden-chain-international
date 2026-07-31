@@ -5888,6 +5888,78 @@ no longer moved anything: one at a function parameter removed the same day, whic
 TypeError and was scored as firing, and one at `K_TOTAL = 228`, which is what the recommendation
 currently carries - a mutation to the correct value cannot make a check red.
 
+## W-INTL-231  The tightest input is a Shannon entropy, and the design needs a min-entropy
+
+Severity: highest in this workstream. It falsifies the input every construction has been sized
+against, for thirty loops, in the unsafe direction.
+
+`MIN_ENTROPY_BITS = 241.0` comes from Wilde, Hiller and Pehl. Reading the paper rather than the
+citation, equation (11) is
+
+    H = -sum_k ( p_k log2 p_k + (1-p_k) log2 (1-p_k) )
+
+introduced with the sentence "An upper bound for the entropy of the PUF still assuming the bits to be
+independent can be derived from the sum of the bitwise entropies", and reported as "about 94% of the
+entropy achievable in 256 bits" - which is this project's 0.9414 exactly.
+
+That is Shannon entropy. A fuzzy extractor's output length is bounded by min-entropy, and for a
+biased bit the two differ substantially and always in the same direction: a Bernoulli at p = 0.64
+carries 0.94 bits of Shannon entropy and 0.64 bits of min-entropy. The figure was declared under the
+name of the quantity the design needs rather than the one the paper computed, and every check in this
+repository verified that the documents agreed with it.
+
+### The conversion
+
+`research/min_entropy_from_shannon.py` fits the paper's own model - per-bit probability Phi(-t) with
+t the mean-over-standard-deviation of the difference across the 193 devices - so that the Shannon sum
+reproduces 241.0, then evaluates min-entropy on the same fit.
+
+  fitted spread s = 0.3737
+  Shannon      241.0 bits over 256, density 0.9414   (reproduces the paper)
+  min-entropy  183.3 bits over 256, density 0.7162
+
+The Gaussian spread of t across positions is this project's assumption and is stated in that file.
+A reading that needs no such assumption brackets it: if every position carried the same bias, the
+bias reproducing 241.0 Shannon bits is p = 0.6415, whose min-entropy density is 0.6404. Spread helps,
+because positions near unbiased contribute nearly a whole bit, so the truth is above 0.6404 and below
+the 0.9414 that no biased source can attain.
+
+### What it costs
+
+  raw positions       935 -> 1,402      k carried       228 -> 342
+  selected positions  508 -> 762        k required      200 -> 318.6
+  oscillators          44 -> 54         after-sel floor 0.5614 -> 0.3743
+  blocks                4 -> 6          tiles           3.46 -> 3.51
+
+**Five hundredths of a tile.** The design is sized against 0.7162 / 1.25 = 0.5730, which is below the
+0.6404 of the pessimistic reading as well, so the recommendation survives either interpretation of
+the published number.
+
+Worth saying plainly: the density headroom rule of W-INTL-228 was written one loop before this, on
+the argument that the tightest borrowed input should carry the margin the aging figure already had.
+At the point estimate it absorbed this error entirely - the four-block construction it bought still
+fits at 0.7162 with no headroom at all. The rule was justified on general grounds and paid for itself
+immediately on a specific one nobody had found yet.
+
+### What it says about the checks
+
+Every check passed throughout. `check_input_coverage` perturbs `MIN_ENTROPY_BITS` and confirms
+something notices; `check_figures_reproduce` binds sixty-six figures to it; `check_inputs_are_read`
+confirms it is read. All of them verify that the documents and the models agree with the declared
+value. None of them can ask whether the declared value is the quantity the design needs, because that
+is a question about the name rather than about the number, and the name was wrong.
+
+This is the fourth correction in five loops that was a name rather than a number - a bound quoted as
+achievable, a density compared across the selection step, a table labelled with the direction it does
+not measure, and now an entropy of the wrong kind. In three of the four the arithmetic was right.
+
+Two more stale literals surfaced while landing it, both in `scripts/`, which
+`check_no_stale_literals` did not scan: `k_total = 57 * 3` in the selection-entropy assertion, which
+had survived two moves of the recommendation, and the vestigial utilisation guard, which is now
+pointed explicitly at the Shannon figure because the arrangement it guards is the one that used it.
+The check scans `scripts/` now, and its value rule learned to ignore a literal multiplying a string -
+`print("-" * 54)` three times, where 54 is the oscillator count.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6063,6 +6135,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-231 | closed; the borrowed entropy figure is a bitwise Shannon sum that the source paper calls an upper bound, not the min-entropy a fuzzy extractor needs - 0.9414 becomes 0.7162 on the paper's own model, six blocks instead of four, 3.46 to 3.51 tiles |
 | W-INTL-230 | closed; a control anchor matched twice and mutated the copy the tripwire does not read, reporting success while testing nothing - control.py and check_control_anchors now reject an ambiguous anchor, two more found and narrowed, two more pointed at mutations that could not fail |
 | W-INTL-229 | closed; the end-to-end chain and the SLLC generator were exercising BCH(127,29,21) while the recommendation is BCH(127,57,11) in four blocks - both re-pointed, a check added, and the check missed its own bug twice before its controls fired |
 | W-INTL-228 | closed; DENSITY_HEADROOM 1.25 applied to the tightest borrowed input, which had carried no rule while the looser one carried 0.9 of a tile - 3.44 to 3.46 tiles, a fourth BCH block, and the after-selection floor from 0.7485 to 0.5614 |

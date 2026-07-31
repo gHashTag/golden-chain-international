@@ -1004,7 +1004,7 @@ Two more codes, chosen further below the edge, moved the whole picture:
 <!-- derived:external --> | BCH(255,55,31) | 152,170 | 8.44 | 0.8299 | 4.34 percent |
 
 BCH(127,29,21) is **cheaper than the recommendation it challenges** - 4.42 tiles of decoder
-against 4.82 - and tolerates entropy density down to 0.5614 against 0.8706. It costs error
+against 4.82 - and tolerates entropy density down to 0.3743 against 0.8706. It costs error
 tolerance, 4.42 percent against 5.23.
 
 So the flatness held where I sampled and did not hold where I had not. The correction is
@@ -2349,7 +2349,7 @@ true reliability, one by the nine-read majority vote the design actually perform
 <!-- derived:external --> | 67.4% | 0.9835 | 0.5392 | 0.5423 | 0.5236 | 0.8911 |
 <!-- derived:external --> | 90% | 1.6471 | 0.5534 | 0.5556 | 0.8535 | 0.8535 |
 
-The **density after selection is 0.9113** at the 45.6 percent the design now discards, against 0.9414
+The **density after selection is 0.5889** at the 45.6 percent the design now discards, against 0.7162
 before it. The requirement rises from 136.0 bits of k to 137.7, against 171 carried. The
 recommendation survives with thirty-three bits of margin.
 
@@ -4287,11 +4287,11 @@ recommendation failed:
 
 | Borrowed | Value | Limit | Margin | Conditions it carries |
 |---|---|---|---|---|
-<!-- derived:external --> | inverter area | 3.76 | 269.5 above | **71.8x** | a published tile's inverter count; cross-checked against the library |
+<!-- derived:external --> | inverter area | 3.756 | 269.5 above | **71.8x** | a published tile's inverter count; cross-checked against the library |
 <!-- derived:external --> | tile utilisation | 0.5795 | 0.1244 below | **4.66x** | a 1x2-tile design, applied to one of 3.4 tiles |
-<!-- derived:external --> | fresh error rate | 0.0600 | 0.09773 above | **1.63x** | this project's own working figure rather than a measurement |
-<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1084 above | **1.4x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
-<!-- derived:external --> | min-entropy density | 0.9414 | 0.6957 below | **1.35x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
+<!-- derived:external --> | fresh error rate | 0.06 | 0.09638 above | **1.61x** | this project's own working figure rather than a measurement |
+<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1072 above | **1.39x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
+<!-- derived:external --> | min-entropy density | 0.716 | 0.5506 below | **1.3x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
 
 **The tightest is the min-entropy density, not the aging figure.**
 
@@ -4321,11 +4321,11 @@ one knob. A worse flip rate is answered by selecting harder, and selecting harde
 
 | declared density | flip 8% | 9% | 11% | 13% | 15% |
 |---|---|---|---|---|---|
-<!-- derived:external --> | 0.9414 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.8700 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.8500 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.8300 | 65% | 60% | 50% | 40% | 35% |
-<!-- derived:external --> | 0.8000 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.7162 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.7000 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.6500 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.6000 | 65% | 60% | 50% | 40% | --- |
+<!-- derived:external --> | 0.5506 | 65% | 60% | --- | --- | --- |
 Each cell is the largest fraction of positions that can be retained while meeting both constraints; `---` is none. Read across the
 top row and the flip rate is not the 1.41x its own row reports - fifteen percent is absorbed, because
 that row froze the selection fraction and the fraction is free. Read down the left and the density

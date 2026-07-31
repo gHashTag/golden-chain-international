@@ -83,17 +83,17 @@ jobs:
             'decoder 24,659,' 'decoder 24,700,' \
             -- python3 scripts/check_figures_reproduce.py
           python3 scripts/control.py research/decoder_code_choice.md \
-            'density after selection is 0.9113' 'density after selection is 0.9500' \
+            'density after selection is 0.5889' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
           # The margin column, restored to the figure it carried before W-INTL-224. That
           # value stood in the document for an interval with nothing able to contradict it.
           python3 scripts/control.py research/decoder_code_choice.md \
-            '| **1.35x** |' '| **1.13x** |' \
+            '| **1.3x** |' '| **1.13x** |' \
             -- python3 scripts/check_figures_reproduce.py
           # A joint cell flipped from infeasible to feasible.
           python3 scripts/control.py research/decoder_code_choice.md \
-            '| 0.8300 | 65% | 60% | 50% | 40% | 35% |' \
-            '| 0.8300 | 65% | 60% | --- | 40% | 35% |' \
+            '| 0.6000 | 65% | 60% | 50% | 40% | --- |' \
+            '| 0.6000 | 65% | 60% | --- | 40% | --- |' \
             -- python3 scripts/check_figures_reproduce.py
           # The density headroom rule, from both ends: the declared multiple and the
           # function that applies it. Either one silently reverting takes the design back
@@ -188,6 +188,18 @@ jobs:
             -- python3 scripts/check_no_stale_literals.py
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
+            -- python3 scripts/check_no_stale_literals.py
+      - name: the entropy figure is a min-entropy
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only min_entropy_from_shannon.py
+          # Restoring the published Shannon figure under the min-entropy name is the
+          # defect W-INTL-231 corrected; it stood for thirty loops.
+          python3 scripts/control.py research/inputs.py \
+            'MIN_ENTROPY_BITS = 183.3' 'MIN_ENTROPY_BITS = 241.0' \
+            -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py scripts/check_figures_reproduce.py \
+            '    k_total = _rec[2] * _rec[4] if _rec else 0' '    k_total = 342' \
             -- python3 scripts/check_no_stale_literals.py
       - name: every declared input is read
         run: |
