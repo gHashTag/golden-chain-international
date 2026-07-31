@@ -3798,3 +3798,16 @@ conclusion it is analysing is correct exactly until the conclusion moves.**
 The layering is left as it is: a research model importing a checker inverts the dependency, and the
 cross-check is the cheaper fix. That is a choice rather than an oversight, and it is written down as
 one.
+
+### And the first CI run showed what the two checks are for
+
+`nand_ring.py` reads cell areas from the standard-cell liberty and degrades gracefully when it is
+absent: it prints "nothing measured, nothing claimed" and exits zero. On the runner, which had no
+liberty in that job, it **passed "the model runs" and failed "the model produced its figure"**.
+
+That is the entire distinction between the two checks, demonstrated on the first CI run of the
+second. A graceful degradation is indistinguishable from success to anything that only watches exit
+codes - and this project has spent several loops learning that a green tick which read nothing is the
+thing to hunt.
+
+The job now fetches the same cached liberty the synthesis job uses.
