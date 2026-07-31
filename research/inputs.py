@@ -247,6 +247,21 @@ SOLVER_AREA = {"parallel_t21_m7": 57_571, "serial_t21_m7": 22_131}
 # budget uses, because nine leaves a margin of 1.10 at ten years - see W-INTL-185.
 ENROLMENT_READS = 25
 
+# ── the source, over time ───────────────────────────────────────────────────
+# measured here, in the sense that 0.06 is the fresh-device figure this project has used
+# throughout and every effective rate is computed from it. It lived as a literal in four
+# files until W-INTL-198, which is the arrangement this file exists to prevent - and it
+# was invisible to the input-coverage sweep for exactly as long, because a literal is not
+# a declared input.
+RAW_NOISE_BER = 0.06
+
+# measured there: Rahman, Forte, Fahrny and Tehranipoor, DATE 2014. Response-bit flip
+# rates at ten years - HSPICE Monte Carlo, 100 chip instances, 90 nm, 64 oscillators,
+# 23 percent activation time. Simulation rather than silicon, and not this process. The
+# conventional figure was written out in two files and the resistant one in one.
+AGED_FLIP_CONVENTIONAL = 0.3241
+AGED_FLIP_RESISTANT = 0.0773
+
 # ── debiasing ───────────────────────────────────────────────────────────────
 # measured there: Maes, van der Leest, van der Sluis and Willems, Table 2, overhead at
 # bias 40/35/30/25 percent. Computed for a 1,000-bit output; the dependence runs through

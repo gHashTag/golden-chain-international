@@ -60,8 +60,8 @@ def tolerated_ber(n=127, t=11, blocks=3):
 # measured there: DATE 2014, conditions above. Response-bit flip rate at ten years for a
 # conventional ring-oscillator PUF, and for the aging-resistant variant the same paper
 # proposes.
-AGED_FLIP_CONVENTIONAL = 0.3241
-AGED_FLIP_RESISTANT = 0.0773
+AGED_FLIP_CONVENTIONAL = I.AGED_FLIP_CONVENTIONAL
+AGED_FLIP_RESISTANT = I.AGED_FLIP_RESISTANT
 DEGRADATION_ARO = 0.018
 DEGRADATION_CONVENTIONAL = 0.144
 
@@ -86,7 +86,7 @@ DEGRADATION_CONVENTIONAL = 0.144
 # So low duty cycle is not a defence for the conventional bank. The 32.41 percent stands.
 PUBLISHED_ACTIVATION = 0.23
 
-RAW_NOISE_BER = 0.06          # the fresh-device figure this project has been using
+RAW_NOISE_BER = I.RAW_NOISE_BER
 KEEP = 1 - I.SELECTION_LOSS   # the design keeps eighty percent
 
 

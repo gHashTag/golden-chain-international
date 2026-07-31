@@ -58,6 +58,13 @@ jobs:
           python3 scripts/check_commit_claims.py \
             "${{ github.event.pull_request.base.sha || github.event.before }}..${{ github.event.pull_request.head.sha || github.sha }}" \
             --require-commits
+      - name: every control still finds its anchor
+        run: |
+          set -e
+          # Cheap, and it turns one stale anchor per five-minute CI round into all of
+          # them at once. Run by hand before the last two pushes, which is the habit
+          # W-INTL-157 says to hand to a machine.
+          python3 scripts/check_control_anchors.py
       - name: the controls fire
         run: |
           set -e
