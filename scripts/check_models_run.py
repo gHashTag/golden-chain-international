@@ -35,6 +35,39 @@ MODELS = ROOT / "research"
 HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install"}
 
 
+# One figure per model, recomputed from research/inputs.py and matched against what the
+# model prints. W-INTL-203: running a model proves it does not raise, which is the
+# cheapest failure and not the interesting one. A model can run perfectly and print a
+# number that stopped being true three loops ago - which is exactly what burn_in.py did
+# with its absorbable flip rate, and nothing here would have said so.
+#
+# Deliberately one figure each. This is not a test suite; it is a tripwire on the number
+# each model exists to produce.
+def _expected():
+    import importlib, math, sys as _sys
+    _sys.path.insert(0, str(MODELS))
+    I = importlib.import_module("inputs")
+    R = importlib.import_module("reliable_bit_selection")
+    _sys.path.insert(0, str(ROOT / "scripts"))
+    C = importlib.import_module("check_figures_reproduce")
+
+    absorbable = C.absorbable_flip() * 100
+    return {
+        "aging_margin.py": (
+            r"survives an unselected ten-year flip rate up to ([\d.]+)%", absorbable, 0.1),
+        "burn_in.py": (
+            r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.1),
+        "nand_ring.py": (
+            r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
+        "pointer_vs_linear.py": (
+            r"pointer family is ([\d.]+) of a tile ahead",
+            C.recommendation()[0] - I.tiles(
+                I.decoder_area(7, 11) + I.POINTER_AREA["ibs_select_block4"]
+                + I.COUNTERMEASURE_AREA["spongent_permutation"]
+                + 56 * I.OSCILLATOR_AREA), 0.02),
+    }
+
+
 def main():
     files = sorted(p for p in MODELS.glob("*.py")
                    if not p.name.startswith("_") and p.name not in HEAVY)
@@ -42,21 +75,42 @@ def main():
         print("FAIL: no models found, so this check read nothing", file=sys.stderr)
         return 1
 
+    import re
+
+    expected = _expected()
     failures = []
+    checked = 0
     for path in files:
         result = subprocess.run([sys.executable, str(path)],
                                 capture_output=True, text=True, cwd=ROOT)
         if result.returncode != 0:
             last = (result.stderr or result.stdout).strip().splitlines()[-1:]
             failures.append(f"{path.name}: {last[0] if last else 'non-zero exit'}")
+            continue
+        if path.name not in expected:
+            continue
+        pattern, want, tol = expected[path.name]
+        m = re.search(pattern, result.stdout)
+        if not m:
+            failures.append(f"{path.name}: prints no figure matching {pattern!r}")
+            continue
+        checked += 1
+        got = float(m.group(1))
+        if abs(got - want) > tol:
+            failures.append(
+                f"{path.name}: prints {got:g} where inputs give {want:.4g} "
+                f"(tolerance {tol})")
 
     for f in failures:
         print(f"FAIL: {f}")
     if failures:
         print(f"\ncheck_models_run: {len(failures)} of {len(files)} models do not run")
         return 1
+    if checked < len(expected):
+        print(f"FAIL: {checked} of {len(expected)} declared model figures were checked")
+        return 1
     skipped = ", ".join(f"{n} ({why})" for n, why in sorted(HEAVY.items()))
-    print(f"check_models_run: OK ({len(files)} models run"
+    print(f"check_models_run: OK ({len(files)} models run, {checked} figures verified"
           + (f"; not run: {skipped})" if skipped else ")"))
     return 0
 

@@ -133,6 +133,17 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A model that hardcodes the conclusion it is analysing is correct until the conclusion moves
+
+An analysis file had the recommended construction written into its own defaults. Under the declared
+inputs it agreed with the checker exactly, so nothing noticed. Perturb one input far enough that the
+recommendation changes, and the model keeps computing a tolerance for a design nobody would be
+building.
+
+Cross-check what a model prints against what the rest of the system derives, and do it on one figure
+per model - the number that model exists to produce. It costs a regex and it catches the case where a
+file is internally consistent and externally obsolete.
+
 ## Nobody checks that the analysis still runs
 
 A repository had checks that documents agree with the model, that declared inputs are read, that

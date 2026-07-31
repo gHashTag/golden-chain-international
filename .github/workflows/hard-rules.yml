@@ -88,6 +88,9 @@ jobs:
           python3 scripts/control.py research/code_choice_model.py \
             '(8, 18)' '(8, 99)' \
             -- python3 scripts/check_models_run.py
+          python3 scripts/control.py research/nand_ring.py \
+            'nand / inv:.4f' 'nand / inv * 2:.4f' \
+            -- python3 scripts/check_models_run.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py

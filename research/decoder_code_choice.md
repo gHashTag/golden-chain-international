@@ -3763,3 +3763,38 @@ would not have been checked by anything.
 The second is the sharper one. `581` was the only measured figure in the comparison that declined the
 pointer family, and being a literal it was **the one number in that decision `verify_inputs` never
 re-synthesised**. It reproduces at 580.6.
+
+## 138. What each model exists to produce, checked against the model
+
+Running a model proves it does not raise. That is the cheapest failure and not the interesting one: a
+model can run perfectly and print a number that stopped being true three loops ago, which is exactly
+what `burn_in.py` did with its absorbable flip rate.
+
+So `check_models_run.py` now carries one figure per model, recomputed from `inputs.py` and matched
+against what the model prints:
+
+| Model | Figure |
+|---|---|
+<!-- derived:external --> | `aging_margin.py` | the unselected ten-year flip rate it survives |
+<!-- derived:external --> | `burn_in.py` | the same rate, reached by a different route |
+<!-- derived:external --> | `nand_ring.py` | the NAND-to-inverter area ratio |
+<!-- derived:external --> | `pointer_vs_linear.py` | how far ahead the pointer family is, in tiles |
+
+Deliberately one each. This is not a test suite; it is a tripwire on the number each model exists to
+produce. Two controls: making a model print double its figure fires, and changing an input so the
+figure should move fires.
+
+### The second control found a coupling
+
+Setting the enrolment read count to three made `aging_margin.py` print 9.2 where the checker derived
+13.85 - and the checker was right. With worse ranking the search recommends a **stronger code**, which
+tolerates more, so the absorbable rate goes up. `aging_margin.py` had the construction written into
+its own defaults and computed a tolerance for a code nobody would be building.
+
+Under the declared inputs they agree, which is why nothing had noticed. The coupling is now stated in
+the file and the divergence fails rather than sitting quietly - **a model that hardcodes the
+conclusion it is analysing is correct exactly until the conclusion moves.**
+
+The layering is left as it is: a research model importing a checker inverts the dependency, and the
+cross-check is the cheaper fix. That is a choice rather than an oversight, and it is written down as
+one.
