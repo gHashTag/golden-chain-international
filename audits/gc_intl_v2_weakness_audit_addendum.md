@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-213
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-214
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5376,6 +5376,33 @@ pins the area against the parameters it was measured at. The observation is the 
 defaults are a place stale numbers hide, because nothing instantiates them and so nothing contradicts
 them.
 
+## W-INTL-214  The generated files, compared against their generators
+
+Severity: medium as a gap, and it passed - which is the useful outcome to record honestly.
+
+Sixteen decoders and six masking stages are generated from (field, reduction, correction strength)
+and then committed. Nothing checked that a committed file still corresponds to the parameters its
+name claims.
+
+A file generated under one set and left behind when they moved would synthesise, decode correctly,
+pass its testbench and be wrong about which code it implements, and every check here would stay
+green - they all measure the file rather than compare it against its source of truth. Same class as
+W-INTL-212 one layer out: there a measurement outlived its operating point, here an artefact could
+outlive its parameters.
+
+scripts/check_generated_rtl.py reads the parameters from each file name, re-runs the generator and
+compares byte for byte. All twenty-two match. Its control - renaming a module inside a generated file
+- fires.
+
+Two details keep it honest: a file whose header says GENERATED but whose name implies no parameters
+fails, because a generated file nothing can check is a gap rather than an exemption; and it prints
+the count compared, since a check that silently compares nothing is a failure mode this project has
+met four times.
+
+Four of the last five audits found a defect and this one did not. The question that matters is not
+whether an audit finds something but whether its class can produce a defect silently in future, and
+for this one it could: the artefact and the intent were connected only by a file name and a habit.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5550,6 +5577,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-214 | closed and clean; all twenty-two generated RTL files match what their generators produce for the parameters their names claim |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |
 | W-INTL-211 | closed; controls run one model instead of twelve, taking a four-minute control to thirty-two seconds |
 | W-INTL-209 | closed; a control belongs in the job that runs the check it breaks - third arrival |

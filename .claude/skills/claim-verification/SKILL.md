@@ -133,6 +133,25 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A generated artefact and its parameters are connected by nothing but habit
+
+Files generated from a command line and committed carry no record of what was passed. The name says
+one thing, the content may say another, and every downstream check measures the file rather than
+comparing it against what the generator would produce today. Such a file synthesises, passes its
+tests, and is wrong about what it is.
+
+Regenerate and diff, in CI. It costs one generator run per file and it closes the gap between the
+artefact and the intent - which otherwise exists only in a naming convention nobody enforces.
+
+## A clean audit is worth recording, if you say what the class could have done
+
+Four audits in a row found defects; the fifth did not. Reporting "nothing found" invites the reading
+that the audit was unnecessary.
+
+Report instead what the class could have produced silently, and whether it now can. That distinguishes
+an audit that was not needed from one that arrived before the defect - and only the second is worth
+repeating.
+
 ## Extend the audit down a layer: hardware parameters are declared values too
 
 A pair audit over a project's declared inputs found what it was meant to. Extended into the hardware
