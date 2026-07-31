@@ -42,7 +42,28 @@ import inputs as I
 import reliable_bit_selection as R
 import selection_entropy as SE
 
-CELLS = 35_905          # the recommendation, from check_figures_reproduce
+def _cells_and_oscillators():
+    """Cell area and oscillator count of the recommendation. Derived. W-INTL-233.
+
+    Was `CELLS = 35_905` with a comment naming where it came from, and an oscillator count
+    of 38 written into two expressions beside it. Both went stale across the density
+    headroom rule and the min-entropy correction - the area by 781 square micrometres and
+    the count by sixteen - and check_no_stale_literals did not catch either, because its
+    list of figures the recommendation determines had no entry for cell area and 38 is
+    round enough to be a loop bound. A check that watches seven quantities is silent about
+    the eighth.
+    """
+    import selection_with_bch as S
+    n, k, t, blocks = S.recommended_code()
+    frac = 1.0 - I.SELECTION_LOSS
+    raw = int(n * blocks / frac + 0.999)
+    osc = max(S.floor_ent(I.KEY_BITS), S._r(raw))
+    cells = (I.decoder_area(7, t) + I.SLLC_AREA[t] + osc * I.OSCILLATOR_AREA
+             + I.COUNTERMEASURE_AREA["spongent_permutation"])
+    return cells, osc
+
+
+CELLS, OSCILLATORS = _cells_and_oscillators()
 def _k_total():
     """Bits of k the recommendation carries. Asked for, not written down.
 
@@ -85,9 +106,9 @@ def density_floor():
 
 def inverter_area_ceiling():
     """Above this area per inverter, the oscillator bank stops fitting."""
-    others = CELLS - 38 * I.OSCILLATOR_AREA
+    others = CELLS - OSCILLATORS * I.OSCILLATOR_AREA
     room = I.TILE_LIMIT * I.TILE_AREA * I.UTILISATION - others
-    return room / (38 * I.INVERTERS_PER_OSCILLATOR * I.AGING_RESISTANT_FACTOR)
+    return room / (OSCILLATORS * I.INVERTERS_PER_OSCILLATOR * I.AGING_RESISTANT_FACTOR)
 
 
 def aged_flip_ceiling():

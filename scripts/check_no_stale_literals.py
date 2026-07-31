@@ -75,6 +75,13 @@ def determined_figures():
         "tiles": round(tiles, 2),
         "tolerated bit error rate": round(C.tolerated_ber(), 6),
         "after-selection density floor": round(I.KEY_BITS / (k * blocks), 4),
+        # W-INTL-233: absent until borrowed_margins was found carrying CELLS = 35_905,
+        # stale by 781 square micrometres across two design moves. A check that watches
+        # seven quantities is silent about the eighth, and the eighth is the one someone
+        # writes down.
+        "cell area": round(I.decoder_area(7, t) + I.SLLC_AREA[t]
+                           + osc * I.OSCILLATOR_AREA
+                           + I.COUNTERMEASURE_AREA["spongent_permutation"]),
     }
 
 

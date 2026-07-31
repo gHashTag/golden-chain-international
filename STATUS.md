@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-198 entries in the weakness audit. 165 closed, 33 open or deliberately deferred:
+199 entries in the weakness audit. 166 closed, 33 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -55,10 +55,11 @@ Of the open rows, 14 concern the identity root this work has been on; the rest a
 
 ## Checks
 
-14 checks, each with at least one control; 29 controls run in CI.
+15 checks, each with at least one control; 32 controls run in CI.
 
 | Check | What it establishes |
 |---|---|
+| `check_areas_reverifiable.py` | Every declared area must be re-measurable, or listed as not, with the reason. |
 | `check_catalog.py` | Validate the numeric format catalog against its own rules. |
 | `check_commit_claims.py` | A commit message must not name an audit entry its diff never mentions. |
 | `check_consistency.py` | Structural checks over the Wave-intl-2 documents. |

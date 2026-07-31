@@ -189,6 +189,18 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: every declared area is re-measurable or recorded as not
+        run: |
+          set -e
+          python3 scripts/check_areas_reverifiable.py
+          # A declared area dropping out of the recorded set, and a new one appearing
+          # outside both sets. W-INTL-233.
+          python3 scripts/control.py scripts/check_areas_reverifiable.py \
+            '    "TILE_AREA":' '    "TILE_AREA_X":' \
+            -- python3 scripts/check_areas_reverifiable.py
+          python3 scripts/control.py research/inputs.py \
+            'SLLC_AREA = ' 'SLLC_AREA_X = ' \
+            -- python3 scripts/check_areas_reverifiable.py
       - name: the drift is not read noise
         run: |
           set -e
@@ -332,6 +344,11 @@ jobs:
           # 171 rather than 228: the control has to change the figure, and 228 is what
           # the recommendation currently carries. The literal-228 mutation is a control
           # for check_no_stale_literals instead, where being the right value is the point.
+          # The cell area written down rather than derived, which is how borrowed_margins
+          # carried 35,905 across two design moves - W-INTL-233.
+          python3 scripts/control.py research/borrowed_margins.py \
+            'CELLS, OSCILLATORS = _cells_and_oscillators()' 'CELLS, OSCILLATORS = 36686, 54' \
+            -- python3 scripts/check_no_stale_literals.py
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 171' \
             -- python3 scripts/check_models_run.py --only borrowed_margins.py

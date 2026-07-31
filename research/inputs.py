@@ -44,15 +44,35 @@ VERSION_SENSITIVE = {("decoder_serial", 7, 7), ("decoder_serial", 7, 11),
 TILE_AREA = 18_032        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
 TILE_LIMIT = 16           # specified: largest submission is 8x2 tiles
 
-# measured there: the published PUF tile declares 1x2 tiles, 36,064 um^2, and holds
-# 20,900 um^2 of standard cells. Same flow, same process. Cell area is not die area and
-# this is the factor between them.
+# HALF measured there and half measured here, which is W-INTL-233 and was declared as
+# "measured there: ... Same flow, same process" until this loop.
+#
+# The denominator is theirs: the published PUF tile declares a 1x2 footprint, 36,064 um^2.
+# The numerator is OURS: 20,900 um^2 is what synthesising the published eight-bit
+# implementation produced in this repository on 2026-07-30 - see research/puf_tile_budget.md,
+# "Synthesis of the published eight-bit implementation". It is not their reported cell area,
+# which is not published, so "same flow" was the one thing this comment could not claim.
+#
+# The ratio is still the right thing to extrapolate, because the design's own budget is a
+# yosys cell-area sum too, so both sides of the extrapolation are measured the same way.
+# What it assumes, and what nothing here checks, is that the published design's own flow
+# produced about the cell area ours did. If theirs was fifteen percent larger the true
+# utilisation is 0.67 and this design is smaller than stated; fifteen percent smaller and
+# it is 0.49 and the design is 18 percent larger. The utilisation row of
+# research/borrowed_margins.py says the recommendation survives down to 0.13, so the
+# assumption is not load-bearing - but it is an assumption and it was labelled a
+# measurement.
+#
+# Cell area is not die area and this is the factor between them.
 # units: standard-cell area / die area, both square micrometres
 UTILISATION = 20_900 / 36_064
 
 # ── the oscillator ──────────────────────────────────────────────────────────
-# measured there: the same published tile, 6,730 um^2 of ring oscillators across 1,792
-# inverters. Cross-checked against the library everything else here is measured on:
+# measured here, on somebody else's design: 6,730 um^2 of ring oscillators across 1,792
+# inverters, from the same synthesis run as the utilisation numerator above and carrying
+# the same correction - it was labelled "measured there" and the synthesis was ours.
+# Unlike that one it has an independent cross-check, below, which is why it is the sounder
+# of the two. Cross-checked against the library everything else here is measured on:
 # sky130_fd_sc_hd__inv_1 is 3.7522 um^2 and this figure is 3.7556, a ratio of 1.0009. The
 # published tile's oscillators are built from drive-1 inverters and nothing was lost in
 # the borrowing. Forty loops of budgets rested on that and it had never been checked. Seven inverters per oscillator is that design's choice; Mansouri and Dubrova
