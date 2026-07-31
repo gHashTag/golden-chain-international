@@ -133,6 +133,32 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## When a check takes a set, make the set a glob or a derivation, not an enumeration
+
+Four checks were asked what their input set was and who guaranteed its completeness. All four had an
+enumeration: a list of documents, a list of area tables, a list of testbenches, a list of files to
+resolve references in. All four were complete about what they had been given and silent about what
+they had not.
+
+An enumeration is a habit with a syntax. It decays the moment somebody adds an artefact without
+touching it, and nothing about a green run distinguishes "checked everything" from "checked the six
+things in the list".
+
+Where an enumeration is genuinely necessary - a dependency CI will not install, an input deliberately
+unread - make it carry its reason, and have a check compare the enumeration against the glob so the
+exceptions stay visible.
+
+## An escape hatch scoped to a line will miss the sentence
+
+A reference checker had an escape for deliberately dangling references: if the line says the file
+does not exist, do not complain. The corpus is hard-wrapped at eighty columns, so the sentence that
+says it lands two lines below the reference it excuses - and the check reported a defect that the
+document had already explained.
+
+Scope an escape hatch the way the text is written, not the way the file is stored. A sentence, a
+paragraph, a small window - anything but the line, unless the format guarantees one sentence per
+line.
+
 ## Ask of every check: what is its input set, and who guarantees it is complete
 
 Three findings in four loops shared one shape. A reference resolver was correct about the documents

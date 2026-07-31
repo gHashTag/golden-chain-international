@@ -167,6 +167,8 @@ def main():
                                   "NRO=272 CW=20 GATE=16"),
         "ro_characteriser_38":   ("ro_characteriser.v", I.CHARACTERISER_AREA[38],
                                   "NRO=38 CW=20 GATE=16"),
+        "ro_characteriser_64":   ("ro_characteriser.v", I.CHARACTERISER_AREA[64],
+                                  "NRO=64 CW=20 GATE=16"),
         "bm_area_probe":         ("bm_area_probe.v", I.SOLVER_AREA["parallel_t21_m7"],
                                   "T=21 M=7 RED=9"),
         "bm_serial":             ("bm_serial.v bm_area_probe.v",
@@ -246,7 +248,7 @@ def main():
             # measure the same module at different parameters, because the instrument was
             # costed for a bank seven times the size of the one in the design.
             # W-INTL-212.
-            top = name.split("_38")[0] if name.endswith("_38") else name
+            top = re.sub(r"_\d+$", "", name)
             script = f"read_verilog -sv {src}; "
             for prm in params.split():
                 script += f"chparam -set {prm.split('=')[0]} {prm.split('=')[1]} {top}; "

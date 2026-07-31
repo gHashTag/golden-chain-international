@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-215
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-216
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5431,6 +5431,33 @@ among them. The reference resolver was given the wrong document set; the coverag
 undeclared numbers; this one could not see undeclared testbenches. One question finds all three -
 what is this check's input set, and who guarantees it is complete.
 
+## W-INTL-216  The completeness question asked of the last two checks, and four for four
+
+Severity: medium, and the escape-hatch defect inside it is the interesting half.
+
+The question that found three defects in three loops - what is this check's input set, and who
+guarantees it is complete - asked of the two checks it had not yet been asked of.
+
+check_consistency was given a hand-kept list of six documents. Five markdown files in the tree were
+read by nothing: two plan documents and three READMEs. The document set is a glob now.
+
+Its first run on the widened set failed, and on something real though not what it looked like. The
+plan points at audits/gc_intl_v1_weakness_audit.md, which does not exist, and the paragraph says so
+outright - "That file does not exist, so the addendum extends nothing." The check has an escape for
+exactly that case and looks for the acknowledgement on the same line. These documents are
+hard-wrapped, so the acknowledgement lands two lines below the reference it excuses. The widening
+found a defect in the check rather than in the documents: an escape hatch scoped to a line, in a
+corpus wrapped at eighty columns. Four-line window now, and a genuinely broken reference still fires.
+
+verify_inputs knew every declared dictionary but not every entry: the characterisation readout was
+declared at three bank sizes and measured at two. All three now - thirty-one declared areas
+re-synthesise, and the checker's count is the sum of the dictionaries rather than the sum minus one.
+
+Four checks asked, four gaps found. None of the checks was wrong; each was complete about what it had
+been given and silent about what it had not. Stated as a rule rather than a disposition: when a check
+takes a set, that set should be a glob or a derivation, not an enumeration. An enumeration is a habit
+with a syntax, and it decays the moment somebody adds an artefact without touching it.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5605,6 +5632,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-216 | closed; five documents read by nothing, an escape hatch scoped to a line in a hard-wrapped corpus, and one declared area entry never measured - four checks asked, four gaps |
 | W-INTL-215 | closed; three declared decoder areas had no end-to-end testbench, all three pass, and the invariant is a check now |
 | W-INTL-214 | closed and clean; all twenty-two generated RTL files match what their generators produce for the parameters their names claim |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |
