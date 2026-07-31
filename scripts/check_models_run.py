@@ -43,6 +43,26 @@ HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install
 #
 # Deliberately one figure each. This is not a test suite; it is a tripwire on the number
 # each model exists to produce.
+def _density_floor(I, R):
+    """The declared min-entropy density below which the key stops fitting the code.
+
+    Independent of research/borrowed_margins.py on purpose: it is the figure that model
+    exists to print, and a tripwire that imports its subject checks nothing.
+    """
+    import importlib
+    SE = importlib.import_module("selection_entropy")
+    keep = 1.0 - I.SELECTION_LOSS
+    lo, hi = 0.5, 1.0
+    for _ in range(50):
+        mid = (lo + hi) / 2
+        after = SE.density_for_bias(SE.selected_bias(SE.mean_for_density(mid), 1 - keep)[0])
+        if I.KEY_BITS / after <= 57 * 3:
+            hi = mid
+        else:
+            lo = mid
+    return hi
+
+
 def _expected():
     import importlib, math, sys as _sys
     _sys.path.insert(0, str(MODELS))
@@ -57,9 +77,13 @@ def _expected():
             r"survives an unselected ten-year flip rate up to ([\d.]+)%", absorbable, 0.1),
         "burn_in.py": (
             r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.1),
+        # Recomputed here through selection_entropy rather than imported from the model,
+        # so the tripwire is an independent path. The first version of this entry copied
+        # the model's own floor - KEY_BITS/k with no selection term - and so agreed with
+        # a figure that was wrong by 0.13.
         "borrowed_margins.py": (
             r"tightest: min-entropy density at ([\d.]+) times",
-            I.MIN_ENTROPY_DENSITY / (I.KEY_BITS / (57 * 3)), 0.02),
+            I.MIN_ENTROPY_DENSITY / _density_floor(I, R), 0.02),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

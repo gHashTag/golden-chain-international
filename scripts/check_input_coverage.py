@@ -18,11 +18,12 @@ discovery.
 Exit code 1 if any input can move without a check noticing. ALLOWED names an input that
 is deliberately unread, with the reason.
 """
-import ast, os, pathlib, shutil, subprocess, sys
+import ast, os, pathlib, shutil, signal, subprocess, sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 TARGET = ROOT/'research'/'inputs.py'
 src = TARGET.read_text(); tree = ast.parse(src)
 backup = src
+MARKER = ROOT/'research'/'.inputs-perturbed'
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
 
 # Which checks read research/inputs.py. Derived from the glob and narrowed here with the
@@ -60,7 +61,41 @@ ALLOWED = {"RAW_BUDGET"}
 # cross-checked against, which this project recorded in W-INTL-169 and this file has
 # been violating since it was written. Importing it to read CHECKS ran the whole
 # sweep.
+def _restore(*_):
+    """Put research/inputs.py back, whatever ends this process.
+
+    W-INTL-226. This check perturbs the file in place and restores it a few lines later,
+    which is correct while it runs to completion and wrong in every other case. Killed
+    between those two writes it leaves a falsified constant on disk - and a commit taken
+    while it runs captures one. Both happened: a commit went out with TILE_AREA at a
+    quarter and INVERTERS_PER_OSCILLATOR at one seventh, and the interrupt left a third
+    input perturbed. CI caught it, at thirteen tiles instead of 3.44.
+
+    A handler cannot cover SIGKILL, so the marker file below is what a green run must not
+    leave behind: it is the durable half of this, and the handler is the tidy half.
+    """
+    TARGET.write_text(backup)
+    MARKER.unlink(missing_ok=True)
+    raise SystemExit(130)
+
+
 def main():
+    if MARKER.exists():
+        print(f"FAIL: {MARKER.name} is present, so a previous run of this check did not "
+              f"finish and research/inputs.py may hold a perturbed value; restore it "
+              f"from git and delete the marker", file=sys.stderr)
+        return 1
+    MARKER.write_text("research/inputs.py is being perturbed by check_input_coverage\n")
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+        signal.signal(sig, _restore)
+    try:
+        return _sweep()
+    finally:
+        TARGET.write_text(backup)
+        MARKER.unlink(missing_ok=True)
+
+
+def _sweep():
     results = []
     for node in tree.body:
         if not (isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)):
@@ -105,10 +140,11 @@ def main():
     if blind:
         print(f"\ncheck_input_coverage: {len(blind)} input(s) no check notices: "
               f"{', '.join(blind)}")
-        sys.exit(1)
+        return 1
     print(f"\ncheck_input_coverage: OK ({len(results)} inputs, "
           f"{len(results) - len(ALLOWED)} covered, {len(ALLOWED)} deliberately unread)")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

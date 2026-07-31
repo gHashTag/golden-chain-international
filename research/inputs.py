@@ -98,9 +98,10 @@ OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
 # immediate neighbours, giving 241.0 bits of min-entropy in 256 response bits. The same
 # paper shows this figure swinging widely with pairing distance, so it carries its
 # arrangement with it. It is the tightest input in this work - confirmed in W-INTL-223,
-# where every borrowed figure was swept: this one has 1.26 times in hand against the
+# where every borrowed figure was swept: this one has 1.13 times in hand against the
 # aging figure's 1.41 and the utilisation factor's 4.66, and three of its conditions
-# differ from this design.
+# differ from this design. The 1.13 is W-INTL-224: the first sweep compared this
+# before-selection figure against an after-selection floor and read 1.26.
 #
 # It is measured on UNSELECTED positions, and the design selects. Reliable-bit
 # selection discards the positions whose difference is closest to zero, which are the

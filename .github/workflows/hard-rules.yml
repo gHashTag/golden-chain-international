@@ -85,6 +85,16 @@ jobs:
           python3 scripts/control.py research/decoder_code_choice.md \
             'density after selection is 0.9113' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
+          # The margin column, restored to the figure it carried before W-INTL-224. That
+          # value stood in the document for an interval with nothing able to contradict it.
+          python3 scripts/control.py research/decoder_code_choice.md \
+            '| **1.13x** |' '| **1.26x** |' \
+            -- python3 scripts/check_figures_reproduce.py
+          # A joint cell flipped from infeasible to feasible.
+          python3 scripts/control.py research/decoder_code_choice.md \
+            '| 0.8300 | 65% | 60% | --- | --- | --- |' \
+            '| 0.8300 | 65% | 60% | 50% | --- | --- |' \
+            -- python3 scripts/check_figures_reproduce.py
           python3 scripts/control.py research/rtl/sllc127t7.v \
             'module sllc127t7_unmask' 'module sllc127t7_unmask2' \
             -- python3 scripts/check_generated_rtl.py
@@ -273,6 +283,11 @@ jobs:
             -- python3 scripts/check_models_run.py --only nand_ring.py
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = 57 * 3' 'K_TOTAL = 57 * 4' \
+            -- python3 scripts/check_models_run.py --only borrowed_margins.py
+          # Drops the selection term from the density floor, which is the bug this model
+          # shipped with for one interval: it made the margin read 1.26 instead of 1.13.
+          python3 scripts/control.py research/borrowed_margins.py \
+            'if I.KEY_BITS / after <= K_TOTAL:' 'if I.KEY_BITS / mid <= K_TOTAL:' \
             -- python3 scripts/check_models_run.py --only borrowed_margins.py
           python3 scripts/control.py research/selection_with_bch.py \
             'if m == 7 and not AM.meets_aging_headroom(t, k, blocks):' 'if False:' \

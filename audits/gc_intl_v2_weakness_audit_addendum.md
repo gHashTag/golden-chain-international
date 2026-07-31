@@ -5615,12 +5615,12 @@ Severity: high as a correction. It closes W-INTL-74, open since loop 74.
 
 For each borrowed figure, how far it would have to be wrong before the recommendation failed:
 inverter area 71.8 times, tile utilisation 4.66, fresh error rate 1.65, ten-year flip rate 1.41,
-min-entropy density 1.26.
+min-entropy density 1.13 (reported as 1.26 here at first; see W-INTL-224).
 
 The tightest is the min-entropy density, not the aging figure. AGING_HEADROOM was introduced with the
 sentence "the aging input is the least trustworthy figure in this work" and 0.9 of a tile was spent
 on the strength of it. The aging figure has the most alien provenance - simulated, another node,
-another cell - and 1.41 times in hand. The entropy density has 1.26, and three of its four conditions
+another cell - and 1.41 times in hand. The entropy density has 1.13, and three of its four conditions
 differ from this design: FPGAs rather than an ASIC, room temperature only, disjoint pairing where
 this design reuses oscillators across pairs. Two borrowed figures, and the one with the better story
 has less room.
@@ -5636,6 +5636,118 @@ is built, tested and 3,172 square micrometres.
 
 Limitation stated: each row moves one input and holds the rest, which is the sweep that reversed a
 priority in W-INTL-85. Two moving together are not covered.
+
+## W-INTL-224  The sweep compared a before-selection figure against an after-selection floor
+
+Severity: high as a correction. It falsifies the headline number of W-INTL-223, one interval old.
+
+`density_floor()` returned `KEY_BITS / K_TOTAL` = 0.7485: the density needed to carry a 128-bit key
+in 171 code bits. That is a floor on the density *reaching the extractor*, which is the density after
+reliable-bit selection. `MIN_ENTROPY_DENSITY` = 0.9414 is measured on unselected positions - before
+it. Selection amplifies bias and moves 0.9414 to 0.9113 at the nominal fraction, so the two numbers
+sit on opposite sides of a step that changes them, and the ratio between them is not a margin.
+
+Inverting the selection term gives a floor of 0.8303 on the declared figure and a margin of **1.13x**,
+not 1.26x. The conclusion of W-INTL-223 survives - the density is still the tightest borrowed input,
+and by more than it claimed - but its number did not, and the number is what an area decision would
+have been made against.
+
+Two things made this survivable for exactly one interval rather than longer. The tripwire in
+`check_models_run.py` recomputed the margin from the same wrong expression, so it agreed; it now
+recomputes through `selection_entropy` on an independent path. And the margin table in
+`decoder_code_choice.md` was exempted from the consistency rule with `derived:external`, which
+correctly said the figures come from elsewhere and left them bound to nothing. Both tables are now
+bound to the model: sixty-five prose figures, up from twenty-five.
+
+Same family as W-INTL-186, where a bound was quoted downstream as an achievable figure. There the
+name did not carry the direction; here neither name carried the side of the selection step it sits
+on. `MIN_ENTROPY_DENSITY` and the floor it was compared against both read as "a density", and the
+distinction that matters is invisible in what they are called.
+
+## W-INTL-225  The two tightest borrowed figures are coupled, and one knob answers to both
+
+Severity: method. It is what W-INTL-223 named as its own limitation and did not do.
+
+Both figures act through the selection fraction. A worse ten-year flip rate is answered by selecting
+harder; selecting harder amplifies bias and costs entropy density. Sweeping them together:
+
+| declared density | flip 8% | 9% | 11% | 13% | 15% |
+|---|---|---|---|---|---|
+| 0.9414 | 65% | 60% | 50% | 45% | 35% |
+| 0.8700 | 65% | 60% | 50% | 45% | 35% |
+| 0.8500 | 65% | 60% | 50% | 45% | --- |
+| 0.8300 | 65% | 60% | --- | --- | --- |
+| 0.8000 | --- | --- | --- | --- | --- |
+
+Each cell is the largest fraction of positions that can be retained while meeting both constraints; `---` is none. The error target is met by keeping fewer and the leakage constraint by keeping more, so this is the shallowest adequate selection - the table said "deepest" for a loop, which reads as the opposite of the finding.
+
+Two things the one-at-a-time pass could not say. The flip rate's 1.41x is an artefact of freezing the
+selection fraction: let it move and fifteen percent is absorbed. And the density floor is not one
+number - it is 0.83 near the nominal flip rate and 0.85 once the flip rate is half again as bad. The
+design sits at the top-left of that table, which is the comfortable corner, and the reason it is
+comfortable is that both figures came in near their nominal values rather than that either has room
+independent of the other.
+
+The knob is shared, so the margins are not separable, and quoting them as five independent numbers -
+which is what the table in W-INTL-223 does - is a convenience rather than a fact. It stays, because
+five separable numbers are the right first question; this is the second.
+
+## W-INTL-226  A check that mutates the tree, and a commit taken while it ran
+
+Severity: high as a process failure. It shipped three falsified constants to a pull request.
+
+`check_input_coverage.py` perturbs a constant in `research/inputs.py`, runs the other checks, and
+writes the file back. That is correct while it runs to completion and wrong in every other case. It
+was started in the background because it takes eleven minutes, and a commit was taken while it ran.
+The commit captured `TILE_AREA` at a quarter of its value and `INVERTERS_PER_OSCILLATOR` at one
+seventh. Interrupting it then left `MIN_ENTROPY_OVER` at 64.
+
+Nothing local said so. Every check had been run and every check had passed - before the perturbation
+existed. CI said so, immediately and unambiguously: the recommendation came out at 13.13 tiles
+against 3.44, the oscillator area at 265 against 1,855, and the two borrowed margins this loop is
+about at 1.16 and 23.24.
+
+Two defects, both now closed. The check restores on SIGINT, SIGTERM and SIGHUP and in a `finally`,
+so an interrupt no longer leaves a falsified constant behind. And it holds a marker file for the
+duration, refusing to start if one is already present, so an unclean exit that a handler cannot
+cover - SIGKILL, power - reports itself on the next run rather than being inherited silently.
+
+The rule under it is not about this file. A verification tool that mutates the working tree makes the
+tree unsafe to read for as long as it runs, and "the checks pass" means nothing if it means they
+passed before the mutation. Neither is a defect in the tool. Both are a defect in running it
+concurrently with anything that reads what it writes.
+
+Worth stating plainly: CI caught this and local discipline did not, which is the first time in this
+workstream that the remote gate has been the one to find something. The apparatus was fine; the
+sequencing was not.
+
+## W-INTL-227  The new binding made the slowest check slower still, and the table was labelled backwards
+
+Severity: two defects in the check added by W-INTL-224, found by watching it run rather than by reading it.
+
+Binding the joint table took `check_figures_reproduce` from 33 to 59 seconds. That is unremarkable
+alone and is not alone: `check_input_coverage` runs every check once per declared input in both
+directions, sixty passes, so half a minute here is half an hour there. The CI job sat pending past
+twenty-five minutes, which is how it was noticed - no check reports its own cost, and nothing fails
+when one gets slower.
+
+The cause was structure, not arithmetic. Each cell tested an error constraint that depends only on
+the flip rate and a leakage constraint that depends only on the density, and computed both together,
+so the expensive half ran once per density instead of once per flip rate - five times more often
+than it needed to. Split and cached: the joint table went from most of the run to two seconds. The
+two bisections in the margin rows were separately doing forty halvings to resolve figures printed to
+four decimals; twenty resolve to 1e-6. Together 59 seconds back to 43, with every figure identical.
+
+The second defect is worse than the first. The table was headed "deepest selection fraction", and
+what it holds is the largest fraction that can be RETAINED. The error target is met by keeping fewer
+positions and the leakage constraint by keeping more; the answer is the shallowest adequate
+selection. Since the finding of W-INTL-225 is precisely that the two constraints pull in opposite
+directions, a heading naming the wrong direction reads as the opposite of the point. The function is
+now `largest_retained` rather than `deepest_feasible`, named for what it returns.
+
+Worth stating: this is the third correction in three loops where the defect was a name rather than a
+number - `selected_ber` for a bound, a density on the wrong side of selection, and now a fraction
+labelled by the direction it is not. The arithmetic in all three was right.
 
 ## Priority order
 
@@ -5812,7 +5924,11 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
-| W-INTL-223 | closes W-INTL-74; every borrowed figure swept, and the min-entropy density is the tightest at 1.26 times, not the aging figure at 1.41 |
+| W-INTL-227 | closed; the joint-table binding made the figure check 1.8x slower and cascaded 60x through input coverage - split, cached and 59s back to 43s - and its table was labelled with the opposite of the direction it measures |
+| W-INTL-226 | closed; a background check that perturbs inputs in place had a commit taken across it, shipping three falsified constants - restore-on-signal and a marker file added, and CI rather than local discipline is what caught it |
+| W-INTL-225 | closed; the two tightest borrowed figures swept jointly - they act through one knob, so a worse flip rate is answered by deeper selection and paid for in density, and no fraction satisfies both below a raw density of 0.85 |
+| W-INTL-224 | closed; W-INTL-223 compared a before-selection density against an after-selection floor, so its headline margin was 1.26 when the figure is 1.13; the tightest row was right and its number was not |
+| W-INTL-223 | closed by W-INTL-224 for its figure and W-INTL-225 for its method; every borrowed figure swept, and the min-entropy density is the tightest, at 1.13 times rather than the 1.26 first reported |
 | W-INTL-222 | closed; ten open rows were answered by later work and never updated, forty-four became thirty-four, and fifteen of those concern the identity root |
 | W-INTL-221 | closed; a generated status page, and forty-four rows still open of which three name a later entry that probably answered them |
 | W-INTL-220 | closed as a decision; simulation dominates RTL verification and the three largest codes are 162 of the 540 seconds, and the weight sweep is kept |

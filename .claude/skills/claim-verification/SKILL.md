@@ -137,11 +137,58 @@ added cost that it looks like the problem was handled.
 
 A design spent real area buying margin on the figure with the most alien provenance - simulated, a
 different process, a different cell. Swept properly, that figure had 1.41 times in hand and a
-different borrowed number had 1.26, with three of its four conditions also mismatched.
+different borrowed number had 1.13, with three of its four conditions also mismatched.
 
 Provenance tells you how likely a number is to be wrong. Margin tells you how much it costs if it is.
 They are different questions and the second one is the one that decides where to spend, so compute it
 for every borrowed figure rather than ranking them by how uneasy each makes you feel.
+
+## Two quantities with the same name may sit on opposite sides of a step that changes them
+
+The margin above was first computed as 1.26 and was wrong. The declared figure was measured before a
+processing step; the floor it was compared against applied after it; the step moves the quantity. Both
+were called a density, both were in the same units, and the ratio between them looked exactly like a
+margin.
+
+Units agreeing is not the check. Before dividing two numbers, ask which side of every transformation
+each one was taken on, and prefer names that carry the answer - `selected_ber_ideal` beats
+`selected_ber`, and a bare `density` earns its correction.
+
+## A tolerance chosen to make a prose figure pass is a tolerance that checks nothing
+
+When binding a rounded number in a document to the model that produces it, derive the tolerance from
+how many decimals the document printed - half a unit in the last place - rather than picking one that
+happens to accommodate the current gap. The second kind widens silently every time it fails.
+
+## A new check's cost multiplies through whatever runs it
+
+Binding one more table took a checker from 33 to 59 seconds - unremarkable, except a coverage harness
+ran it sixty times, and the CI job stopped finishing. No check reports its own cost and nothing fails
+when one gets slower, so this is only ever noticed by watching a job sit pending.
+
+Two habits. When adding work to a check, look at what else invokes it and multiply. And when a cell
+tests two conditions, check whether they depend on different inputs - computing them together
+recomputes the expensive one once per value of the variable it does not depend on.
+
+## Never commit while a tool that mutates the working tree is running
+
+A coverage check that perturbs a constant, runs the suite, and writes the value back makes the tree
+untrustworthy for its whole duration. It was backgrounded because it was slow, a commit was taken
+across it, and three falsified constants went to a pull request - with every local check green,
+because every local check had run before the mutation existed.
+
+Two rules. A tool that mutates in place restores on signal and in a `finally`, and holds a marker
+file so an unclean exit reports itself on the next run instead of being inherited. And nothing that
+reads the tree - commit, diff, another check - runs while one is in flight. "The checks passed" is a
+claim about a moment, and backgrounding a mutating tool is what separates that moment from the
+commit.
+
+## Exempting a figure from a consistency rule is not the same as checking it elsewhere
+
+A table was marked "derived externally", which was true and meant nothing checked it. It carried a
+falsified number for a full interval. An exemption records where a figure comes from; it does not
+bind it to anything. Every exemption should name the check that covers it instead, or it is a hole
+with a comment on it.
 
 Do it as one sweep: move each input alone until the design fails, and print the ratio. The row that
 comes out tightest is often not the one anybody was worrying about.
