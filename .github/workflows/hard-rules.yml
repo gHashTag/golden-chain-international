@@ -206,6 +206,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: install what the models need
+        run: python3 -m pip install --quiet -r requirements.txt
       - name: every model still runs
         run: |
           set -e

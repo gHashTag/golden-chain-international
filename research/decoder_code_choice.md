@@ -3728,6 +3728,14 @@ It deliberately does not check output. A model whose numbers are wrong is a diff
 the figure checks already cover the numbers that reach a document. This covers the cheaper failure,
 which is the one that had actually happened.
 
+Its first CI run found a second one immediately: `quantiser_emulation_check.py` imports numpy, and
+nothing declared that. Every other model here uses the standard library alone, so that file ran on
+the machine that wrote it and nowhere else - the same finding as the reproduction script that only
+worked on one Mac, in a different costume. A `requirements.txt` now says so, and the job installs it.
+
+Two dead-on-arrival failures from one check on its first two runs is a reasonable argument that
+executing your own analysis is not optional.
+
 ## 137. What the hunt for undeclared numbers found
 
 The previous loop named the limit: a coverage sweep cannot see what was never declared, and finding
