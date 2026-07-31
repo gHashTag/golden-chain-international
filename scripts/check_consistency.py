@@ -384,11 +384,18 @@ def check_references_resolve(paths):
     pattern = re.compile(r"(?:^|[\s`(\[])((?:" + tops +
                          r")/[A-Za-z0-9_./-]+\.(?:py|md|sh|v|yml))")
     for path in paths:
-        for line in path.read_text().splitlines():
+        lines = path.read_text().splitlines()
+        for i, line in enumerate(lines):
             for ref in set(pattern.findall(line)):
                 if (ROOT / ref).exists():
                     continue
-                if any(a in line.lower() for a in ACKNOWLEDGED):
+                # The acknowledgement is looked for in the sentence, not the line. These
+                # documents are hard-wrapped, so "that file does not exist" routinely
+                # lands two lines below the reference it excuses - which is exactly what
+                # the plan does, and what this check reported as a defect the first time
+                # it was given the plan to read. W-INTL-216.
+                window = " ".join(lines[max(0, i - 1):i + 3]).lower()
+                if any(a in window for a in ACKNOWLEDGED):
                     continue
                 failures.append(f"reference: {path.name} points at missing {ref}")
 
@@ -417,13 +424,21 @@ def main():
         check_audit_structure(AUDIT.read_text())
     if MATRIX.exists():
         check_matrix_markers(MATRIX.read_text())
+    # Every markdown in the tree, not a hand-kept list. Five documents - two plan files
+    # and three READMEs - were read by nothing, so a figure or a broken reference in them
+    # was invisible. They contain no figures today, which is why it was harmless and why
+    # nothing found it. W-INTL-216: the document set is now a glob, so a new document is
+    # covered by existing, rather than by somebody remembering.
+    everything = sorted(p for d in ("paper", "research", "audits", "plan")
+                        if (ROOT / d).exists()
+                        for p in (ROOT / d).glob("*.md"))
     research = sorted((ROOT / "research").glob("*.md")) if (ROOT / "research").exists() else []
     # The research documents were not in this list, so the file that carries most of this
     # project's reasoning - and points a reader at a script on nearly every page - had
     # never had a single reference checked. W-INTL-178: the check covered the wrong file
     # type and the wrong file set, both silently.
-    check_references_resolve([p for p, _ in docs] + research)
-    check_derived_percentages(docs + [(p, p.read_text()) for p in research])
+    check_references_resolve(everything)
+    check_derived_percentages([(p, p.read_text()) for p in everything])
 
     for note in notes:
         print(f"note: {note}")

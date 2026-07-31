@@ -4046,3 +4046,41 @@ the coverage sweep could not see undeclared numbers; this one could not see unde
 The general form, now stated three ways in the skill file, is one question: **what is this check's
 input set, and who guarantees it is complete?** Every one of these was found by asking it of a check
 that had been green for dozens of loops.
+
+## 152. The completeness question, asked of the remaining checks
+
+The question that found three defects in three loops - what is this check's input set, and who
+guarantees it is complete - asked of the two checks it had not yet been asked of.
+
+**`check_consistency` was given a hand-kept list of six documents.** Five markdown files in the tree
+were read by nothing: two plan documents and three READMEs. The document set is a glob now, so a new
+document is covered by existing rather than by somebody remembering.
+
+Its first run on the widened set failed - and on something real, though not what it looked like. The
+plan points at `audits/gc_intl_v1_weakness_audit.md`, which does not exist. The paragraph says so
+outright: *"That file does not exist, so the addendum extends nothing."* The check has an escape for
+exactly this, and it looks for the acknowledgement **on the same line**. These documents are
+hard-wrapped, so the acknowledgement lands two lines below the reference it excuses.
+
+So the widening found a defect in the check rather than in the documents: an escape hatch scoped to a
+line, in a corpus wrapped at eighty columns. It looks at a four-line window now, and a genuinely
+broken reference still fires.
+
+**`verify_inputs` knew every declared dictionary but not every entry.** The characterisation readout
+was declared at three bank sizes and measured at two. Measured at all three now: thirty-one declared
+areas re-synthesise, and the count in the checker is the sum of the dictionaries rather than the sum
+minus one for the entry nobody had got to.
+
+## 153. What the question is worth, four for four
+
+Four checks asked, four gaps found: a document set that was a list, an area table that was a list, a
+testbench list that was a list, and a reference set that was the wrong list. None of the checks was
+wrong. Every one of them was complete about what it had been given and silent about what it had not.
+
+The pattern in all four is the same and worth stating as a rule rather than a disposition: **when a
+check takes a set, that set should be a glob or a derivation, not an enumeration.** An enumeration is
+a habit with a syntax, and it decays the moment somebody adds an artefact without touching it.
+
+Where an enumeration is genuinely necessary - the heavy model that CI will not install, the retained
+inputs that nothing reads - it carries its reason, and a check compares the enumeration against the
+glob so the exceptions stay visible.
