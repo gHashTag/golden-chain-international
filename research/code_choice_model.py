@@ -42,11 +42,14 @@ TARGET_BITS = 171
 
 # ── the constructions ───────────────────────────────────────────────────────
 # (label, repetition length, outer [n, k, d], decoder key)
+# The decoder key was a string until the areas were re-keyed by (field bits, correction
+# strength); this table kept the old strings and the file has not run since. Nothing
+# noticed for the whole interval, because no check ran the models - W-INTL-202.
 CONSTRUCTIONS = [
-    ("BCH(255,131) t=18, no repetition", 1, (255, 131, 37), "bch255_131_t18"),
-    ("rep[3] + RM[64,7,32]",             3, (64, 7, 32),    "rep3_rm64"),
-    ("rep[5] + RM[32,6,16]",             5, (32, 6, 16),    "rep3_rm32"),
-    ("BCH(127,15) t=27",                 1, (127, 15, 55),  "bch127_15_t27"),
+    ("BCH(255,131) t=18, no repetition", 1, (255, 131, 37), (8, 18)),
+    ("rep[3] + RM[64,7,32]",             3, (64, 7, 32),    None),
+    ("rep[5] + RM[32,6,16]",             5, (32, 6, 16),    None),
+    ("BCH(127,15) t=27",                 1, (127, 15, 55),  (7, 27)),
 ]
 
 
@@ -223,7 +226,7 @@ def ordering_entropy(n):
 # 512 oscillators is 3,875 bits, so practice sits a factor of sixteen below the
 # bound. They also note the practically usable figure is lower still, because bits
 # from pairs too close in frequency have to be masked for reliability.
-ENTROPY_PER_OSCILLATOR = 241.0 / 512
+ENTROPY_PER_OSCILLATOR = I.MIN_ENTROPY_BITS / 512
 
 
 # Two constraints, and the previous version of this file collapsed them into one.
@@ -287,6 +290,8 @@ def report(p_b, debias=False):
         if debias:
             bits = int(bits * DEBIAS_FACTOR + 0.5)
         fail = total_failure(rep, outer, p_b)
+        if key is None:
+            continue          # the Reed-Muller rows have no measured decoder
         dec = DECODER_AREA[key]
         leakage = bits - (outer[1] * (blocks_for_key(rep, outer) or 1))
         lo = dec + oscillators_reused(bits, max(leakage, 0)) * RO_AREA

@@ -26,6 +26,10 @@ backup = src
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
 
 def run():
+    # check_figures_reproduce re-derives the recommendation, which is the expensive part.
+    # Nine minutes of CI for seventeen inputs is a check people wait for; -O keeps the
+    # interpreter from writing bytecode we then have to invalidate, and the two checks are
+    # the only ones that read inputs at all.
     outs = []
     # check_consistency reads documents rather than inputs, so it is not in this loop -
     # including it tripled the run time and could never fire.

@@ -34,7 +34,7 @@ import selection_entropy as SE
 CODE = (127, 57, 11)          # the recommendation
 BLOCKS = 3
 IBS_BLOCK = 4                 # positions per output bit, from the measured datapath
-IBS_LOGIC = 581               # measured here, research/rtl/ibs_select.v
+IBS_LOGIC = I.POINTER_AREA["ibs_select_block4"]
 COUNTERMEASURE = I.COUNTERMEASURE_AREA["spongent_permutation"]
 
 

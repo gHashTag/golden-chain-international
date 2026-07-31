@@ -240,6 +240,12 @@ COUNTERMEASURE_AREA = {"spongent_round": 2_215, "spongent_permutation": 6_215}
 # error weight, and an injected fault in the serial version alone fails all 42 cases.
 SOLVER_AREA = {"parallel_t21_m7": 57_571, "serial_t21_m7": 22_131}
 
+# measured here: the reproduction datapath of Index-Based Syndrome coding - one counter,
+# one comparator and a register, at a block of four. It sat as a literal inside the
+# comparison that declined the pointer family, which meant the one measured figure in
+# that decision was the one figure verify_inputs never re-synthesised. W-INTL-201.
+POINTER_AREA = {"ibs_select_block4": 581}
+
 # a requirement on the provisioning flow, not an implementation detail. Reliable-bit
 # selection ranks positions by repeated reads, and the ranking quality is what sets the
 # effective error rate: one read makes selection counterproductive, nine gives 0.0133
