@@ -121,7 +121,8 @@ jobs:
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
           python3 scripts/control.py research/decoder_code_choice.md \
-            'scripts/check_figures_reproduce.py' 'scripts/check_figures_reproduced.py' \
+            '`scripts/check_figures_reproduce.py` recomputes the headline from its inputs' \
+            '`scripts/check_figures_reproduced.py` recomputes the headline from its inputs' \
             -- python3 scripts/check_consistency.py
           python3 scripts/control.py research/hub71_ai_competitor_matrix.md \
             '9.51 tok/s [PUB]' '9.51 tok/s' \
@@ -303,13 +304,17 @@ jobs:
           python3 scripts/control.py research/nand_ring.py \
             'nand / inv:.4f' 'nand / inv * 2:.4f' \
             -- python3 scripts/check_models_run.py --only nand_ring.py
+          # 171 rather than 228: the control has to change the figure, and 228 is what
+          # the recommendation currently carries. The literal-228 mutation is a control
+          # for check_no_stale_literals instead, where being the right value is the point.
           python3 scripts/control.py research/borrowed_margins.py \
-            'K_TOTAL = _k_total()' 'K_TOTAL = _k_total(71)' \
+            'K_TOTAL = _k_total()' 'K_TOTAL = 171' \
             -- python3 scripts/check_models_run.py --only borrowed_margins.py
           # Drops the selection term from the density floor, which is the bug this model
           # shipped with for one interval: it made the margin read 1.26 instead of 1.13.
           python3 scripts/control.py research/borrowed_margins.py \
-            'if I.KEY_BITS / after <= K_TOTAL:' 'if I.KEY_BITS / mid <= K_TOTAL:' \
+            'after = SE.density_for_bias(SE.selected_bias(SE.mean_for_density(mid), 1 - keep)[0])' \
+            'after = mid' \
             -- python3 scripts/check_models_run.py --only borrowed_margins.py
           python3 scripts/control.py research/selection_with_bch.py \
             'if m == 7 and not AM.meets_aging_headroom(t, k, blocks):' 'if False:' \

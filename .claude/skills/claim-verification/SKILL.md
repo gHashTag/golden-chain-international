@@ -175,6 +175,21 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A negative control names a site, and a string is not a site
+
+A control mutated a line that appeared twice in one file after a rule was factored into a second
+function. It changed the first match — the copy nothing measured — the harness confirmed the file
+had changed, and the control reported a successful mutation that tested nothing.
+
+Three requirements, each from a control that passed while testing nothing:
+
+- **The anchor must match exactly once.** Assert it, in the harness and in a check over every
+  control. Auditing twenty-four turned up two more ambiguous ones.
+- **The mutation must change the figure.** A control pointing at the value the design currently
+  carries cannot make anything red.
+- **The failure must be the one you intended.** A mutation that raises a TypeError because it names
+  a parameter deleted that morning scores as firing and proves nothing.
+
 ## Write the check from the bug, not from your memory of the bug
 
 A check written to catch stale literals handled single-name assignments. The defect it was written

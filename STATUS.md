@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-195 entries in the weakness audit. 162 closed, 33 open or deliberately deferred:
+196 entries in the weakness audit. 163 closed, 33 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 

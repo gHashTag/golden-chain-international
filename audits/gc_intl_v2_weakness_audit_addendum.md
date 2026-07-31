@@ -5852,6 +5852,36 @@ Two gaps stay open and are printed on every run: a determined figure returned di
 bound to a name is not seen, and the block count itself is too round to match by value against loop
 counts.
 
+## W-INTL-230  A control whose anchor matched twice, and mutated the copy nobody measured
+
+Severity: high as an apparatus failure. It is the fourth distinct way a control in this repository has
+reported success while testing nothing.
+
+Factoring the admissibility rule into a second function put `if m == 7 and not
+AM.meets_aging_headroom(t, k, blocks):` in two places in one file. A control aimed at that line
+mutated the first match - the new function - while the sweep whose output the tripwire reads kept the
+rule. `control.py` verified the file had changed, which it had, and reported a successful mutation.
+The control then said the check did not fire, and the honest reading of that - the check is broken -
+was wrong for the second time in this project's history.
+
+Present is not enough. `control.py` now refuses an ambiguous anchor, and `check_control_anchors.py`
+fails on one rather than only on a missing one. Auditing all twenty-four turned up two more:
+
+  decoder_code_choice.md   `scripts/check_figures_reproduce.py`      3 matches
+  borrowed_margins.py      `if I.KEY_BITS / after <= K_TOTAL:`       2 matches
+
+Both narrowed to a single site. The second could not be fixed by extending the anchor across a
+newline - a shell single-quoted string in the workflow carries a literal backslash-n - so it names a
+line unique to the function instead, and the mutation it applies is the historical defect itself:
+dropping the selection term. Mutated, the model reports the ten-year flip rate as tightest at 1.40
+rather than the density at 1.35, which is the wrong answer arrived at honestly.
+
+The underlying rule generalises past this repository. A negative control is an assertion about one
+site, and a string is not a site. Two controls in CI were additionally found pointing at values that
+no longer moved anything: one at a function parameter removed the same day, which failed with a
+TypeError and was scored as firing, and one at `K_TOTAL = 228`, which is what the recommendation
+currently carries - a mutation to the correct value cannot make a check red.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6027,6 +6057,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-230 | closed; a control anchor matched twice and mutated the copy the tripwire does not read, reporting success while testing nothing - control.py and check_control_anchors now reject an ambiguous anchor, two more found and narrowed, two more pointed at mutations that could not fail |
 | W-INTL-229 | closed; the end-to-end chain and the SLLC generator were exercising BCH(127,29,21) while the recommendation is BCH(127,57,11) in four blocks - both re-pointed, a check added, and the check missed its own bug twice before its controls fired |
 | W-INTL-228 | closed; DENSITY_HEADROOM 1.25 applied to the tightest borrowed input, which had carried no rule while the looser one carried 0.9 of a tile - 3.44 to 3.46 tiles, a fourth BCH block, and the after-selection floor from 0.7485 to 0.5614 |
 | W-INTL-227 | closed; the joint-table binding made the figure check 1.8x slower and cascaded 60x through input coverage - split, cached and 59s back to 43s - and its table was labelled with the opposite of the direction it measures |
