@@ -41,7 +41,7 @@ VERSION_SENSITIVE = {("decoder_serial", 7, 7), ("decoder_serial", 7, 11),
                      ("decoder_serial", 7, 13), ("decoder_serial", 7, 21)}
 
 # ── the shuttle ─────────────────────────────────────────────────────────────
-TILE_AREA = 4508        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
+TILE_AREA = 18_032        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
 TILE_LIMIT = 16           # specified: largest submission is 8x2 tiles
 
 # measured there: the published PUF tile declares 1x2 tiles, 36,064 um^2, and holds
@@ -59,7 +59,7 @@ UTILISATION = 20_900 / 36_064
 # call ten to twenty typical, and W-INTL-92 shows tripling it changes no fit verdict.
 # units: square micrometres / inverters, giving square micrometres per inverter
 INVERTER_AREA = 6_730 / 1_792
-INVERTERS_PER_OSCILLATOR = 1
+INVERTERS_PER_OSCILLATOR = 7
 
 # estimated here, and labelled as an estimate rather than a measurement. W-INTL-154 makes
 # an aging-resistant oscillator a requirement rather than an option: a conventional bank

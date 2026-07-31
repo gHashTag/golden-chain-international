@@ -5692,6 +5692,35 @@ The knob is shared, so the margins are not separable, and quoting them as five i
 which is what the table in W-INTL-223 does - is a convenience rather than a fact. It stays, because
 five separable numbers are the right first question; this is the second.
 
+## W-INTL-226  A check that mutates the tree, and a commit taken while it ran
+
+Severity: high as a process failure. It shipped three falsified constants to a pull request.
+
+`check_input_coverage.py` perturbs a constant in `research/inputs.py`, runs the other checks, and
+writes the file back. That is correct while it runs to completion and wrong in every other case. It
+was started in the background because it takes eleven minutes, and a commit was taken while it ran.
+The commit captured `TILE_AREA` at a quarter of its value and `INVERTERS_PER_OSCILLATOR` at one
+seventh. Interrupting it then left `MIN_ENTROPY_OVER` at 64.
+
+Nothing local said so. Every check had been run and every check had passed - before the perturbation
+existed. CI said so, immediately and unambiguously: the recommendation came out at 13.13 tiles
+against 3.44, the oscillator area at 265 against 1,855, and the two borrowed margins this loop is
+about at 1.16 and 23.24.
+
+Two defects, both now closed. The check restores on SIGINT, SIGTERM and SIGHUP and in a `finally`,
+so an interrupt no longer leaves a falsified constant behind. And it holds a marker file for the
+duration, refusing to start if one is already present, so an unclean exit that a handler cannot
+cover - SIGKILL, power - reports itself on the next run rather than being inherited silently.
+
+The rule under it is not about this file. A verification tool that mutates the working tree makes the
+tree unsafe to read for as long as it runs, and "the checks pass" means nothing if it means they
+passed before the mutation. Neither is a defect in the tool. Both are a defect in running it
+concurrently with anything that reads what it writes.
+
+Worth stating plainly: CI caught this and local discipline did not, which is the first time in this
+workstream that the remote gate has been the one to find something. The apparatus was fine; the
+sequencing was not.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5867,6 +5896,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-226 | closed; a background check that perturbs inputs in place had a commit taken across it, shipping three falsified constants - restore-on-signal and a marker file added, and CI rather than local discipline is what caught it |
 | W-INTL-225 | closed; the two tightest borrowed figures swept jointly - they act through one knob, so a worse flip rate is answered by deeper selection and paid for in density, and no fraction satisfies both below a raw density of 0.85 |
 | W-INTL-224 | closed; W-INTL-223 compared a before-selection density against an after-selection floor, so its headline margin was 1.26 when the figure is 1.13; the tightest row was right and its number was not |
 | W-INTL-223 | closed by W-INTL-224 for its figure and W-INTL-225 for its method; every borrowed figure swept, and the min-entropy density is the tightest, at 1.13 times rather than the 1.26 first reported |

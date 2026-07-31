@@ -9,3 +9,6 @@ __pycache__/
 *.pyc
 .venv/
 node_modules/
+
+# runtime marker written while check_input_coverage perturbs research/inputs.py
+research/.inputs-perturbed

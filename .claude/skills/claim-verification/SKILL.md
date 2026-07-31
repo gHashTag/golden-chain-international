@@ -160,6 +160,19 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Never commit while a tool that mutates the working tree is running
+
+A coverage check that perturbs a constant, runs the suite, and writes the value back makes the tree
+untrustworthy for its whole duration. It was backgrounded because it was slow, a commit was taken
+across it, and three falsified constants went to a pull request - with every local check green,
+because every local check had run before the mutation existed.
+
+Two rules. A tool that mutates in place restores on signal and in a `finally`, and holds a marker
+file so an unclean exit reports itself on the next run instead of being inherited. And nothing that
+reads the tree - commit, diff, another check - runs while one is in flight. "The checks passed" is a
+claim about a moment, and backgrounding a mutating tool is what separates that moment from the
+commit.
+
 ## Exempting a figure from a consistency rule is not the same as checking it elsewhere
 
 A table was marked "derived externally", which was true and meant nothing checked it. It carried a
