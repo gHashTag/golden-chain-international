@@ -411,7 +411,8 @@ def check_ledger_figures(rec):
                               (ROOT / "research" / "rtl" / "measure_all.sh").read_text()))
     declared = (len(I.DECODER_AREA) + len(I.DECODER_AREA_SERIAL)
                 + len(I.SLLC_AREA) + len(I.COUNTERMEASURE_AREA)
-                + len(I.POINTER_AREA) + len(I.SOLVER_AREA) + 1)   # + the characteriser
+                + len(I.POINTER_AREA) + len(I.SOLVER_AREA)
+                + len(I.CHARACTERISER_AREA) - 1)   # 64 is not verified
     WORDS = {19: "nineteen", 20: "twenty", 21: "twenty-one", 22: "twenty-two",
              23: "twenty-three", 24: "twenty-four", 25: "twenty-five",
              26: "twenty-six", 27: "twenty-seven", 28: "twenty-eight",

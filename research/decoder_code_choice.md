@@ -3930,3 +3930,46 @@ The shape is one the last loop already named for placement - a control belongs i
 the check it breaks - and this is its second half: **a control should exercise the smallest scope that
 still fails.** Breaking one model and re-running twelve is not more thorough; it is the same evidence,
 eleven times slower.
+
+## 146. The instrument was costed for a bank seven times the size of the design's
+
+The pair audit was extended from `inputs.py` into the RTL, asking of every module parameter which
+declared quantity it corresponds to and whether the two agree.
+
+`ro_characteriser.v` is the characterisation structure - the thing that reads out frequency counts, and
+the one the count-based ranking now depends on. `CHARACTERISER_AREA` declared it at **272 and 64
+oscillators**. The recommendation uses **38**.
+
+Those two sizes were measured when the oscillator floor was set by entropy - `log2(R!)` above the key
+plus the leakage - which asked for 341. The entropy work removed the leakage term and the selection
+work moved the floor to the pairs the raw positions need, taking the bank from 341 to 38 over several
+loops, and **nobody re-measured the instrument**.
+
+| Bank | Readout |
+|---|---|
+<!-- derived:external --> | 272 oscillators | 5,223 |
+<!-- derived:external --> | 64 | 3,435 |
+<!-- derived:external --> | **38, the design's** | **3,172** |
+
+Declared and verified: thirty declared areas re-synthesise, up from twenty-nine. The instrument is
+smaller than the figure carried, which is the harmless direction, and that is why nothing caught it.
+
+The general shape is one this project keeps meeting from new angles: **a measurement is taken at an
+operating point, the operating point moves, and the measurement stays.** It has been found in a code,
+an encoder, a solver convention, an acceptance threshold, and now an instrument. The difference here
+is that the audit that found it was mechanical - list every parameter, ask which declared quantity it
+names, compare - rather than someone noticing.
+
+## 147. A stale default nobody instantiates
+
+`ibs_select.v` declares `NBITS = 635`, which was the selected-bit count when the pointer datapath was
+measured. The design selects 381 from 701.
+
+It changes nothing measurable - the pointer width is `clog2` of the block, not of `NBITS`, and the
+measured 581 reproduces - but it is a default that encodes an operating point three revisions old,
+sitting in a file whose area is quoted in a design decision.
+
+Recorded rather than changed, because changing it would alter a verified measurement for no reason
+and the verifier pins the area against the parameters it was measured at. What is worth having is the
+observation: **module defaults are a place stale numbers hide, because nothing instantiates them and
+so nothing contradicts them.**

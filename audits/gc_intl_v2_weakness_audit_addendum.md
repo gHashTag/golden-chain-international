@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-211
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-213
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5342,6 +5342,40 @@ A control belongs in the job that runs the check it breaks - and it should exerc
 scope that still fails. Breaking one model and re-running twelve is not more thorough; it is the same
 evidence, eleven times slower.
 
+## W-INTL-212  The instrument was costed for a bank seven times the size of the design's
+
+Severity: medium, and the error is in the harmless direction, which is why nothing caught it.
+
+The pair audit was extended from inputs.py into the RTL: for every module parameter, which declared
+quantity does it correspond to, and do they agree.
+
+ro_characteriser.v is the structure the count-based ranking now depends on. CHARACTERISER_AREA
+declared it at 272 and 64 oscillators; the recommendation uses 38. Those sizes were measured when the
+oscillator floor was set by entropy and asked for 341. The entropy work removed the leakage term and
+the selection work moved the floor to the pairs the raw positions need, taking the bank from 341 to
+38 over several loops, and nobody re-measured the instrument.
+
+Measured at 38: 3,172 square micrometres against 5,223 at 272. Declared and verified; thirty declared
+areas re-synthesise.
+
+The shape is familiar from five other angles - a measurement taken at an operating point, the
+operating point moves, the measurement stays. It has been found in a code, an encoder, a solver
+convention, an acceptance threshold and now an instrument. What is different is that the audit was
+mechanical rather than somebody noticing.
+
+## W-INTL-213  A stale default nobody instantiates
+
+Severity: low, recorded rather than changed.
+
+ibs_select.v declares NBITS = 635, the selected-bit count when the pointer datapath was measured. The
+design selects 381 from 701. It changes nothing measurable - the pointer width is clog2 of the block,
+not of NBITS - and the measured 581 reproduces.
+
+Not changed, because changing it would alter a verified measurement for no reason and the verifier
+pins the area against the parameters it was measured at. The observation is the point: module
+defaults are a place stale numbers hide, because nothing instantiates them and so nothing contradicts
+them.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5515,6 +5549,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-207 | closed; the search swept a hand-written list that did not contain the declared operating point |
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
+| W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |
 | W-INTL-211 | closed; controls run one model instead of twelve, taking a four-minute control to thirty-two seconds |
 | W-INTL-209 | closed; a control belongs in the job that runs the check it breaks - third arrival |
 | W-INTL-206 | closed; seven of twelve models have a bound figure and the other five are named as having nothing to bind |
