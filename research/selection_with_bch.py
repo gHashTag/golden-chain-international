@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, 'research')
 from math import comb, lgamma
 import reliable_bit_selection as R
+import aging_margin as AM
 import selection_entropy as SE
 import inputs as I
 
@@ -113,6 +114,8 @@ if __name__ == "__main__":
                     blocks = -(-need_k // k)
                     if word_fail(n, t, blocks, eff) > I.TARGET_FAILURE:
                         continue
+                    if m == 7 and not AM.meets_aging_headroom(t, k, blocks):
+                        continue      # not enough room on the aging figure - W-INTL-205
                     sel_bits = n * blocks
                     raw_pos = int(sel_bits / frac + 0.999)
                     osc = max(floor_ent(KEY), _r(raw_pos))

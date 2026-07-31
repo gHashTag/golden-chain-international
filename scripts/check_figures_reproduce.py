@@ -203,7 +203,11 @@ def recommendation():
     # every code in two fields took this check from twelve seconds to eighty-six. Sorted
     # by area and walked in order, it is evaluated for one or two.
     for cand in sorted(candidates):
-        if absorbable_flip_for(cand[3], cand[2], cand[4]) >= I.AGED_FLIP_RESISTANT * I.AGING_HEADROOM:
+        # One implementation, in research/aging_margin.py, imported here. It lived only
+        # in this file, which is why the search model did not have the rule at all and
+        # went on recommending the code the rule excludes - W-INTL-205.
+        import aging_margin as AM
+        if AM.meets_aging_headroom(cand[3], cand[2], cand[4]):
             return cand
     return None
 

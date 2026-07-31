@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-203
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-206
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5228,6 +5228,41 @@ conclusion it is analysing is correct exactly until the conclusion moves. The co
 the file and the divergence now fails; the layering is left as it is, because a research model
 importing a checker inverts the dependency and the cross-check is the cheaper fix.
 
+## W-INTL-205  The rule was in the checker and not in the search
+
+Severity: high. The file anyone would open to see the search was still recommending the construction
+the rule exists to exclude.
+
+AGING_HEADROOM was declared in inputs.py two loops ago and enforced in
+check_figures_reproduce.recommendation(). It was not in selection_with_bch.py, which went on printing
+"best: BCH(127,78,7) selecting 60.0%, 1.93 tiles".
+
+Neither file was wrong on its own terms. The checker enforced a declared rule; the model ran the
+search the rule was written to correct. They disagreed, and the only reason to look was that this
+loop set out to bind a figure from every model.
+
+The fix is not to copy the rule. meets_aging_headroom now lives in research/aging_margin.py where
+both reach it - the search imports it, and the checker imports it too, replacing its own copy. The
+rule had exactly one implementation and it was in the wrong layer: a checker may import a model, and
+a model importing a checker is what the previous loop refused to do, which is why the rule could not
+get to the model from where it was.
+
+With the rule applied the search agrees: best: BCH(127,57,11) selecting 80.0%. Control: disabling the
+rule inside the search makes the checker and the model disagree and the check fires.
+
+## W-INTL-206  Seven of twelve models have a figure checked, and the other five are named
+
+Severity: low, and the naming is the point.
+
+Four figures last loop, seven now: the search's recommended code, the measured entropy density, the
+source model's raw error rate, and the four from before.
+
+The five without a bound figure are named rather than left uncounted. inputs.py prints nothing.
+code_choice_model.py, bch_code_search.py, key_generator_e2e.py and sllc_key_generator.py print tables
+whose every row is a candidate rather than a conclusion, and a tripwire wants one number the file
+exists to produce. "Unbound" and "has nothing to bind" look identical in a count, which is why the
+distinction is written down.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5397,6 +5432,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-198 | closed; three literals promoted to declared inputs, and the coverage sweep cannot see what was never declared |
 | W-INTL-200 | closed; four more derived or duplicated literals, one of which had already drifted from 9.2 percent to 10.9 |
 | W-INTL-201 | closed; the pointer datapath area was the one measured figure in its decision that the verifier never re-synthesised |
+| W-INTL-205 | closed; the aging-headroom rule existed only in the checker, so the search model still recommended the excluded code - one implementation now, in research/ |
+| W-INTL-206 | closed; seven of twelve models have a bound figure and the other five are named as having nothing to bind |
 | W-INTL-203 | closed; one output figure per model is now checked against the model, and the control found aging_margin computing a tolerance for a code nobody would be building |
 | W-INTL-202 | closed; nothing ran the models, and one had not run since the decoder areas were re-keyed |
 | W-INTL-199 | closed; the control-anchor sweep is a check in the fast job, retiring a hand habit performed twice |

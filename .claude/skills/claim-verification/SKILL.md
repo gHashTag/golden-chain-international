@@ -133,6 +133,28 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A rule enforced only in the checker is a rule the model does not have
+
+A design rule was declared in the inputs file and enforced in the checker. The search model - the
+file anyone would open to see how the answer was reached - did not have it, and went on printing the
+answer the rule was written to exclude. Both files were correct on their own terms and they
+disagreed.
+
+The fix was not to copy the rule into the second file. It was to notice the rule had one
+implementation in the wrong layer: a checker may import a model, so shared logic belongs in the
+model, where both can reach it. If a rule cannot get from where it lives to where it is needed
+without inverting a dependency, it is in the wrong place.
+
+## "Unbound" and "has nothing to bind" look identical in a count
+
+Seven of twelve models had a figure cross-checked. Reporting five as unbound would have implied five
+gaps. Four of them print tables of candidates rather than a conclusion, and one prints nothing at all
+- there is no single number those files exist to produce.
+
+Name them, with the reason, next to the count. A coverage number without that distinction invites
+someone to close a gap that does not exist, or to assume the remainder is work in progress when it is
+a category difference.
+
 ## A model that hardcodes the conclusion it is analysing is correct until the conclusion moves
 
 An analysis file had the recommended construction written into its own defaults. Under the declared
