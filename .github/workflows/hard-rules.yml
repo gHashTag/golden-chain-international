@@ -85,6 +85,9 @@ jobs:
           python3 scripts/control.py research/decoder_code_choice.md \
             'density after selection is 0.9113' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py research/rtl/sllc127t7.v \
+            'module sllc127t7_unmask' 'module sllc127t7_unmask2' \
+            -- python3 scripts/check_generated_rtl.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
@@ -125,6 +128,10 @@ jobs:
             echo "::error::the commit-claims control did not fire"; exit 1
           fi
           echo "control on the commit message: the check FIRED"
+      - name: generated RTL matches its generator
+        run: |
+          set -e
+          python3 scripts/check_generated_rtl.py
       - name: every declared input is read
         run: |
           set -e

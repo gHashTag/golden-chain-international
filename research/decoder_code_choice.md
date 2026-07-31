@@ -3973,3 +3973,35 @@ Recorded rather than changed, because changing it would alter a verified measure
 and the verifier pins the area against the parameters it was measured at. What is worth having is the
 observation: **module defaults are a place stale numbers hide, because nothing instantiates them and
 so nothing contradicts them.**
+
+## 148. The generated files, compared against their generators
+
+Sixteen decoders and six masking stages in `research/rtl` are generated from `(field, reduction,
+correction strength)` and then committed. Nothing checked that a committed file still corresponds to
+the parameters its name claims.
+
+A file generated under one set of parameters and left behind when they moved would synthesise, decode
+correctly, pass its testbench, and be wrong about which code it implements - and every check here
+would stay green, because they all measure the file rather than compare it against its source of
+truth. That is W-INTL-212 one layer further out: there a measurement outlived its operating point,
+here an artefact could outlive its parameters.
+
+`scripts/check_generated_rtl.py` reads the parameters out of each file name, re-runs the generator,
+and compares byte for byte. **All twenty-two match.** A clean pass rather than a finding, which is
+worth having: the gap was real and the artefacts were not stale.
+
+Two details make the check honest. It fails on a file whose header says GENERATED but whose name
+implies no parameters - because a generated file nothing can check is a gap, not an exemption. And it
+prints the count it compared, since a check that silently compares nothing is the failure mode this
+project has now met four times.
+
+## 149. What a clean pass is worth
+
+Four of the last five audits found something and this one did not. That is the expected shape once
+the mechanical checks catch up with the manual ones: the interesting question is not whether an audit
+finds a defect, but whether the class it covers can produce one silently in future.
+
+For this class it could. Sixteen decoders, six masking stages, and a generator whose parameters are
+given on a command line with no record of what was passed - the artefact and the intent were
+connected only by a file name and a habit. They are connected by a check now, and the cost of that is
+one regeneration per file per CI run.
