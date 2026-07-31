@@ -133,6 +133,18 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Nobody checks that the analysis still runs
+
+A repository had checks that documents agree with the model, that declared inputs are read, that
+every quoted area re-synthesises, and that every check has a control. None of them executed the files
+that do the reasoning. One had not run for many revisions - a table still keyed the way the data used
+to be - and every check stayed green throughout, because a model that raises on line one simply stops
+contributing numbers.
+
+Run your analysis files, on a schedule something enforces. Not their output, at first: just whether
+they still execute. It is the cheapest possible check and it catches the failure mode where a file
+quietly leaves the conversation.
+
 ## A coverage sweep cannot see what was never declared
 
 A check perturbs every declared input and fails if nothing notices. It is a good check and it has a

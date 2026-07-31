@@ -85,6 +85,9 @@ jobs:
           python3 scripts/control.py research/decoder_code_choice.md \
             'density after selection is 0.9113' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
+          python3 scripts/control.py research/code_choice_model.py \
+            '(8, 18)' '(8, 99)' \
+            -- python3 scripts/check_models_run.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
@@ -195,6 +198,20 @@ jobs:
           # older yosys, not from version drift as such. One percent, against a measured
           # worst case of 0.26. Exact comparison remains the local run.
           python3 scripts/verify_inputs.py --tolerance-percent 1
+
+  models-run:
+    # Two minutes, so not in the fast job. Nothing here executed the files that do the
+    # reasoning until W-INTL-202, and one of them had not run since the decoder areas
+    # were re-keyed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install what the models need
+        run: python3 -m pip install --quiet -r requirements.txt
+      - name: every model still runs
+        run: |
+          set -e
+          python3 scripts/check_models_run.py
 
   input-coverage:
     # Split out of the document job in W-INTL-195. Perturbing thirteen inputs and

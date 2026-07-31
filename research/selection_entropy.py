@@ -150,7 +150,10 @@ if __name__ == "__main__":
     print("\n2. selection amplifies the bias, in closed form and sampled")
     print(f"   {'loss':>6} {'threshold':>10} {'bias':>8} {'sampled':>9} "
           f"{'vote-ranked':>12} {'density':>8}")
-    sigma = 0.1908   # the noise that gives six percent raw, from the routine's model
+    # Derived rather than frozen: the noise that reproduces the declared fresh-device
+    # rate. It was the literal 0.1908 until W-INTL-200.
+    import reliable_bit_selection as _R
+    sigma = _R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     for loss in (0.0, 0.20, 0.40, 0.674, 0.80, 0.90):
         b, t = selected_bias(MU, loss)
         s_ideal = ideal_sampled_bias(rng, MU, loss)

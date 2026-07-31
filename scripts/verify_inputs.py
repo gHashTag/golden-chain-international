@@ -157,6 +157,8 @@ def main():
     FIXED = {
         "spongent_permutation": ("spongent.v", I.COUNTERMEASURE_AREA["spongent_permutation"], ""),
         "spongent_round":       ("spongent.v", I.COUNTERMEASURE_AREA["spongent_round"], ""),
+        "ibs_select":            ("ibs_select.v",
+                                  I.POINTER_AREA["ibs_select_block4"], "BLOCK=4"),
     }
     # SLLC is declared as a sum of two modules per code, so it is verified as a sum
     # rather than added to FIXED, which holds single modules.

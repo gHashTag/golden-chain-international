@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-199
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-202
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5157,6 +5157,52 @@ anchor inside the workflow file - fires.
 Run by hand before each of the last two pushes. A habit performed twice is a habit that will be
 forgotten on the third.
 
+## W-INTL-200  A derived figure that had already drifted, and three more literals
+
+Severity: medium. The fourth instance of a derived quantity frozen as a literal, and the first where
+it had drifted before anyone looked.
+
+The previous loop named the limit of the coverage sweep: it cannot see what was never declared. Hunted
+across every model.
+
+burn_in.py held FLIP_ABSORBED = 0.092, the rate the construction absorbs post-enrolment. It is a
+consequence of the code and the ranking, and the ranking moved from a vote of sign bits to frequency
+counts two loops ago - the figure is 0.109. Derived now. It changes the burn-in requirement: under the
+unfavourable arm, between a fifth and three fifths of the service life rather than between a quarter
+and two thirds. The conclusion is unchanged and nothing would have checked it.
+
+selection_entropy.py held the noise sigma as 0.1908, which is a consequence of the declared error
+rate; derived now. code_choice_model.py duplicated the min-entropy figure; imported now.
+
+## W-INTL-201  The one measured number in a decision, never re-synthesised
+
+Severity: medium.
+
+pointer_vs_linear.py held IBS_LOGIC = 581 as a literal - the measured area of the pointer datapath,
+and the only measured figure in the comparison that declined the pointer family. Being a literal, it
+was the one number in that decision verify_inputs never re-synthesised.
+
+Declared in inputs.py as POINTER_AREA and added to the verifier, where it reproduces at 580.6.
+
+## W-INTL-202  Nothing ran the models
+
+Severity: high as a gap, and it had already cost a broken file.
+
+code_choice_model.py had not run since the decoder areas were re-keyed from strings to (field bits,
+correction strength) tuples. Its construction table kept the old strings and it raised a KeyError on
+the first row. Nothing noticed for the whole interval, because no check in this repository ever
+executed the files that do the reasoning.
+
+The checks verify that documents agree with the model and that declared inputs are read - between
+them, every number that reaches a document. They do not cover a file that no longer runs, because a
+broken model stops contributing numbers and every remaining check stays green. Same shape as the
+reproduction script that had only ever run on one machine.
+
+scripts/check_models_run.py runs all thirteen and fails on a non-zero exit. Two minutes, so its own
+job rather than the fast one. Control breaks a key in the repaired table and fires. It deliberately
+does not check output: a model whose numbers are wrong is a different problem, and this covers the
+cheaper failure, which is the one that had happened.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5324,6 +5370,9 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-193 | closed; the tolerated error rate was a literal belonging to the superseded code, so every aging verdict was measured against a bar three times too low - the design still fits at 0.0040 against 0.0143 |
 | W-INTL-196 | closed; BCH(127,78,7) is twenty-six percent smaller and declined, because it absorbs 8.4 percent ten-year flip against a published 7.73 - recorded as AGING_HEADROOM rather than as a preference |
 | W-INTL-198 | closed; three literals promoted to declared inputs, and the coverage sweep cannot see what was never declared |
+| W-INTL-200 | closed; four more derived or duplicated literals, one of which had already drifted from 9.2 percent to 10.9 |
+| W-INTL-201 | closed; the pointer datapath area was the one measured figure in its decision that the verifier never re-synthesised |
+| W-INTL-202 | closed; nothing ran the models, and one had not run since the decoder areas were re-keyed |
 | W-INTL-199 | closed; the control-anchor sweep is a check in the fast job, retiring a hand habit performed twice |
 | W-INTL-197 | closed; the headroom filter inside the search loop took the check from twelve seconds to eighty-six, and is applied after sorting now |
 | W-INTL-195 | closed; the coverage sweep took the fast job from twelve seconds to ten minutes and is now its own job |

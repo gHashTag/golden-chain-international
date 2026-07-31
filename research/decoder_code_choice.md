@@ -3705,3 +3705,61 @@ breaking an anchor inside the workflow file - fires.
 This has been run by hand before each of the last two pushes. A habit performed twice is a habit that
 will be forgotten on the third, which is the entire content of W-INTL-157 and the reason it is worth
 mechanising a ten-line script.
+
+## 136. Nothing ran the models
+
+`code_choice_model.py` had not run since the decoder areas were re-keyed from strings to
+`(field bits, correction strength)` tuples. Its construction table kept the old strings, so it raised
+a `KeyError` on the first row - and **nothing noticed for the whole interval**, because no check in
+this repository ever executed the files that do the reasoning.
+
+The checks verify that documents agree with the model and that declared inputs are read. Between
+them they cover every number that reaches a document. They do not cover a file that no longer runs,
+because a broken model simply stops contributing numbers and every remaining check stays green.
+
+That is the same shape as the reproduction script that had only ever run on one machine: **an
+artefact nobody executes rots quietly, and the rot is invisible from every green run**.
+
+`scripts/check_models_run.py` runs all thirteen and fails on a non-zero exit. Two minutes, so it has
+its own job rather than the fast one - the lesson from three loops ago, applied without needing to be
+re-learned this time. Its control breaks a key in the repaired table and fires.
+
+It deliberately does not check output. A model whose numbers are wrong is a different problem, and
+the figure checks already cover the numbers that reach a document. This covers the cheaper failure,
+which is the one that had actually happened.
+
+Its first CI run found a second one immediately: `quantiser_emulation_check.py` imports numpy, and
+nothing declared that. Every other model here uses the standard library alone, so that file ran on
+the machine that wrote it and nowhere else - the same finding as the reproduction script that only
+worked on one Mac, in a different costume. A `requirements.txt` now says so, and the job installs it.
+
+And its second CI run found that the same file also needs torch - hundreds of megabytes on every run
+for one peripheral model that is not part of the identity-root recommendation. Installing that would
+be disproportionate, so the file is excluded with its reason printed on every run: an exclusion
+nobody can see is a gap nobody knows about, and this one is now a known gap rather than an unnoticed
+one.
+
+Three dead-on-arrival findings from one check in its first three runs is a reasonable argument that
+executing your own analysis is not optional.
+
+## 137. What the hunt for undeclared numbers found
+
+The previous loop named the limit: a coverage sweep cannot see what was never declared, and finding
+those is a reading job. Done, across every model:
+
+| Number | Was | Now |
+|---|---|---|
+<!-- derived:external --> | `0.092`, the absorbable flip rate | a literal in `burn_in.py` | derived - **and already stale at 0.109** |
+<!-- derived:external --> | `581`, the pointer datapath area | a literal in `pointer_vs_linear.py` | declared in `inputs.py`, re-synthesised by the verifier |
+<!-- derived:external --> | `0.1908`, the noise sigma | a literal in `selection_entropy.py` | derived from the declared error rate |
+<!-- derived:external --> | `241.0`, the min-entropy | duplicated in `code_choice_model.py` | imported |
+
+The first had drifted before anyone looked - the ranking moved from a vote of sign bits to frequency
+counts two loops ago and the absorbable rate moved with it, from 9.2 percent to 10.9. It changes the
+burn-in requirement: under the unfavourable arm, burn-in needs between a fifth and three fifths of
+the service life rather than between a quarter and two thirds. The conclusion is unchanged and it
+would not have been checked by anything.
+
+The second is the sharper one. `581` was the only measured figure in the comparison that declined the
+pointer family, and being a literal it was **the one number in that decision `verify_inputs` never
+re-synthesised**. It reproduces at 580.6.

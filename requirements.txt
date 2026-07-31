@@ -1,0 +1,8 @@
+# Python packages the analysis needs beyond the standard library.
+#
+# Written after the models-run check failed on its first CI run with "No module named
+# numpy". Every other model in this repository uses the standard library only, and that
+# one did not - so it ran on the machine that wrote it and nowhere else, which is
+# W-INTL-158 in a different costume. A dependency nobody declared is a dependency that
+# works until somebody else tries.
+numpy
