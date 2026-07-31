@@ -4233,3 +4233,45 @@ early findings about the wider project - the deployed contracts, the radio figur
 root - rather than about the identity root this work has been on for ninety loops. **That contrast is
 the most useful thing the page shows**: the part with a hundred and sixty sections of analysis and
 thirteen checks is not the part with the open findings.
+
+## 162. The forty-four, triaged
+
+The status page made the open rows visible as one list for the first time. Read, all of them.
+
+**Ten were answered by later work and never updated.** Not three - the three the generator could spot
+were the ones whose text happened to name their successor. The other seven had to be read against the
+current design:
+
+| Row | Answered by |
+|---|---|
+<!-- derived:external --> | the decoder sized for a code the literature advises against | the code re-chosen twice since |
+<!-- derived:external --> | the pair count used as entropy | ordering entropy and positions separated into two constraints |
+<!-- derived:external --> | the code that misses its own error target | re-chosen against the effective rate; word failure 6.6e-13 |
+<!-- derived:external --> | entropy per oscillator against the ordering bound | density stopped binding when the leakage term went |
+<!-- derived:external --> | helper-data leakage never counted | SLLC removes the term entirely |
+<!-- derived:external --> | debiasing unbudgeted, and the arrangement that will not fit with it | debiasing not needed once leakage is gone |
+<!-- derived:external --> | the entropy margin of 0.0065 | the figure that applies is post-selection, 0.9113 against a floor of 0.7485 |
+<!-- derived:external --> | the utilisation factor | recomputed from inputs in CI |
+<!-- derived:external --> | selection reaching fifteen percent | measured, costed, and in the design |
+
+Each closure names the entry that answered it, so the claim is checkable rather than asserted.
+**Forty-four became thirty-four.**
+
+One row carried a stale figure rather than a stale state: the NAND ring threshold said 96.4 percent of
+the aging-resistant cell's benefit, and it has been 92.0 since the tolerance was corrected. Fixed.
+
+## 163. What is actually left
+
+Of the thirty-four, **fifteen concern the identity root** and the rest are earlier findings about the
+wider project - deployed contracts, radio figures, GPS, the numeric catalog - which this workstream
+does not touch and which mostly need the owner or hardware. The status page says so now, because "34
+open" invites the reading that this work has thirty-four loose ends.
+
+Of the fifteen, five are method findings deliberately left standing as lessons, three are design
+options costed and declined or deferred, and the rest are the honest remainder: the enrolment policy
+the registry has not stated, the borrowed parameters that should each be checked the way the code
+was, and the NAND ring's missing flip rate.
+
+**That last one has been the answer to "what is left" for sixteen loops.** Every loop since has
+improved the apparatus, and the apparatus is now good enough that the improvement per loop is small
+and the missing measurement is the same size it was.

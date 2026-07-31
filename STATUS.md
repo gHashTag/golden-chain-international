@@ -11,9 +11,9 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-187 entries in the weakness audit. 143 closed, 44 open or deliberately deferred:
+188 entries in the weakness audit. 154 closed, 34 open or deliberately deferred:
 
-Of those, 3 name a later entry in their own text and may have been answered by it without the row being updated.
+Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
 | Entry | State | Later entry named |
 |---|---|---|
@@ -37,30 +37,22 @@ Of those, 3 name a later entry in their own text and may have been answered by i
 | W-INTL-50 | open, high before this committee; the single-satellite-vendor claim is false |  |
 | W-INTL-51 | open, high; proof types are stubs, not produced |  |
 | W-INTL-52 | open, medium; index-based absences re-checked by enumeration, one changed |  |
-| W-INTL-55 | open, high; the decoder was sized for a code the literature recommends against - factor corrected by W-INTL-58 | W-INTL-58 |
-| W-INTL-56 | open, high; the pair count R(R-1)/2 was used as entropy and is wrong by transitivity |  |
-| W-INTL-57 | open, high; the code sized for five loops does not reach its own error target at any plausible error rate |  |
-| W-INTL-60 | open, high; measured entropy per oscillator is a sixteenth of the ordering bound, bracket 0.65 to 14.25 tiles |  |
 | W-INTL-61 | open, high if a security level is ever claimed; response bits are biased and key search is ordered |  |
-| W-INTL-63 | open, critical for the hardware plan; helper-data leakage was never counted and the recommended construction has negative residual entropy |  |
-| W-INTL-65 | open, high if a security level is claimed; the reported bias range is the one that needs a debiasing stage nobody has budgeted |  |
-| W-INTL-67 | open, critical; with debiasing the disjoint oscillator arrangement does not fit - figure corrected by W-INTL-68 | W-INTL-68 |
 | W-INTL-69 | open, high; the registry has no stated enrolment policy, and reusability of the key generator depends on it |  |
-| W-INTL-72 | open, high; the construction needs entropy density 0.9349 against a measured 0.9414, a margin of 0.0065 |  |
 | W-INTL-74 | open, high; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |  |
 | W-INTL-85 | open, high as a correction; sweeping one input at a time reversed the priority, and the error rate is at least as binding as entropy |  |
 | W-INTL-98 | open, medium; eleven constraints now in one register, six named as unchecked with helper-data manipulation first |  |
-| W-INTL-99 | open, critical; cell area was divided by die area, every tile figure optimistic by 1.7, and W-INTL-88's headline withdrawn |  |
-| W-INTL-115 | open, critical; the error-rate constraint assumes all errors must be corrected, and reliable-bit selection reaches 15 percent with 974 response bits |  |
 | W-INTL-117 | open as a method finding; three loops running, a table in already-cited literature removed a constraint treated as fixed |  |
 | W-INTL-142 | open as a method finding; sixty percent removed in two loops, both revisits of decisions whose operating point had moved |  |
 | W-INTL-163 | open as a route; a silicon source gives burn-in before enrolment as a second way to meet the aging requirement, at no area cost, needing at most 28 percent of the degradation left to come |  |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |  |
 | W-INTL-170 | open as a method finding; the error rate tracks whether a number is executed, so move numbers into code rather than reading prose harder |  |
 | W-INTL-173 | open as a design option; the aging mitigation is realisable as a NAND-gated ring at zero area cost in this library, and the budget keeps the conservative factor until a flip rate exists for it |  |
-| W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 96.4 percent of the aging-resistant cell's benefit |  |
+| W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 92.0 percent of the aging-resistant cell's benefit - the figure moved when the tolerance was corrected in W-INTL-193 | W-INTL-193 |
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |  |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |  |
+
+Of the open rows, 15 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
 
 ## Checks
 
