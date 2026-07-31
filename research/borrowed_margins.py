@@ -21,8 +21,9 @@ The density floor was computed as KEY_BITS / k, the raw density needed to carry 
 That is the floor on the density *after* selection. The declared figure is the density
 *before* it, and selection amplifies bias: keeping the 54.35 percent most stable positions
 moves 0.9414 to 0.9113. Comparing a before-selection number against an after-selection
-floor overstated the margin as 1.26x. With the selection term the floor is 0.8303 and the
-margin is 1.13x - still the tightest row, by more than it looked.
+floor overstated the margin as 1.26x. With the selection term the floor was 0.8303 and the
+margin 1.13x - still the tightest row, by more than it looked. W-INTL-228 then applied the
+project's own headroom rule to it, and the fourth block that buys takes the margin to 1.35.
 
 The joint sweep also shows why the flip-rate row is not the 1.41x it reports: that row
 holds the selection fraction at its nominal value, and the fraction is free to move. Let it
@@ -42,7 +43,21 @@ import reliable_bit_selection as R
 import selection_entropy as SE
 
 CELLS = 35_905          # the recommendation, from check_figures_reproduce
-K_TOTAL = 57 * 3
+def _k_total(k=57):
+    """Bits of k the recommendation carries. Derived, because the literal went stale.
+
+    Was 57 * 3. The density headroom rule added a fourth block (W-INTL-228) and this file
+    kept sweeping against a construction with three, so every margin it printed was for a
+    design nobody was building. Fourth stale literal of the same kind found in one loop -
+    aging_margin's blocks default, burn_in's third copy of tolerated_ber, and
+    pointer_vs_linear's BLOCKS were the others.
+    """
+    rho = SE.density_for_bias(
+        SE.selected_bias(SE.mean_for_density(SE.working_density()), I.SELECTION_LOSS)[0])
+    return -(-int(I.KEY_BITS / rho) // k) * k
+
+
+K_TOTAL = _k_total()
 
 
 def utilisation_floor():

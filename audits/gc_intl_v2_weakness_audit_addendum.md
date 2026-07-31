@@ -5749,6 +5749,65 @@ Worth stating: this is the third correction in three loops where the defect was 
 number - `selected_ber` for a bound, a density on the wrong side of selection, and now a fraction
 labelled by the direction it is not. The arithmetic in all three was right.
 
+## W-INTL-228  The rule the design applies to one borrowed input, applied to the one that needed it
+
+Severity: design change. The recommendation moves from 3.44 to 3.46 tiles.
+
+`AGING_HEADROOM` was introduced with the sentence "the aging input is the least trustworthy figure in
+this work", and 0.9 of a tile was spent on it. W-INTL-223 swept every borrowed number and W-INTL-224
+corrected the sweep: the aging figure has 1.41 times in hand and the min-entropy density has 1.13.
+The tighter of the two carried no rule at all.
+
+That is not a small inconsistency. The density is borrowed from Spartan-3E FPGAs at room temperature
+under disjoint neighbour pairing - three conditions this design does not share - nobody here has
+measured it on this process, and the whole construction is sized against it. The project had been
+buying margin where its unease was, not where its exposure was.
+
+Same multiple, same reason: the construction is sized against `MIN_ENTROPY_DENSITY / 1.25`.
+
+  raw positions       701 -> 935        k carried          171 -> 228
+  selected positions  381 -> 508        k required         140.5 -> 200
+  oscillators          38 -> 44         after-selection floor  0.7485 -> 0.5614
+  blocks                3 -> 4          tiles              3.44 -> 3.46
+
+**The cost is 0.03 of a tile.** The same rule on the looser input cost 0.9 - thirty times as much for
+a third less exposure. And 1.25 is not a knife-edge: everything from 1.15 to 1.30 buys the same
+fourth block at the same price, because the granularity is a whole BCH block, and even 1.90 costs
+0.11. Matching `AGING_HEADROOM` keeps one rule instead of two, and the flatness is what makes that
+free rather than lucky.
+
+Two implementation notes, both the same defect twice avoided.
+
+The rule lives in `research/selection_entropy.py` and both the model and the checker import it. The
+aging rule spent three loops living in a checker while the model recommended constructions that did
+not meet it - W-INTL-205 - and this is the same rule about the same kind of input.
+
+And the derated density is a second quantity, not a replacement. The first attempt here set
+`RHO = working_density()` in both files, and the model then reported 0.6399 as "the post-selection
+density" - a figure no measurement predicts and no document should carry. The construction is SIZED
+against the derated figure and REPORTS the measured one, under two names. That is the third time in
+three loops that the defect was a name rather than a number, and the second time it was this exact
+quantity.
+
+Four stale literals surfaced while landing this, all the same shape: a figure the recommendation
+determines, written down instead of computed, and correct until the recommendation moved.
+
+  research/aging_margin.py     tolerated_ber(blocks=3)   a tolerance for a construction nobody builds
+  research/burn_in.py          a third copy of the same bisection, same stale default
+  research/pointer_vs_linear.py BLOCKS = 3               compared against a superseded design
+  research/borrowed_margins.py K_TOTAL = 57 * 3          every margin swept at the wrong k
+
+The first one is the instructive one. Its own comment predicted it exactly - "if the recommendation
+moves and these do not, this file computes a tolerance for a construction nobody is building" - and
+named the cross-check that would catch it. The cross-check did not: it compares to one decimal place,
+and 10.8378 against 10.9 is inside the tolerance. A prediction written down and not acted on is not a
+mitigation, and a tolerance wide enough to hide the thing it guards is not a check. Tolerance
+tightened to half a printed digit; all four derived.
+
+That correction moved the tolerated bit error rate from 0.014259 to 0.013873, and with it the flip
+rate's margin from 1.41 to 1.40 and the fresh error rate's from 1.65 to 1.63. Small, and they had
+been quoted in a document that nothing could contradict until W-INTL-224 bound them.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5924,6 +5983,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-228 | closed; DENSITY_HEADROOM 1.25 applied to the tightest borrowed input, which had carried no rule while the looser one carried 0.9 of a tile - 3.44 to 3.46 tiles, a fourth BCH block, and the after-selection floor from 0.7485 to 0.5614 |
 | W-INTL-227 | closed; the joint-table binding made the figure check 1.8x slower and cascaded 60x through input coverage - split, cached and 59s back to 43s - and its table was labelled with the opposite of the direction it measures |
 | W-INTL-226 | closed; a background check that perturbs inputs in place had a commit taken across it, shipping three falsified constants - restore-on-signal and a marker file added, and CI rather than local discipline is what caught it |
 | W-INTL-225 | closed; the two tightest borrowed figures swept jointly - they act through one knob, so a worse flip rate is answered by deeper selection and paid for in density, and no fraction satisfies both below a raw density of 0.85 |

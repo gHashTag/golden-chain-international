@@ -65,6 +65,22 @@ ND = NormalDist()
 # from the measured min-entropy density: a density rho corresponds to a most-likely
 # value of probability 2^-rho, and a mean of Phi^-1 of that.
 
+def working_density():
+    """The declared min-entropy density, derated by the headroom rule. W-INTL-228.
+
+    Every construction is sized against this rather than against MIN_ENTROPY_DENSITY, so
+    the design still yields a key if the borrowed figure is wrong by up to DENSITY_HEADROOM.
+    It is the tightest borrowed input in this work at 1.13 times in hand (W-INTL-224), it is
+    measured on FPGAs at room temperature under a pairing this design does not use, and
+    until W-INTL-228 it was the only borrowed input carrying no rule.
+
+    Lives here and not in a checker. The aging rule spent three loops in check_ files while
+    the model recommended constructions that did not meet it - W-INTL-205 - and this is the
+    same rule about the same kind of input.
+    """
+    return I.MIN_ENTROPY_DENSITY / I.DENSITY_HEADROOM
+
+
 def mean_for_density(rho):
     """Offset of the difference distribution that reproduces a min-entropy density."""
     return ND.inv_cdf(2.0 ** -rho)

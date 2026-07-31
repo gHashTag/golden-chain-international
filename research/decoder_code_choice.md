@@ -1004,7 +1004,7 @@ Two more codes, chosen further below the edge, moved the whole picture:
 <!-- derived:external --> | BCH(255,55,31) | 152,170 | 8.44 | 0.8299 | 4.34 percent |
 
 BCH(127,29,21) is **cheaper than the recommendation it challenges** - 4.42 tiles of decoder
-against 4.82 - and tolerates entropy density down to 0.7485 against 0.8706. It costs error
+against 4.82 - and tolerates entropy density down to 0.5614 against 0.8706. It costs error
 tolerance, 4.42 percent against 5.23.
 
 So the flatness held where I sampled and did not hold where I had not. The correction is
@@ -4289,20 +4289,26 @@ recommendation failed:
 |---|---|---|---|---|
 <!-- derived:external --> | inverter area | 3.76 | 269.5 above | **71.8x** | a published tile's inverter count; cross-checked against the library |
 <!-- derived:external --> | tile utilisation | 0.5795 | 0.1244 below | **4.66x** | a 1x2-tile design, applied to one of 3.4 tiles |
-<!-- derived:external --> | fresh error rate | 0.0600 | 0.0987 above | **1.65x** | this project's own working figure rather than a measurement |
-<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1092 above | **1.41x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
-<!-- derived:external --> | min-entropy density | 0.9414 | 0.8303 below | **1.13x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
+<!-- derived:external --> | fresh error rate | 0.0600 | 0.09773 above | **1.63x** | this project's own working figure rather than a measurement |
+<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1084 above | **1.4x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
+<!-- derived:external --> | min-entropy density | 0.9414 | 0.6957 below | **1.35x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
 
 **The tightest is the min-entropy density, not the aging figure.**
 
 That corrects something this work has been saying for three loops. `AGING_HEADROOM` was introduced
 with the sentence "the aging input is the least trustworthy figure in this work", and 0.9 of a tile
 was spent on the strength of it. The aging figure has the most alien provenance - simulated, another
-node, another cell - but it has 1.41 times in hand. The entropy density has **1.13**, and three of
+node, another cell - but it had 1.41 times in hand. The entropy density had **1.13**, and three of
 its four conditions differ from this design: measured on FPGAs rather than an ASIC, at room
 temperature only, and under disjoint pairing where this design reuses oscillators across pairs.
 
-Two figures, both borrowed, and the one with the better story has less room.
+Two figures, both borrowed, and the one with the better story had less room.
+
+**Past tense, because the table above is after the fix.** W-INTL-228 applied the same 1.25 rule
+to the density that the aging figure had carried since W-INTL-196, and the fourth BCH block it
+buys takes the density from 1.13 to **1.35** and the flip rate from 1.41 to **1.40** - the two
+tightest borrowed inputs now sit within four percent of each other, which is what a margin rule
+applied to every input of its kind is supposed to produce. It cost 0.03 of a tile.
 
 The 1.13 is a correction to the 1.26 this table first carried, and the correction is the same class
 of error as the finding itself. The floor was computed as the density needed to carry the key, which
@@ -4315,12 +4321,11 @@ one knob. A worse flip rate is answered by selecting harder, and selecting harde
 
 | declared density | flip 8% | 9% | 11% | 13% | 15% |
 |---|---|---|---|---|---|
-<!-- derived:external --> | 0.9414 | 65% | 60% | 50% | 45% | 35% |
-<!-- derived:external --> | 0.8700 | 65% | 60% | 50% | 45% | 35% |
-<!-- derived:external --> | 0.8500 | 65% | 60% | 50% | 45% | --- |
-<!-- derived:external --> | 0.8300 | 65% | 60% | --- | --- | --- |
-<!-- derived:external --> | 0.8000 | --- | --- | --- | --- | --- |
-
+<!-- derived:external --> | 0.9414 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.8700 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.8500 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.8300 | 65% | 60% | 50% | 40% | 35% |
+<!-- derived:external --> | 0.8000 | 65% | 60% | 50% | 40% | 35% |
 Each cell is the largest fraction of positions that can be retained while meeting both constraints; `---` is none. Read across the
 top row and the flip rate is not the 1.41x its own row reports - fifteen percent is absorbed, because
 that row froze the selection fraction and the fraction is free. Read down the left and the density

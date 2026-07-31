@@ -43,6 +43,27 @@ HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install
 #
 # Deliberately one figure each. This is not a test suite; it is a tripwire on the number
 # each model exists to produce.
+def _pointer_oscillators():
+    """Oscillators the pointer family needs at the current recommendation. W-INTL-228.
+
+    Was the literal 56, which was its count under the three-block construction. A
+    tripwire holding a figure that the recommendation determines goes stale exactly when
+    the thing it guards does.
+    """
+    import importlib
+    P = importlib.import_module("pointer_vs_linear")
+    return P.pairs_for(P.CODE[0] * P.BLOCKS * P.IBS_BLOCK)
+
+
+def _k_total(I):
+    """Bits of k the recommendation carries, recomputed here on an independent path."""
+    import importlib
+    SE = importlib.import_module("selection_entropy")
+    rho = SE.density_for_bias(
+        SE.selected_bias(SE.mean_for_density(SE.working_density()), I.SELECTION_LOSS)[0])
+    return -(-int(I.KEY_BITS / rho) // 57) * 57
+
+
 def _density_floor(I, R):
     """The declared min-entropy density below which the key stops fitting the code.
 
@@ -56,7 +77,7 @@ def _density_floor(I, R):
     for _ in range(50):
         mid = (lo + hi) / 2
         after = SE.density_for_bias(SE.selected_bias(SE.mean_for_density(mid), 1 - keep)[0])
-        if I.KEY_BITS / after <= 57 * 3:
+        if I.KEY_BITS / after <= _k_total(I):
             hi = mid
         else:
             lo = mid
@@ -74,9 +95,9 @@ def _expected():
     absorbable = C.absorbable_flip() * 100
     return {
         "aging_margin.py": (
-            r"survives an unselected ten-year flip rate up to ([\d.]+)%", absorbable, 0.1),
+            r"survives an unselected ten-year flip rate up to ([\d.]+)%", absorbable, 0.06),
         "burn_in.py": (
-            r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.1),
+            r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.06),
         # Recomputed here through selection_entropy rather than imported from the model,
         # so the tripwire is an independent path. The first version of this entry copied
         # the model's own floor - KEY_BITS/k with no selection term - and so agreed with
@@ -97,7 +118,7 @@ def _expected():
             C.recommendation()[0] - I.tiles(
                 I.decoder_area(7, 11) + I.POINTER_AREA["ibs_select_block4"]
                 + I.COUNTERMEASURE_AREA["spongent_permutation"]
-                + 56 * I.OSCILLATOR_AREA), 0.02),
+                + _pointer_oscillators() * I.OSCILLATOR_AREA), 0.02),
     }
 
 

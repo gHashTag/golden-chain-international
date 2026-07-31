@@ -45,14 +45,29 @@ import reliable_bit_selection as R
 from math import comb
 
 
-def tolerated_ber(n=127, t=11, blocks=3):
-    # The defaults are the current recommendation, written here rather than imported,
-    # because a research model importing a checker inverts the layering. That coupling is
-    # not free: if the recommendation moves and these do not, this file computes a
-    # tolerance for a construction nobody is building. check_models_run.py compares what
-    # this prints against what the checker derives, so the divergence fails rather than
-    # sitting quietly - which is what it did under a perturbation that changed the
-    # recommended code. W-INTL-203.
+def recommended_blocks(k=57):
+    """Blocks the recommendation carries, derived from the density rule. W-INTL-228.
+
+    The block count used to be the literal 3 in this file's default argument, with a
+    comment saying what would happen if the recommendation moved and it did not: "this
+    file computes a tolerance for a construction nobody is building". It moved, to four,
+    and that is what happened. The cross-check named in that comment did not catch it -
+    it compares to one decimal place, and 10.8378 against 10.9 is inside the tolerance.
+
+    A prediction written down and then not acted on is not a mitigation. Derived now.
+    """
+    import selection_entropy as SE
+    rho = SE.density_for_bias(
+        SE.selected_bias(SE.mean_for_density(SE.working_density()), I.SELECTION_LOSS)[0])
+    return -(-int(I.KEY_BITS / rho) // k)
+
+
+def tolerated_ber(n=127, t=11, blocks=None):
+    # n and t are the recommendation's code, written here rather than imported, because a
+    # research model importing a checker inverts the layering. The block count is derived
+    # because it is the one the density rule moves - W-INTL-228.
+    if blocks is None:
+        blocks = recommended_blocks()
     """Largest bit error rate at which the code still meets the declared target."""
     lo, hi = 0.0, 0.5
     for _ in range(60):

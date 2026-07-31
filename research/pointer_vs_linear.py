@@ -32,7 +32,27 @@ import inputs as I
 import selection_entropy as SE
 
 CODE = (127, 57, 11)          # the recommendation
-BLOCKS = 3
+
+
+def _blocks():
+    """Blocks the recommendation carries, derived rather than written down.
+
+    BLOCKS was the literal 3 and went stale the moment the density headroom rule added a
+    fourth (W-INTL-228). It compared the pointer family against a construction the project
+    had stopped recommending, and would have kept doing so silently - the model runs, the
+    table prints, and only the tripwire in check_models_run noticed the tile gap had moved
+    from 0.16 to 0.19.
+
+    Fifth model in this project found pinned to a superseded operating point. The rule is
+    not "check the constants"; it is that a figure the recommendation determines has to be
+    computed from the recommendation.
+    """
+    rho = SE.density_for_bias(
+        SE.selected_bias(SE.mean_for_density(SE.working_density()), I.SELECTION_LOSS)[0])
+    return -(-int(I.KEY_BITS / rho) // CODE[1])
+
+
+BLOCKS = _blocks()
 IBS_BLOCK = 4                 # positions per output bit, from the measured datapath
 IBS_LOGIC = I.POINTER_AREA["ibs_select_block4"]
 COUNTERMEASURE = I.COUNTERMEASURE_AREA["spongent_permutation"]

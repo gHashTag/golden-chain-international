@@ -143,6 +143,21 @@ Provenance tells you how likely a number is to be wrong. Margin tells you how mu
 They are different questions and the second one is the one that decides where to spend, so compute it
 for every borrowed figure rather than ranking them by how uneasy each makes you feel.
 
+## Apply a margin rule to every input of its kind, or the rule is about your unease
+
+A design derated one borrowed figure by 1.25 and spent 0.9 of a tile doing it, on the grounds that
+it was the least trustworthy number in the work. Swept properly it had the second-most margin, and
+the tightest input carried no rule at all. The same 1.25 applied there cost 0.03 of a tile.
+
+When you write a headroom rule, enumerate every input of the same kind and say for each whether the
+rule applies and why. A rule with one member is a decision wearing a rule's clothes.
+
+Two details that made this cheap and safe. Check the rule's sensitivity: if 1.15 and 1.30 buy the
+same thing at the same price, the exact multiple is not load-bearing and you can match an existing
+rule instead of inventing a second one. And derate as a SECOND quantity, never in place - the design
+is sized against the derated figure and reports the measured one, because a document that states the
+derated number is stating something no measurement predicts.
+
 ## Two quantities with the same name may sit on opposite sides of a step that changes them
 
 The margin above was first computed as 1.26 and was wrong. The declared figure was measured before a
@@ -159,6 +174,23 @@ each one was taken on, and prefer names that carry the answer - `selected_ber_id
 When binding a rounded number in a document to the model that produces it, derive the tolerance from
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
+
+## A comment predicting a failure is not a mitigation
+
+A function's default argument carried the block count of the current design, with a comment saying
+what would happen if the design moved and the default did not - "this file computes a tolerance for
+a construction nobody is building" - and naming the cross-check that would catch it. The design
+moved. The comment was exactly right. The cross-check compared to one decimal place and 10.8378
+against 10.9 fell inside its tolerance.
+
+Two rules. When you find yourself writing down why something might go wrong, that is the moment to
+derive it instead of documenting it. And a tolerance must be set by the precision of what is
+compared - half a unit in the last printed place - never by what makes the current pair agree, or it
+is wide enough to hide the thing it guards.
+
+Corollary worth searching for directly: after any change to a design's headline construction, grep
+every model for literals of the quantities it determines. Four turned up in one loop, in four files,
+all correct when written.
 
 ## A new check's cost multiplies through whatever runs it
 
