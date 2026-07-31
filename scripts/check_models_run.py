@@ -43,6 +43,23 @@ HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install
 #
 # Deliberately one figure each. This is not a test suite; it is a tripwire on the number
 # each model exists to produce.
+def _burn_in_half():
+    """The selected error rate with half the ten-year drift applied before enrolment."""
+    import importlib
+    I = importlib.import_module("inputs")
+    R = importlib.import_module("reliable_bit_selection")
+    # The rescaling written out here rather than obtained by calling the function under
+    # test. The first version called aged_selected_ber_with_burn_in, so a control that
+    # broke that function moved both sides together and the tripwire stayed green - the
+    # same defect as the min-entropy tripwire in W-INTL-224, in the loop that cites it.
+    import math
+    sig_n = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    sig_a = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+    scale = math.sqrt(1.0 + sig_a * sig_a * 0.5)
+    return R.aged_selected_ber(sig_n / scale, sig_a * math.sqrt(0.5) / scale,
+                               1.0 - I.SELECTION_LOSS, I.ENROLMENT_READS)
+
+
 def _pointer_oscillators():
     """Oscillators the pointer family needs at the current recommendation. W-INTL-228.
 
@@ -96,8 +113,12 @@ def _expected():
     return {
         "aging_margin.py": (
             r"survives an unselected ten-year flip rate up to ([\d.]+)%", absorbable, 0.06),
-        "burn_in.py": (
-            r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.06),
+        "burn_in.py": [
+            (r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.06),
+            # The widening arm at half the drift before enrolment - W-INTL-234. Bound
+            # because the row it checks was unbound for as long as it took to notice.
+            (r"\n\s+50%\s+[\d.]+\s+([\d.]+)\s", _burn_in_half(), 5e-6),
+        ],
         # Recomputed here through selection_entropy rather than imported from the model,
         # so the tripwire is an independent path. The first version of this entry copied
         # the model's own floor - KEY_BITS/k with no selection term - and so agreed with
@@ -152,17 +173,26 @@ def main():
             continue
         if path.name not in expected:
             continue
-        pattern, want, tol = expected[path.name]
-        m = re.search(pattern, result.stdout)
-        if not m:
-            failures.append(f"{path.name}: prints no figure matching {pattern!r}")
-            continue
-        checked += 1
-        got = float(m.group(1))
-        if abs(got - want) > tol:
-            failures.append(
-                f"{path.name}: prints {got:g} where inputs give {want:.4g} "
-                f"(tolerance {tol})")
+        # One entry may carry several figures. It was one apiece - "deliberately one
+        # figure each; this is not a test suite" - and that held while each model printed
+        # one thing worth pinning. W-INTL-234 added a burn-in table to burn_in.py whose
+        # rows no check could see, because the slot for that file was already taken by
+        # the absorbable flip rate. A tripwire per model is a rule about how many, and the
+        # figure that matters is not always the first one written.
+        entries = expected[path.name]
+        if isinstance(entries, tuple) and entries and isinstance(entries[0], str):
+            entries = [entries]
+        for pattern, want, tol in entries:
+            m = re.search(pattern, result.stdout)
+            if not m:
+                failures.append(f"{path.name}: prints no figure matching {pattern!r}")
+                continue
+            checked += 1
+            got = float(m.group(1))
+            if abs(got - want) > tol:
+                failures.append(
+                    f"{path.name}: prints {got:g} where inputs give {want:.4g} "
+                    f"(tolerance {tol})")
 
     for f in failures:
         print(f"FAIL: {f}")

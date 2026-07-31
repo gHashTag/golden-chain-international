@@ -6084,6 +6084,60 @@ A check that watches seven quantities is silent about the eighth, and the eighth
 writes down. Cell area is watched now. That does not close the class, and the honest statement is
 that this rule catches what it enumerates.
 
+## W-INTL-234  Burn-in widens the difference selection ranks on, and the answer is still no
+
+Severity: modelling, with a negative result that protects an area decision.
+
+W-INTL-232 corrected the aging model and named one assumption it did not model: no aging at enrolment.
+That is right for a part enrolled at manufacture and wrong under burn-in, which is the one policy
+`research/burn_in.py` exists to evaluate. This closes it.
+
+Split the ten-year drift by variance: a fraction f before enrolment, the rest after. The
+pre-enrolment part is not an error - the enrolled reference already contains it - and burn_in.py
+already assumed that much. What it did not carry is that the quantity selection ranks on becomes
+d + drift_pre, which is WIDER than d. Reliable-bit selection keeps the positions furthest from zero,
+and a wider distribution puts more of them further out, so burn-in improves the ranking as well as
+shrinking the residual.
+
+  drift before enrolment   residual only   and widening   total flip absorbed
+                       0%       0.003677       0.003677                 11.0%
+                      25%       0.002167       0.002059                 12.8%
+                      50%       0.001048       0.000931                 16.1%
+                      75%       0.000356       0.000287                 25.2%
+
+Eleven percent better at half the drift, twenty-six at three quarters. Rescaling by
+sqrt(1 + sigma_pre^2) puts it back in the model's own units, so it needs no new integral.
+
+**The conventional ring still does not qualify.** It needs 32.4 percent and does not reach it at any
+burn-in depth this model can be trusted at. The trust boundary is stated in the function and it is
+close: the split assumes the post-enrolment drift is independent of the pre-enrolment drift, which is
+reasonable while the drift is small against the manufacturing difference and stops being so when it
+dominates. Past about half, the identity is largely a record of burn-in stress rather than of
+manufacturing, continuing degradation is unlikely to be independent of what preceded it, and a change
+of workload would move it. So the figures past half are a direction and not a number, and the
+aging-resistant oscillator remains a requirement rather than a preference. This changes the margin
+and not the decision.
+
+### Two apparatus defects found writing it
+
+The burn-in table was unbound. `check_models_run` carried one figure per model - "deliberately one
+figure each; this is not a test suite" - and the slot for `burn_in.py` was already taken by the
+absorbable flip rate, so a new table could print anything. A rule about how many figures to pin is a
+rule about which ones go unpinned, and the figure that matters is not always the first one written.
+Entries may now carry several.
+
+And the tripwire for the new row obtained its expected value by calling the function under test, so a
+control that broke that function moved both sides together and the check stayed green. That is
+exactly W-INTL-224 - a tripwire recomputing through its own subject - repeated in the loop that cites
+it. The rescaling is written out in the checker now, on an independent path.
+
+### A gap closed after being printed twice
+
+`check_no_stale_literals` covers a bare `return <literal>` from a function whose name names a
+determined figure. It was printed as a known gap for two loops, and in both of them the new stale
+literals turned up outside what the check covered. Printing a gap is cheaper than closing one and
+was, twice, not enough.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6259,6 +6313,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-234 | closed; burn-in also widens the difference selection ranks on, worth 11 percent at half the drift and 26 at three quarters - the conventional ring still does not qualify at any depth the model can be trusted at, so the margin moves and the decision does not |
 | W-INTL-233 | closed; UTILISATION and INVERTER_AREA were labelled measured-there with 'same flow', and their numerators are this project's own synthesis of RTL the repository does not hold - the only two declared areas nothing re-measures, now recorded as such by a check |
 | W-INTL-232 | closed; the ten-year drift was combined with read noise in quadrature and the sum averaged over enrolment reads taken before the drift exists - pessimistic by 8 percent, six copies of the expression, one deleted, recommendation unchanged |
 | W-INTL-231 | closed; the borrowed entropy figure is a bitwise Shannon sum that the source paper calls an upper bound, not the min-entropy a fuzzy extractor needs - 0.9414 becomes 0.7162 on the paper's own model, six blocks instead of four, 3.46 to 3.51 tiles |

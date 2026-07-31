@@ -175,6 +175,35 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A limit on how many figures to pin is a decision about which ones go unpinned
+
+A tripwire harness allowed one figure per model, on the principle that it is a tripwire and not a
+test suite. That held while each model printed one thing worth pinning. Then a model grew a table,
+its slot was already taken, and the new rows could print anything.
+
+The rule was about economy and became a rule about coverage. When a deliberate cap exists, revisit it
+whenever the thing it caps grows — and say in the output how many figures are pinned, so the number
+that is not pinned is visible.
+
+## Model the assumption you wrote down, then find where it stops being believable
+
+A model named one assumption it did not implement — no aging before enrolment — and the next loop
+implemented it. Doing so found a second-order effect the original had missed entirely: the drift that
+precedes enrolment does not merely shrink the residual, it *widens the distribution the selection
+ranks on*, which helps again.
+
+Two habits. A named-and-not-modelled assumption is a work item, not a disclaimer; write it down that
+way. And when you implement it, find the point where the model stops being credible and state it in
+the same breath as the numbers — here the split assumes the post-drift is independent of the
+pre-drift, which fails once the drift dominates the quantity it perturbs, so the deep rows are a
+direction and not a number.
+
+## A gap you print is still a gap
+
+A check printed one known blind spot on every run for two loops. In both of those loops the new
+defects landed in exactly that blind spot. Printing is honest and is not a mitigation; schedule the
+closure or accept that the next finding will come from there.
+
 ## A ratio has two provenances, and they are rarely the same
 
 A utilisation factor was declared "measured there — same flow, same process". Its denominator was

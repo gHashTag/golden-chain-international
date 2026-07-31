@@ -108,8 +108,11 @@ def literal_names(tree):
     of this file handled only single names, so its own negative control did not fire. A
     check written from a memory of a bug rather than from the bug catches the memory.
 
-    Returns are not covered: a function whose body is `return 3` states a determined figure
-    just as plainly and is not seen here. That is a known gap, printed on every run.
+    Returns are covered as of W-INTL-234: a function whose body is `return 3` states a
+    determined figure as plainly as an assignment does, and it was printed as a known gap
+    for two loops while two new literals turned up outside what the check covered. The
+    function's own name is what gets matched, which is why `_blocks()` returning a literal
+    is caught and an anonymous helper is not.
     """
     out = []
     for node in ast.walk(tree):
@@ -126,6 +129,14 @@ def literal_names(tree):
                         if isinstance(name_node, ast.Name) and value is not None:
                             out.append((name_node.id, node.lineno, value))
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            # A function returning nothing but a number states that number under its own
+            # name. Only bare `return <literal>` counts: a return with any expression in
+            # it is a computation, and that is the thing this check wants to see.
+            for stmt in ast.walk(node):
+                if isinstance(stmt, ast.Return):
+                    value = _number(stmt.value) if stmt.value is not None else None
+                    if value is not None:
+                        out.append((node.name, stmt.lineno, value))
             args = node.args
             positional = args.posonlyargs + args.args
             for arg, default in zip(positional[len(positional) - len(args.defaults):],
@@ -229,8 +240,8 @@ def main():
           f"matched by value, {len(DETERMINED_STEMS)} name stems matched)")
     print(f"  not matched by value, too round to distinguish from a loop count: "
           f"{skip_note}")
-    print("  not covered: a determined figure returned directly (`return 3`) rather than "
-          "bound to a name")
+    print("  covered as of W-INTL-234: a bare `return <literal>` from a function whose "
+          "name names a determined figure")
     return 0
 
 

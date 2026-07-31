@@ -51,6 +51,24 @@ import reliable_bit_selection as R
 
 TEN_YEARS = 10.0
 FLIP_TEN_YEAR = I.AGED_FLIP_CONVENTIONAL   # conventional bank, DATE 2014
+def absorbed_at(pre_fraction):
+    """Total ten-year flip rate absorbed when a burn-in precedes enrolment. W-INTL-234."""
+    from math import sqrt
+    keep = 1.0 - I.SELECTION_LOSS
+    tol = tolerated_ber()
+    lo, hi = 0.0, 0.95
+    for _ in range(30):
+        mid = (lo + hi) / 2
+        if R.aged_selected_ber_with_burn_in(R.sigma_for_raw_ber(I.RAW_NOISE_BER),
+                                            R.sigma_for_raw_ber(max(mid, 1e-6)),
+                                            pre_fraction, keep, I.ENROLMENT_READS,
+                                            steps=1200) <= tol:
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
 def absorbed_flip():
     """What the construction absorbs post-enrolment - derived, because it moves.
 
@@ -151,3 +169,27 @@ if __name__ == "__main__":
     print("   It remains useful as a supplement: applied to a bank that already meets the")
     print("   requirement, it widens the margin rather than creating it.")
     print("   'No area cost' was true and was not the cost that mattered.")
+
+    print("\n5. what enrolling after part of the drift actually buys - W-INTL-234")
+    from math import sqrt as _sqrt
+    SIGMA_NOISE = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    SIGMA_AGE_R = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+    KEEP = 1.0 - I.SELECTION_LOSS
+    print("   This file removed the pre-enrolment drift from the residual and stopped")
+    print("   there. It also widens the difference that selection ranks on, because the")
+    print("   enrolled quantity is d + drift_pre and that is broader than d. Both arms:")
+    print(f"   {'drift before enrolment':>24} {'residual only':>14} {'and widening':>13}"
+          f" {'absorbed':>9}")
+    for f in (0.0, 0.25, 0.50, 0.75):
+        narrow = R.aged_selected_ber(SIGMA_NOISE, SIGMA_AGE_R * _sqrt(1 - f), KEEP,
+                                     I.ENROLMENT_READS)
+        wide = R.aged_selected_ber_with_burn_in(SIGMA_NOISE, SIGMA_AGE_R, f, KEEP,
+                                                I.ENROLMENT_READS)
+        print(f"   {f:>23.0%} {narrow:>14.6f} {wide:>13.6f} {absorbed_at(f):>8.1%}")
+    print("   The last column is the total ten-year flip rate the construction survives.")
+    print("   The conventional ring needs 32.4 percent and does not reach it at any")
+    print("   burn-in depth this model can be trusted at - see the note in")
+    print("   aged_selected_ber_with_burn_in, which stops being believable past about")
+    print("   half, where the identity becomes a record of burn-in stress rather than of")
+    print("   manufacturing. So this changes the margin and not the decision: the")
+    print("   aging-resistant oscillator is still a requirement.")
