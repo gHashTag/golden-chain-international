@@ -165,6 +165,8 @@ def main():
         # to share multipliers. Both were declared, neither was re-synthesised.
         "ro_characteriser":      ("ro_characteriser.v", I.CHARACTERISER_AREA[272],
                                   "NRO=272 CW=20 GATE=16"),
+        "ro_characteriser_38":   ("ro_characteriser.v", I.CHARACTERISER_AREA[38],
+                                  "NRO=38 CW=20 GATE=16"),
         "bm_area_probe":         ("bm_area_probe.v", I.SOLVER_AREA["parallel_t21_m7"],
                                   "T=21 M=7 RED=9"),
         "bm_serial":             ("bm_serial.v bm_area_probe.v",
@@ -240,10 +242,15 @@ def main():
         print(f"{'module':>22} {'declared':>10} {'measured':>10} {'delta':>8}")
         print("-" * 54)
         for name, (src, declared, params) in sorted(FIXED.items()):
+            # The dictionary key names the entry, not necessarily the module: two entries
+            # measure the same module at different parameters, because the instrument was
+            # costed for a bank seven times the size of the one in the design.
+            # W-INTL-212.
+            top = name.split("_38")[0] if name.endswith("_38") else name
             script = f"read_verilog -sv {src}; "
             for prm in params.split():
-                script += f"chparam -set {prm.split('=')[0]} {prm.split('=')[1]} {name}; "
-            script += (f"hierarchy -top {name}; synth -top {name} -flatten; "
+                script += f"chparam -set {prm.split('=')[0]} {prm.split('=')[1]} {top}; "
+            script += (f"hierarchy -top {top}; synth -top {top} -flatten; "
                        f"dfflibmap -liberty {LIB}; abc -liberty {LIB}; opt_clean; "
                        f"stat -liberty {LIB}")
             got = yosys_area(script)

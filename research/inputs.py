@@ -223,7 +223,12 @@ SLLC_AREA = {7: 2_158, 11: 3_176, 21: 4_746}
 # measured here: the characterisation structure's readout for a 272-oscillator bank, and
 # the smaller variant. The oscillators themselves are not synthesised - a ring oscillator
 # is a physical structure, not a logic cell - and are scaled from INVERTER_AREA above.
-CHARACTERISER_AREA = {272: 5_223, 64: 3_435}
+# 38 is the bank the recommendation actually uses; 272 and 64 were measured when the
+# oscillator floor was set by entropy rather than by the pairs the raw positions need, and
+# the entropy work took the bank from 341 to 38 without anyone re-measuring the
+# instrument. W-INTL-212: the readout was costed for a bank seven times the size of the
+# one in the design.
+CHARACTERISER_AREA = {272: 5_223, 64: 3_435, 38: 3_172}
 
 # measured here: the helper-data manipulation countermeasure. SPONGENT-88/80/8's
 # permutation, one round per clock. This replaces a figure borrowed from the thesis - 85

@@ -133,6 +133,25 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Extend the audit down a layer: hardware parameters are declared values too
+
+A pair audit over a project's declared inputs found what it was meant to. Extended into the hardware
+description - for every module parameter, which declared quantity does it name, do they agree - it
+found an instrument costed for a bank seven times the size the design had shrunk to, and a default
+encoding a count three revisions old.
+
+Configuration lives in more than one file and usually in more than one language. The audit is the
+same question each time and the layers do not check each other.
+
+## Module defaults are where stale numbers hide
+
+A parameter default is never instantiated by anything that matters, so nothing ever contradicts it.
+It sits looking like a specification while every real use overrides it, and the day someone reads it
+for the design intent, it lies.
+
+When a default encodes a design quantity rather than a placeholder, either bind it to the declared
+value or write next to it that it is not the design's number.
+
 ## Ask separately whether a value matters and whether anything reads its name
 
 Two checks look like the same check and are not. Perturbing an input and seeing whether anything
