@@ -57,6 +57,9 @@ def _expected():
             r"survives an unselected ten-year flip rate up to ([\d.]+)%", absorbable, 0.1),
         "burn_in.py": (
             r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.1),
+        "borrowed_margins.py": (
+            r"tightest: min-entropy density at ([\d.]+) times",
+            I.MIN_ENTROPY_DENSITY / (I.KEY_BITS / (57 * 3)), 0.02),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

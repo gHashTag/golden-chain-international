@@ -133,6 +133,19 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## The number with the worst provenance is not always the one with the least margin
+
+A design spent real area buying margin on the figure with the most alien provenance - simulated, a
+different process, a different cell. Swept properly, that figure had 1.41 times in hand and a
+different borrowed number had 1.26, with three of its four conditions also mismatched.
+
+Provenance tells you how likely a number is to be wrong. Margin tells you how much it costs if it is.
+They are different questions and the second one is the one that decides where to spend, so compute it
+for every borrowed figure rather than ranking them by how uneasy each makes you feel.
+
+Do it as one sweep: move each input alone until the design fails, and print the ratio. The row that
+comes out tightest is often not the one anybody was worrying about.
+
 ## A status that is only ever appended to will overstate what is open
 
 Forty-four findings were marked open. Ten had been answered by later work and never updated, and only
