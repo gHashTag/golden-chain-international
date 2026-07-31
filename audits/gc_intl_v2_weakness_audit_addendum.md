@@ -5876,6 +5876,12 @@ line unique to the function instead, and the mutation it applies is the historic
 dropping the selection term. Mutated, the model reports the ten-year flip rate as tightest at 1.40
 rather than the density at 1.35, which is the wrong answer arrived at honestly.
 
+A fifth turned up when the new rule ran in CI, in the one control over a file this repository does
+not own: `bias=15` matches three formats in the fetched catalog - binary16, fp8_e5m2 and gf14 - so it
+named no site, and which one got mutated depended on the order of a file in another repository.
+Qualified to `m=10 bias=15`, and verified to fire for the intended reason: the unmutated catalog
+passes, and the mutated one reports that binary16's bias does not satisfy the field rule.
+
 The underlying rule generalises past this repository. A negative control is an assertion about one
 site, and a string is not a site. Two controls in CI were additionally found pointing at values that
 no longer moved anything: one at a function parameter removed the same day, which failed with a

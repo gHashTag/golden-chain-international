@@ -140,7 +140,10 @@ jobs:
           curl -fsSL -o /tmp/catalog.t27 \
             https://raw.githubusercontent.com/gHashTag/t27/master/specs/numeric/formats_catalog.t27
           test -s /tmp/catalog.t27
-          for m in 'bias=15:bias=16' 'bits=16 s=1 e=5 m=10:bits=17 s=1 e=5 m=10' \
+          # 'bias=15' alone matches three formats - binary16, fp8_e5m2 and gf14 - so it
+          # names no site and control.py now refuses it. Qualified by the format it is
+          # meant to break. W-INTL-230.
+          for m in 'm=10 bias=15:m=10 bias=16' 'bits=16 s=1 e=5 m=10:bits=17 s=1 e=5 m=10' \
                    'id=binary16:id=binary32'; do
             python3 scripts/control.py /tmp/catalog.t27 "${m%%:*}" "${m##*:}" \
               -- python3 scripts/check_catalog.py /tmp/catalog.t27
