@@ -46,6 +46,13 @@ from math import comb
 
 
 def tolerated_ber(n=127, t=11, blocks=3):
+    # The defaults are the current recommendation, written here rather than imported,
+    # because a research model importing a checker inverts the layering. That coupling is
+    # not free: if the recommendation moves and these do not, this file computes a
+    # tolerance for a construction nobody is building. check_models_run.py compares what
+    # this prints against what the checker derives, so the divergence fails rather than
+    # sitting quietly - which is what it did under a perturbation that changed the
+    # recommended code. W-INTL-203.
     """Largest bit error rate at which the code still meets the declared target."""
     lo, hi = 0.0, 0.5
     for _ in range(60):

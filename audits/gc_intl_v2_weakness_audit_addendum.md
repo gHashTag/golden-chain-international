@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-202
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-203
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5203,6 +5203,31 @@ job rather than the fast one. Control breaks a key in the repaired table and fir
 does not check output: a model whose numbers are wrong is a different problem, and this covers the
 cheaper failure, which is the one that had happened.
 
+## W-INTL-203  Model output checked, not just that the model runs
+
+Severity: medium, and the control found a coupling nobody had seen.
+
+Running a model proves it does not raise, which is the cheapest failure and not the interesting one.
+A model can run perfectly and print a number that stopped being true three loops ago - which is what
+burn_in.py did with its absorbable flip rate, and what W-INTL-200 found by hand.
+
+check_models_run.py now carries one figure per model, recomputed from inputs.py and matched against
+what the model prints: the absorbable ten-year flip rate from two different routes, the
+NAND-to-inverter area ratio, and how far ahead the pointer family is in tiles. One each, deliberately
+- a tripwire on the number each model exists to produce rather than a test suite. Two controls: a
+model printing double its figure fires, and an input change that should move the figure fires.
+
+The second control found the coupling. Setting the enrolment read count to three made aging_margin.py
+print 9.2 where the checker derived 13.85, and the checker was right: with worse ranking the search
+recommends a stronger code, which tolerates more, so the absorbable rate rises. aging_margin.py had
+the construction written into its own defaults and was computing a tolerance for a code nobody would
+be building.
+
+Under the declared inputs they agree, which is why nothing had noticed. A model that hardcodes the
+conclusion it is analysing is correct exactly until the conclusion moves. The coupling is stated in
+the file and the divergence now fails; the layering is left as it is, because a research model
+importing a checker inverts the dependency and the cross-check is the cheaper fix.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5372,6 +5397,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-198 | closed; three literals promoted to declared inputs, and the coverage sweep cannot see what was never declared |
 | W-INTL-200 | closed; four more derived or duplicated literals, one of which had already drifted from 9.2 percent to 10.9 |
 | W-INTL-201 | closed; the pointer datapath area was the one measured figure in its decision that the verifier never re-synthesised |
+| W-INTL-203 | closed; one output figure per model is now checked against the model, and the control found aging_margin computing a tolerance for a code nobody would be building |
 | W-INTL-202 | closed; nothing ran the models, and one had not run since the decoder areas were re-keyed |
 | W-INTL-199 | closed; the control-anchor sweep is a check in the fast job, retiring a hand habit performed twice |
 | W-INTL-197 | closed; the headroom filter inside the search loop took the check from twelve seconds to eighty-six, and is applied after sorting now |

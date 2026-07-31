@@ -88,6 +88,9 @@ jobs:
           python3 scripts/control.py research/code_choice_model.py \
             '(8, 18)' '(8, 99)' \
             -- python3 scripts/check_models_run.py
+          python3 scripts/control.py research/nand_ring.py \
+            'nand / inv:.4f' 'nand / inv * 2:.4f' \
+            -- python3 scripts/check_models_run.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
@@ -206,6 +209,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: cache the standard-cell liberty
+        id: liberty
+        uses: actions/cache@v4
+        with:
+          path: /tmp/sky130.lib
+          key: sky130-fd-sc-hd-tt-025C-1v80-v1
+      - name: fetch the standard-cell liberty
+        if: steps.liberty.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          # nand_ring.py reads cell areas from the liberty and degrades gracefully when it
+          # is absent - it prints "nothing measured, nothing claimed" and exits zero. That
+          # passes "the model runs" and fails "the model produced its figure", which is
+          # the difference between the two checks, demonstrated on the first CI run of the
+          # second one. W-INTL-204.
+          curl -fsSL -o /tmp/sky130.lib \
+            https://raw.githubusercontent.com/efabless/skywater-pdk-libs-sky130_fd_sc_hd/master/timing/sky130_fd_sc_hd__tt_025C_1v80.lib
+          test -s /tmp/sky130.lib
       - name: install what the models need
         run: python3 -m pip install --quiet -r requirements.txt
       - name: every model still runs
