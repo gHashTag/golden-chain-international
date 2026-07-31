@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-194 entries in the weakness audit. 161 closed, 33 open or deliberately deferred:
+195 entries in the weakness audit. 162 closed, 33 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -55,7 +55,7 @@ Of the open rows, 14 concern the identity root this work has been on; the rest a
 
 ## Checks
 
-13 checks, each with at least one control; 24 controls run in CI.
+14 checks, each with at least one control; 26 controls run in CI.
 
 | Check | What it establishes |
 |---|---|
@@ -69,6 +69,7 @@ Of the open rows, 14 concern the identity root this work has been on; the rest a
 | `check_inputs_are_read.py` | Every declared input must be read by something, or be listed as retained with a reason. |
 | `check_models_run.py` | Every model in research/ must still run. |
 | `check_module_hygiene.py` | No analysis module may run its demonstration on import. |
+| `check_no_stale_literals.py` | No model may write down a figure the recommendation determines. |
 | `check_status_current.py` | STATUS.md must match what its generator produces. |
 | `check_testbench_coverage.py` | Every declared decoder area must have a testbench that exercises its code. |
 | `check_units.py` | Every ratio in inputs.py must say what units its numerator and denominator are in. |

@@ -8,7 +8,17 @@ import hashlib, random, sys
 sys.path.insert(0, __file__.rsplit('/',1)[0])
 from math import comb
 
-M, RED_POLY, T, K = 7, 0x09, 21, 29
+def _recommended():
+    """(t, k, blocks) of the recommendation. Same drift as W-INTL-229, same file family."""
+    import sys as _s
+    _s.path.insert(0, __file__.rsplit("/", 1)[0])
+    import selection_with_bch as S
+    _, k, t, blocks = S.recommended_code()
+    return t, k, blocks
+
+
+T, K, RECOMMENDED_BLOCKS = _recommended()
+M, RED_POLY = 7, 0x09
 N = (1 << M) - 1
 MASK = N
 
@@ -159,7 +169,7 @@ if __name__ == "__main__":
         return bytes(a ^ b for a, b in zip(ks, kw))
 
 
-    BLOCKS = 5
+    BLOCKS = RECOMMENDED_BLOCKS
     print(f"\nSLLC over {BLOCKS} blocks, {N*BLOCKS} raw response bits, "
           f"{K*BLOCKS} key bits before compression")
     print(f"{'ber':>6} {'trials':>7} {'recovered':>10} {'model':>11}")

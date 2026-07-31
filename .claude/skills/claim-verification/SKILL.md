@@ -175,6 +175,32 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Write the check from the bug, not from your memory of the bug
+
+A check written to catch stale literals handled single-name assignments. The defect it was written
+for had been written as a tuple. Both its negative controls passed silently — it would not have
+caught, in the form it actually appeared, the thing it existed for.
+
+Then its list of watched names missed one on the second control, because an enumeration covers the
+names its author thought of and the stale value is written by whoever did not. Stems instead of
+names. The stems then flagged a declared input, so the declaration file is skipped with a reason.
+
+Three corrections, all found by controls failing to fire. **A control that does not fire is the only
+evidence you have that a check tests a memory rather than the bug.** Write the control by pasting
+the original defect back in verbatim — if that does not turn the check red, the check is about
+something else.
+
+## Fixing a stale literal with a better literal is not a fix
+
+A file exercised a superseded code for six loops, was noticed, and was fixed by writing the
+then-current values in place. It went stale again across four more moves and nothing noticed the
+second time, because a corrected literal fails exactly like an uncorrected one and the correction
+consumed the attention that would have found it.
+
+If a quantity has drifted once, the fix is to derive it. And check what depends on it: the file in
+question was the end-to-end run the whole argument rested on, so for four moves the "model and
+implementation agree" claim was two witnesses to a design nobody was building.
+
 ## A comment predicting a failure is not a mitigation
 
 A function's default argument carried the block count of the current design, with a comment saying

@@ -103,6 +103,43 @@ def sized_density_at(fraction):
     """The same, at the derated density the design is sized against. W-INTL-228."""
     return SE.density_for_bias(SE.selected_bias(MU_SIZED, 1.0 - fraction)[0])
 
+def recommended_code():
+    """(n, k, t, blocks) of the construction this project recommends. W-INTL-229.
+
+    The one research-side answer to "which code are we building". Five models had written
+    it down instead - two of them a code four moves out of date, in the file this project
+    cites as its two-witness end-to-end argument - and the checker was the only place that
+    computed it. A research model importing a checker inverts the layering, so the
+    quantity lived nowhere a model could ask for it, and each one kept its own copy.
+
+    Deliberately the same search the sweep runs, at the declared fraction, so a divergence
+    between this and check_figures_reproduce.recommendation() is a real disagreement
+    rather than two spellings of one.
+    """
+    frac = 1.0 - I.SELECTION_LOSS
+    eff = R.selected_ber_counts_exact(R.sigma_for_raw_ber(I.RAW_NOISE_BER), frac,
+                                      I.ENROLMENT_READS)
+    need_k = need_k_at(frac)
+    best = None
+    for m in (7, 8):
+        n = (1 << m) - 1
+        for t, k in bch_table(m):
+            if I.decoder_area(m, t) is None or t not in I.SLLC_AREA:
+                continue
+            blocks = -(-need_k // k)
+            if word_fail(n, t, blocks, eff) > I.TARGET_FAILURE:
+                continue
+            if m == 7 and not AM.meets_aging_headroom(t, k, blocks):
+                continue
+            raw_pos = int(n * blocks / frac + 0.999)
+            osc = max(floor_ent(KEY), _r(raw_pos))
+            tiles = I.tiles(I.decoder_area(m, t) + I.SLLC_AREA[t]
+                            + osc * I.OSCILLATOR_AREA)
+            if best is None or tiles < best[0]:
+                best = (tiles, n, k, t, blocks)
+    return best[1:] if best else None
+
+
 # The sweep runs under a main guard so that a checker can import this module and
 # call density_at() without executing three tables. A module that computes on
 # import cannot be cross-checked against, which is how two files came to report

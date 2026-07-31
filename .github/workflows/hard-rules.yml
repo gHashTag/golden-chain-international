@@ -173,6 +173,18 @@ jobs:
         run: |
           set -e
           python3 scripts/check_generated_rtl.py
+      - name: no model writes down a figure the recommendation determines
+        run: |
+          set -e
+          python3 scripts/check_no_stale_literals.py
+          # Both forms it has actually appeared in: a tuple assignment, which the first
+          # version of the check missed on its own control, and a bare determined value.
+          python3 scripts/control.py research/key_generator_e2e.py \
+            'T, K_BITS, BLOCKS = _recommended()' 'T, K_BITS, BLOCKS = 21, 29, 23' \
+            -- python3 scripts/check_no_stale_literals.py
+          python3 scripts/control.py research/borrowed_margins.py \
+            'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
+            -- python3 scripts/check_no_stale_literals.py
       - name: every declared input is read
         run: |
           set -e

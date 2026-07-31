@@ -5808,6 +5808,50 @@ That correction moved the tolerated bit error rate from 0.014259 to 0.013873, an
 rate's margin from 1.41 to 1.40 and the fresh error rate's from 1.65 to 1.63. Small, and they had
 been quoted in a document that nothing could contradict until W-INTL-224 bound them.
 
+## W-INTL-229  The end-to-end run was witnessing a construction nobody builds
+
+Severity: high. It is the file this project cites for its two-witness argument.
+
+W-INTL-228 found four models pinned to a superseded construction and fixed them by hand. The count
+was four because that is how many turned up before the loop ended, not because anything had looked.
+`scripts/check_no_stale_literals.py` looks, and found two more.
+
+`research/key_generator_e2e.py` exercised BCH(127,29,21) in 23 blocks. The recommendation is
+BCH(127,57,11) in four. That file's own header records the previous instance - it ran BCH(127,22,23)
+for six loops after the recommendation moved - and the fix applied then was to write a better
+literal. It went stale again across four further moves, and this time nothing noticed at all, because
+a corrected literal fails exactly like an uncorrected one. `research/sllc_key_generator.py` was on
+the same code with five blocks.
+
+Re-pointed, the chain agrees with the model where it is supposed to: observed word failure 0.283
+against a predicted 0.284 at a six percent bit error rate, 0.770 against 0.783 at eight, 0.992
+against 0.98 at ten. The two-witness argument now has the right two witnesses. It did not before, and
+the evidence ledger has been citing it.
+
+The residual is named rather than closed. `aging_margin.py` still defaults k to 57, because
+`selection_with_bch` imports it to apply the aging rule inside its own search and asking back is a
+cycle. If the recommended code's k moves while its t does not, that default is wrong and nothing
+says so.
+
+### The check missed its own bug on the first attempt
+
+Both negative controls passed silently. The defect this check exists for was written as a tuple -
+`M, RED, T, K_BITS = 7, 0x09, 21, 29` - and the first version handled only single-name assignment
+targets. It would not have caught, in the form it actually appeared, the thing it was written for.
+
+Then the exact-name list missed `RECOMMENDED_BLOCKS` on the second control, which is what an
+enumeration always does: it covers the names its author thought of, and a stale literal is written by
+whoever did not. Stems now. The stems immediately produced a false positive on
+`INVERTERS_PER_OSCILLATOR` in the declaration file, which is a declared input and the opposite of a
+determined figure, so `inputs.py` is skipped with the reason.
+
+Three corrections in one check, all found by its own controls failing to fire. A control that does
+not fire is the only evidence that a check is testing a memory of a bug rather than the bug.
+
+Two gaps stay open and are printed on every run: a determined figure returned directly rather than
+bound to a name is not seen, and the block count itself is too round to match by value against loop
+counts.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5983,6 +6027,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-229 | closed; the end-to-end chain and the SLLC generator were exercising BCH(127,29,21) while the recommendation is BCH(127,57,11) in four blocks - both re-pointed, a check added, and the check missed its own bug twice before its controls fired |
 | W-INTL-228 | closed; DENSITY_HEADROOM 1.25 applied to the tightest borrowed input, which had carried no rule while the looser one carried 0.9 of a tile - 3.44 to 3.46 tiles, a fourth BCH block, and the after-selection floor from 0.7485 to 0.5614 |
 | W-INTL-227 | closed; the joint-table binding made the figure check 1.8x slower and cascaded 60x through input coverage - split, cached and 59s back to 43s - and its table was labelled with the opposite of the direction it measures |
 | W-INTL-226 | closed; a background check that perturbs inputs in place had a commit taken across it, shipping three falsified constants - restore-on-signal and a marker file added, and CI rather than local discipline is what caught it |
