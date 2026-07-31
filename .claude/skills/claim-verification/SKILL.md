@@ -133,6 +133,26 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## A coverage sweep cannot see what was never declared
+
+A check perturbs every declared input and fails if nothing notices. It is a good check and it has a
+blind spot large enough to drive the previous three findings through: numbers that were never
+declared are not inputs to it. Three figures the whole analysis rested on sat as literals in four
+files, invisible to it, until they were moved.
+
+So run the sweep, and separately go looking for the numbers that are not in the file yet. The sweep
+verifies that what you declared is read. Nothing automatic verifies that what you rely on was
+declared - that one is still a reading job.
+
+## A habit performed twice will be forgotten on the third
+
+A ten-line consistency sweep was run by hand before two consecutive pushes, both times catching
+something. That is the moment to write it down as a check, not the moment to feel good about
+remembering.
+
+The tell is doing the same manual step twice for the same reason. Not three times - by the third you
+have already shipped the loop where you forgot.
+
 ## Spend the slack constraint to buy margin on the untrustworthy input
 
 A search found a construction twenty-six percent smaller that still met every stated requirement. It

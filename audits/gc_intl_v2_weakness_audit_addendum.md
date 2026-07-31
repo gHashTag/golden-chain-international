@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-197
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-199
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5124,6 +5124,39 @@ Also recorded: the filter is memoised, and its bisection is twenty steps over a 
 integral rather than forty over four thousand. It resolves to a millionth against an input known to
 two significant figures, and precision beyond the input it filters on is pure cost.
 
+## W-INTL-198  Three literals promoted to inputs, and the sweep's own limit
+
+Severity: medium, and the limit is the more useful half.
+
+0.06, 0.3241 and 0.0773 - the fresh-device error rate and the two published ten-year flip rates -
+lived as literals in four files. They are inputs by every definition this project uses.
+
+They were invisible to the input-coverage sweep for as long as they were literals, because a sweep
+over declared inputs cannot see a number that was never declared. That is the limit of the check
+added two loops ago: it verifies that what you declared is read, not that what you rely on was
+declared.
+
+Moved into inputs.py with provenance. The sweep judged them immediately: RAW_NOISE_BER and
+AGED_FLIP_RESISTANT are covered, AGED_FLIP_CONVENTIONAL is not - the design uses the aging-resistant
+bank, so nothing in the recommendation path reads the conventional figure. It is nonetheless what the
+whole aging argument runs against, so the ledger states it numerically and the check binds it.
+Seventeen inputs, sixteen covered, one deliberately unread.
+
+## W-INTL-199  The anchor sweep is a check now
+
+Severity: low, and it retires a hand habit performed twice.
+
+Every control names a specific string in a specific file, and a bound figure changes most loops here.
+When one does the control stops pointing at anything; the harness refuses to run rather than silently
+testing nothing, which is right and arrives one stale anchor per five-minute CI round.
+
+scripts/check_control_anchors.py asks whether each control would find its anchor without running any
+of them. Cheap enough for the fast job, reports all nine at once, and its own control - breaking an
+anchor inside the workflow file - fires.
+
+Run by hand before each of the last two pushes. A habit performed twice is a habit that will be
+forgotten on the third.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5290,6 +5323,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-191 | closed; every caller still used the bound one loop after the rename made it legible, and the achievable rate now has a deterministic closed form |
 | W-INTL-193 | closed; the tolerated error rate was a literal belonging to the superseded code, so every aging verdict was measured against a bar three times too low - the design still fits at 0.0040 against 0.0143 |
 | W-INTL-196 | closed; BCH(127,78,7) is twenty-six percent smaller and declined, because it absorbs 8.4 percent ten-year flip against a published 7.73 - recorded as AGING_HEADROOM rather than as a preference |
+| W-INTL-198 | closed; three literals promoted to declared inputs, and the coverage sweep cannot see what was never declared |
+| W-INTL-199 | closed; the control-anchor sweep is a check in the fast job, retiring a hand habit performed twice |
 | W-INTL-197 | closed; the headroom filter inside the search loop took the check from twelve seconds to eighty-six, and is applied after sorting now |
 | W-INTL-195 | closed; the coverage sweep took the fast job from twelve seconds to ten minutes and is now its own job |
 | W-INTL-194 | closed; input coverage is a check in CI, perturbing every declared scalar by a factor of four in each direction |

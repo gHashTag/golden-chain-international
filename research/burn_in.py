@@ -45,10 +45,11 @@ So the requirement 1 - (Tb/T)^n <= 0.183 gives Tb >= T * 0.817^(1/n).
 import sys
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
+import inputs as I
 import reliable_bit_selection as R
 
 TEN_YEARS = 10.0
-FLIP_TEN_YEAR = 0.3241        # conventional bank, DATE 2014
+FLIP_TEN_YEAR = I.AGED_FLIP_CONVENTIONAL   # conventional bank, DATE 2014
 FLIP_ABSORBED = 0.092         # what this construction absorbs post-enrolment
 EXPONENTS = (0.16, 0.20, 0.25, 0.30, 0.50)
 DIFFERENTIAL_SCALING = (1.0, 0.5)   # k in differential ~ t^(k*n); see assumption 2

@@ -3665,3 +3665,43 @@ an expensive place - one loop after it was recorded. The lesson transfers less r
 The second is smaller and worth stating: the filter is memoised and its bisection is twenty steps over
 a six-hundred-point integral rather than forty over four thousand. It resolves to a millionth, against
 an input known to two significant figures. **Precision beyond the input it filters on is pure cost.**
+
+## 134. Three literals promoted to inputs, and the sweep judged them immediately
+
+`0.06`, `0.3241` and `0.0773` - the fresh-device error rate and the two published ten-year flip rates
+- lived as literals in four files. They are inputs by every definition this project uses: one is the
+figure every effective rate is computed from, the other two are somebody else's measurement with
+conditions attached.
+
+They were invisible to the input-coverage sweep for as long as they were literals, because **a sweep
+over declared inputs cannot see a number that was never declared**. That is the limit of the check
+added two loops ago, and it is a limit worth stating plainly: it verifies that what you declared is
+read, not that what you rely on was declared.
+
+Moved into `inputs.py` with their provenance, and the sweep judged them on the next run:
+
+| Input | Verdict |
+|---|---|
+<!-- derived:external --> | `RAW_NOISE_BER` | covered |
+<!-- derived:external --> | `AGED_FLIP_RESISTANT` | covered |
+<!-- derived:external --> | `AGED_FLIP_CONVENTIONAL` | **nothing noticed** |
+
+The conventional bank's flip rate is unread by the recommendation path, because the design uses the
+aging-resistant bank. It is nonetheless the figure the entire aging argument runs against - it is what
+"the design must not use a conventional ring" means quantitatively - so the ledger now states it
+numerically and the check binds it. Seventeen inputs, sixteen covered, one deliberately unread.
+
+## 135. The anchor sweep is a check now
+
+Every control names a specific string in a specific file, and in this project a bound figure changes
+most loops. When one does, the control stops pointing at anything - the harness refuses to run rather
+than silently testing nothing, which is right and arrives **one stale anchor per five-minute CI
+round**.
+
+`scripts/check_control_anchors.py` asks whether each control would find its anchor, without running
+any of them. It is cheap enough for the fast job, it reports all nine at once, and its own control -
+breaking an anchor inside the workflow file - fires.
+
+This has been run by hand before each of the last two pushes. A habit performed twice is a habit that
+will be forgotten on the third, which is the entire content of W-INTL-157 and the reason it is worth
+mechanising a ten-line script.

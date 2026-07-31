@@ -165,7 +165,7 @@ def recommendation():
     rho_sel = SE.density_for_bias(
         SE.selected_bias(SE.mean_for_density(RHO), I.SELECTION_LOSS)[0])
     need_k = KEY_BITS / rho_sel
-    sigma = R.sigma_for_raw_ber(0.06)
+    sigma = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     # The achievable rate, not the bound - see W-INTL-191. Deterministic, so the check
     # does not move between runs.
     eff = R.selected_ber_counts_exact(sigma, fraction, I.ENROLMENT_READS)
@@ -203,7 +203,7 @@ def recommendation():
     # every code in two fields took this check from twelve seconds to eighty-six. Sorted
     # by area and walked in order, it is evaluated for one or two.
     for cand in sorted(candidates):
-        if absorbable_flip_for(cand[3], cand[2], cand[4]) >= 0.0773 * I.AGING_HEADROOM:
+        if absorbable_flip_for(cand[3], cand[2], cand[4]) >= I.AGED_FLIP_RESISTANT * I.AGING_HEADROOM:
             return cand
     return None
 
@@ -292,7 +292,7 @@ def aged_margin():
     import reliable_bit_selection as R
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
-    sig = sqrt(R.sigma_for_raw_ber(0.06) ** 2 + R.sigma_for_raw_ber(0.0773) ** 2)
+    sig = sqrt(R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2 + R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2)
     return tolerated_ber() / R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS)
 
 
@@ -301,7 +301,7 @@ def absorbable_flip():
     import reliable_bit_selection as R
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
-    base = R.sigma_for_raw_ber(0.06) ** 2
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
     lo, hi = 0.0, 0.99
     for _ in range(60):
         mid = (lo + hi) / 2
@@ -332,7 +332,7 @@ def absorbable_flip_for(t, k, blocks):
     from math import sqrt
     keep = 1.0 - I.SELECTION_LOSS
     tol = max_ber(127, t, blocks)
-    base = R.sigma_for_raw_ber(0.06) ** 2
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
     lo, hi = 0.0, 0.99
     for _ in range(20):
         mid = (lo + hi) / 2
@@ -387,6 +387,13 @@ def check_ledger_figures(rec):
         # The read count had no bound figure, so a control that set it to one changed
         # nothing a check could see - W-INTL-192. These two depend on it.
         ("ten-year margin",      r"a ten-year margin of ([\d.]+)", aged_margin(), 0.15),
+        # The conventional bank's flip rate was declared and unread - the design uses the
+        # aging-resistant bank, so nothing in the recommendation path touches it, and the
+        # coverage sweep said so the moment it became a declared input. It is the figure
+        # the whole aging argument is against, so the ledger states it and this binds it.
+        ("conventional flip rate",
+         r"loses ([\d.]+) percent of its response bits over ten years",
+         I.AGED_FLIP_CONVENTIONAL * 100, 0.05),
         ("absorbable flip rate", r"flip rate exceeds ([\d.]+) percent unselected",
          absorbable_flip() * 100, 0.15),
     ]
@@ -505,7 +512,7 @@ def main():
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
     n_bound = check_ledger_figures(rec) + check_register_figures(rec)
-    if n_bound < 24:
+    if n_bound < 25:
         failures.append(
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "
             f"how a number goes back to being a sentence")
