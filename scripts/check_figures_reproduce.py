@@ -556,7 +556,7 @@ def check_borrowed_table():
             continue
         for cell, flip in zip(cells, BM.JOINT_FLIP):
             bound += 1
-            keep = BM.deepest_feasible(density, flip)
+            keep = BM.largest_retained(density, flip)
             want = "---" if keep is None else f"{keep:.0%}"
             if cell != want:
                 failures.append(f"decoder_code_choice.md: joint cell ({density}, {flip}) "

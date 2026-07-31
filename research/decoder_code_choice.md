@@ -4321,7 +4321,7 @@ one knob. A worse flip rate is answered by selecting harder, and selecting harde
 <!-- derived:external --> | 0.8300 | 65% | 60% | --- | --- | --- |
 <!-- derived:external --> | 0.8000 | --- | --- | --- | --- | --- |
 
-Each cell is the deepest selection fraction meeting both constraints; `---` is none. Read across the
+Each cell is the largest fraction of positions that can be retained while meeting both constraints; `---` is none. Read across the
 top row and the flip rate is not the 1.41x its own row reports - fifteen percent is absorbed, because
 that row froze the selection fraction and the fraction is free. Read down the left and the density
 floor is not a single number either: it is 0.83 only while the flip rate stays near nominal, and 0.85

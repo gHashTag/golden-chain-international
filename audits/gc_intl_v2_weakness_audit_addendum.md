@@ -5679,7 +5679,7 @@ harder; selecting harder amplifies bias and costs entropy density. Sweeping them
 | 0.8300 | 65% | 60% | --- | --- | --- |
 | 0.8000 | --- | --- | --- | --- | --- |
 
-Each cell is the deepest selection fraction meeting both constraints at once; `---` is none.
+Each cell is the largest fraction of positions that can be retained while meeting both constraints; `---` is none. The error target is met by keeping fewer and the leakage constraint by keeping more, so this is the shallowest adequate selection - the table said "deepest" for a loop, which reads as the opposite of the finding.
 
 Two things the one-at-a-time pass could not say. The flip rate's 1.41x is an artefact of freezing the
 selection fraction: let it move and fifteen percent is absorbed. And the density floor is not one
@@ -5720,6 +5720,34 @@ concurrently with anything that reads what it writes.
 Worth stating plainly: CI caught this and local discipline did not, which is the first time in this
 workstream that the remote gate has been the one to find something. The apparatus was fine; the
 sequencing was not.
+
+## W-INTL-227  The new binding made the slowest check slower still, and the table was labelled backwards
+
+Severity: two defects in the check added by W-INTL-224, found by watching it run rather than by reading it.
+
+Binding the joint table took `check_figures_reproduce` from 33 to 59 seconds. That is unremarkable
+alone and is not alone: `check_input_coverage` runs every check once per declared input in both
+directions, sixty passes, so half a minute here is half an hour there. The CI job sat pending past
+twenty-five minutes, which is how it was noticed - no check reports its own cost, and nothing fails
+when one gets slower.
+
+The cause was structure, not arithmetic. Each cell tested an error constraint that depends only on
+the flip rate and a leakage constraint that depends only on the density, and computed both together,
+so the expensive half ran once per density instead of once per flip rate - five times more often
+than it needed to. Split and cached: the joint table went from most of the run to two seconds. The
+two bisections in the margin rows were separately doing forty halvings to resolve figures printed to
+four decimals; twenty resolve to 1e-6. Together 59 seconds back to 43, with every figure identical.
+
+The second defect is worse than the first. The table was headed "deepest selection fraction", and
+what it holds is the largest fraction that can be RETAINED. The error target is met by keeping fewer
+positions and the leakage constraint by keeping more; the answer is the shallowest adequate
+selection. Since the finding of W-INTL-225 is precisely that the two constraints pull in opposite
+directions, a heading naming the wrong direction reads as the opposite of the point. The function is
+now `largest_retained` rather than `deepest_feasible`, named for what it returns.
+
+Worth stating: this is the third correction in three loops where the defect was a name rather than a
+number - `selected_ber` for a bound, a density on the wrong side of selection, and now a fraction
+labelled by the direction it is not. The arithmetic in all three was right.
 
 ## Priority order
 
@@ -5896,6 +5924,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-227 | closed; the joint-table binding made the figure check 1.8x slower and cascaded 60x through input coverage - split, cached and 59s back to 43s - and its table was labelled with the opposite of the direction it measures |
 | W-INTL-226 | closed; a background check that perturbs inputs in place had a commit taken across it, shipping three falsified constants - restore-on-signal and a marker file added, and CI rather than local discipline is what caught it |
 | W-INTL-225 | closed; the two tightest borrowed figures swept jointly - they act through one knob, so a worse flip rate is answered by deeper selection and paid for in density, and no fraction satisfies both below a raw density of 0.85 |
 | W-INTL-224 | closed; W-INTL-223 compared a before-selection density against an after-selection floor, so its headline margin was 1.26 when the figure is 1.13; the tightest row was right and its number was not |

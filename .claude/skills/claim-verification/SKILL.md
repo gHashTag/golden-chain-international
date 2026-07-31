@@ -160,6 +160,16 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A new check's cost multiplies through whatever runs it
+
+Binding one more table took a checker from 33 to 59 seconds - unremarkable, except a coverage harness
+ran it sixty times, and the CI job stopped finishing. No check reports its own cost and nothing fails
+when one gets slower, so this is only ever noticed by watching a job sit pending.
+
+Two habits. When adding work to a check, look at what else invokes it and multiply. And when a cell
+tests two conditions, check whether they depend on different inputs - computing them together
+recomputes the expensive one once per value of the variable it does not depend on.
+
 ## Never commit while a tool that mutates the working tree is running
 
 A coverage check that perturbs a constant, runs the suite, and writes the value back makes the tree
