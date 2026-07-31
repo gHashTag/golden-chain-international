@@ -6033,6 +6033,57 @@ any source reachable now. That is a provenance status rather than a doubt about 
 is the difference between this input and the entropy one, where the paper was open and reading it
 found a 31 percent error.
 
+## W-INTL-233  Half measured there and half measured here, declared as one thing
+
+Severity: provenance, and a gap in the verification loop rather than in a number.
+
+Third borrowed input through the "which quantity is this" question, after the entropy figure
+(W-INTL-231, wrong kind) and the aging figure (W-INTL-232, right kind combined wrongly). This one is
+a ratio whose two halves come from different places, declared as though they came from one.
+
+`UTILISATION` = 20,900 / 36,064 was labelled "measured there: the published PUF tile declares 1x2
+tiles, 36,064 um^2, and holds 20,900 um^2 of standard cells. **Same flow, same process.**"
+
+The denominator is theirs. The numerator is ours: `research/puf_tile_budget.md` records it under
+"Synthesis of the published eight-bit implementation", performed in this repository on 2026-07-30.
+The published design's own reported cell area is not published, so "same flow" is the one thing that
+comment could not claim. `INVERTER_AREA` comes from the same run and carried the same label.
+
+The arithmetic survives the correction, and it is worth saying why rather than only that it does.
+The design's budget is a yosys cell-area sum, and so is the numerator, so both sides of the
+extrapolation are measured the same way and the ratio is the right thing to extrapolate. What it
+assumes is that the published design's flow produced about the cell area ours did. Fifteen percent
+larger and the true utilisation is 0.67 and this design is smaller than stated; fifteen percent
+smaller and it is 0.49 and this design is eighteen percent larger. The utilisation row of the
+borrowed-margin sweep says the recommendation survives down to 0.13, so the assumption is not
+load-bearing - but it is an assumption, and it was labelled a measurement.
+
+### The gap it exposed
+
+`verify_inputs.py` re-synthesises thirty-one declared areas and compares each against `inputs.py`.
+These two are not in that loop and cannot be, because the RTL they came from is not in this
+repository. They look exactly like the thirty-one verified figures and are the only two that no tool
+here has re-run since the day they were written.
+
+Same shape as W-INTL-201 one level out: there a measured area sat outside the verify loop and the fix
+was to add it; here the loop cannot reach it. So the rule is not that everything must be re-measured.
+It is that the set of things nothing re-measures must be written down, with why, and must not grow
+silently. `scripts/check_areas_reverifiable.py` fails if a declared area is in neither set. Five are
+recorded as not re-measurable - the two above, the transistor-width ratio, the specified tile size,
+and the oscillator area that is a product of three of them.
+
+### A stale literal the new check was silent about
+
+`borrowed_margins.py` carried `CELLS = 35_905` with a comment naming its source, and an oscillator
+count of 38 written into two expressions beside it. Both went stale across the density headroom rule
+and the min-entropy correction - the area by 781 square micrometres, the count by sixteen - and
+`check_no_stale_literals` caught neither. Its list of figures the recommendation determines had seven
+entries and cell area was not one of them; 38 is round enough to pass for a loop bound.
+
+A check that watches seven quantities is silent about the eighth, and the eighth is the one somebody
+writes down. Cell area is watched now. That does not close the class, and the honest statement is
+that this rule catches what it enumerates.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6208,6 +6259,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-233 | closed; UTILISATION and INVERTER_AREA were labelled measured-there with 'same flow', and their numerators are this project's own synthesis of RTL the repository does not hold - the only two declared areas nothing re-measures, now recorded as such by a check |
 | W-INTL-232 | closed; the ten-year drift was combined with read noise in quadrature and the sum averaged over enrolment reads taken before the drift exists - pessimistic by 8 percent, six copies of the expression, one deleted, recommendation unchanged |
 | W-INTL-231 | closed; the borrowed entropy figure is a bitwise Shannon sum that the source paper calls an upper bound, not the min-entropy a fuzzy extractor needs - 0.9414 becomes 0.7162 on the paper's own model, six blocks instead of four, 3.46 to 3.51 tiles |
 | W-INTL-230 | closed; a control anchor matched twice and mutated the copy the tripwire does not read, reporting success while testing nothing - control.py and check_control_anchors now reject an ambiguous anchor, two more found and narrowed, two more pointed at mutations that could not fail |

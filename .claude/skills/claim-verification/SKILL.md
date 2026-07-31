@@ -175,6 +175,39 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A ratio has two provenances, and they are rarely the same
+
+A utilisation factor was declared "measured there — same flow, same process". Its denominator was
+somebody else's declared footprint; its numerator was our own synthesis of their design, run here,
+and their reported cell area was never published — so "same flow" was the one claim it could not
+make.
+
+Give a derived quantity the provenance of **each** input, not of the one you got last. And when the
+two differ, write down the assumption that joins them: here, that their flow produced about the cell
+area ours did. Then price it — fifteen percent either way moved the design by eighteen percent, which
+was still inside the margin, which is the difference between an assumption you can live with and one
+you should not have called a measurement.
+
+## Name the things nothing re-measures, and make the list a check
+
+Thirty-one declared areas were re-synthesised on demand and two were not, because the RTL they came
+from was not in the repository. The two looked exactly like the thirty-one. The fix is not "measure
+everything" — some things cannot be. It is that the set of un-re-measurable values is enumerated with
+reasons, in code, and a check fails when a new value joins it silently.
+
+An admission in a list is load-bearing; the same admission in a comment three files away is
+decoration.
+
+## A rule that enumerates is silent about what it did not enumerate
+
+The stale-literal check watched seven quantities the design determines. A model carried an eighth —
+a cell area — written down and stale across two design moves, and the check passed. Beside it an
+oscillator count of 38 was too round to match by value.
+
+When a check works from a list, the list is the coverage. Say the length in the output, name what is
+excluded, and expect the next defect in the gap — enumerating more is worth doing and does not close
+the class.
+
 ## The right quantity can still be combined the wrong way
 
 Asking "which quantity is this?" of a second borrowed input found the definition sound and the
