@@ -133,6 +133,19 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## When you write a rule down, immediately ask who else breaks it
+
+Two rules in this project were learned from one file and violated by another - and in both cases the
+violator was the tooling that had produced the finding. A rule about modules that compute on import
+was learned from a model and broken by the sweep. A rule about enumerated input sets was learned from
+four checks and broken by the sweep that motivated the audit.
+
+The place a rule is first learned is not the place it gets applied, and the tooling is the last place
+anyone looks because it is where the looking is done from.
+
+So: when you file a rule, grep for its pattern across everything you own, starting with the checks.
+It costs one search and it is the difference between a rule and a note about one incident.
+
 ## When a check takes a set, make the set a glob or a derivation, not an enumeration
 
 Four checks were asked what their input set was and who guaranteed its completeness. All four had an

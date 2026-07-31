@@ -19,24 +19,36 @@ Exit code 1 if any input can move without a check noticing. ALLOWED names an inp
 is deliberately unread, with the reason.
 """
 import ast, os, pathlib, shutil, subprocess, sys
-ROOT = pathlib.Path('.')
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 TARGET = ROOT/'research'/'inputs.py'
 src = TARGET.read_text(); tree = ast.parse(src)
 backup = src
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
 
+# Which checks read research/inputs.py. Derived from the glob and narrowed here with the
+# reason for each exclusion, rather than enumerated: the enumeration said two checks when
+# there were three, and five more have been added since without anyone touching it.
+# W-INTL-217 - the rule from W-INTL-216, applied to the file that motivated it.
+_SKIP = {
+    "check_input_coverage.py": "this file",
+    "check_consistency.py": "reads documents, not inputs",
+    "check_catalog.py": "reads a catalog in another repository",
+    "check_commit_claims.py": "reads a commit message",
+    "check_control_anchors.py": "reads the workflow",
+    "check_generated_rtl.py": "reads generated Verilog against its generator",
+    "check_models_run.py": "four minutes a pass, and its figures reach inputs through "
+                           "check_figures_reproduce anyway",
+}
+CHECKS = sorted(c for c in (ROOT / "scripts").glob("check_*.py")
+                if c.name not in _SKIP)
+
+
 def run():
-    # check_figures_reproduce re-derives the recommendation, which is the expensive part.
-    # Nine minutes of CI for seventeen inputs is a check people wait for; -O keeps the
-    # interpreter from writing bytecode we then have to invalidate, and the two checks are
-    # the only ones that read inputs at all.
     outs = []
-    # check_consistency reads documents rather than inputs, so it is not in this loop -
-    # including it tripled the run time and could never fire.
-    for cmd in (["python3","scripts/check_figures_reproduce.py"],
-                ["python3","scripts/check_units.py"]):
-        r = subprocess.run(cmd, capture_output=True, text=True, env=env)
-        outs.append((cmd[1].split('/')[-1], r.returncode))
+    for path in CHECKS:
+        r = subprocess.run([sys.executable, str(path)],
+                           capture_output=True, text=True, env=env)
+        outs.append((path.name, r.returncode))
     return outs
 
 # RAW_BUDGET feeds only the vestigial cheapest() guard, which is kept for the utilisation
@@ -44,50 +56,59 @@ def run():
 # its provenance; perturbing it legitimately changes nothing.
 ALLOWED = {"RAW_BUDGET"}
 
-results = []
-for node in tree.body:
-    if not (isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)):
-        continue
-    name = node.targets[0].id
-    seg = ast.get_source_segment(src, node.value)
-    if seg is None: continue
-    try:
-        val = ast.literal_eval(seg)
-    except Exception:
-        try:
-            val = eval(seg, {"__builtins__":{}}, {})
-        except Exception:
+# The driver runs under a main guard: a module that computes on import cannot be
+# cross-checked against, which this project recorded in W-INTL-169 and this file has
+# been violating since it was written. Importing it to read CHECKS ran the whole
+# sweep.
+def main():
+    results = []
+    for node in tree.body:
+        if not (isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)):
             continue
-    if isinstance(val, bool) or not isinstance(val, (int, float)):
-        continue
-    line = f"{name} = {seg}"
-    if line not in src:
-        continue
-    # Both directions, and a large factor. A half-step perturbation can land inside a
-    # figure's tolerance and report a covered input as blind: the question is whether a
-    # check is sensitive to the input at all, not whether it resolves small changes.
-    fired = []
-    for factor in (0.25, 4):
-        if fired:
-            break                     # one direction is enough to show sensitivity
-        cand = val * factor
-        if isinstance(val, int) and not isinstance(val, bool):
-            cand = max(1, int(round(cand)))
-        TARGET.write_text(src.replace(line, f"{name} = {cand:.10g}", 1))
-        outs = run()
-        TARGET.write_text(backup)
-        fired += [n for n, rc in outs if rc != 0]
-    results.append((name, val, sorted(set(fired))))
+        name = node.targets[0].id
+        seg = ast.get_source_segment(src, node.value)
+        if seg is None: continue
+        try:
+            val = ast.literal_eval(seg)
+        except Exception:
+            try:
+                val = eval(seg, {"__builtins__":{}}, {})
+            except Exception:
+                continue
+        if isinstance(val, bool) or not isinstance(val, (int, float)):
+            continue
+        line = f"{name} = {seg}"
+        if line not in src:
+            continue
+        # Both directions, and a large factor. A half-step perturbation can land inside a
+        # figure's tolerance and report a covered input as blind: the question is whether a
+        # check is sensitive to the input at all, not whether it resolves small changes.
+        fired = []
+        for factor in (0.25, 4):
+            if fired:
+                break                     # one direction is enough to show sensitivity
+            cand = val * factor
+            if isinstance(val, int) and not isinstance(val, bool):
+                cand = max(1, int(round(cand)))
+            TARGET.write_text(src.replace(line, f"{name} = {cand:.10g}", 1))
+            outs = run()
+            TARGET.write_text(backup)
+            fired += [n for n, rc in outs if rc != 0]
+        results.append((name, val, sorted(set(fired))))
 
-blind = [n for n, _, f in results if not f and n not in ALLOWED]
-print(f"{'input':28s} {'value':>14}  caught by")
-for name, val, fired in results:
-    mark = ", ".join(fired) if fired else ("unread, allowed" if name in ALLOWED
-                                           else "*** NOTHING ***")
-    print(f"{name:28s} {val:14.6g}  {mark}")
-if blind:
-    print(f"\ncheck_input_coverage: {len(blind)} input(s) no check notices: "
-          f"{', '.join(blind)}")
-    sys.exit(1)
-print(f"\ncheck_input_coverage: OK ({len(results)} inputs, "
-      f"{len(results) - len(ALLOWED)} covered, {len(ALLOWED)} deliberately unread)")
+    blind = [n for n, _, f in results if not f and n not in ALLOWED]
+    print(f"{'input':28s} {'value':>14}  caught by")
+    for name, val, fired in results:
+        mark = ", ".join(fired) if fired else ("unread, allowed" if name in ALLOWED
+                                               else "*** NOTHING ***")
+        print(f"{name:28s} {val:14.6g}  {mark}")
+    if blind:
+        print(f"\ncheck_input_coverage: {len(blind)} input(s) no check notices: "
+              f"{', '.join(blind)}")
+        sys.exit(1)
+    print(f"\ncheck_input_coverage: OK ({len(results)} inputs, "
+          f"{len(results) - len(ALLOWED)} covered, {len(ALLOWED)} deliberately unread)")
+
+
+if __name__ == "__main__":
+    main()
