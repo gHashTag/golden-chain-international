@@ -41,7 +41,7 @@ VERSION_SENSITIVE = {("decoder_serial", 7, 7), ("decoder_serial", 7, 11),
                      ("decoder_serial", 7, 13), ("decoder_serial", 7, 21)}
 
 # ── the shuttle ─────────────────────────────────────────────────────────────
-TILE_AREA = 18_032        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
+TILE_AREA = 4508        # specified: one Tiny Tapeout tile, 161 x 112 micrometres
 TILE_LIMIT = 16           # specified: largest submission is 8x2 tiles
 
 # measured there: the published PUF tile declares 1x2 tiles, 36,064 um^2, and holds
@@ -59,7 +59,7 @@ UTILISATION = 20_900 / 36_064
 # call ten to twenty typical, and W-INTL-92 shows tripling it changes no fit verdict.
 # units: square micrometres / inverters, giving square micrometres per inverter
 INVERTER_AREA = 6_730 / 1_792
-INVERTERS_PER_OSCILLATOR = 7
+INVERTERS_PER_OSCILLATOR = 1
 
 # estimated here, and labelled as an estimate rather than a measurement. W-INTL-154 makes
 # an aging-resistant oscillator a requirement rather than an option: a conventional bank
@@ -98,9 +98,10 @@ OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
 # immediate neighbours, giving 241.0 bits of min-entropy in 256 response bits. The same
 # paper shows this figure swinging widely with pairing distance, so it carries its
 # arrangement with it. It is the tightest input in this work - confirmed in W-INTL-223,
-# where every borrowed figure was swept: this one has 1.26 times in hand against the
+# where every borrowed figure was swept: this one has 1.13 times in hand against the
 # aging figure's 1.41 and the utilisation factor's 4.66, and three of its conditions
-# differ from this design.
+# differ from this design. The 1.13 is W-INTL-224: the first sweep compared this
+# before-selection figure against an after-selection floor and read 1.26.
 #
 # It is measured on UNSELECTED positions, and the design selects. Reliable-bit
 # selection discards the positions whose difference is closest to zero, which are the

@@ -494,6 +494,79 @@ def check_register_figures(rec):
     return len(bound)
 
 
+def check_borrowed_table():
+    """Bind the borrowed-margin tables in decoder_code_choice.md to the model.
+
+    Both tables were exempted from the consistency rule with `derived:external`, which says
+    the figures come from outside that document - true, and it left them bound to nothing.
+    W-INTL-224 is what that costs: the margin column read 1.26 for an interval after the
+    model that produced it was corrected to 1.13, and no check could have said so.
+
+    Returns the number of figures bound.
+    """
+    import importlib
+    sys.path.insert(0, str(ROOT / "research"))
+    BM = importlib.import_module("borrowed_margins")
+    path = ROOT / "research" / "decoder_code_choice.md"
+    if not path.exists():
+        return 0
+    text = path.read_text()
+    bound = 0
+
+    for name, value, limit_fn, direction, _ in BM.ROWS:
+        row = re.search(rf"\| {re.escape(name)} \| ([\d.]+) \| ([\d.]+) (above|below) \| "
+                        rf"\*\*([\d.]+)x\*\*", text)
+        if not row:
+            failures.append(f"decoder_code_choice.md: no margin row for {name}")
+            continue
+        limit = limit_fn()
+        margin = (value / limit) if direction == "below" else (limit / value)
+        # A prose figure is rounded, and how far it may sit from the model is set by how
+        # many decimals it was printed to - not by a tolerance picked to make it pass.
+        def rounding_tol(text):
+            frac = text.split(".")[1] if "." in text else ""
+            return 0.5 * 10 ** -len(frac)
+
+        for got, want, what in ((row.group(1), value, "value"),
+                                (row.group(2), limit, "limit"),
+                                (row.group(4), margin, "margin")):
+            bound += 1
+            tol, got = rounding_tol(got), float(got)
+            if abs(got - want) > tol:
+                failures.append(f"decoder_code_choice.md: {name} {what} reads {got:g}, "
+                                f"the model gives {want:.4g}")
+        if row.group(3) != direction:
+            failures.append(f"decoder_code_choice.md: {name} row says {row.group(3)}, "
+                            f"the model says {direction}")
+
+    # The joint table. Each cell is a claim about whether any selection fraction works.
+    joint_rows = 0
+    for density in BM.JOINT_DENSITY:
+        # Anchored to the line start, past any derivation marker: the margin table also
+        # carries 0.9414, in a row of three cells, and an unanchored search finds it first.
+        row = re.search(rf"^(?:<!-- \S+ --> )?\| {density:.4f} \| (.+?) \|\s*$",
+                        text, re.M)
+        if not row:
+            continue                      # not every swept row is quoted in the document
+        joint_rows += 1
+        cells = [c.strip() for c in row.group(1).split("|")]
+        if len(cells) != len(BM.JOINT_FLIP):
+            failures.append(f"decoder_code_choice.md: joint row {density} has "
+                            f"{len(cells)} cells, the model sweeps {len(BM.JOINT_FLIP)}")
+            continue
+        for cell, flip in zip(cells, BM.JOINT_FLIP):
+            bound += 1
+            keep = BM.deepest_feasible(density, flip)
+            want = "---" if keep is None else f"{keep:.0%}"
+            if cell != want:
+                failures.append(f"decoder_code_choice.md: joint cell ({density}, {flip}) "
+                                f"reads {cell}, the model gives {want}")
+    if joint_rows == 0:
+        failures.append("decoder_code_choice.md: the joint table matched no rows, so this "
+                        "half of the check read nothing")
+    return bound
+
+
 def main():
     check_selection_entropy()
 
@@ -518,7 +591,8 @@ def main():
             check(text, name, "oscillator floor",
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
-    n_bound = check_ledger_figures(rec) + check_register_figures(rec)
+    n_bound = (check_ledger_figures(rec) + check_register_figures(rec)
+               + check_borrowed_table())
     if n_bound < 25:
         failures.append(
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "

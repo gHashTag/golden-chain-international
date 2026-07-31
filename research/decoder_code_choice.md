@@ -4291,18 +4291,42 @@ recommendation failed:
 <!-- derived:external --> | tile utilisation | 0.5795 | 0.1244 below | **4.66x** | a 1x2-tile design, applied to one of 3.4 tiles |
 <!-- derived:external --> | fresh error rate | 0.0600 | 0.0987 above | **1.65x** | this project's own working figure rather than a measurement |
 <!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1092 above | **1.41x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
-<!-- derived:external --> | min-entropy density | 0.9414 | 0.7485 below | **1.26x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
+<!-- derived:external --> | min-entropy density | 0.9414 | 0.8303 below | **1.13x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
 
 **The tightest is the min-entropy density, not the aging figure.**
 
 That corrects something this work has been saying for three loops. `AGING_HEADROOM` was introduced
 with the sentence "the aging input is the least trustworthy figure in this work", and 0.9 of a tile
 was spent on the strength of it. The aging figure has the most alien provenance - simulated, another
-node, another cell - but it has 1.41 times in hand. The entropy density has **1.26**, and three of
+node, another cell - but it has 1.41 times in hand. The entropy density has **1.13**, and three of
 its four conditions differ from this design: measured on FPGAs rather than an ASIC, at room
 temperature only, and under disjoint pairing where this design reuses oscillators across pairs.
 
 Two figures, both borrowed, and the one with the better story has less room.
+
+The 1.13 is a correction to the 1.26 this table first carried, and the correction is the same class
+of error as the finding itself. The floor was computed as the density needed to carry the key, which
+is a floor on the density *reaching the extractor* - after selection. The declared 0.9414 is measured
+before it. Selection amplifies bias, and comparing across the two sides of that step credited the
+design with room it does not have.
+
+**The two tightest are also coupled, which is why neither row is the whole answer.** Both act through
+one knob. A worse flip rate is answered by selecting harder, and selecting harder costs density:
+
+| declared density | flip 8% | 9% | 11% | 13% | 15% |
+|---|---|---|---|---|---|
+<!-- derived:external --> | 0.9414 | 65% | 60% | 50% | 45% | 35% |
+<!-- derived:external --> | 0.8700 | 65% | 60% | 50% | 45% | 35% |
+<!-- derived:external --> | 0.8500 | 65% | 60% | 50% | 45% | --- |
+<!-- derived:external --> | 0.8300 | 65% | 60% | --- | --- | --- |
+<!-- derived:external --> | 0.8000 | --- | --- | --- | --- | --- |
+
+Each cell is the deepest selection fraction meeting both constraints; `---` is none. Read across the
+top row and the flip rate is not the 1.41x its own row reports - fifteen percent is absorbed, because
+that row froze the selection fraction and the fraction is free. Read down the left and the density
+floor is not a single number either: it is 0.83 only while the flip rate stays near nominal, and 0.85
+once the flip rate is half again as bad. The one-at-a-time sweep can see neither, which is what it
+said about itself and now has a table behind it.
 
 ## 165. What that says about the instrument
 

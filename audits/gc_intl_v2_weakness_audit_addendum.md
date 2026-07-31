@@ -5615,12 +5615,12 @@ Severity: high as a correction. It closes W-INTL-74, open since loop 74.
 
 For each borrowed figure, how far it would have to be wrong before the recommendation failed:
 inverter area 71.8 times, tile utilisation 4.66, fresh error rate 1.65, ten-year flip rate 1.41,
-min-entropy density 1.26.
+min-entropy density 1.13 (reported as 1.26 here at first; see W-INTL-224).
 
 The tightest is the min-entropy density, not the aging figure. AGING_HEADROOM was introduced with the
 sentence "the aging input is the least trustworthy figure in this work" and 0.9 of a tile was spent
 on the strength of it. The aging figure has the most alien provenance - simulated, another node,
-another cell - and 1.41 times in hand. The entropy density has 1.26, and three of its four conditions
+another cell - and 1.41 times in hand. The entropy density has 1.13, and three of its four conditions
 differ from this design: FPGAs rather than an ASIC, room temperature only, disjoint pairing where
 this design reuses oscillators across pairs. Two borrowed figures, and the one with the better story
 has less room.
@@ -5636,6 +5636,61 @@ is built, tested and 3,172 square micrometres.
 
 Limitation stated: each row moves one input and holds the rest, which is the sweep that reversed a
 priority in W-INTL-85. Two moving together are not covered.
+
+## W-INTL-224  The sweep compared a before-selection figure against an after-selection floor
+
+Severity: high as a correction. It falsifies the headline number of W-INTL-223, one interval old.
+
+`density_floor()` returned `KEY_BITS / K_TOTAL` = 0.7485: the density needed to carry a 128-bit key
+in 171 code bits. That is a floor on the density *reaching the extractor*, which is the density after
+reliable-bit selection. `MIN_ENTROPY_DENSITY` = 0.9414 is measured on unselected positions - before
+it. Selection amplifies bias and moves 0.9414 to 0.9113 at the nominal fraction, so the two numbers
+sit on opposite sides of a step that changes them, and the ratio between them is not a margin.
+
+Inverting the selection term gives a floor of 0.8303 on the declared figure and a margin of **1.13x**,
+not 1.26x. The conclusion of W-INTL-223 survives - the density is still the tightest borrowed input,
+and by more than it claimed - but its number did not, and the number is what an area decision would
+have been made against.
+
+Two things made this survivable for exactly one interval rather than longer. The tripwire in
+`check_models_run.py` recomputed the margin from the same wrong expression, so it agreed; it now
+recomputes through `selection_entropy` on an independent path. And the margin table in
+`decoder_code_choice.md` was exempted from the consistency rule with `derived:external`, which
+correctly said the figures come from elsewhere and left them bound to nothing. Both tables are now
+bound to the model: sixty-five prose figures, up from twenty-five.
+
+Same family as W-INTL-186, where a bound was quoted downstream as an achievable figure. There the
+name did not carry the direction; here neither name carried the side of the selection step it sits
+on. `MIN_ENTROPY_DENSITY` and the floor it was compared against both read as "a density", and the
+distinction that matters is invisible in what they are called.
+
+## W-INTL-225  The two tightest borrowed figures are coupled, and one knob answers to both
+
+Severity: method. It is what W-INTL-223 named as its own limitation and did not do.
+
+Both figures act through the selection fraction. A worse ten-year flip rate is answered by selecting
+harder; selecting harder amplifies bias and costs entropy density. Sweeping them together:
+
+| declared density | flip 8% | 9% | 11% | 13% | 15% |
+|---|---|---|---|---|---|
+| 0.9414 | 65% | 60% | 50% | 45% | 35% |
+| 0.8700 | 65% | 60% | 50% | 45% | 35% |
+| 0.8500 | 65% | 60% | 50% | 45% | --- |
+| 0.8300 | 65% | 60% | --- | --- | --- |
+| 0.8000 | --- | --- | --- | --- | --- |
+
+Each cell is the deepest selection fraction meeting both constraints at once; `---` is none.
+
+Two things the one-at-a-time pass could not say. The flip rate's 1.41x is an artefact of freezing the
+selection fraction: let it move and fifteen percent is absorbed. And the density floor is not one
+number - it is 0.83 near the nominal flip rate and 0.85 once the flip rate is half again as bad. The
+design sits at the top-left of that table, which is the comfortable corner, and the reason it is
+comfortable is that both figures came in near their nominal values rather than that either has room
+independent of the other.
+
+The knob is shared, so the margins are not separable, and quoting them as five independent numbers -
+which is what the table in W-INTL-223 does - is a convenience rather than a fact. It stays, because
+five separable numbers are the right first question; this is the second.
 
 ## Priority order
 
@@ -5812,7 +5867,9 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
-| W-INTL-223 | closes W-INTL-74; every borrowed figure swept, and the min-entropy density is the tightest at 1.26 times, not the aging figure at 1.41 |
+| W-INTL-225 | closed; the two tightest borrowed figures swept jointly - they act through one knob, so a worse flip rate is answered by deeper selection and paid for in density, and no fraction satisfies both below a raw density of 0.85 |
+| W-INTL-224 | closed; W-INTL-223 compared a before-selection density against an after-selection floor, so its headline margin was 1.26 when the figure is 1.13; the tightest row was right and its number was not |
+| W-INTL-223 | closed by W-INTL-224 for its figure and W-INTL-225 for its method; every borrowed figure swept, and the min-entropy density is the tightest, at 1.13 times rather than the 1.26 first reported |
 | W-INTL-222 | closed; ten open rows were answered by later work and never updated, forty-four became thirty-four, and fifteen of those concern the identity root |
 | W-INTL-221 | closed; a generated status page, and forty-four rows still open of which three name a later entry that probably answered them |
 | W-INTL-220 | closed as a decision; simulation dominates RTL verification and the three largest codes are 162 of the 540 seconds, and the weight sweep is kept |
