@@ -27,8 +27,17 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 MODELS = ROOT / "research"
 
 
+# Models excluded, with the reason, because an exclusion nobody can see is a gap nobody
+# knows about. quantiser_emulation_check.py needs torch: hundreds of megabytes on every
+# CI run for one peripheral model that is not part of the identity-root recommendation.
+# It is therefore unchecked here, which is a known gap rather than an unnoticed one, and
+# the name is printed on every run so it stays known.
+HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install"}
+
+
 def main():
-    files = sorted(p for p in MODELS.glob("*.py") if not p.name.startswith("_"))
+    files = sorted(p for p in MODELS.glob("*.py")
+                   if not p.name.startswith("_") and p.name not in HEAVY)
     if not files:
         print("FAIL: no models found, so this check read nothing", file=sys.stderr)
         return 1
@@ -46,7 +55,9 @@ def main():
     if failures:
         print(f"\ncheck_models_run: {len(failures)} of {len(files)} models do not run")
         return 1
-    print(f"check_models_run: OK ({len(files)} models run)")
+    skipped = ", ".join(f"{n} ({why})" for n, why in sorted(HEAVY.items()))
+    print(f"check_models_run: OK ({len(files)} models run"
+          + (f"; not run: {skipped})" if skipped else ")"))
     return 0
 
 

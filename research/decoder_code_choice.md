@@ -3733,7 +3733,13 @@ nothing declared that. Every other model here uses the standard library alone, s
 the machine that wrote it and nowhere else - the same finding as the reproduction script that only
 worked on one Mac, in a different costume. A `requirements.txt` now says so, and the job installs it.
 
-Two dead-on-arrival failures from one check on its first two runs is a reasonable argument that
+And its second CI run found that the same file also needs torch - hundreds of megabytes on every run
+for one peripheral model that is not part of the identity-root recommendation. Installing that would
+be disproportionate, so the file is excluded with its reason printed on every run: an exclusion
+nobody can see is a gap nobody knows about, and this one is now a known gap rather than an unnoticed
+one.
+
+Three dead-on-arrival findings from one check in its first three runs is a reasonable argument that
 executing your own analysis is not optional.
 
 ## 137. What the hunt for undeclared numbers found
