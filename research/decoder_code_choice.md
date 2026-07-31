@@ -4153,3 +4153,52 @@ repository at the moment they were written.
 A rule filed without a sweep is a description of one incident. The sweep costs one search per rule
 and it found, over two loops, four violations in three files, every one of them in the tooling rather
 than in the subject.
+
+## 158. Two more rules swept, both clean, and two checks not written
+
+The rule sweep continued. Two more recorded rules are mechanically approachable, and both are clean -
+which is worth recording because in each case the right output was **not to ship the check**.
+
+**A bound should carry its direction in its name.** Scanned every function whose docstring mentions a
+bound, an optimistic case or a perfect assumption, and whose name lacks a direction marker. Eight
+hits, all read, all legitimate: two mention the leakage bound as a subject rather than returning one,
+one says outright that it "carries a measurement rather than a bound", and the rest are the
+achievable functions describing the bound they replace.
+
+**A control must not share a surface with its subject.** Checked whether any control's replacement
+text appears elsewhere in the tree. Two hits, both false: `9.51 tok/s` appears in the plan, and the
+matrix check reads only the matrix; `57 percent` appears in three documents, and the register check
+looks for its figure in the register.
+
+Neither check was shipped, and the reason is the rule from the previous loop: a check whose first run
+produces eight false positives teaches its reader to add exemptions. A docstring keyword search
+cannot tell a function that *returns* a bound from one that *mentions* one, and a tree-wide grep
+cannot tell a shared string from a shared surface. **The property is real and the detector is not
+precise enough**, which is a result rather than a gap - the sweep was run, the corpus was read, and
+nothing was found.
+
+## 159. Where the nine minutes go
+
+`rtl-verification` is the longest job. Measured rather than guessed:
+
+| Case | Compile | Simulate |
+|---|---|---|
+<!-- derived:external --> | GF(2^9) t=54 | 0.1s | **89.1s** |
+<!-- derived:external --> | GF(2^8) t=55 | 0.1s | 47.0s |
+<!-- derived:external --> | GF(2^8) t=42 | 0.1s | 25.7s |
+<!-- derived:external --> | GF(2^7) t=31 | 0.1s | 7.2s |
+<!-- derived:external --> | GF(2^7) t=7 | 0.0s | 0.7s |
+
+**Simulation, not compilation**, and concentrated in the three largest codes - about 162 seconds of
+the nine minutes, for constructions the design does not use. They are measured alternatives kept so
+that a future operating point finds them costed.
+
+Caching would not help: compilation is a tenth of a second. The options are to sample error weights
+rather than sweep 1..t, or to run the large codes only on main.
+
+**Neither taken.** The weight sweep is the evidence - every weight from one to t, in both fields -
+and thinning it to save four minutes trades the project's central claim for a coffee. Tiering by
+branch adds a second failure mode, where something passes on a pull request and fails after merge,
+which is worse than waiting.
+
+Recorded so the nine minutes are a decision rather than an accident.

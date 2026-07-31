@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-218
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-220
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5517,6 +5517,42 @@ without a sweep is a description of one incident; the sweep costs one search per
 found four violations in three files across two loops, every one in the tooling rather than the
 subject.
 
+## W-INTL-219  Two more rules swept clean, and two checks deliberately not written
+
+Severity: informational, and the decision not to ship is the content.
+
+Two more recorded rules are mechanically approachable and both are clean.
+
+A bound should carry its direction in its name: scanned every function whose docstring mentions a
+bound, an optimistic case or a perfect assumption and whose name lacks a direction marker. Eight
+hits, all read, all legitimate - two mention the leakage bound as a subject rather than returning
+one, one says outright that it carries a measurement rather than a bound, and the rest are the
+achievable functions describing the bound they replace.
+
+A control must not share a surface with its subject: checked whether any control's replacement text
+appears elsewhere in the tree. Two hits, both false - the strings are shared, the surfaces are not.
+
+Neither check shipped, on the rule from the previous loop: a check whose first run produces eight
+false positives teaches its reader to add exemptions. A docstring keyword search cannot tell a
+function that returns a bound from one that mentions one, and a tree-wide grep cannot tell a shared
+string from a shared surface. The property is real and the detector is not precise enough, which is a
+result rather than a gap.
+
+## W-INTL-220  Where the nine minutes of RTL verification go
+
+Severity: low, and it converts an accident into a decision.
+
+Measured: GF(2^9) t=54 simulates for 89 seconds, GF(2^8) t=55 for 47, t=42 for 26, against a tenth of
+a second of compilation each. Simulation dominates, concentrated in the three largest codes - about
+162 seconds of the nine minutes, for constructions the design does not use but keeps costed.
+
+Caching would not help. The options are sampling error weights rather than sweeping one to t, or
+running the large codes only on main. Neither taken: the weight sweep is the evidence, and thinning
+it to save four minutes trades the project's central claim for a coffee; tiering by branch adds a
+failure mode where something passes on a pull request and fails after merge.
+
+Recorded so the nine minutes are a decision rather than an accident.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5691,6 +5727,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-220 | closed as a decision; simulation dominates RTL verification and the three largest codes are 162 of the 540 seconds, and the weight sweep is kept |
 | W-INTL-218 | closed; two of three mechanically checkable rules had live violations, both in the tooling, and the import rule is a check now |
 | W-INTL-217 | closed; the coverage sweep named two of seven checks and computed on import, breaking two rules it had itself motivated |
 | W-INTL-216 | closed; five documents read by nothing, an escape hatch scoped to a line in a hard-wrapped corpus, and one declared area entry never measured - four checks asked, four gaps |

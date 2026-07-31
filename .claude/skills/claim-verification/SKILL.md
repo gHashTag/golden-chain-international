@@ -133,6 +133,29 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Sweeping a rule and shipping a check are separate decisions
+
+Two rules were swept across a codebase. Both came back clean, and in both cases the detector that
+found the hits was too coarse to keep - a docstring keyword search cannot distinguish a function that
+returns a bound from one that mentions one.
+
+The sweep was still worth running. It read the corpus once, against a property, and established that
+the property holds today. Shipping the detector would have added a permanent source of false
+positives to buy a weaker version of what the sweep already established.
+
+So: sweep manually, read every hit, and ship a check only if the detector is precise. A clean sweep
+with no check is a legitimate outcome, provided the sweep is written down so the next person knows it
+was run and when.
+
+## Measure where the time goes before deciding whether to spend it
+
+A nine-minute verification job looked like something to optimise. Measured, it was simulation rather
+than compilation, concentrated in three cases - and those three are what the central claim rests on.
+
+The options were to thin the evidence or to run less of it on pull requests. Both were declined and
+the reasons written down, which turns nine minutes from an accident into a decision. Optimisation
+that removes evidence is not optimisation; it is a quieter version of the same cost, paid later.
+
 ## A check whose first version flags a legitimate case teaches people to add exemptions
 
 A newly written check for "no module computes on import" flagged a two-line loop that builds a lookup
