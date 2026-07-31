@@ -109,6 +109,13 @@ run_tb "full decode end to end, GF(2^7) t=21" \
 run_tb "full decode end to end, GF(2^8) t=31" \
     -DMVAL=8 -DTVAL=31 -DREDVAL="8'h1D" -DTOPNAME=bch255t31_tables \
     bch255t31_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^7) t=7" \
+    -DMVAL=7 -DTVAL=7 -DREDVAL="7'h09" -DTOPNAME=bch127t7_tables \
+    bch127t7_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "shared-multiplier solver vs replicated, GF(2^7) t=7" \
+    -DTVAL=7 -DMVAL=7 -DREDVAL="7'h09" bm_serial.v bm_area_probe.v tb_bm_diff.v
+run_tb "SLLC encoder vs polynomial division, BCH(127,78,7)" \
+    sllc127t7.v tb_sllc127t7.v
 run_tb "full decode end to end, GF(2^7) t=11" \
     -DMVAL=7 -DTVAL=11 -DREDVAL="7'h09" -DTOPNAME=bch127t11_tables \
     bch127t11_tables.v bm_area_probe.v tb_bch_e2e.v

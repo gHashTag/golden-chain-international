@@ -170,7 +170,7 @@ def recommendation():
     # does not move between runs.
     eff = R.selected_ber_counts_exact(sigma, fraction, I.ENROLMENT_READS)
 
-    best = None
+    candidates = []
     for m in (7, 8):
         n = (1 << m) - 1
         for t, k in bch_parameters(m):
@@ -182,6 +182,7 @@ def recommendation():
                 continue
             if k * blocks < need_k:
                 continue
+
             selected = n * blocks
             raw = int(-(-selected // fraction) + 1e-9)   # ceil, without the
             # truncation that made this 478 where the design says 477
@@ -195,9 +196,16 @@ def recommendation():
             cells = (area + I.SLLC_AREA[t]
                      + I.COUNTERMEASURE_AREA["spongent_permutation"] + osc * OSC)
             tiles = cells / UTILISATION / TILE
-            if best is None or tiles < best[0]:
-                best = (tiles, n, k, t, blocks, raw, osc, rho_sel)
-    return best
+            candidates.append((tiles, n, k, t, blocks, raw, osc, rho_sel))
+
+    # The aging-headroom rule is applied after sorting rather than inside the loop. It
+    # costs a bisection over a numerical integral per candidate, and evaluating it for
+    # every code in two fields took this check from twelve seconds to eighty-six. Sorted
+    # by area and walked in order, it is evaluated for one or two.
+    for cand in sorted(candidates):
+        if absorbable_flip_for(cand[3], cand[2], cand[4]) >= 0.0773 * I.AGING_HEADROOM:
+            return cand
+    return None
 
 
 def pairs_for(positions):
@@ -305,6 +313,38 @@ def absorbable_flip():
     return lo
 
 
+_ABSORB_CACHE = {}
+
+
+def absorbable_flip_for(t, k, blocks):
+    """The unselected ten-year flip rate a candidate construction still survives.
+
+    Memoised and coarse on purpose. It is a filter inside a search over every code in two
+    fields, so calling it uncached with a forty-step bisection over a four-thousand-point
+    integral turned a twelve-second check into one that does not finish - which is the
+    W-INTL-195 lesson arriving inside a single script rather than across two CI jobs.
+    Twenty steps resolve to a millionth, which is far finer than the input it filters on.
+    """
+    key = (t, k, blocks)
+    if key in _ABSORB_CACHE:
+        return _ABSORB_CACHE[key]
+    import reliable_bit_selection as R
+    from math import sqrt
+    keep = 1.0 - I.SELECTION_LOSS
+    tol = max_ber(127, t, blocks)
+    base = R.sigma_for_raw_ber(0.06) ** 2
+    lo, hi = 0.0, 0.99
+    for _ in range(20):
+        mid = (lo + hi) / 2
+        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
+        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
+            lo = mid
+        else:
+            hi = mid
+    _ABSORB_CACHE[key] = lo
+    return lo
+
+
 def check_ledger_figures(rec):
     """Bind the numbers in the ledger's area row to the model that produces them.
 
@@ -361,7 +401,9 @@ def check_ledger_figures(rec):
     declared = (len(I.DECODER_AREA) + len(I.DECODER_AREA_SERIAL)
                 + len(I.SLLC_AREA) + len(I.COUNTERMEASURE_AREA))
     WORDS = {19: "nineteen", 20: "twenty", 21: "twenty-one", 22: "twenty-two",
-             23: "twenty-three", 24: "twenty-four"}
+             23: "twenty-three", 24: "twenty-four", 25: "twenty-five",
+             26: "twenty-six", 27: "twenty-seven", 28: "twenty-eight",
+             29: "twenty-nine", 30: "thirty"}
     bound += [
         ("testbench count", r"measure_all\.sh runs ([a-z-]+) testbenches",
          WORDS.get(tb_count, str(tb_count)), None),
