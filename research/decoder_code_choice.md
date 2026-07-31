@@ -4202,3 +4202,34 @@ branch adds a second failure mode, where something passes on a pull request and 
 which is worse than waiting.
 
 Recorded so the nine minutes are a decision rather than an accident.
+
+## 160. A status page, generated
+
+Two hundred and twenty audit entries, thirteen checks, seventeen controls, and a recommendation that
+has moved four times. There has been no single place showing which are closed, which are open, and
+which were named and deliberately not done - so a reader arriving now reconstructs the state from a
+hundred-and-sixty-section research document and a status table three thousand lines into an audit.
+
+`STATUS.md` is that place, and it is **generated**. A hand-written status page is a claim about the
+repository that nothing checks, and this project has found six of those. `check_status_current.py`
+fails if the file and its generator disagree; its control edits the title and fires.
+
+It reports the recommendation as the figure checker derives it, the audit rows that are still open,
+and every check with the first line of its own docstring - so a check that stops describing itself
+accurately shows up here rather than nowhere.
+
+## 161. What the status page found on its first run
+
+Forty-four of a hundred and eighty-six audit rows are marked open. **Three of them name a later entry
+in their own text** - "corrected by W-INTL-58", "superseded in part by W-INTL-47" - which usually
+means the later entry answered them and the row was never updated.
+
+The generator surfaces that rather than counting it silently, because "open" in a status table nobody
+revisits is the same failure as a note nobody reads, and this project has now promoted four notes for
+exactly that reason.
+
+Three is a small number and forty-four is not. The rest are genuinely open, and most of them are the
+early findings about the wider project - the deployed contracts, the radio figures, the attestation
+root - rather than about the identity root this work has been on for ninety loops. **That contrast is
+the most useful thing the page shows**: the part with a hundred and sixty sections of analysis and
+thirteen checks is not the part with the open findings.
