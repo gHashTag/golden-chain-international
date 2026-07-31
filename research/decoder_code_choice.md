@@ -3811,3 +3811,34 @@ codes - and this project has spent several loops learning that a green tick whic
 thing to hunt.
 
 The job now fetches the same cached liberty the synthesis job uses.
+
+## 139. The rule was in the checker and not in the search
+
+`AGING_HEADROOM` was declared in `inputs.py` two loops ago and enforced in
+`check_figures_reproduce.recommendation()`. It was **not** in `selection_with_bch.py` - the file
+anyone would open to see the search - which went on printing `best: BCH(127,78,7) selecting 60.0%,
+1.93 tiles`: the construction the rule exists to exclude.
+
+Nothing was wrong with either file on its own terms. The checker enforced a declared rule; the model
+ran the search the rule was written to correct. They simply disagreed, and the only reason to look
+was that this loop set out to bind a figure from every model.
+
+The fix is not to copy the rule. `meets_aging_headroom` now lives in `research/aging_margin.py`,
+where both can reach it - the search imports it directly, and the checker imports it too, replacing
+its own copy. **The rule had exactly one implementation and it was in the wrong layer**: a checker is
+allowed to import a model, and a model importing a checker is what the previous loop refused to do,
+which is precisely why the rule could not get to the model from where it was.
+
+With the rule applied, the search agrees: `best: BCH(127,57,11) selecting 80.0%`.
+
+## 140. Seven of twelve models now have a figure checked
+
+Four last loop, seven now: the search's recommended code, the measured entropy density, the source
+model's raw error rate, and the four from before. The control that matters is the new one - disabling
+the headroom rule inside the search makes the checker and the model disagree, and the check fires.
+
+The five without a bound figure are named rather than left: `inputs.py` prints nothing;
+`code_choice_model.py`, `bch_code_search.py`, `key_generator_e2e.py` and `sllc_key_generator.py`
+print tables whose every row is a candidate rather than a conclusion. A tripwire wants one number the
+file exists to produce, and for those four there is no such number - which is worth stating, because
+"unbound" and "has nothing to bind" look identical in a count.

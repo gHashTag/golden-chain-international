@@ -59,6 +59,12 @@ def _expected():
             r"sigma at ([\d.]+)% \(what the construction absorbs\)", absorbable, 0.1),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
+        "selection_with_bch.py": (
+            r"best: BCH\(127,(\d+),\d+\)", float(C.recommendation()[2]), 0.5),
+        "selection_entropy.py": (
+            r"measured density ([\d.]+) bits per position", I.MIN_ENTROPY_DENSITY, 0.0005),
+        "reliable_bit_selection.py": (
+            r"noise sigma [\d.]+ gives raw ber ([\d.]+)", 0.15, 0.001),
         "pointer_vs_linear.py": (
             r"pointer family is ([\d.]+) of a tile ahead",
             C.recommendation()[0] - I.tiles(

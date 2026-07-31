@@ -97,6 +97,50 @@ RAW_NOISE_BER = I.RAW_NOISE_BER
 KEEP = 1 - I.SELECTION_LOSS   # the design keeps eighty percent
 
 
+_ABSORB_CACHE = {}
+
+
+def absorbable_flip_for(t, k, blocks):
+    """The unselected ten-year flip rate a candidate construction still survives.
+
+    Lives here rather than in the checker because the search needs it too, and a research
+    model importing a checker inverts the layering. W-INTL-205: the rule was enforced in
+    check_figures_reproduce and absent from selection_with_bch, so the model anyone would
+    read to see the search still recommended the code the rule excludes.
+    """
+    key = (t, k, blocks)
+    if key in _ABSORB_CACHE:
+        return _ABSORB_CACHE[key]
+    from math import comb, sqrt
+    keep = 1.0 - I.SELECTION_LOSS
+    lo, hi = 0.0, 0.5
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        per = sum(comb(127, i) * mid**i * (1 - mid)**(127 - i) for i in range(t + 1, 128))
+        if 1 - (1 - per) ** blocks <= I.TARGET_FAILURE:
+            lo = mid
+        else:
+            hi = mid
+    tol = lo
+    base = R.sigma_for_raw_ber(I.RAW_NOISE_BER) ** 2
+    lo, hi = 0.0, 0.99
+    for _ in range(20):
+        mid = (lo + hi) / 2
+        sig = sqrt(base + R.sigma_for_raw_ber(max(mid, 1e-6)) ** 2)
+        if R.selected_ber_counts_exact(sig, keep, I.ENROLMENT_READS, steps=600) <= tol:
+            lo = mid
+        else:
+            hi = mid
+    _ABSORB_CACHE[key] = lo
+    return lo
+
+
+def meets_aging_headroom(t, k, blocks):
+    """Whether a candidate leaves enough room on the least trustworthy input."""
+    return (absorbable_flip_for(t, k, blocks)
+            >= I.AGED_FLIP_RESISTANT * I.AGING_HEADROOM)
+
+
 def combined_sigma(*sigmas):
     """Independent Gaussian perturbations of the difference add in quadrature."""
     return sqrt(sum(s * s for s in sigmas))
