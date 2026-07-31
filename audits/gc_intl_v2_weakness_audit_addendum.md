@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-220
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-221
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5553,6 +5553,31 @@ failure mode where something passes on a pull request and fails after merge.
 
 Recorded so the nine minutes are a decision rather than an accident.
 
+## W-INTL-221  A generated status page, and what it showed on its first run
+
+Severity: low as a change, and the contrast it surfaces is worth more than the page.
+
+Two hundred and twenty audit entries, thirteen checks, seventeen controls, and a recommendation that
+has moved four times, with no single place showing which are closed, which are open and which were
+named and deliberately not done.
+
+STATUS.md is that place and it is generated. A hand-written status page is a claim about the
+repository that nothing checks, and this project has found six of those. check_status_current.py
+fails if the file and the generator disagree; its control edits the title and fires. It reports the
+recommendation as the figure checker derives it, the open audit rows, and every check with the first
+line of its own docstring - so a check that stops describing itself accurately shows up.
+
+On its first run: forty-four of a hundred and eighty-six rows are marked open, and three of them name
+a later entry in their own text - "corrected by W-INTL-58", "superseded in part by W-INTL-47" - which
+usually means the later entry answered them and the row was never updated. The generator surfaces
+that rather than counting it silently, because "open" in a status table nobody revisits is the same
+failure as a note nobody reads.
+
+The contrast is the useful part. Most of the forty-four are early findings about the wider project -
+deployed contracts, radio figures, the attestation root - rather than about the identity root this
+work has been on for ninety loops. The part with a hundred and sixty sections of analysis and
+thirteen checks is not the part with the open findings.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5728,6 +5753,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-221 | closed; a generated status page, and forty-four rows still open of which three name a later entry that probably answered them |
 | W-INTL-220 | closed as a decision; simulation dominates RTL verification and the three largest codes are 162 of the 540 seconds, and the weight sweep is kept |
 | W-INTL-218 | closed; two of three mechanically checkable rules had live violations, both in the tooling, and the import rule is a check now |
 | W-INTL-217 | closed; the coverage sweep named two of seven checks and computed on import, breaking two rules it had itself motivated |

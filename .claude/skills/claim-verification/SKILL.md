@@ -133,6 +133,17 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Generate the status page, and let it count what you have been avoiding
+
+A body of work with two hundred findings, thirteen checks and a recommendation that had moved four
+times had no single page saying what was open. Written by hand it would have been another claim
+nothing verifies; generated from the audit table, the check list and the model, it is current by
+construction and its control fires.
+
+What it showed on its first run was the useful part: the section of the work with the most analysis
+and the most checks is not the section with the open findings. A generated status page counts what
+you have been working on against what you have been avoiding, and it does not flatter either.
+
 ## Sweeping a rule and shipping a check are separate decisions
 
 Two rules were swept across a codebase. Both came back clean, and in both cases the detector that

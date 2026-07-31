@@ -94,6 +94,9 @@ jobs:
           python3 scripts/control.py research/nand_ring.py \
             'if __name__ == "__main__":' 'if True:' \
             -- python3 scripts/check_module_hygiene.py
+          python3 scripts/control.py STATUS.md \
+            '# Status' '# Status (edited)' \
+            -- python3 scripts/check_status_current.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
@@ -134,6 +137,10 @@ jobs:
             echo "::error::the commit-claims control did not fire"; exit 1
           fi
           echo "control on the commit message: the check FIRED"
+      - name: the status page is current
+        run: |
+          set -e
+          python3 scripts/check_status_current.py
       - name: no module computes on import
         run: |
           set -e
