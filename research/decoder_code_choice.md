@@ -3842,3 +3842,53 @@ The five without a bound figure are named rather than left: `inputs.py` prints n
 print tables whose every row is a candidate rather than a conclusion. A tripwire wants one number the
 file exists to produce, and for those four there is no such number - which is worth stating, because
 "unbound" and "has nothing to bind" look identical in a count.
+
+## 141. The search never evaluated the design's own operating point
+
+`selection_with_bch.py` sweeps a hand-written list of selection fractions - 1.00, 0.80, 0.60, 0.40,
+0.326, 0.20, 0.10 - and prints the cheapest row as `best:`. The declared operating point is 54.4
+percent, and **it was not in the list**.
+
+So the model that exists to justify the selection fraction has never evaluated the fraction the
+design uses. Its `best:` row was the best of seven arbitrary points, one of which happened to be
+close.
+
+`SELECTION_LOSS` was importable from that file for six loops and the file did not import it. That is
+the same shape as the aging rule that lived only in the checker, one layer down: **a declared input
+that the model producing the recommendation cannot see is not an input to the recommendation.**
+
+The declared fraction is in the sweep now and marked. At 54.4 percent the search agrees with the
+recommendation: BCH(127,57,11) in three blocks, 701 raw positions.
+
+Rounding it to four places first turned 701 raw positions into 702 - a model disagreeing with its own
+declared input by one position, introduced by the rounding and removed by not rounding.
+
+## 142. Where each declared rule can actually be seen
+
+The audit that found it, run over every declared rule and constant:
+
+| Declared | Read by |
+|---|---|
+<!-- derived:external --> | `TARGET_FAILURE` | six files, including both search models |
+<!-- derived:external --> | `MIN_ENTROPY_DENSITY` | seven files |
+<!-- derived:external --> | `ENROLMENT_READS` | five files |
+<!-- derived:external --> | `AGING_HEADROOM` | one file, reached by the search through it |
+<!-- derived:external --> | `SELECTION_LOSS` | four files - **and not the search** |
+
+Four of five were fine and the fifth was the one nobody would have guessed, because the file *does*
+import `inputs` and uses four other things from it. A rule can be absent from a file that imports the
+module it lives in, and no import error will ever say so.
+
+The general form: **the check is not "does this file import the inputs" but "does this file read the
+input that governs what it computes"**. That is a question about pairs, and the only way to answer it
+is to list the declared rules and ask, of each, which file it is supposed to constrain.
+
+## 143. The third arrival of the same CI lesson
+
+Moving three controls into the document job took it from twelve seconds to thirteen minutes, because
+each invokes `check_models_run` and that takes four. W-INTL-195 recorded this for the coverage sweep,
+W-INTL-197 for a filter inside a search loop, and this is the third.
+
+They now live in the `models-run` job beside the check they exercise. The rule that keeps arriving is
+simple enough to state as a placement rule rather than a lesson: **a control belongs in the job that
+runs the check it breaks.**

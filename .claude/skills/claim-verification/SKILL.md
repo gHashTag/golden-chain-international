@@ -133,6 +133,25 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Importing the config is not reading the setting
+
+A model imported the inputs module and used four things from it. The fifth - the one that governs the
+parameter the model exists to choose - it never read, and swept a hand-written list instead. No
+import error can say so, and the file looks correct at a glance precisely because the import is there.
+
+Audit by pairs, not by imports: list each declared rule and ask which file it is supposed to
+constrain, then check that file reads it. Four of five will be fine and the fifth is the one nobody
+would guess.
+
+## A control belongs in the job that runs the check it breaks
+
+Three controls that each invoke a four-minute check were placed in the twelve-second job, taking it
+to thirteen minutes. This was the third arrival of the same lesson in ten loops - once for a coverage
+sweep, once for a filter inside a search loop, once here.
+
+At the third arrival, stop writing the lesson and write the rule: the control goes where the check
+goes. Placement is not a judgement call to be re-made each time.
+
 ## A rule enforced only in the checker is a rule the model does not have
 
 A design rule was declared in the inputs file and enforced in the checker. The search model - the

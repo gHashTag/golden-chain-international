@@ -100,7 +100,16 @@ if __name__ == "__main__":
               f"{'code':>16} {'blocks':>7} {'selected bits':>14} {'raw positions':>14} "
               f"{'tiles':>7}")
         best_overall = None
-        for frac in (1.00, 0.80, 0.60, 0.40, 0.326, 0.20, 0.10):
+        # The declared operating point is in the sweep, marked, because a search that
+        # never evaluates the design's actual fraction is a search whose best row is a
+        # coincidence. SELECTION_LOSS was readable from here for six loops and this file
+        # did not read it - the same shape as the aging rule that lived only in the
+        # checker. W-INTL-207.
+        # Not rounded: rounding the fraction to four places turned 701 raw positions
+        # into 702, which is a model disagreeing with its own declared input by one.
+        design = 1.0 - I.SELECTION_LOSS
+        for frac in sorted({1.00, 0.80, 0.60, 0.40, 0.326, 0.20, 0.10, design},
+                           reverse=True):
             eff = R.selected_ber_counts_exact(sigma, frac, I.ENROLMENT_READS)
             need_k = need_k_at(frac)
             rho_sel = density_at(frac)
@@ -127,9 +136,10 @@ if __name__ == "__main__":
                 print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} {'none fits':>16}")
                 continue
             tiles, n, k, t, blocks, sel_bits, raw_pos = row_best
+            mark = "  <- declared" if abs(frac - design) < 1e-9 else ""
             print(f"{frac:9.1%} {eff:9.4f} {rho_sel:8.4f} {need_k:9d} "
                   f"{f'BCH({n},{k},{t})':>16} {blocks:7d} "
-                  f"{sel_bits:14d} {raw_pos:14d} {tiles:7.2f}")
+                  f"{sel_bits:14d} {raw_pos:14d} {tiles:7.2f}{mark}")
             if best_overall is None or tiles < best_overall[0]:
                 best_overall = (tiles, frac, n, k, t, raw_pos)
         if best_overall:
