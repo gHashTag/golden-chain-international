@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-222
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-223
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5609,6 +5609,34 @@ That last has been the answer to "what is left" for sixteen loops. Every loop si
 apparatus; the apparatus is now good enough that the improvement per loop is small and the missing
 measurement is the same size it was.
 
+## W-INTL-223  Every borrowed number swept, and the tightest is not the one this work has been calling tightest
+
+Severity: high as a correction. It closes W-INTL-74, open since loop 74.
+
+For each borrowed figure, how far it would have to be wrong before the recommendation failed:
+inverter area 71.8 times, tile utilisation 4.66, fresh error rate 1.65, ten-year flip rate 1.41,
+min-entropy density 1.26.
+
+The tightest is the min-entropy density, not the aging figure. AGING_HEADROOM was introduced with the
+sentence "the aging input is the least trustworthy figure in this work" and 0.9 of a tile was spent
+on the strength of it. The aging figure has the most alien provenance - simulated, another node,
+another cell - and 1.41 times in hand. The entropy density has 1.26, and three of its four conditions
+differ from this design: FPGAs rather than an ASIC, room temperature only, disjoint pairing where
+this design reuses oscillators across pairs. Two borrowed figures, and the one with the better story
+has less room.
+
+The utilisation result is the other side of the same coin: borrowed from a design 3.4 times smaller,
+never questioned, and the recommendation survives down to 12.4 percent - four and a half times worse
+than the borrowed figure. Worth checking and it does not matter.
+
+Asked the other way round for the first time: of everything the design depends on, which number does
+the characterisation structure exist to replace? The min-entropy density, and it is the tightest. The
+design fails below 0.7485, nothing here has measured it on this process, and the structure that would
+is built, tested and 3,172 square micrometres.
+
+Limitation stated: each row moves one input and holds the rest, which is the sweep that reversed a
+priority in W-INTL-85. Two moving together are not covered.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5682,7 +5710,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-71 | resolved; reusable debiasing does not exist for this construction, so one enrolment per device is forced and the registry now says so |
 | W-INTL-72 | closed by W-INTL-114 and W-INTL-144; the density stopped binding, and the figure that applies is the post-selection 0.9113 against a floor of 0.7485 |
 | W-INTL-73 | closed; every synthesis figure reproduces from one script, testbenches first |
-| W-INTL-74 | open, high; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |
+| W-INTL-74 | closed by W-INTL-223; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |
 | W-INTL-75 | resolved; BCH(127,22,23) is smaller than the inherited choice with 4.5x the entropy margin, superseding W-INTL-64 |
 | W-INTL-76 | closed by measurement; the best-margin code needs 16.88 tiles for its decoder alone |
 | W-INTL-77 | corrected; the oscillator floor asked for raw entropy instead of residual, and at the figure in use the construction yields no key |
@@ -5784,6 +5812,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-223 | closes W-INTL-74; every borrowed figure swept, and the min-entropy density is the tightest at 1.26 times, not the aging figure at 1.41 |
 | W-INTL-222 | closed; ten open rows were answered by later work and never updated, forty-four became thirty-four, and fifteen of those concern the identity root |
 | W-INTL-221 | closed; a generated status page, and forty-four rows still open of which three name a later entry that probably answered them |
 | W-INTL-220 | closed as a decision; simulation dominates RTL verification and the three largest codes are 162 of the 540 seconds, and the weight sweep is kept |

@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-188 entries in the weakness audit. 154 closed, 34 open or deliberately deferred:
+189 entries in the weakness audit. 156 closed, 33 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -39,7 +39,6 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-52 | open, medium; index-based absences re-checked by enumeration, one changed |  |
 | W-INTL-61 | open, high if a security level is ever claimed; response bits are biased and key search is ordered |  |
 | W-INTL-69 | open, high; the registry has no stated enrolment policy, and reusability of the key generator depends on it |  |
-| W-INTL-74 | open, high; the code was inherited from a paper along with its operating point, and other borrowed parameters should be checked the same way |  |
 | W-INTL-85 | open, high as a correction; sweeping one input at a time reversed the priority, and the error rate is at least as binding as entropy |  |
 | W-INTL-98 | open, medium; eleven constraints now in one register, six named as unchecked with helper-data manipulation first |  |
 | W-INTL-117 | open as a method finding; three loops running, a table in already-cited literature removed a constraint treated as fixed |  |
@@ -52,11 +51,11 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |  |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |  |
 
-Of the open rows, 15 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
+Of the open rows, 14 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
 
 ## Checks
 
-13 checks, each with at least one control; 18 controls run in CI.
+13 checks, each with at least one control; 19 controls run in CI.
 
 | Check | What it establishes |
 |---|---|

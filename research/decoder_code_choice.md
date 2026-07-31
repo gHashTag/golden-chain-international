@@ -4275,3 +4275,49 @@ was, and the NAND ring's missing flip rate.
 **That last one has been the answer to "what is left" for sixteen loops.** Every loop since has
 improved the apparatus, and the apparatus is now good enough that the improvement per loop is small
 and the missing measurement is the same size it was.
+
+## 164. Every borrowed number, and how far it can move
+
+W-INTL-74 has been open since loop 74: the code was inherited from a paper along with its operating
+point, and the other borrowed parameters should be checked the same way. The code was checked twice.
+The rest were not.
+
+Checked now, systematically. For each borrowed figure, how far would it have to be wrong before the
+recommendation failed:
+
+| Borrowed | Value | Limit | Margin | Conditions it carries |
+|---|---|---|---|---|
+<!-- derived:external --> | inverter area | 3.76 | 269.5 above | **71.8x** | a published tile's inverter count; cross-checked against the library |
+<!-- derived:external --> | tile utilisation | 0.5795 | 0.1244 below | **4.66x** | a 1x2-tile design, applied to one of 3.4 tiles |
+<!-- derived:external --> | fresh error rate | 0.0600 | 0.0987 above | **1.65x** | this project's own working figure rather than a measurement |
+<!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1092 above | **1.41x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
+<!-- derived:external --> | min-entropy density | 0.9414 | 0.7485 below | **1.26x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
+
+**The tightest is the min-entropy density, not the aging figure.**
+
+That corrects something this work has been saying for three loops. `AGING_HEADROOM` was introduced
+with the sentence "the aging input is the least trustworthy figure in this work", and 0.9 of a tile
+was spent on the strength of it. The aging figure has the most alien provenance - simulated, another
+node, another cell - but it has 1.41 times in hand. The entropy density has **1.26**, and three of
+its four conditions differ from this design: measured on FPGAs rather than an ASIC, at room
+temperature only, and under disjoint pairing where this design reuses oscillators across pairs.
+
+Two figures, both borrowed, and the one with the better story has less room.
+
+## 165. What that says about the instrument
+
+The characterisation structure was built to measure three things and has been costed, re-costed and
+verified. This is the first time the question has been asked the other way round: **of everything the
+design depends on, which number does the instrument exist to replace?**
+
+The min-entropy density, and it is the tightest. The design fails if the ASIC figure comes in below
+0.7485, nothing in this project has measured it on this process, and the structure that would is
+built, tested and 3,172 square micrometres.
+
+The utilisation result is the other side of the same coin: borrowed from a design 3.4 times smaller
+and never questioned, and the recommendation survives down to 12.4 percent - four and a half times
+worse than the borrowed figure. **It was worth checking and it does not matter.** Knowing which is
+which is the entire output of this sweep.
+
+One limitation, stated because it reversed a priority once before: each row moves one input and holds
+the rest. Two moving together are not covered.
