@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-214
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-215
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5403,6 +5403,34 @@ Four of the last five audits found a defect and this one did not. The question t
 whether an audit finds something but whether its class can produce a defect silently in future, and
 for this one it could: the artefact and the intent were connected only by a file name and a habit.
 
+## W-INTL-215  Three declared areas had never decoded anything
+
+Severity: high. The project's oldest rule, enforced for eighty loops on what the script could see.
+
+measure_all.sh opens with the rule that no area is quoted for a circuit that has not decoded
+correctly, and refuses to print any area if a testbench fails. Checked against the declarations
+rather than assumed: three declared decoder areas had no end-to-end testbench at all - GF(2^8) at
+t=30, t=47 and t=55. They were re-synthesised on every run and offered to the search as candidates,
+so a code the search could have recommended had never decoded a single word.
+
+All three pass. The gap was in the coverage, not the circuits, which is why it survived: every check
+that touched those areas measured them, and measuring a circuit says nothing about whether it
+computes the right function.
+
+scripts/check_testbench_coverage.py makes the invariant a check rather than a habit - every key in
+every declared table has an entry in measure_all.sh. Twenty-seven testbenches now, up from
+twenty-four. Control: changing one testbench's correction strength so a declared code loses its entry
+fires.
+
+The failure mode deserves precision, because the rule was not ignored. measure_all.sh enforces it
+perfectly for the testbenches it contains. What it cannot do is notice a declared area with no
+testbench in the list, because nothing connected the list to the declarations.
+
+Third time in four loops for this shape: a check correct about its inputs and blind to what is not
+among them. The reference resolver was given the wrong document set; the coverage sweep could not see
+undeclared numbers; this one could not see undeclared testbenches. One question finds all three -
+what is this check's input set, and who guarantees it is complete.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5577,6 +5605,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-215 | closed; three declared decoder areas had no end-to-end testbench, all three pass, and the invariant is a check now |
 | W-INTL-214 | closed and clean; all twenty-two generated RTL files match what their generators produce for the parameters their names claim |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |
 | W-INTL-211 | closed; controls run one model instead of twelve, taking a four-minute control to thirty-two seconds |

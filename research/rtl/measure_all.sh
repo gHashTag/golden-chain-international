@@ -109,6 +109,15 @@ run_tb "full decode end to end, GF(2^7) t=21" \
 run_tb "full decode end to end, GF(2^8) t=31" \
     -DMVAL=8 -DTVAL=31 -DREDVAL="8'h1D" -DTOPNAME=bch255t31_tables \
     bch255t31_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=30" \
+    -DMVAL=8 -DTVAL=30 -DREDVAL="8'h1D" -DTOPNAME=bch255t30_tables \
+    bch255t30_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=47" \
+    -DMVAL=8 -DTVAL=47 -DREDVAL="8'h1D" -DTOPNAME=bch255t47_tables \
+    bch255t47_tables.v bm_area_probe.v tb_bch_e2e.v
+run_tb "full decode end to end, GF(2^8) t=55" \
+    -DMVAL=8 -DTVAL=55 -DREDVAL="8'h1D" -DTOPNAME=bch255t55_tables \
+    bch255t55_tables.v bm_area_probe.v tb_bch_e2e.v
 run_tb "full decode end to end, GF(2^7) t=7" \
     -DMVAL=7 -DTVAL=7 -DREDVAL="7'h09" -DTOPNAME=bch127t7_tables \
     bch127t7_tables.v bm_area_probe.v tb_bch_e2e.v

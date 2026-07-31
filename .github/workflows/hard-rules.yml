@@ -88,6 +88,9 @@ jobs:
           python3 scripts/control.py research/rtl/sllc127t7.v \
             'module sllc127t7_unmask' 'module sllc127t7_unmask2' \
             -- python3 scripts/check_generated_rtl.py
+          python3 scripts/control.py research/rtl/measure_all.sh \
+            '-DMVAL=8 -DTVAL=30' '-DMVAL=8 -DTVAL=99' \
+            -- python3 scripts/check_testbench_coverage.py
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
@@ -128,6 +131,10 @@ jobs:
             echo "::error::the commit-claims control did not fire"; exit 1
           fi
           echo "control on the commit message: the check FIRED"
+      - name: every declared code has a testbench
+        run: |
+          set -e
+          python3 scripts/check_testbench_coverage.py
       - name: generated RTL matches its generator
         run: |
           set -e
