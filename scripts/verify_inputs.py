@@ -159,6 +159,16 @@ def main():
         "spongent_round":       ("spongent.v", I.COUNTERMEASURE_AREA["spongent_round"], ""),
         "ibs_select":            ("ibs_select.v",
                                   I.POINTER_AREA["ibs_select_block4"], "BLOCK=4"),
+        # Two measured dictionaries that nothing read and nothing verified until
+        # W-INTL-210. The characterisation readout is quoted in the documents as the cost
+        # of the instrument; the two solver forms are the measurement behind the decision
+        # to share multipliers. Both were declared, neither was re-synthesised.
+        "ro_characteriser":      ("ro_characteriser.v", I.CHARACTERISER_AREA[272],
+                                  "NRO=272 CW=20 GATE=16"),
+        "bm_area_probe":         ("bm_area_probe.v", I.SOLVER_AREA["parallel_t21_m7"],
+                                  "T=21 M=7 RED=9"),
+        "bm_serial":             ("bm_serial.v bm_area_probe.v",
+                                  I.SOLVER_AREA["serial_t21_m7"], "T=21 M=7 RED=9"),
     }
     # SLLC is declared as a sum of two modules per code, so it is verified as a sum
     # rather than added to FIXED, which holds single modules.

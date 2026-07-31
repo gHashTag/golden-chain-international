@@ -75,8 +75,14 @@ def _expected():
 
 
 def main():
+    # --only <name> runs a single model. Each control re-ran all twelve, four minutes
+    # each, and three controls took the job to eighteen minutes - W-INTL-211.
+    only = None
+    if "--only" in sys.argv:
+        only = sys.argv[sys.argv.index("--only") + 1]
     files = sorted(p for p in MODELS.glob("*.py")
-                   if not p.name.startswith("_") and p.name not in HEAVY)
+                   if not p.name.startswith("_") and p.name not in HEAVY
+                   and (only is None or p.name == only))
     if not files:
         print("FAIL: no models found, so this check read nothing", file=sys.stderr)
         return 1
@@ -112,7 +118,8 @@ def main():
     if failures:
         print(f"\ncheck_models_run: {len(failures)} of {len(files)} models do not run")
         return 1
-    if checked < len(expected):
+    want = len(expected) if only is None else (1 if only in expected else 0)
+    if checked < want:
         print(f"FAIL: {checked} of {len(expected)} declared model figures were checked")
         return 1
     skipped = ", ".join(f"{n} ({why})" for n, why in sorted(HEAVY.items()))
