@@ -43,18 +43,16 @@ import reliable_bit_selection as R
 import selection_entropy as SE
 
 CELLS = 35_905          # the recommendation, from check_figures_reproduce
-def _k_total(k=57):
-    """Bits of k the recommendation carries. Derived, because the literal went stale.
+def _k_total():
+    """Bits of k the recommendation carries. Asked for, not written down.
 
-    Was 57 * 3. The density headroom rule added a fourth block (W-INTL-228) and this file
-    kept sweeping against a construction with three, so every margin it printed was for a
-    design nobody was building. Fourth stale literal of the same kind found in one loop -
-    aging_margin's blocks default, burn_in's third copy of tolerated_ber, and
-    pointer_vs_linear's BLOCKS were the others.
+    Was 57 * 3, then a derivation with k=57 written into it, which is the same defect one
+    level in: the block count was computed and the code it multiplied was not. Both come
+    from selection_with_bch.recommended_code() now - W-INTL-229.
     """
-    rho = SE.density_for_bias(
-        SE.selected_bias(SE.mean_for_density(SE.working_density()), I.SELECTION_LOSS)[0])
-    return -(-int(I.KEY_BITS / rho) // k) * k
+    import selection_with_bch as S
+    _, k, _, blocks = S.recommended_code()
+    return k * blocks
 
 
 K_TOTAL = _k_total()

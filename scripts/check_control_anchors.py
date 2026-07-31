@@ -44,8 +44,19 @@ def main():
         if not target.exists():
             failures.append(f"control names {path}, which does not exist")
             continue
-        if anchor and anchor not in target.read_text():
+        if not anchor:
+            continue
+        # Present is not enough: an anchor matching twice lets control.py mutate the first
+        # site, which may not be the one the check measures. That happened when a rule was
+        # factored into a second function in the same file - the mutation succeeded, the
+        # harness was satisfied and the control silently stopped testing anything.
+        # W-INTL-230.
+        occurrences = target.read_text().count(anchor)
+        if occurrences == 0:
             failures.append(f"control anchor not found in {path}: {anchor!r}")
+        elif occurrences > 1:
+            failures.append(f"control anchor is ambiguous in {path}, {occurrences} "
+                            f"matches: {anchor!r}")
 
     for f in failures:
         print(f"FAIL: {f}")

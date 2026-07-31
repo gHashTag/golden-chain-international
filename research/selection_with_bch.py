@@ -103,6 +103,61 @@ def sized_density_at(fraction):
     """The same, at the derated density the design is sized against. W-INTL-228."""
     return SE.density_for_bias(SE.selected_bias(MU_SIZED, 1.0 - fraction)[0])
 
+def admissible(m, n, t, k, blocks, eff):
+    """Whether a candidate may be recommended. One site, deliberately.
+
+    The aging rule was written out in two places for one loop - the sweep and
+    recommended_code - and a negative control aimed at it then had two matches and mutated
+    the copy nobody measured. It reported a successful mutation and stopped firing.
+    W-INTL-230, and the reason the control harness now rejects an ambiguous anchor.
+    """
+    if I.decoder_area(m, t) is None or t not in I.SLLC_AREA:
+        return False
+    if word_fail(n, t, blocks, eff) > I.TARGET_FAILURE:
+        return False
+    if m == 7 and not AM.meets_aging_headroom(t, k, blocks):
+        return False
+    return True
+
+
+def best_at(frac, eff, need_k):
+    """Cheapest admissible construction at this selection fraction, or None."""
+    best = None
+    for m in (7, 8):
+        n = (1 << m) - 1
+        for t, k in bch_table(m):
+            blocks = -(-need_k // k)
+            if not admissible(m, n, t, k, blocks, eff):
+                continue
+            raw_pos = int(n * blocks / frac + 0.999)
+            osc = max(floor_ent(KEY), _r(raw_pos))
+            tiles = I.tiles(I.decoder_area(m, t) + I.SLLC_AREA[t]
+                            + osc * I.OSCILLATOR_AREA)
+            if best is None or tiles < best[0]:
+                best = (tiles, n, k, t, blocks, n * blocks, raw_pos)
+    return best
+
+
+def recommended_code():
+    """(n, k, t, blocks) of the construction this project recommends. W-INTL-229.
+
+    The one research-side answer to "which code are we building". Five models had written
+    it down instead - two of them a code four moves out of date, in the file this project
+    cites as its two-witness end-to-end argument - and the checker was the only place that
+    computed it. A research model importing a checker inverts the layering, so the
+    quantity lived nowhere a model could ask for it, and each one kept its own copy.
+
+    Deliberately the same search the sweep runs, at the declared fraction, so a divergence
+    between this and check_figures_reproduce.recommendation() is a real disagreement
+    rather than two spellings of one.
+    """
+    frac = 1.0 - I.SELECTION_LOSS
+    eff = R.selected_ber_counts_exact(R.sigma_for_raw_ber(I.RAW_NOISE_BER), frac,
+                                      I.ENROLMENT_READS)
+    best = best_at(frac, eff, need_k_at(frac))
+    return (best[1], best[2], best[3], best[4]) if best else None
+
+
 # The sweep runs under a main guard so that a checker can import this module and
 # call density_at() without executing three tables. A module that computes on
 # import cannot be cross-checked against, which is how two files came to report
@@ -134,13 +189,12 @@ if __name__ == "__main__":
                 n = (1 << m) - 1
                 for t, k in bch_table(m):
                     area = I.decoder_area(m, t)
-                    if area is None:
-                        continue
                     blocks = -(-need_k // k)
-                    if word_fail(n, t, blocks, eff) > I.TARGET_FAILURE:
+                    # One admissibility rule, called from both places - W-INTL-230. It
+                    # carries the aging headroom of W-INTL-205 and the measured-SLLC guard
+                    # of W-INTL-177, both of which used to be written out here.
+                    if not admissible(m, n, t, k, blocks, eff):
                         continue
-                    if m == 7 and not AM.meets_aging_headroom(t, k, blocks):
-                        continue      # not enough room on the aging figure - W-INTL-205
                     sel_bits = n * blocks
                     raw_pos = int(sel_bits / frac + 0.999)
                     osc = max(floor_ent(KEY), _r(raw_pos))

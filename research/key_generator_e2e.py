@@ -19,14 +19,33 @@ import hashlib
 import random
 from math import comb
 
-# ── the construction, from the search in bch_code_search.py ─────────────────
-# BCH(127,29,21) over GF(2^7), the recommendation as of loop 61. This file exercised
-# BCH(127,22,23) for six loops after the recommendation moved, which is the same drift
-# as W-INTL-99 in a different place: the chain was validating a construction the rest
-# of the analysis had stopped recommending.
-M, RED, T, K_BITS = 7, 0x09, 21, 29
+# ── the construction, taken from the recommendation rather than written down ─
+# This file has now been pinned to a superseded code twice. First it exercised
+# BCH(127,22,23) for six loops after the recommendation moved; that was fixed by writing
+# BCH(127,29,21) in its place, which is the loop-61 recommendation, and it went stale
+# again across four further moves. The second time nothing noticed at all, because the
+# fix was a better literal rather than not a literal - W-INTL-229.
+def _recommended():
+    """(t, k, blocks) of the construction actually recommended. W-INTL-229.
+
+    Was the literal (21, 29, 23) with a comment recording that this file had exercised a
+    superseded code for six loops and had been re-pointed. It then went stale a second
+    time, by the same mechanism, and stayed stale through four moves of the
+    recommendation - so the end-to-end run that this project cites as its two-witness
+    argument was witnessing a construction nobody builds.
+
+    A comment saying "this drifted once" is a record. Deriving it is a fix.
+    """
+    import sys as _s
+    _s.path.insert(0, __file__.rsplit("/", 1)[0])
+    import selection_with_bch as S
+    _, k, t, blocks = S.recommended_code()
+    return t, k, blocks
+
+
+T, K_BITS, BLOCKS = _recommended()
+M, RED = 7, 0x09
 N = (1 << M) - 1
-BLOCKS = 23
 KEY_BITS = 128       # see research/inputs.py; kept literal so this file runs standalone
 MASK = N
 

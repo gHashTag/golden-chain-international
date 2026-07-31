@@ -93,6 +93,16 @@ def main():
         return 1
     before_hash = digest(target)
 
+    # An anchor that matches more than once is ambiguous, and replacing the first match
+    # can mutate a place the check does not measure. That is what happened when a rule
+    # was factored into a second function in the same file: the file changed, the harness
+    # was satisfied, the mutation landed in the wrong copy and the control stopped firing
+    # while still reporting a successful mutation. W-INTL-230.
+    occurrences = before.count(old)
+    if occurrences > 1:
+        print(f"control on {target}: anchor is ambiguous, {occurrences} matches - "
+              f"a control must name one site", file=sys.stderr)
+        raise SystemExit(2)
     target.write_text(before.replace(old, new, 1))
     if digest(target) == before_hash:
         print(f"FAIL: the mutation left {path} unchanged")

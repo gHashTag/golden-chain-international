@@ -55,6 +55,15 @@ def recommended_blocks(k=57):
     it compares to one decimal place, and 10.8378 against 10.9 is inside the tolerance.
 
     A prediction written down and then not acted on is not a mitigation. Derived now.
+
+    Alone among the five files re-pointed in W-INTL-229, this one cannot ask
+    selection_with_bch.recommended_code(): that module imports this one, to apply
+    meets_aging_headroom inside its own search, so asking back is a cycle. The default
+    k=57 is a residual literal of exactly the kind W-INTL-229 closes, kept because
+    breaking the cycle means moving the aging rule out of the file that documents it.
+    check_no_stale_literals watches the block count and not this k, and that is the gap:
+    if the recommended code's k moves while its t does not, this default is wrong and
+    nothing here says so.
     """
     import selection_entropy as SE
     rho = SE.density_for_bias(

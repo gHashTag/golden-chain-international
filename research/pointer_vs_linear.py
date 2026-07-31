@@ -47,9 +47,8 @@ def _blocks():
     not "check the constants"; it is that a figure the recommendation determines has to be
     computed from the recommendation.
     """
-    rho = SE.density_for_bias(
-        SE.selected_bias(SE.mean_for_density(SE.working_density()), I.SELECTION_LOSS)[0])
-    return -(-int(I.KEY_BITS / rho) // CODE[1])
+    import selection_with_bch as S
+    return S.recommended_code()[3]
 
 
 BLOCKS = _blocks()
