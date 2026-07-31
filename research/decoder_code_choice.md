@@ -3892,3 +3892,41 @@ W-INTL-197 for a filter inside a search loop, and this is the third.
 They now live in the `models-run` job beside the check they exercise. The rule that keeps arriving is
 simple enough to state as a placement rule rather than a lesson: **a control belongs in the job that
 runs the check it breaks.**
+
+## 144. Five declared inputs that nothing read, and two of them were measurements
+
+The pair audit that found the selection fraction was run over all thirty declared inputs. Five are
+read by nobody, and the interesting split is what kind of nobody.
+
+**Two are measured areas that nothing used and nothing verified.** `CHARACTERISER_AREA` - the
+readout for the instrument, quoted in the documents as what the instrument costs - and `SOLVER_AREA`,
+the parallel and serial forms whose difference is the entire argument for sharing multipliers. Both
+were declared with provenance, neither was re-synthesised by the verifier, and neither was read by any
+budget. They are the same class as the pointer datapath area fixed two loops ago, and that fix
+covered one dictionary of three.
+
+Both are verified now. Twenty-nine declared areas re-synthesise, up from twenty-five.
+
+**Three are retained on purpose**: the raw-bit budget that feeds only the vestigial utilisation guard,
+the published debiasing overheads, and the flag recording that the one reusable debiasing method is
+not constructible here. Deleting those would lose the record of what was ruled out, which is a
+finding rather than a parameter. They are now listed with their reasons rather than being quietly
+unread.
+
+`scripts/check_inputs_are_read.py` fails on any declared input that is neither read nor retained with
+a reason. It is the complement of the coverage sweep, and the distinction is worth keeping: **the
+sweep asks whether an input's value matters, this asks whether any file reads its name.** An input can
+pass one and fail the other, and a constant nothing reads cannot matter to anything.
+
+## 145. Eighteen minutes because every control re-ran everything
+
+`models-run` reached eighteen minutes. Three controls, each re-running all twelve models at four
+minutes a pass, on top of the check itself.
+
+`--only <model>` runs one. The controls name the model they break, and the job drops to roughly a
+third. Thirty-two seconds for a control that took four minutes.
+
+The shape is one the last loop already named for placement - a control belongs in the job that runs
+the check it breaks - and this is its second half: **a control should exercise the smallest scope that
+still fails.** Breaking one model and re-running twelve is not more thorough; it is the same evidence,
+eleven times slower.

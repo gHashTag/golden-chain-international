@@ -125,6 +125,10 @@ jobs:
             echo "::error::the commit-claims control did not fire"; exit 1
           fi
           echo "control on the commit message: the check FIRED"
+      - name: every declared input is read
+        run: |
+          set -e
+          python3 scripts/check_inputs_are_read.py
       - name: units on every ratio
         run: |
           set -e
@@ -235,13 +239,13 @@ jobs:
           # they live beside the check they exercise.
           python3 scripts/control.py research/code_choice_model.py \
             '(8, 18)' '(8, 99)' \
-            -- python3 scripts/check_models_run.py
+            -- python3 scripts/check_models_run.py --only code_choice_model.py
           python3 scripts/control.py research/nand_ring.py \
             'nand / inv:.4f' 'nand / inv * 2:.4f' \
-            -- python3 scripts/check_models_run.py
+            -- python3 scripts/check_models_run.py --only nand_ring.py
           python3 scripts/control.py research/selection_with_bch.py \
             'if m == 7 and not AM.meets_aging_headroom(t, k, blocks):' 'if False:' \
-            -- python3 scripts/check_models_run.py
+            -- python3 scripts/check_models_run.py --only selection_with_bch.py
 
 
   input-coverage:

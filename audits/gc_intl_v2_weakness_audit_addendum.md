@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-209
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-211
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5307,6 +5307,41 @@ W-INTL-197 for a filter inside a search loop, and this is the third arrival.
 They live in the models-run job now. Stated as a placement rule rather than a lesson: a control
 belongs in the job that runs the check it breaks.
 
+## W-INTL-210  Five declared inputs that nothing read, and two of them were measurements
+
+Severity: medium, and the split between the five is the useful part.
+
+The pair audit that found the selection fraction was run over all thirty declared inputs. Five are
+read by nobody.
+
+Two are measured areas that nothing used and nothing verified: CHARACTERISER_AREA, the readout the
+documents quote as the instrument's cost, and SOLVER_AREA, whose two forms are the entire argument
+for sharing multipliers. Both declared with provenance, neither re-synthesised, neither read by any
+budget - the same class as the pointer datapath area fixed two loops ago, and that fix covered one
+dictionary of three. Both verified now; twenty-nine declared areas re-synthesise, up from
+twenty-five.
+
+Three are retained on purpose: the raw-bit budget feeding only the vestigial guard, the published
+debiasing overheads, and the flag recording that the one reusable debiasing method is not
+constructible here. Deleting those loses the record of what was ruled out. Listed with reasons now
+rather than quietly unread.
+
+scripts/check_inputs_are_read.py fails on any declared input neither read nor retained with a reason.
+It is the complement of the coverage sweep: that one asks whether an input's value matters, this asks
+whether any file reads its name, and an input can pass one and fail the other.
+
+## W-INTL-211  Eighteen minutes because every control re-ran everything
+
+Severity: low, and it is the second half of the placement rule.
+
+models-run reached eighteen minutes: three controls each re-running all twelve models at four minutes
+a pass, on top of the check. --only <model> runs one, the controls name the model they break, and a
+control that took four minutes takes thirty-two seconds.
+
+A control belongs in the job that runs the check it breaks - and it should exercise the smallest
+scope that still fails. Breaking one model and re-running twelve is not more thorough; it is the same
+evidence, eleven times slower.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5479,6 +5514,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-205 | closed; the aging-headroom rule existed only in the checker, so the search model still recommended the excluded code - one implementation now, in research/ |
 | W-INTL-207 | closed; the search swept a hand-written list that did not contain the declared operating point |
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
+| W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
+| W-INTL-211 | closed; controls run one model instead of twelve, taking a four-minute control to thirty-two seconds |
 | W-INTL-209 | closed; a control belongs in the job that runs the check it breaks - third arrival |
 | W-INTL-206 | closed; seven of twelve models have a bound figure and the other five are named as having nothing to bind |
 | W-INTL-203 | closed; one output figure per model is now checked against the model, and the control found aging_margin computing a tolerance for a code nobody would be building |

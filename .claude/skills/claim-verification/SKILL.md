@@ -133,6 +133,24 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Ask separately whether a value matters and whether anything reads its name
+
+Two checks look like the same check and are not. Perturbing an input and seeing whether anything
+fails asks whether the *value* matters. Grepping for the name asks whether any file *reads* it. An
+input can pass the first and fail the second - and a constant nothing reads cannot matter to
+anything, so the second is the cheaper question and should come first.
+
+Running it over thirty declared inputs found five that nothing read, two of which were measurements
+that nothing verified either. Both questions, on every input, or you find neither.
+
+## A control should exercise the smallest scope that still fails
+
+Three controls each re-ran twelve models to prove one model diverged. Same evidence, eleven times
+slower, and eighteen minutes of CI.
+
+Give the check a way to run one case and have the control name it. Thoroughness in a control is
+about whether it fires, not about how much it drags along.
+
 ## Importing the config is not reading the setting
 
 A model imported the inputs module and used four things from it. The fifth - the one that governs the
