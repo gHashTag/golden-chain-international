@@ -4005,3 +4005,44 @@ For this class it could. Sixteen decoders, six masking stages, and a generator w
 given on a command line with no record of what was passed - the artefact and the intent were
 connected only by a file name and a habit. They are connected by a check now, and the cost of that is
 one regeneration per file per CI run.
+
+## 150. Three declared areas had never decoded anything
+
+`measure_all.sh` opens with the rule this project has repeated for eighty loops: no area is quoted
+for a circuit that has not decoded correctly, and the script refuses to print any area if a testbench
+fails.
+
+Checked against the declarations rather than assumed. **Three declared decoder areas had no
+end-to-end testbench at all** - GF(2^8) at t=30, t=47 and t=55. They were re-synthesised by the
+verifier on every run and offered to the search as candidates, so a code the search could have
+recommended had never decoded a single word.
+
+All three pass. The gap was in the coverage, not the circuits - which is exactly why it survived:
+every check that touched those areas measured them, and measuring a circuit says nothing about
+whether it computes the right function.
+
+| Declared | Tested before | Tested now |
+|---|---|---|
+<!-- derived:external --> | sixteen decoders, end to end | thirteen | **sixteen** |
+<!-- derived:external --> | four shared-solver decoders, differentially | four | four |
+<!-- derived:external --> | three masking stages | three | three |
+
+`scripts/check_testbench_coverage.py` makes the invariant a check rather than a habit: every key in
+each declared table has an entry in `measure_all.sh`. Twenty-seven testbenches now, up from
+twenty-four, and its control - changing one testbench's correction strength so a declared code loses
+its entry - fires.
+
+## 151. The rule was stated, enforced for what it could see, and blind to three cases
+
+The failure mode is worth naming precisely, because the rule was not ignored. `measure_all.sh`
+enforces it perfectly **for the testbenches it contains**: it runs them first, and refuses to print
+areas if one fails. What it cannot do is notice a declared area with no testbench in the list, because
+nothing connected the list to the declarations.
+
+That is the third time in four loops the same shape has appeared: a check that is correct about its
+inputs and blind to what is not among them. The reference resolver was given the wrong document set;
+the coverage sweep could not see undeclared numbers; this one could not see undeclared testbenches.
+
+The general form, now stated three ways in the skill file, is one question: **what is this check's
+input set, and who guarantees it is complete?** Every one of these was found by asking it of a check
+that had been green for dozens of loops.

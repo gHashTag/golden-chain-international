@@ -133,6 +133,20 @@ Renaming is a message to a reader who is already asking the question. If you ren
 defect, fix the callers in the same change - or the rename becomes a comment nobody reads, with the
 added cost that it looks like the problem was handled.
 
+## Ask of every check: what is its input set, and who guarantees it is complete
+
+Three findings in four loops shared one shape. A reference resolver was correct about the documents
+it was given and was given the wrong set. A coverage sweep was correct about the inputs it knew and
+could not see numbers nobody had declared. A testbench runner enforced its rule perfectly for the
+testbenches it contained and could not notice a declared circuit with no testbench in the list.
+
+None of them was wrong. Each was blind to what was not among its inputs, and a green run looks
+identical either way.
+
+So for each check, name its input set and name what guarantees that set is complete. If the answer is
+"someone adds an entry when they add an artefact", the completeness is a habit and needs its own
+check - usually a trivial one comparing two lists.
+
 ## A generated artefact and its parameters are connected by nothing but habit
 
 Files generated from a command line and committed carry no record of what was passed. The name says
