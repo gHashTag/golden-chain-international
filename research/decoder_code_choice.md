@@ -4084,3 +4084,38 @@ a habit with a syntax, and it decays the moment somebody adds an artefact withou
 Where an enumeration is genuinely necessary - the heavy model that CI will not install, the retained
 inputs that nothing reads - it carries its reason, and a check compares the enumeration against the
 glob so the exceptions stay visible.
+
+## 154. The rule applied to the file that motivated it
+
+W-INTL-216 ended with a rule: when a check takes a set, that set should be a glob or a derivation, not
+an enumeration. Applied to the checks themselves, one enumeration was left, and it was in the sweep
+that had produced the rule.
+
+`check_input_coverage.py` perturbs each declared input and asks whether any check notices. Which
+checks? **Two, named in a list** - written when the repository had three. Five more have been added
+since, and none of them was in it. The sweep that exists to find inputs nothing notices was itself
+consulting a stale list of noticers.
+
+Derived from `scripts/check_*.py` now and narrowed with a reason each: four checks read `inputs.py`,
+three read documents or a workflow or a commit message, and one takes four minutes a pass and reaches
+the inputs through another check anyway.
+
+The verdicts did not change - seventeen scalars, sixteen covered, one retained - which is the honest
+result and not the one that would have made a better story. **The enumeration was wrong and nothing
+depended on the difference**, this time.
+
+And the file had one more instance of an old finding: it computed on import, so reading its check list
+ran the whole sweep. W-INTL-169 recorded that a module which computes on import cannot be
+cross-checked against, and this file has been violating it since it was written. Driver under a main
+guard now.
+
+## 155. Two rules, both written after the same file broke them
+
+The pattern is worth stating plainly because it is now twice in one file: **the place a rule is first
+learned is not the place it gets applied.** W-INTL-169 was learned from `selection_with_bch.py` and
+`check_input_coverage.py` kept computing on import. W-INTL-216 was learned from four checks and the
+sweep that motivated the audit kept its own enumeration.
+
+Both were found by turning the rule back on the tooling rather than on the subject. That is a cheap
+sweep to run whenever a rule is written down - **who else does this?** - and it is cheaper still to run
+it before the rule is filed rather than three loops later.

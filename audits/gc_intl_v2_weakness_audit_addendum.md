@@ -1,4 +1,4 @@
-# Weakness Audit Addendum: W-INTL-16 .. W-INTL-216
+# Weakness Audit Addendum: W-INTL-16 .. W-INTL-217
 
 Entries are in numeric order. They were not until 2026-07-29: 26 and 27 had been
 appended where they were written rather than where they belong, which put 19
@@ -5458,6 +5458,35 @@ been given and silent about what it had not. Stated as a rule rather than a disp
 takes a set, that set should be a glob or a derivation, not an enumeration. An enumeration is a habit
 with a syntax, and it decays the moment somebody adds an artefact without touching it.
 
+## W-INTL-217  The rule applied to the file that motivated it
+
+Severity: medium, and the verdicts did not change, which is worth saying.
+
+W-INTL-216 ended with a rule: when a check takes a set, make it a glob or a derivation, not an
+enumeration. Applied to the checks themselves, one enumeration was left, and it was in the sweep that
+produced the rule.
+
+check_input_coverage.py perturbs each declared input and asks whether any check notices. Which
+checks? Two, named in a list, written when the repository had three. Five have been added since and
+none was in it. The sweep that exists to find inputs nothing notices was consulting a stale list of
+noticers.
+
+Derived from scripts/check_*.py now, narrowed with a reason each: four read inputs.py, three read
+documents or a workflow or a commit message, one takes four minutes a pass and reaches the inputs
+through another check anyway.
+
+Seventeen scalars, sixteen covered, one retained - unchanged. The enumeration was wrong and nothing
+depended on the difference, this time.
+
+The same file had one more instance of an old finding: it computed on import, so reading its check
+list ran the whole sweep. W-INTL-169 recorded that a module computing on import cannot be
+cross-checked against, and this file has violated it since it was written. Driver under a main guard
+now.
+
+Twice in one file, and the pattern is the point: the place a rule is first learned is not the place it
+gets applied. Both were found by turning the rule back on the tooling - who else does this - which is
+cheap to run when a rule is written down and cheaper before it is filed than three loops later.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -5632,6 +5661,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-208 | closed; four of five declared rules reach the files they govern, and the fifth was invisible because the file imports the module without reading the rule |
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
+| W-INTL-217 | closed; the coverage sweep named two of seven checks and computed on import, breaking two rules it had itself motivated |
 | W-INTL-216 | closed; five documents read by nothing, an escape hatch scoped to a line in a hard-wrapped corpus, and one declared area entry never measured - four checks asked, four gaps |
 | W-INTL-215 | closed; three declared decoder areas had no end-to-end testbench, all three pass, and the invariant is a check now |
 | W-INTL-214 | closed and clean; all twenty-two generated RTL files match what their generators produce for the parameters their names claim |
