@@ -35,6 +35,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MODELS = ROOT / "research"
+SCRIPTS = ROOT / "scripts"
 
 # Stems, not an enumeration. The exact-name version missed RECOMMENDED_BLOCKS on its own
 # control, which is the failure mode an enumeration always has: it covers the names its
@@ -134,6 +135,24 @@ def literal_names(tree):
     return out
 
 
+def _formatting_widths(tree):
+    """Ids of literals multiplying a string - a separator width, not a design figure.
+
+    `print("-" * 54)` three times in one file, where 54 is the recommendation's oscillator
+    count. Narrowing the rule rather than waiving the sites: a waiver would cover these
+    three lines and let the next coincidence through, and the property that makes them
+    innocent - the other operand is a string - is checkable.
+    """
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Mult):
+            for a, b in ((node.left, node.right), (node.right, node.left)):
+                if isinstance(a, ast.Constant) and isinstance(a.value, str) \
+                        and isinstance(b, ast.Constant):
+                    out.add(id(b))
+    return out
+
+
 def main():
     figures = determined_figures()
     if figures is None:
@@ -145,21 +164,33 @@ def main():
 
     failures = []
     scanned = 0
-    for path in sorted(MODELS.glob("*.py")):
+    # scripts/ as well as research/. check_figures_reproduce carried `k_total = 57 * 3`
+    # through two moves of the recommendation, asserting against a design nobody was
+    # building, and this check did not look there - W-INTL-231. A rule about derived
+    # quantities has no reason to stop at a directory boundary.
+    for path in sorted(list(MODELS.glob("*.py")) + list(SCRIPTS.glob("*.py"))):
         # inputs.py is the declaration file. Every literal in it is an input by
         # definition, with its provenance in the comment above it, and that is the
         # opposite of a figure the recommendation determines. The stem match caught
         # INVERTERS_PER_OSCILLATOR there on its first run, which is what a rule aimed at
         # derived quantities does when pointed at declared ones.
-        if path.name == "inputs.py":
+        if path.name in ("inputs.py", "check_no_stale_literals.py"):
+            # inputs.py is the declaration file: every literal in it is an input by
+            # definition, with its provenance in the comment above it, which is the
+            # opposite of a figure the recommendation determines. The stem match caught
+            # INVERTERS_PER_OSCILLATOR there on its first run. This file names the figures
+            # it watches and would flag itself.
             continue
         tree = ast.parse(path.read_text())
         scanned += 1
 
+        formatting = _formatting_widths(tree)
         for node in ast.walk(tree):
             if not (isinstance(node, ast.Constant)
                     and isinstance(node.value, (int, float))
                     and not isinstance(node.value, bool)):
+                continue
+            if id(node) in formatting:
                 continue
             for label, value in watched.items():
                 same = (abs(node.value - value) < 1e-9 if isinstance(value, float)

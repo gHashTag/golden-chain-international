@@ -262,7 +262,12 @@ def check_selection_entropy():
             "means the source model has lost its offset - see W-INTL-144"
         )
         return None
-    k_total = 57 * 3                      # the recommendation, BCH(127,57,11) x 3
+    # Derived. This was 57 * 3 with a comment naming the construction, and it survived
+    # two moves of the recommendation - to four blocks and then to six - asserting
+    # against a design nobody was building. Same defect W-INTL-229 closed in the
+    # models, in the file that checks them, which check_no_stale_literals did not scan.
+    _rec = recommendation()
+    k_total = _rec[2] * _rec[4] if _rec else 0
     required = KEY_BITS / rho_selected
     if k_total < required:
         failures.append(
@@ -487,9 +492,9 @@ def check_register_figures(rec):
                     + osc * INVERTERS * I.INVERTER_AREA)
     bound = [
         ("k carried", r"construction meets at (\d+)", k * blocks, 0),
-        ("post-selection density", r"which is ([\d.]+) rather than 0\.9414",
+        ("post-selection density", r"which is ([\d.]+) rather than 0\.7162",
          rho_sel, 0.0005),
-        ("measured density", r"rather than (0\.9414)", RHO, 0.0005),
+        ("measured density", r"rather than (0\.7162)", RHO, 0.0005),
         ("aging factor", r"([\d.]+) times the area by transistor width",
          I.AGING_RESISTANT_FACTOR, 0.005),
         ("aging cost in tiles", r"transistor width, ([\d.]+) of a tile",
@@ -619,7 +624,12 @@ def main():
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "
             f"how a number goes back to being a sentence")
 
-    at_measured = cheapest(RHO, 0.04)
+    # Against the SHANNON figure, deliberately. This guard exists to notice if the
+    # utilisation factor is dropped again, and the arrangement in which that happened
+    # used 0.9414 - the published Shannon density. Pointing it at the corrected
+    # min-entropy makes nothing fit and the guard stops guarding. W-INTL-231.
+    _shannon = I.SHANNON_ENTROPY_BITS / I.MIN_ENTROPY_OVER
+    at_measured = cheapest(_shannon, 0.04)
     if at_measured is None:
         failures.append("model: no code fits at the measured entropy and 4 percent")
     else:
@@ -628,7 +638,7 @@ def main():
         # source of any figure a document has to match.
         # The high error-rate columns must be absent, which is what W-INTL-99 restored.
         for ber in (0.07, 0.08):
-            if cheapest(RHO, ber) is not None:
+            if cheapest(_shannon, ber) is not None:
                 failures.append(
                     f"model: something fits at {ber:.0%} error rate, which contradicts "
                     f"W-INTL-99 - check the utilisation factor"

@@ -185,7 +185,11 @@ def largest_retained(density, flip):
     return None
 
 
-JOINT_DENSITY = (0.9414, 0.90, 0.87, 0.85, 0.83, 0.80)
+# Bracketing the declared density and its floor. The grid was 0.80-0.9414 until
+# W-INTL-231 corrected the declared figure from a Shannon entropy to a min-entropy,
+# after which not one of its rows contained the operating point - a sweep whose grid
+# misses the design tells you about a design you do not have.
+JOINT_DENSITY = (0.7162, 0.70, 0.65, 0.60, 0.5506, 0.52)
 JOINT_FLIP = (0.0773, 0.09, 0.11, 0.13, 0.15)
 
 

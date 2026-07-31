@@ -116,7 +116,24 @@ OSCILLATOR_AREA = (INVERTERS_PER_OSCILLATOR * INVERTER_AREA
 # leakage", and name global thresholding as the scheme that amplifies bias the most.
 # research/selection_entropy.py computes the amplification in this project's own source
 # model: at the twenty percent the design discards, 0.9414 becomes 0.9293.
-MIN_ENTROPY_BITS = 241.0
+#
+# W-INTL-231, and it is the most consequential correction in this workstream. The 241.0
+# is NOT a min-entropy. Equation (11) of that paper is
+#     H = -sum_k ( p_k log2 p_k + (1-p_k) log2 (1-p_k) )
+# introduced with "An upper bound for the entropy of the PUF still assuming the bits to be
+# independent", and reported as "about 94% of the entropy achievable in 256 bits". That is
+# Shannon entropy. A fuzzy extractor's output is bounded by MIN-entropy, which for a biased
+# bit is strictly smaller - a Bernoulli at p=0.64 carries 0.94 bits of Shannon entropy and
+# 0.64 of min-entropy. The figure was declared under the name of the quantity the design
+# needs rather than the one the paper computed, for thirty loops.
+SHANNON_ENTROPY_BITS = 241.0
+# derived here: research/min_entropy_from_shannon.py fits the paper's own model - per-bit
+# probability Phi(-t) with t Gaussian across positions - to reproduce 241.0 Shannon bits,
+# then evaluates min-entropy on the same fit. The Gaussian spread across positions is this
+# project's assumption and is stated in that file. Equal bias at every position, which
+# needs no such assumption, gives 0.6404 and is the pessimistic end; the design is sized
+# below both.
+MIN_ENTROPY_BITS = 183.3
 MIN_ENTROPY_OVER = 256
 # units: bits of min-entropy / response bits
 MIN_ENTROPY_DENSITY = MIN_ENTROPY_BITS / MIN_ENTROPY_OVER

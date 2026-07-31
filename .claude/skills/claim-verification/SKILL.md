@@ -175,6 +175,30 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Read the source for which quantity it computed, not for the number
+
+A figure carried as `MIN_ENTROPY_BITS` for thirty loops was a Shannon entropy. The source paper
+computes it as a bitwise Shannon sum and introduces it as "an upper bound... still assuming the bits
+to be independent". Everything downstream needed min-entropy, which for a biased bit is much smaller
+and always smaller. A whole verification apparatus — sixty-six bound figures, a perturbation harness,
+a coverage sweep — confirmed the documents agreed with the declared value, and none of it could ask
+whether the value was the quantity the design needed. That is a question about the name.
+
+When you import a number from a paper, copy the **defining equation** into the provenance comment,
+not just the value and the citation. Entropy especially: Shannon, min-, Rényi and conditional
+versions all get called "the entropy", differ by a lot, and the safe direction is not the same for
+each. Then check which one the consumer requires — a fuzzy extractor, a randomness extractor and a
+compression bound do not want the same one.
+
+Related tell: if the paper calls its own figure an upper bound and you are using it as a budget, you
+are spending headroom the paper said it was not offering.
+
+## When you correct an input, move the grids that bracket it
+
+The joint sweep in that same repository ran from 0.80 to 0.9414. After the density was corrected to
+0.7162, not one row contained the operating point — the table still computed, still printed, still
+passed. A sweep whose grid misses the design tells you about a design you do not have.
+
 ## A negative control names a site, and a string is not a site
 
 A control mutated a line that appeared twice in one file after a rule was factored into a second

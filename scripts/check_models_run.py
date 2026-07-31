@@ -105,6 +105,9 @@ def _expected():
         "borrowed_margins.py": (
             r"tightest: min-entropy density at ([\d.]+) times",
             I.MIN_ENTROPY_DENSITY / _density_floor(I, R), 0.02),
+        "min_entropy_from_shannon.py": (
+            r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
+            I.MIN_ENTROPY_DENSITY, 0.0005),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (
