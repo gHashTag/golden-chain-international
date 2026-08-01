@@ -66,6 +66,38 @@ def _free_temperature(percent=True):
     return lo * 100 if percent else lo
 
 
+def _worst_corner_cost(): 
+    """Extra tiles at the worst chip with the two drifts fully correlated. W-INTL-236."""
+    import importlib, math
+    I = importlib.import_module("inputs")
+    R = importlib.import_module("reliable_bit_selection")
+    S = importlib.import_module("selection_with_bch")
+    AM = importlib.import_module("aging_margin")
+    noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    age = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+    tol = AM.tolerated_ber()
+
+    def cheapest(drift):
+        best = None
+        for keep in (1.0 - I.SELECTION_LOSS, 0.40, 0.326, 0.20, 0.10):
+            eff = R.aged_selected_ber(noise, drift, keep, I.ENROLMENT_READS)
+            if eff > tol:
+                continue
+            found = S.best_at(keep, eff, S.need_k_at(keep))
+            if found is None:
+                continue
+            _, n, k, t, blocks, _, raw = found
+            osc = max(S.floor_ent(I.KEY_BITS), S._r(raw))
+            tiles = I.tiles(I.decoder_area(7, t) + I.SLLC_AREA[t]
+                            + osc * I.OSCILLATOR_AREA
+                            + I.COUNTERMEASURE_AREA["spongent_permutation"])
+            best = tiles if best is None or tiles < best else best
+        return best
+
+    temp = R.sigma_for_raw_ber(I.TEMPERATURE_FLIP_WORST)
+    return cheapest(age + temp) - cheapest(age)
+
+
 def _tiles_at_worst():
     """Tiles the budget needs at the worst-chip temperature term. W-INTL-235."""
     import importlib, math
@@ -180,6 +212,10 @@ def _expected():
             (r"\n\s+11\.00%\s+[\d.]+\s+no\s+\S+ x \d+\s+\d+\s+([\d.]+)",
              _tiles_at_worst(), 0.02),
         ],
+        # W-INTL-236. The worst corner with the fraction free, recomputed here on an
+        # independent path rather than by calling budget_audit.
+        "budget_audit.py": (
+            r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

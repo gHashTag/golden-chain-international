@@ -4306,8 +4306,12 @@ intra-chip variation a configurable RO-PUF averages from 25 to 70 degrees, and *
 average and not the maximum.
 
 A one-in-a-million word-failure target is a claim about every part, so the figure that has to fit is
-the worst chip's. Closing it costs 2.12 of a tile and is deliberately not spent on one borrowed
-figure from a different circuit over a narrower span - see `research/environmental_margin.py`.
+the worst chip's. Closing it costs **0.25 of a tile** - BCH(127,57,11) in nine blocks at twenty
+percent of positions retained, answered by selecting harder rather than by weakening the code.
+The 2.12 first reported for this corner held the selection fraction at its declared value, which
+is the thing W-INTL-225 exists to have noticed. See `research/budget_audit.py`, which also sweeps
+how correlated the aging and temperature drifts are: every corner is met, and the worst - the
+worst chip with the two drifts perfectly correlated - is the 0.25.
 
 **The tightest is the min-entropy density, not the aging figure.**
 

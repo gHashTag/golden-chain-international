@@ -175,6 +175,37 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Price a corner with every knob free, or you are pricing a constraint you invented
+
+A worst-case corner was costed at 2.12 units of area. Recomputed with the design's own selection
+knob allowed to move, the same corner cost 0.25 — answered by tightening a free parameter rather than
+by buying a weaker, larger component. The eightfold error came from holding a value that nothing
+holds.
+
+The project had already recorded this exact lesson eleven iterations earlier, about a different
+sweep, and the entry recording it was cited in the loop that repeated it. **Citing a lesson is not
+applying it.** When you quote a prior finding in support of new work, check the new work against it
+before you publish the quote.
+
+## Assumptions you introduce need pricing in the same breath
+
+Adding two uncertainties in quadrature assumes independence. That assumption was introduced in one
+loop and priced in the next, and it turned out to be free at the typical operating point and
+load-bearing above it. Sweeping the correlation from 0 to 1 costs one loop over a parameter and
+converts "we assumed independence" into "independence is worth nothing here and 0.25 units there".
+
+Every time you write a `sqrt(a**2 + b**2)`, write the `2*rho*a*b` sweep beside it.
+
+## The warning in the file next door is about you too
+
+A module written to audit a budget for defects rounded a fraction to four places — and the project's
+own inputs file documents that exact defect, in words, having already been bitten by it: rounding
+that fraction once turned 701 positions into 702.
+
+Provenance comments are read when writing the file they live in and not when writing the next one.
+Before adding a constant that mirrors a declared one, grep the declaration for what it says about
+itself.
+
 ## Audit the budget for missing terms, not only the terms for wrong values
 
 Four inputs were put through "which quantity is this?" — three had a wrong value or a wrong

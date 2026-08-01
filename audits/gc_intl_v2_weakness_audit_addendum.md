@@ -6208,6 +6208,69 @@ What settles it is a temperature sweep of the characteriser this project has alr
 measured, and never run. That is now the largest open question in the work, ahead of the NBTI
 simulation, because it is the only one where the design might be wrong rather than merely unproven.
 
+## W-INTL-236  The budget audited as a budget, and the corner priced eight times too high
+
+Severity: correction to the previous loop, running the unusual way - the design is in better shape
+than W-INTL-235 reported.
+
+W-INTL-235 found an absent term by asking what one input was a figure *of*. That worked because the
+term had an input to audit. A mechanism nobody declared has no input, so the only way to find the next
+one is to enumerate mechanisms rather than declarations. `research/budget_audit.py` is that
+enumeration.
+
+  read noise                     present   6% fresh-device            RAW_NOISE_BER
+  aging, ten years               present   7.73% aging-resistant      AGED_FLIP_RESISTANT
+  temperature                    present   2.63% typical, 11% worst   TEMPERATURE_FLIP_*
+  correlation between drifts     assumed   independence               priced below
+  supply voltage                 ABSENT    no usable figure found     nothing
+  electromagnetic interference   ABSENT    not looked for             nothing
+
+Supply voltage stays ABSENT rather than being given a number. The literature searched offers designs
+*stated* stable across plus or minus ten percent of supply, and one summary reporting "reliability
+degradation around ten percent", which does not say ten percent of what, over what excursion, on which
+circuit. Naming it absent is the whole of what can honestly be done about it here.
+
+### The correlation W-INTL-235 assumed without pricing
+
+That entry added the temperature drift to the aging drift in quadrature - independence, per position.
+The two are plausibly not independent: NBTI is temperature-accelerated and the per-position sign of
+each drift is set by mismatch in the same devices. Swept:
+
+  temperature   rho    drift    keep    construction          tiles
+        2.63%   0.0   0.2612   54.4%   BCH(127,57,11) x 6      3.51
+        2.63%   1.0   0.3305   54.4%   BCH(127,57,11) x 6      3.51
+        5.00%   1.0   0.4061   40.0%   BCH(127,57,11) x 7      3.58
+       11.00%   0.5   0.5293   32.6%   BCH(127,57,11) x 8      3.63
+       11.00%   1.0   0.6078   20.0%   BCH(127,57,11) x 9      3.76
+
+Every corner is met. The assumption is not load-bearing at the typical figure - the design holds even
+at perfect correlation - and becomes load-bearing above about five percent.
+
+### And the corner costs 0.25 of a tile, not 2.12
+
+Every row of W-INTL-235's table holds the selection fraction at its declared value. That is precisely
+what W-INTL-225 identified about the one-at-a-time sweep, in this same project, eleven loops earlier,
+and the entry that found it was cited in the loop that repeated it.
+
+Let the fraction move and the worst corner - worst chip, drifts perfectly correlated - is
+BCH(127,57,11) in nine blocks at twenty percent retained: **3.76 tiles against 3.51**. It is answered
+by selecting harder rather than by weakening the code, which is why it is cheap in area. What it costs
+instead is oscillators: 5,715 raw positions and 108 of them, against 1,402 and 54.
+
+The environmental table is kept, because it is the right answer to a different question - what the
+construction *as declared* absorbs - and it is now labelled as not the price of the corner.
+
+### The warning reproduced in the file written to catch warnings
+
+`FRACTIONS` was written as `(0.5435, ...)`. `inputs.py` warns about this exact case in as many words:
+"Not rounded: rounding the fraction to four places turned 701 raw positions into 702." The first run
+of the budget audit reported 1,403 raw positions where the recommendation has 1,402.
+
+Four decimal places, one position, no consequence - and the file auditing the budget for defects
+reproduced the defect its own inputs file documents. That is the third time a correct statement has
+sat beside code violating it, and the first time the statement was in a different file and still
+directly on point.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6383,6 +6446,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-236 | closed; the budget enumerated by mechanism rather than by declaration - two terms ABSENT and named, the drift-correlation assumption priced and not load-bearing at the typical figure, and the worst corner repriced from 2.12 tiles to 0.25 once the selection fraction is allowed to move |
 | W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |
 | W-INTL-234 | closed; burn-in also widens the difference selection ranks on, worth 11 percent at half the drift and 26 at three quarters - the conventional ring still does not qualify at any depth the model can be trusted at, so the margin moves and the decision does not |
 | W-INTL-233 | closed; UTILISATION and INVERTER_AREA were labelled measured-there with 'same flow', and their numerators are this project's own synthesis of RTL the repository does not hold - the only two declared areas nothing re-measures, now recorded as such by a check |
