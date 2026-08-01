@@ -175,6 +175,26 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Writing down the rule about enumerations does not stop you enumerating
+
+One iteration recorded that a rule which enumerates is silent about what it did not enumerate. The
+next wrote a new check with six hand-listed cases, against fourteen functions that qualified. The
+lesson was in the skill file the whole time.
+
+Recording a rule is not applying it. When you build a check, the first question is what *discovers*
+its subjects — a signature, a naming convention, a directory — and the hand-written list is only for
+the exceptions, each with a reason. Then add the control that a newly-qualifying subject makes it
+fail, because the enumeration failure is silent by construction and nothing else will catch it.
+
+## Exemptions are where the thinking is
+
+The discovery above produced eight exemptions, and they carry more information than the nine live
+cases: primitives exercised through their callers, diagnostics that reach no document, and sampling
+estimators where a coarse-against-fine comparison would test luck rather than convergence.
+
+Write the reason for each, print them on every run, and fail when an exemption names something that
+no longer exists. An exemption list that nobody re-reads becomes the place defects go to be quiet.
+
 ## A resolution parameter is a way for one quantity to have several values
 
 A numerical routine took a `steps` argument. Five call sites passed 600, one used the default 4,000,

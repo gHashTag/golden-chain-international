@@ -43,33 +43,104 @@ import reliable_bit_selection as R  # noqa: E402
 COARSE, FINE = 200, 20_000
 RELATIVE = 1e-3
 
+# Names that mean "how finely did you ask". Discovery works from these rather than from a
+# list of functions, because W-INTL-233 recorded what a list does: it covers the names its
+# author thought of. The first version of this file enumerated six cases and there were
+# thirteen such functions in research/ - W-INTL-243.
+RESOLUTION_NAMES = ("steps", "grid", "trials", "samples")
+
+# Discovered functions not exercised above, each with the reason. A sampling estimator has
+# statistical convergence rather than deterministic, so a coarse-against-fine comparison is
+# a test of luck; those carry their own validity checks instead and are named here.
+EXEMPT = {
+    "min_entropy_from_shannon._integrate":
+        "the primitive the two densities below are built from, exercised through them",
+    "min_entropy_from_shannon.fitted_spread":
+        "a bisection over _integrate, and the density it fits is exercised",
+    "entropy_second_opinion._kept_fraction":
+        "the primitive threshold_for bisects over, exercised through it",
+    "ordering_achievable.log2_p_most_likely":
+        "Monte Carlo, superseded by ordering_exact; its own impossibility test is the "
+        "check that matters and W-INTL-240 discarded the rows that failed it",
+    "ordering_achievable.ratio_at":
+        "wraps the Monte Carlo above",
+    "multi_condition_enrolment.selected_ber":
+        "Monte Carlo with a fixed seed; its agreement with the closed form at the shared "
+        "case is bound as a figure in check_models_run, which is the stronger statement",
+    "reliable_bit_selection.avalanche":
+        "a diagnostic that reaches no document and no recommendation",
+    "reliable_bit_selection.selection_curve":
+        "prints a table for reading; every figure it feeds is computed elsewhere",
+}
+
 
 def cases():
-    """(name, callable taking steps) for every integrator a caller can resolve."""
+    """(qualified name, label, callable taking a resolution) for each covered integrator."""
+    import entropy_second_opinion as E
+    import min_entropy_from_shannon as M
+    import ordering_exact as OE
+
     noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     aging = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
     keep = 1.0 - I.SELECTION_LOSS
+    spread = M.densities()[2]
     return [
-        ("selected_ber_counts_exact, design point",
+        ("entropy_second_opinion.two_level_density", "two-level density",
+         lambda n: E.two_level_density(steps=n)),
+        ("entropy_second_opinion.threshold_for", "two-level threshold",
+         lambda n: E.threshold_for(keep, spread, n)),
+        # The one whose grid dependence is real: the trapezoid converges as grid^-2, so a
+        # caller asking coarsely gets a materially different answer. At the default 6,000
+        # the equal-means self-test is off by 0.05 bits in 237, which is why the default is
+        # what it is - W-INTL-243.
+        ("ordering_exact.log2_p_ordered", "ordering probability at twenty",
+         lambda n: OE.log2_p_ordered([0.0] * 20, grid=max(n, 2000))),
+        ("reliable_bit_selection.selected_ber_counts_exact", "design point",
          lambda n: R.selected_ber_counts_exact(noise, keep, I.ENROLMENT_READS, steps=n)),
-        ("selected_ber_counts_exact, deep selection",
+        ("reliable_bit_selection.selected_ber_counts_exact", "deep selection",
          lambda n: R.selected_ber_counts_exact(noise, 0.20, I.ENROLMENT_READS, steps=n)),
-        ("aged_selected_ber, design point",
+        ("reliable_bit_selection.aged_selected_ber", "design point",
          lambda n: R.aged_selected_ber(noise, aging, keep, I.ENROLMENT_READS, steps=n)),
-        ("aged_selected_ber, deep selection",
+        ("reliable_bit_selection.aged_selected_ber", "deep selection",
          lambda n: R.aged_selected_ber(noise, aging, 0.20, I.ENROLMENT_READS, steps=n)),
-        ("aged_selected_ber, no selection",
+        ("reliable_bit_selection.aged_selected_ber", "no selection",
          lambda n: R.aged_selected_ber(noise, aging, 1.0, I.ENROLMENT_READS, steps=n)),
-        ("aged_selected_ber_with_burn_in, half the drift",
+        ("reliable_bit_selection.aged_selected_ber_with_burn_in", "half the drift",
          lambda n: R.aged_selected_ber_with_burn_in(noise, aging, 0.5, keep,
                                                     I.ENROLMENT_READS, steps=n)),
     ]
 
 
+def discovered():
+    """Every function in research/ taking a resolution argument, as module.name."""
+    import ast
+    found = []
+    for path in sorted((ROOT / "research").glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            names = [a.arg for a in node.args.posonlyargs + node.args.args
+                     + node.args.kwonlyargs]
+            if any(n in RESOLUTION_NAMES for n in names):
+                found.append(f"{path.stem}.{node.name}")
+    return found
+
+
 def main():
     failures = []
     checked = 0
-    for name, call in cases():
+
+    covered = {name for name, _, _ in cases()}
+    for name in discovered():
+        if name in covered or name in EXEMPT:
+            continue
+        failures.append(
+            f"{name} takes a resolution argument and is neither exercised here nor listed "
+            f"in EXEMPT with a reason")
+    for name in EXEMPT:
+        if name not in discovered():
+            failures.append(f"EXEMPT names {name}, which research/ no longer defines")
+    for qualified, name, call in cases():
         coarse, fine = call(COARSE), call(FINE)
         checked += 1
         if fine == 0.0:
@@ -91,8 +162,12 @@ def main():
     if checked == 0:
         print("FAIL: no integrators checked, so this check read nothing", file=sys.stderr)
         return 1
-    print(f"check_quadrature_converged: OK ({checked} integrators agree between {COARSE} "
-          f"and {FINE} steps, within {RELATIVE:.1%})")
+    print(f"check_quadrature_converged: OK ({checked} cases over "
+          f"{len({q for q, _, _ in cases()})} integrators agree between {COARSE} and "
+          f"{FINE}, within {RELATIVE:.1%}; {len(discovered())} take a resolution argument, "
+          f"{len(EXEMPT)} exempt)")
+    for name, why in sorted(EXEMPT.items()):
+        print(f"  exempt: {name} - {why}")
     return 0
 
 

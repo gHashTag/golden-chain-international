@@ -6591,6 +6591,45 @@ it will not always cancel.
 with itself between 200 and 20,000. It is not a tolerance on accuracy; it is the statement that the
 answer is a property of the question rather than of the caller. Six integrators, six cases.
 
+## W-INTL-243  The check written against an enumeration weakness enumerated
+
+Severity: method, and the shortest gap between recording a rule and breaking it that this project has
+managed.
+
+W-INTL-233 recorded that a rule which enumerates is silent about what it did not enumerate, in the
+skill file, as a lesson. W-INTL-242 then wrote `check_quadrature_converged` with six hand-listed
+cases. There are **fourteen** functions in `research/` taking a resolution argument. The check
+covered two of them by name.
+
+It discovers them now, from the argument names rather than from a list: any function taking `steps`,
+`grid`, `trials` or `samples` must be exercised at a coarse and a fine setting, or be listed as
+exempt with the reason. Nine cases over six integrators, eight exempt, and the discovery is what
+fails when a fourteenth becomes a fifteenth.
+
+The exemptions are the interesting half. Four are primitives exercised through the functions built on
+them. Two are diagnostics that reach no document. Two are Monte Carlo, where a coarse-against-fine
+comparison tests luck rather than convergence - and those carry stronger checks already: the
+superseded estimator has its own impossibility test, and the burn-in sampler has its agreement with
+the closed form bound as a figure.
+
+### What the sweep found
+
+Nothing broken, which is worth stating because the previous three loops each found something.
+
+  min_entropy_from_shannon, Shannon density       0.00 percent apart
+  min_entropy_from_shannon, min-entropy density   0.06
+  entropy_second_opinion, two-level density       0.04
+  entropy_second_opinion, threshold               0.02
+  ordering_exact, equal means at R = 20           0.35   <- real, and understood
+
+`ordering_exact` is the one with genuine grid dependence, and it is the trapezoid rule behaving
+exactly as it should: the equal-means self-test error falls as grid^-2, 0.186 to 0.047 to 0.0117 to
+0.0029 as the grid quadruples twice. At the default of 6,000 the error is 0.047 bits in 237, and the
+achievable figure at fifty-four oscillators moves from 215.18 to 215.32 over an eightfold change of
+grid - 0.06 percent, which does not touch the 1.069 margin.
+
+So the default is now justified rather than assumed, and the case in the check pins it.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6766,6 +6805,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |
 | W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |
 | W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |
 | W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |

@@ -199,6 +199,12 @@ jobs:
             '    half = fraction / 2.0' \
             '    half = fraction / 2.0; steps = max(3, steps // 40)' \
             -- python3 scripts/check_quadrature_converged.py
+          # A new resolution-taking function that nobody covered - the enumeration gap
+          # this check closed in W-INTL-243, where six cases were listed and fourteen
+          # such functions existed.
+          python3 scripts/control.py research/burn_in.py \
+            'def absorbed_at(pre_fraction):' 'def absorbed_at(pre_fraction, steps=100):' \
+            -- python3 scripts/check_quadrature_converged.py
       - name: the ordering entropy computed exactly
         run: |
           set -e
