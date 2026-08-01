@@ -189,6 +189,20 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the ordering entropy computed exactly
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only ordering_exact.py
+          # Widening the systematic spread, which is what makes the orderings unequal and
+          # is the whole reason the ceiling is not attained. W-INTL-241.
+          python3 scripts/control.py research/ordering_exact.py \
+            '    rng = random.Random(seed)' \
+            '    rng = random.Random(seed); spread = spread * 3.0' \
+            -- python3 scripts/check_models_run.py --only ordering_exact.py
+          python3 scripts/control.py research/ordering_exact.py \
+            '    rng = random.Random(seed)' \
+            '    rng = random.Random(seed); spread = spread * 3.0' \
+            -- python3 scripts/check_figures_reproduce.py
       - name: the ordering ceiling is not achievable
         run: |
           set -e

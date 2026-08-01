@@ -175,6 +175,25 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## "More samples would not help" is a fact about the method, not the problem
+
+An estimator failed at the scale that mattered, its own validity test caught it, and the finding was
+written up as a range with the note that the failure was structural and more trials would not fix it.
+All true — and the next iteration solved the same problem *exactly*, in under a second, because the
+constraints formed a chain and a chain collapses a high-dimensional integral to a one-dimensional
+recursion.
+
+Diagnosing why your method cannot answer a question is not the same as establishing that the question
+is unanswerable. Before you publish a range, spend one pass asking what structure the problem has
+that the method ignores — independence, a chain, a recursion, a symmetry, a closed form for a special
+case. The honest range was worth publishing; it was also two hours from being unnecessary.
+
+## Keep superseded models running and bound
+
+When an exact method replaced an estimator, the estimator stayed in the repository with its figures
+still checked. A superseded model whose numbers quietly drift stops being a record of *why* it was
+superseded — and the comparison between the two is the evidence that the replacement was needed.
+
 ## Give an estimator a test it must pass, and discard the rows that fail it
 
 A sequential estimator for a very small probability produced clean-looking numbers at every scale.

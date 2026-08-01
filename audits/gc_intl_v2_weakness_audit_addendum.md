@@ -6489,6 +6489,65 @@ rather than a budget.
 Both extrapolations are bound as figures, because binding one would report a settled answer where
 there is a range, and the range is the finding.
 
+## W-INTL-241  The hard problem was one-dimensional, and the answer is two blocks from unsound
+
+Severity: closes the largest open question in the work, one loop after opening it, and tightens the
+finding rather than relaxing it.
+
+W-INTL-240 estimated the ordering's min-entropy by sequential Monte Carlo, watched it produce
+impossible figures above fourteen oscillators, discarded those rows, extrapolated from the rest, and
+reported a range of 0.99 to 1.08 with the note that more trials would not help because the failure is
+structural.
+
+That was true of the method and not of the problem. The constraints f_1 < f_2 < ... < f_R form a
+CHAIN, and a chain of inequalities over independent variables collapses an R-dimensional integral to
+a backward recursion in ONE dimension:
+
+    G_{R+1}(x) = 1
+    G_k(x)     = integral from x to infinity of phi(y - mu_k) G_{k+1}(y) dy
+    P(pi*)     = G_1(-infinity)
+
+One pass per oscillator over a grid, the running scale factored out so a probability near 2^-215 does
+not underflow. No sampling, no extrapolation, under a second at fifty-four oscillators. The self-test
+is exact: with equal means every ordering is equally likely, and the recursion reproduces -log2(R!)
+to 0.05 bits at R = 54.
+
+### What it says
+
+  blocks  carried   osc   ceiling   achievable   present   margin
+       4      228    44     180.8        163.8     134.3    1.220
+       5      285    49     208.6        188.9     167.8    1.125
+       6      342    54     237.1        215.3     201.4    1.069   <- the recommendation
+       7      399    58     260.3        236.6     235.0    1.007
+       8      456    62     284.0        258.7     268.6    0.963   <- fails
+
+The recommendation holds at **1.069**, against 215.3 bits achievable rather than the 237.1 ceiling.
+Over five draws of the systematic offsets it runs 1.039 to 1.069, so layout alone moves it by three
+points.
+
+**And the crossing is at eight blocks, not ten.** W-INTL-239 measured against the ceiling and put the
+design four blocks from unsound; against what the ordering achieves it is two. The density headroom
+rule took three blocks to four and the min-entropy correction took four to six - the last two
+corrections between them consumed exactly the distance that remains.
+
+### An interaction nobody would have looked for
+
+W-INTL-236 found two answers to the worst temperature corner: more blocks, or a deeper selection
+fraction, at 0.25 of a tile either way. They are not equivalent here. A deeper fraction needs far
+more raw positions, so far more oscillators, so it raises the ceiling faster than it raises the
+claim - the nine-block construction at twenty percent retained uses 108 oscillators and is nowhere
+near binding. More blocks at the declared fraction is the path that crosses.
+
+Two answers that cost the same in area differ in whether the source can supply the key. That is not
+visible from either the area figures or the error figures, and it is the reason to prefer the
+selection answer if the temperature sweep ever forces the choice.
+
+### The Monte Carlo is kept and stays bound
+
+`ordering_achievable.py` is superseded and its figures are still checked. A superseded model whose
+numbers drift stops being a record of why it was superseded, and this project has found six cases of
+a figure outliving the reason it existed.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6664,6 +6723,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |
 | W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
