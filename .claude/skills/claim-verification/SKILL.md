@@ -175,6 +175,32 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Make the control a defect you actually had
+
+A cross-check's control was an artificial break, sized large enough to fire — which is a control that
+proves the wiring works and nothing about whether the check is any good. Replaying the *real*
+historical defect instead turned it into a statement worth having: this check would have caught the
+last bug of its kind, at nine standard errors.
+
+Keep your corrected defects as a corpus. When you build a check in response to one, the first control
+should be that defect restored verbatim. If it does not fire, the check does not do what you built it
+for — which was true here on the first attempt.
+
+## Replace the last coin toss with its expectation
+
+A sampling cross-check could not resolve differences smaller than ten percent, against a defect
+history of eight. Nearly all the noise came from one Bernoulli draw at the end: at a rate near
+0.0037, tossing the coin puts a standard deviation of 0.061 on a quantity of 0.0037.
+
+Accumulating the *conditional probability* of the outcome instead of a zero or a one halved the
+standard error at identical cost, and four times the samples halved it again — 2.5% resolution in
+under three seconds.
+
+The line to hold: condition only on the last step. Everything the other derivation *assumes* must
+still be simulated, or the two stop being independent and the comparison becomes vacuous. Condition
+on too much and you have re-derived the closed form; condition on nothing and the noise buries the
+signal.
+
 ## A register that asserts goes stale; make it compute
 
 A list recording which quantities had two derivations, and where their agreement was checked, was

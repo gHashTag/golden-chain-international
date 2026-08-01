@@ -6766,6 +6766,41 @@ Five quantities have one derivation, and the largest is now every synthesised ar
 re-runs yosys, which checks transcription rather than derivation, and a second path would count cells
 in the netlist against the liberty file. Two of those areas cannot be re-measured at all - W-INTL-233.
 
+## W-INTL-247  The comparison can now see the defect it was built after
+
+Severity: method, and it closes the gap W-INTL-246 named in the same breath as finding it.
+
+That entry made the second-opinion register compute its comparisons and print what each can resolve.
+The aging pair resolved ten percent, and the modelling error W-INTL-232 corrected was eight - so the
+check that exists because of that defect could not have seen it.
+
+The noise was almost all Bernoulli. At an error rate near 0.0037, drawing the regeneration noise and
+counting whether the bit flipped puts a standard deviation of 0.061 on a quantity of 0.0037; the
+sampling of the difference and the drift contributes far less.
+
+So the estimator accumulates the CONDITIONAL probability of a flip for each kept position instead of
+a zero or a one. Everything the closed form assumes is still simulated - the finite-sample ranking,
+the drift, the enrolment noise - and only the last coin toss is replaced by its expectation. That is
+a variance reduction rather than a different question, which is the distinction that decides whether
+a second opinion is still a second opinion.
+
+  flip-counting, 400,000 samples      resolves above 10.5 percent
+  conditional,   400,000 samples      resolves above  5.0
+  conditional, 1,600,000 samples      resolves above  2.5      in under three seconds
+
+Stratifying the difference was tried and does not help - the variance lives in the drift and in the
+spread of the conditional probabilities - and that is measured rather than assumed.
+
+### The control is now the defect
+
+The CI control for this comparison was an artificial break of twenty-two standard errors, chosen
+because nothing smaller would fire. It is W-INTL-232's actual quadrature now - folding the drift into
+the enrolment noise - and the check catches it at **9.69 standard errors**.
+
+A control that replays a real historical defect is worth more than one invented to be large enough:
+it is the statement that this check would have caught the last bug of its kind, which is the only
+useful thing a check can claim about the future.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6941,6 +6976,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-247 | closed; the aging cross-check resolved 10 percent against an 8 percent historical defect, so the estimator accumulates the conditional flip probability rather than tossing the coin - 2.5 percent resolution, and the CI control is now W-INTL-232's actual defect, caught at 9.69 standard errors |
 | W-INTL-246 | closed; the second-opinion register asserted rather than computed and was wrong within one iteration - the aging model's second path had existed since W-INTL-237 - so it computes three comparisons on every run and prints what each can resolve, which for the aging pair is 10 percent against the 8 percent error W-INTL-232 fixed |
 | W-INTL-245 | closed; a register of which quantities have two derivations and which have one, and the first it pointed at gave up a theorem - min-entropy is convex in Shannon entropy, so the equal-bias figure is a distribution-free floor at 0.6404 and the design is sized below it |
 | W-INTL-244 | closed; four models ran pinning no figure and two were the end-to-end chain and the SLLC generator - the two-witness argument, corroborated by nothing since W-INTL-229 re-pointed it - now bound from both sides, and the check discovers unpinned models rather than listing pinned ones |

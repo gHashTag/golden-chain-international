@@ -195,11 +195,14 @@ jobs:
           python3 scripts/check_second_opinions.py
           python3 scripts/check_models_run.py --only min_entropy_from_shannon.py
           # An agreement quietly ceasing to be bound. W-INTL-245.
-          # Moving one derivation past the resolution of the comparison that witnesses
-          # it. A smaller break would NOT fire, and the check prints what it can resolve.
+          # The historical defect itself: W-INTL-232's quadrature, which folded the drift
+          # into the enrolment noise. It is an eight percent error, the flip-counting
+          # estimator could not resolve it, and the conditional one catches it at nine
+          # standard errors - W-INTL-247. This is the control that says the check would
+          # have caught the last bug of its kind.
           python3 scripts/control.py research/reliable_bit_selection.py \
-            '        u = 1.0 - half * (i + 0.5) / steps' \
-            '        u = 1.0 - half * (i + 0.5) / steps * 0.8' \
+            '    tau2 = sigma_noise * sigma_noise / reads      # only the read noise is averaged' \
+            '    tau2 = (sigma_noise * sigma_noise + sigma_age * sigma_age) / reads' \
             -- python3 scripts/check_second_opinions.py
           # The proven interval the fitted min-entropy sits inside.
           python3 scripts/control.py research/min_entropy_from_shannon.py \

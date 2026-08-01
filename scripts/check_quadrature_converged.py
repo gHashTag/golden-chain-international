@@ -64,6 +64,11 @@ EXEMPT = {
         "check that matters and W-INTL-240 discarded the rows that failed it",
     "ordering_achievable.ratio_at":
         "wraps the Monte Carlo above",
+    "multi_condition_enrolment.selected_ber_conditional":
+        "Monte Carlo with a fixed seed, and it returns its own measured standard error - "
+        "which is a stronger statement than a coarse-against-fine comparison, since that "
+        "would test whether two sample sizes happened to land near each other. "
+        "check_second_opinions uses that error to state what the comparison can resolve",
     "multi_condition_enrolment.selected_ber":
         "Monte Carlo with a fixed seed; its agreement with the closed form at the shared "
         "case is bound as a figure in check_models_run, which is the stronger statement",

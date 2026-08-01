@@ -86,14 +86,17 @@ def comparisons():
         E.single_bias_density(), E.two_level_density(), 0.02, "relative"))
 
     # The aging drift, which the register's first version said had no second path. The
-    # Monte Carlo at a zero temperature term is exactly this quantity.
-    mc = MC.selected_ber(0.0, keep, 1)
+    # sampled estimator at a zero temperature term is exactly this quantity. Conditional
+    # rather than flip-counting since W-INTL-247, which took the resolution from ten
+    # percent to two and a half - past the eight percent error W-INTL-232 corrected, which
+    # the flip-counting version would have passed.
+    mc, mc_err = MC.selected_ber_conditional(0.0, keep)
     out.append((
         "selected error rate at ten years",
         "reliable_bit_selection.aged_selected_ber, closed form",
-        "multi_condition_enrolment, Monte Carlo at a zero temperature term",
+        "multi_condition_enrolment, conditional sampling at a zero temperature term",
         R.aged_selected_ber(noise, aging, keep, I.ENROLMENT_READS), mc, 3.0,
-        "standard errors"))
+        ("measured standard errors", mc_err)))
 
     # The ordering entropy, compared where the Monte Carlo is still valid - it fails its
     # own impossibility test above fourteen oscillators, which is W-INTL-240.
@@ -122,14 +125,16 @@ def main():
     failures = []
     rows = comparisons()
     for quantity, first, second, one, two, tol, units in rows:
-        if units == "relative":
+        kind = units if isinstance(units, str) else units[0]
+        if kind == "relative":
             apart = abs(one - two) / abs(two) if two else 0.0
             ok = apart <= tol
             detail = f"{apart:.2%} apart, tolerance {tol:.0%}"
         else:
-            import multi_condition_enrolment as MC
-            kept = MC.SAMPLES * (1.0 - I.SELECTION_LOSS)
-            band = math.sqrt(max(two, 1e-12) * (1 - two) / kept)
+            # The standard error the estimator measured on its own sample, rather than a
+            # binomial band assumed from the mean - the conditional estimator is not a
+            # proportion and a binomial band would overstate its noise threefold.
+            band = units[1]
             apart = abs(one - two) / band if band else 0.0
             ok = apart <= tol
             # The resolution, stated rather than implied. A sampling comparison can only
@@ -160,11 +165,8 @@ def main():
     print(f"check_second_opinions: OK ({len(rows)} quantities computed both ways and "
           f"agreeing, one bound sandwich, {len(SINGLE)} with one derivation)")
     for quantity, first, second, one, two, tol, units in rows:
-        if units == "standard errors":
-            import multi_condition_enrolment as MC
-            kept = MC.SAMPLES * (1.0 - I.SELECTION_LOSS)
-            band = math.sqrt(max(two, 1e-12) * (1 - two) / kept)
-            note = f"  (resolves above {tol * band / abs(two):.0%})"
+        if isinstance(units, tuple):
+            note = f"  (resolves above {tol * units[1] / abs(two):.1%})"
         else:
             note = f"  (resolves above {tol:.0%})"
         print(f"  two paths: {quantity}: {one:.6g} / {two:.6g}{note}")
