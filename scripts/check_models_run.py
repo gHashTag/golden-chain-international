@@ -231,6 +231,13 @@ def _expected():
             (r"two levels \(this file\)\s+([\d.]+)", 0.5917, 0.0005),
             (r"difference \+([\d.]+) per bit", 0.0028, 0.0005),
         ],
+        # W-INTL-239. The recommendation's margin against the ordering ceiling and the
+        # block count where the accounting stops being sound - the second is what the
+        # file exists to say, and it would be unbound without an entry of its own.
+        "ordering_ceiling.py": [
+            (r"the recommendation stands at ([\d.]+), which", 1.177, 0.002),
+            (r"accounting stops being sound at (\d+) blocks", 10, 0),
+        ],
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

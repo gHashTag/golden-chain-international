@@ -519,6 +519,41 @@ def check_register_figures(rec):
     return len(bound)
 
 
+def check_ordering_ceiling():
+    """The entropy the accounting claims must not exceed what the ordering allows.
+
+    W-INTL-239. `oscillator_floor` compares log2(R!) against the 128-bit key, which is the
+    weaker of the two conditions: the construction does not claim 128 bits from the source,
+    it claims that k x blocks carried bits hold enough at the post-selection density. That
+    product is what has to fit under the ceiling, and nothing compared it.
+
+    It fits, at 1.177 - the tightest margin in this design - and it stops fitting four
+    blocks beyond the recommendation, with nothing failing loudly at the crossing.
+
+    Returns the number of figures bound.
+    """
+    import selection_with_bch as S
+    from math import lgamma, log
+
+    rec = recommendation()
+    if rec is None:
+        return 0
+    _, n, k, t, blocks, _, oscillators, rho_sel = rec
+    ceiling = lgamma(oscillators + 1) / log(2.0)
+    present = k * blocks * rho_sel
+    if present > ceiling:
+        failures.append(
+            f"ordering: the accounting claims {present:.1f} bits from {oscillators} "
+            f"oscillators, which can carry at most {ceiling:.1f} - the per-bit density "
+            f"is being multiplied past what the ordering allows")
+    elif ceiling / present < 1.05:
+        failures.append(
+            f"ordering: {ceiling:.1f} bits available against {present:.1f} claimed, a "
+            f"margin of {ceiling / present:.3f} - under 1.05 this is one correction from "
+            f"unsound and should be a decision rather than a check failure")
+    return 1
+
+
 def check_environmental_figures():
     """Bind the two environmental error rates. W-INTL-235.
 
@@ -662,7 +697,8 @@ def main():
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
     n_bound = (check_ledger_figures(rec) + check_register_figures(rec)
-               + check_borrowed_table() + check_environmental_figures())
+               + check_borrowed_table() + check_environmental_figures()
+               + check_ordering_ceiling())
     if n_bound < 25:
         failures.append(
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "

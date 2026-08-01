@@ -189,6 +189,22 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the accounting fits under the ordering ceiling
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only ordering_ceiling.py
+          # Shrinking the ceiling until the accounting exceeds it, which is the condition
+          # oscillator_floor cannot see because it compares against the key size instead.
+          # W-INTL-239.
+          python3 scripts/control.py scripts/check_figures_reproduce.py \
+            '    ceiling = lgamma(oscillators + 1) / log(2.0)' \
+            '    ceiling = lgamma(oscillators - 15) / log(2.0)' \
+            -- python3 scripts/check_figures_reproduce.py
+          # And moving the oscillator count the ceiling is computed from.
+          python3 scripts/control.py research/ordering_ceiling.py \
+            '    oscillators = max(S.floor_ent(I.KEY_BITS), S._r(raw))' \
+            '    oscillators = max(S.floor_ent(I.KEY_BITS), S._r(raw)) + 6' \
+            -- python3 scripts/check_models_run.py --only ordering_ceiling.py
       - name: the post-selection density has a second derivation
         run: |
           set -e
