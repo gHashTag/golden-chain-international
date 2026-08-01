@@ -6426,6 +6426,69 @@ one: the frequencies are not a uniformly random permutation, so the true entropy
 as a ceiling is conservative in the safe direction, which means the real margin is below 1.177 rather
 than above it.
 
+## W-INTL-240  The ceiling is not achievable, and the tightest margin is at the boundary
+
+Severity: highest open question in the work. It decides whether the construction extracts a key the
+source can supply.
+
+W-INTL-239 compared the entropy accounting against log2(R!) and found 1.177 - the tightest margin
+here - while saying in as many words that log2(R!) is an upper bound, because the frequencies are not
+a uniformly random permutation. This asks by how much, and the answer is enough to matter.
+
+Oscillator k has frequency mu_k + d_k: a systematic part fixed across devices, set by layout, and a
+device-specific part which is the secret. If the systematic spread were zero every ordering would be
+equally likely and the ceiling would be exact. It is not zero, and the ratio was already measured -
+the same fit that turned a Shannon figure into a min-entropy in W-INTL-231 gives 0.3737.
+
+The min-entropy of the permutation is -log2 P(pi*), pi* being the ordering of mu.
+
+    R   log2(R!)   achievable   ratio   draw spread   valid
+    8      15.30        13.06   0.853         0.049   yes
+   10      21.79        18.23   0.836         0.068   yes
+   12      28.84        24.04   0.834         0.083   yes
+   14      36.34        30.79   0.847         0.129   yes
+   16      44.25        43.89   0.992         0.045   NO
+   18      52.51        55.72   1.061         0.083   NO
+
+The validity column is a self-check with teeth. P(pi*) >= 1/R! always, since pi* is the most likely
+of R! outcomes, so -log2 P can never exceed log2(R!). Above fourteen oscillators the estimator
+reports figures that exceed it, which is impossible - sequential estimation of a probability this
+small has variance growing with R and almost every finite sample underestimates. Those rows are
+discarded rather than read, which is the only reason this entry reports a range instead of a wrong
+number.
+
+### The consequence
+
+The ratio sits near 0.843 across the valid range and does not trend within it, though it varies by up
+to 0.13 with the particular systematic draw - which is physical, the deficit depending on how spread
+the layout makes the frequencies. Carried to the recommendation's fifty-four oscillators, against the
+201.4 bits the accounting claims:
+
+  ceiling, log2(R!)             237.1   margin 1.177
+  constant ratio, 0.843         199.8   margin 0.992
+  constant deficit, 0.358/osc   217.7   margin 1.081
+
+**The two extrapolations straddle the claim.** The margin W-INTL-239 reported as 1.177 is between
+0.99 and 1.08 against what the ordering can actually deliver, and which side is not settled by
+anything in this repository.
+
+This displaces the temperature sweep as the largest open question. Temperature decides between two
+answers that both exist - 0.25 of a tile or a second enrolment pass. This decides whether the
+construction extracts a key the source can supply, and if the constant-ratio arm is right the answer
+today is no.
+
+### What would settle it, and what would not
+
+An estimator that reaches fifty-four oscillators. The one here fails at sixteen and says so. A
+tighter analytic bound on P(pi*) for independent Gaussians with unequal means would do it and none
+was found in the literature searched; exhaustive enumeration is foreclosed by 54!.
+
+What would NOT settle it is more trials. The variance grows with R, so the failure is structural
+rather than a budget.
+
+Both extrapolations are bound as figures, because binding one would report a settled answer where
+there is a range, and the range is the finding.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6601,6 +6664,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |

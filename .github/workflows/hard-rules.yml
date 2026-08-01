@@ -189,6 +189,21 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the ordering ceiling is not achievable
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only ordering_achievable.py
+          # Doubling the systematic spread, which is what makes the orderings unequal.
+          # W-INTL-240.
+          python3 scripts/control.py research/ordering_achievable.py \
+            '        mu = sorted(rng.gauss(0.0, spread) for _ in range(oscillators))' \
+            '        mu = sorted(rng.gauss(0.0, spread * 2.0) for _ in range(oscillators))' \
+            -- python3 scripts/check_models_run.py --only ordering_achievable.py
+          # And accepting the rows the estimator's own validity test rejects, which is the
+          # difference between an answer and an impossible one.
+          python3 scripts/control.py research/ordering_achievable.py \
+            '            max(ratios) <= 1.0)' '            True)' \
+            -- python3 scripts/check_models_run.py --only ordering_achievable.py
       - name: the accounting fits under the ordering ceiling
         run: |
           set -e

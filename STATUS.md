@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-205 entries in the weakness audit. 171 closed, 34 open or deliberately deferred:
+206 entries in the weakness audit. 171 closed, 35 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -51,12 +51,13 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |  |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |  |
 | W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |  |
+| W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |  |
 
 Of the open rows, 14 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
 
 ## Checks
 
-15 checks, each with at least one control; 45 controls run in CI.
+15 checks, each with at least one control; 47 controls run in CI.
 
 | Check | What it establishes |
 |---|---|

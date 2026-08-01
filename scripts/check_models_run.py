@@ -238,6 +238,13 @@ def _expected():
             (r"the recommendation stands at ([\d.]+), which", 1.177, 0.002),
             (r"accounting stops being sound at (\d+) blocks", 10, 0),
         ],
+        # W-INTL-240. Both extrapolations, because they straddle the claim and the whole
+        # content of the file is that they disagree - binding one would report a settled
+        # answer where there is a range.
+        "ordering_achievable.py": [
+            (r"carried at constant ratio\s+([\d.]+)", 199.8, 1.0),
+            (r"carried at constant deficit\s+([\d.]+)", 217.7, 1.0),
+        ],
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (
