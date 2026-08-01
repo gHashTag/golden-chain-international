@@ -175,6 +175,29 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A margin table answers the question it was built for, not "what is tightest"
+
+A sweep of every borrowed input reported its tightest row at 1.30 and was read, for several
+iterations, as the tightest constraint in the design. The actual tightest was 1.18 — a structural
+bound from combinatorics, which had no row because it is not a borrowed number and the table
+enumerates borrowed numbers.
+
+A table's coverage is its selection criterion. Before treating a sweep's minimum as *the* minimum,
+say out loud what the sweep ranges over — borrowed inputs, measured values, tunable parameters — and
+name at least one constraint of a different kind to check by hand.
+
+## Check a bound against what the design claims, not against what it needs
+
+An upper bound on available entropy was compared against the key size and passed with room. The
+construction never claimed the key size from the source: it claimed a much larger intermediate
+figure, and *that* is what has to fit under the bound. The margin on the real comparison was 1.18
+against 1.85 on the one being made.
+
+When a resource bound exists, find the largest quantity the design asserts about that resource, not
+the smallest it requires. And check where the comparison crosses: here it crosses four steps out,
+along an axis every recent correction has moved the design down, with nothing failing loudly at the
+crossing.
+
 ## When a second implementation disagrees, audit the second one first
 
 A derivation carrying sixty-eight bound figures was re-derived from a richer source model. The first

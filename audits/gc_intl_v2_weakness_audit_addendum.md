@@ -6371,6 +6371,61 @@ first, and only then the old one.
 That mistake is the control. Restoring the unconditioned entropy makes the check print 0.7053, which
 is the false alarm reproduced to four decimals.
 
+## W-INTL-239  The tightest margin in the design was not in the margin table
+
+Severity: high as a finding, and the design is sound at it. Second implementation of the entropy
+available, by combinatorics rather than by summing per-bit densities.
+
+W-INTL-238 re-derived the post-selection density from a richer source model and confirmed it. This
+asks a different question: not whether the density is right, but whether the total the design
+multiplies out of it can exist.
+
+R oscillators realise one of R! rankings, so R(R-1)/2 pairwise comparisons carry at most log2(R!)
+bits however many are read. `decoder_code_choice.md` records that bound, and this project uses it in
+exactly one place - `oscillator_floor` requires log2(R!) to exceed the 128-bit KEY.
+
+That is the weaker of the two available conditions. The construction does not claim 128 bits from the
+source. It claims that k x blocks carried bits hold enough at the post-selection density, and that
+product is what has to fit under the ceiling. Nothing compared it.
+
+  blocks  carried     raw   osc   ceiling   present   ratio
+       4      228     935    44     180.8     134.3   1.346
+       5      285    1169    49     208.6     167.8   1.243
+       6      342    1402    54     237.1     201.4   1.177   <- the recommendation
+       7      399    1636    58     260.3     235.0   1.108
+       8      456    1870    62     284.0     268.6   1.058
+       9      513    2103    66     308.1     302.1   1.020
+      10      570    2337    69     326.3     335.7   0.972   <- accounting exceeds the ceiling
+
+**1.177 is the tightest margin anywhere in this design.** The borrowed-margin sweep's tightest row is
+the min-entropy density at 1.30, and this bound is not in that sweep, because it is not a borrowed
+input - it is structural, and a table of things somebody else measured has no row for it. That is the
+finding: the sweep answers "how wrong could a borrowed number be" and was read as "what is tightest
+here", and those are different questions.
+
+### Four blocks from unsound
+
+The ratio falls with block count: raw positions grow linearly while the oscillators they need grow as
+their square root, so the per-bit sum outruns log2(R!). At ten blocks the accounting claims more
+entropy than the ordering can carry.
+
+Nothing fails loudly there. `oscillator_floor` still passes - 326 bits still exceeds 128. The
+construction still decodes, every figure still reproduces, and what stops being true is only the
+statement that the carried bits hold the entropy the model says they hold.
+
+And the design has been moving that way. The density headroom rule took three blocks to four, and the
+min-entropy correction took four to six. Two more corrections of that size reach ten.
+
+`check_figures_reproduce` now compares the two, and fails below 1.05 with a message saying that a
+margin that thin is a decision rather than a check failure.
+
+### What the bound assumes
+
+Only the ordering is used, which is what a comparator readout does. It is an upper bound and stays
+one: the frequencies are not a uniformly random permutation, so the true entropy is lower. Using it
+as a ceiling is conservative in the safe direction, which means the real margin is below 1.177 rather
+than above it.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6546,6 +6601,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |
 | W-INTL-236 | closed; the budget enumerated by mechanism rather than by declaration - two terms ABSENT and named, the drift-correlation assumption priced and not load-bearing at the typical figure, and the worst corner repriced from 2.12 tiles to 0.25 once the selection fraction is allowed to move |
