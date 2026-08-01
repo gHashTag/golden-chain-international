@@ -216,6 +216,14 @@ def _expected():
         # independent path rather than by calling budget_audit.
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
+        # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the
+        # agreement between this Monte Carlo and the closed-form model at the case they
+        # share - which is the only model-against-model cross-check in this project and
+        # would be worth nothing unbound.
+        "multi_condition_enrolment.py": [
+            (r"and two give ([\d.]+), a factor", 0.00636, 5e-5),
+            (r"apart by ([\d.]+) standard errors", 1.1, 0.6),
+        ],
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

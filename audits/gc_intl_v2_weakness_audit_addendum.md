@@ -6271,6 +6271,56 @@ reproduced the defect its own inputs file documents. That is the third time a co
 sat beside code violating it, and the first time the statement was in a different file and still
 directly on point.
 
+## W-INTL-237  A condition in the register was a lever nobody pulled
+
+Severity: a design option, found at the last unaudited input, costing nothing.
+
+`ENROLMENT_READS = 25` is the last input never put through the "which quantity is this" question. It
+is declared as a requirement on the provisioning flow, and `constraint_register.md` attaches a
+condition to it that nobody followed up: the reads are taken "at the operating temperature". A part
+is enrolled once, at manufacture, at one temperature, and then operates across a range. So that
+phrase is either a requirement the flow cannot meet or a lever nobody pulled.
+
+It is a lever. Twenty-five reads reduce the read noise in the enrolment estimate by twenty-five and do
+nothing whatever to the temperature drift - more reads at one temperature say nothing about behaviour
+at another, which is why `aged_selected_ber` averages only the noise. Reads at a SECOND temperature
+say exactly that, and reliable-bit selection is a ranking: rank on the worse of two conditions and the
+survivors are the positions stable across both.
+
+  temperature   kept    one condition   two conditions   verdict
+        2.63%  54.4%          0.00456          0.00400   both meet
+       11.00%  54.4%          0.02423          0.00636   two only
+       11.00%  32.6%          0.00475          0.00018   both meet
+       11.00%  20.0%          0.00085          0.00000   both meet
+
+At the worst chip and the declared fraction, one condition misses the target and two meet it, by a
+factor of 3.8. **The construction does not change, the oscillator count does not change, the area does
+not change.** The alternative found one loop earlier - selecting harder - costs 0.25 of a tile, 5,715
+raw positions and 108 oscillators. This costs a second enrolment pass.
+
+This is the only lever found anywhere in this work that attacks the environmental residual directly.
+A longer code, more blocks, a deeper fraction all answer a worse error rate after the fact.
+
+Two assumptions, both stated in the file. The drift must be REPEATABLE - a position that moves one way
+at 70 degrees moves that way every time it reaches 70 - which is the same property that makes it a
+drift rather than noise, so it is consistent with how the term is modelled throughout. And the second
+condition must be at or beyond the operating extreme, which is conservative for anything between.
+
+Neither answer is adopted. The borrowed 11 percent is from a different circuit over a narrower span,
+and the same temperature sweep settles which answer is needed - so the useful output of this loop is
+that the corner has two answers and the cheaper one costs nothing.
+
+### The first model-against-model cross-check in the project
+
+This is a Monte Carlo, with a fixed seed so the figures do not move between runs, because two
+dimensions of drift and an order statistic over two conditions have no closed form. Its one-condition
+arm is exactly the case the closed-form model covers, and the two agree: 0.02423 against 0.02458,
+1.1 standard errors of the sampling apart.
+
+Every other cross-check in this repository compares a document against a model. This is the first
+time two independent implementations of one quantity have been compared, and both are bound, because
+an agreement nobody checks is worth what the agreement it replaces was worth.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6446,6 +6496,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |
 | W-INTL-236 | closed; the budget enumerated by mechanism rather than by declaration - two terms ABSENT and named, the drift-correlation assumption priced and not load-bearing at the typical figure, and the worst corner repriced from 2.12 tiles to 0.25 once the selection fraction is allowed to move |
 | W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |
 | W-INTL-234 | closed; burn-in also widens the difference selection ranks on, worth 11 percent at half the drift and 26 at three quarters - the conventional ring still does not qualify at any depth the model can be trusted at, so the margin moves and the decision does not |

@@ -175,6 +175,34 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A condition attached to a requirement is either unmet or unexploited
+
+A register recorded "twenty-five enrolment reads, **at the operating temperature**". A part is
+enrolled once at manufacture and operates across a range, so that clause could not be a satisfied
+condition. It was a lever nobody pulled: measuring at a second condition and ranking on the worse of
+the two cut the environmental error by 3.8× for no area at all, where the alternative cost real
+silicon.
+
+When you find a qualifier on a requirement — *at temperature X*, *under load Y*, *after step Z* —
+ask which it is. If the flow cannot meet it, that is a gap. If it can, someone has written down a
+degree of freedom and left it at its default.
+
+Related: averaging more measurements only shrinks what is *resampled* between them. If a term is
+fixed across repetitions, repetition buys nothing and **variation of condition** is the only thing
+that does.
+
+## Compare two implementations, not just a document against a model
+
+A verification apparatus with eleven checks compared documents against models every time. The first
+comparison of two independent implementations of the same quantity — a Monte Carlo against a closed
+form, agreeing to 1.1 standard errors — happened only because a second implementation was needed for
+another reason.
+
+Where a quantity is important enough, implement it twice by different methods and bind the agreement
+as a figure. A document check catches transcription; only a second implementation catches a wrong
+derivation. And bind the agreement itself: an agreement nobody checks decays exactly like the
+transcription it replaced.
+
 ## Price a corner with every knob free, or you are pricing a constraint you invented
 
 A worst-case corner was costed at 2.12 units of area. Recomputed with the design's own selection
