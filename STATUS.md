@@ -5,7 +5,7 @@ fails if this file and the generator disagree.
 
 ## The recommendation
 
-recommendation BCH(127,57,11) x 6 at 3.51 of 16 tiles, 1402 raw positions, 54 oscillators, post-selection density 0.5889; 66 prose figures bound
+recommendation BCH(127,57,11) x 6 at 3.51 of 16 tiles, 1402 raw positions, 54 oscillators, post-selection density 0.5889; 68 prose figures bound
 
 Every figure in that line is recomputed from `research/inputs.py` on each run.
 
@@ -56,7 +56,7 @@ Of the open rows, 14 concern the identity root this work has been on; the rest a
 
 ## Checks
 
-15 checks, each with at least one control; 36 controls run in CI.
+15 checks, each with at least one control; 37 controls run in CI.
 
 | Check | What it establishes |
 |---|---|

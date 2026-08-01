@@ -198,6 +198,11 @@ jobs:
           python3 scripts/control.py research/inputs.py \
             'TEMPERATURE_FLIP_WORST = 0.11' 'TEMPERATURE_FLIP_WORST = 0.14' \
             -- python3 scripts/check_models_run.py --only environmental_margin.py
+          # And the same two inputs where a document carries them, which is what makes
+          # them visible to the coverage sweep at all - W-INTL-235.
+          python3 scripts/control.py research/inputs.py \
+            'TEMPERATURE_FLIP_TYPICAL = 0.0263' 'TEMPERATURE_FLIP_TYPICAL = 0.04' \
+            -- python3 scripts/check_figures_reproduce.py
           # Dropping the aging term from the combined drift.
           python3 scripts/control.py research/environmental_margin.py \
             '    drift = sqrt(R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2' \

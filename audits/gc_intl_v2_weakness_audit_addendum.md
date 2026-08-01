@@ -6192,6 +6192,18 @@ reason it is recorded. One borrowed figure, from a *configurable* RO-PUF, over a
 an industrial part sees 125, with a maximum taken over the chips measured rather than a bound, is not
 enough to spend sixty percent of the area on. Its absence is not enough to spend nothing.
 
+### And the coverage sweep caught the new inputs being invisible
+
+CI failed on the first attempt with both temperature inputs marked read by nothing. They were bound,
+by `check_models_run` - which `check_input_coverage` skips, on the stated grounds that it costs four
+minutes a pass "and its figures reach inputs through check_figures_reproduce anyway". That second
+clause was true when it was written and stopped being true the moment an input existed that no
+document carried.
+
+Both rates are stated in `decoder_code_choice.md` and bound now, which is what an input that matters
+should have had anyway. The exclusion's reason is rewritten to say what happened rather than to
+restate the claim that failed.
+
 What settles it is a temperature sweep of the characteriser this project has already built,
 measured, and never run. That is now the largest open question in the work, ahead of the NBTI
 simulation, because it is the only one where the design might be wrong rather than merely unproven.
