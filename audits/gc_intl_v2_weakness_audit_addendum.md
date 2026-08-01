@@ -6138,6 +6138,64 @@ determined figure. It was printed as a known gap for two loops, and in both of t
 literals turned up outside what the check covered. Printing a gap is cheaper than closing one and
 was, twice, not enough.
 
+## W-INTL-235  The error budget has a noise term and an aging term and nothing environmental
+
+Severity: highest open item. It is an omission rather than an error, and it is the kind this work has
+not found before - every previous finding was a number that was wrong, and this is a term that was
+absent.
+
+Fourth borrowed input through the "which quantity is this" question. `RAW_NOISE_BER` is declared
+"measured here, in the sense that 0.06 is the fresh-device figure this project has used throughout" -
+which is not a measurement and says so. Asking what it is a figure *of* found the larger problem: it
+is a figure at one temperature, and nothing in this work carries another.
+
+`research/constraint_register.md` listed five constraints and none was environmental variation. The
+only mention anywhere was a clause inside the aging row - "the literature reports ring-oscillator PUFs
+as resilient to temperature but *less* resilient to aging" - carrying a whole missing constraint on
+the strength of a comparative.
+
+The comparative is true and weaker than it reads. Both oscillators of a pair shift together, which is
+why RO-PUFs compare well against other constructions, but pairs whose frequencies are close reverse.
+Reliable-bit selection is precisely the thing that is supposed to have discarded those, so what
+survives selection is exactly the residual nobody budgeted.
+
+### What it costs
+
+Temperature enters as a second drift and not as noise: it shifts the difference and holds while the
+temperature holds, is not resampled per read, and is absent at enrolment, which enrols at one
+temperature. That is the shape `aged_selected_ber` already takes, so the two drifts add in quadrature
+and no new machinery is needed.
+
+  temperature term   selected BER   meets 1e-6   construction         osc   tiles
+              0.00%      0.003677          yes   BCH(127,57,11) x 6    54    3.51
+              2.63%      0.004462          yes   BCH(127,57,11) x 6    54    3.51
+              5.00%      0.006827          yes   BCH(127,57,11) x 6    54    3.51
+              8.00%      0.013188          yes   BCH(127,57,11) x 6    54    3.51
+             11.00%      0.024584           no   BCH(127,29,21) x 11   73    5.63
+
+The recommendation absorbs a temperature term up to **8.1 percent at no cost**. The six blocks that
+the density headroom rule and the min-entropy correction bought carry it, which is margin arriving
+somewhere other than where it was aimed for the second time in five loops.
+
+It does not carry 11 percent, and that is the number that matters. A configurable RO-PUF measured
+from 25 to 70 degrees reports intra-chip variation averaging 2.63 percent and reaching 11 on the worst
+chip. **A one-in-a-million word-failure target is a claim about every part, so the figure that has to
+fit is the worst chip's and not the average one's.** Budgeting a per-part guarantee against a
+population mean is the same category error as sizing a fuzzy extractor against a Shannon entropy: an
+average where a worst case is required, and it was W-INTL-231 that made that shape recognisable.
+
+### Deliberately not spent
+
+Closing the worst-chip figure costs 2.12 of a tile - 3.51 to 5.63, sixty percent more area, a weaker
+code in eleven blocks and nineteen more oscillators. Not done, and the reason is symmetric with the
+reason it is recorded. One borrowed figure, from a *configurable* RO-PUF, over a 45-degree span where
+an industrial part sees 125, with a maximum taken over the chips measured rather than a bound, is not
+enough to spend sixty percent of the area on. Its absence is not enough to spend nothing.
+
+What settles it is a temperature sweep of the characteriser this project has already built,
+measured, and never run. That is now the largest open question in the work, ahead of the NBTI
+simulation, because it is the only one where the design might be wrong rather than merely unproven.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6313,6 +6371,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |
 | W-INTL-234 | closed; burn-in also widens the difference selection ranks on, worth 11 percent at half the drift and 26 at three quarters - the conventional ring still does not qualify at any depth the model can be trusted at, so the margin moves and the decision does not |
 | W-INTL-233 | closed; UTILISATION and INVERTER_AREA were labelled measured-there with 'same flow', and their numerators are this project's own synthesis of RTL the repository does not hold - the only two declared areas nothing re-measures, now recorded as such by a check |
 | W-INTL-232 | closed; the ten-year drift was combined with read noise in quadrature and the sum averaged over enrolment reads taken before the drift exists - pessimistic by 8 percent, six copies of the expression, one deleted, recommendation unchanged |

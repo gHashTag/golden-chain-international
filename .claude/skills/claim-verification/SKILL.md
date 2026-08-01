@@ -175,6 +175,32 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Audit the budget for missing terms, not only the terms for wrong values
+
+Four inputs were put through "which quantity is this?" — three had a wrong value or a wrong
+combination. The fourth had neither: asking what a bit-error rate was a figure *of* revealed it was a
+figure at one temperature, and that the whole error budget had a noise term, an aging term, and
+nothing environmental. A register of five constraints listed none.
+
+Every check in place verified that the declared terms were right. None could ask what was not
+declared, because an absent term has no name to check. So audit the budget as a budget: list the
+physical mechanisms that perturb the quantity, and mark each present, bounded, or absent. What you
+find will not be in the file you are reading.
+
+Watch for a comparative doing a constraint's work — "resilient to temperature *compared to* other
+designs" was the entire treatment of an omitted term. A comparative is not a bound.
+
+## A per-part guarantee must be budgeted against the worst part
+
+A one-in-a-million word-failure target is a claim about every unit shipped. The available measurement
+gave a population average of 2.63% and a worst chip of 11%. The design met the average with room and
+failed the maximum.
+
+This is the same shape as sizing against a Shannon entropy when the construction needs min-entropy: an
+average standing where a worst case is required, and always in the direction that flatters. Whenever
+you take a figure from a population, ask which order statistic the guarantee needs — and if the source
+reports only a mean, that is a gap, not a value.
+
 ## A limit on how many figures to pin is a decision about which ones go unpinned
 
 A tripwire harness allowed one figure per model, on the principle that it is a tripwire and not a
