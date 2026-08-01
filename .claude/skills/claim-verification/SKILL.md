@@ -175,6 +175,31 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## When a second implementation disagrees, audit the second one first
+
+A derivation carrying sixty-eight bound figures was re-derived from a richer source model. The first
+attempt disagreed by 20% and read as a major finding. It was the new implementation that was wrong —
+it had dropped a conditioning step that is the entire content of the effect being modelled.
+
+The instinct on a disagreement is to suspect the incumbent, because you just built the challenger and
+trust it. Invert that: the incumbent has been checked against every document in the project for
+thirty iterations, and the challenger has been checked against nothing. Audit the new one first, and
+only when it survives does the disagreement become a finding.
+
+Corollary worth the trouble: when the new implementation turns out to be wrong, **its bug is the best
+control you will ever write** for the correct version — it is a real mistake a competent person made
+on this exact quantity, not one you invented.
+
+## An input can acquire a property its consumers do not carry
+
+Correcting an input replaced a single published number with a figure derived from a distribution. The
+consumer downstream still collapsed the source to one parameter, and nothing connected the two — the
+input had gained a spread that its only reader could not express.
+
+Whenever a correction changes *how* a value is derived and not just its magnitude, list what reads it
+and ask whether the new structure survives the journey. Here it did, to half a percent, and finding
+that out took a second implementation rather than any of the eleven existing checks.
+
 ## A condition attached to a requirement is either unmet or unexploited
 
 A register recorded "twenty-five enrolment reads, **at the operating temperature**". A part is
