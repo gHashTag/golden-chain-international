@@ -37,8 +37,13 @@ _SKIP = {
     "check_commit_claims.py": "reads a commit message",
     "check_control_anchors.py": "reads the workflow",
     "check_generated_rtl.py": "reads generated Verilog against its generator",
-    "check_models_run.py": "four minutes a pass, and its figures reach inputs through "
-                           "check_figures_reproduce anyway",
+    "check_models_run.py": "four minutes a pass. Its stated second reason - that its "
+                           "figures reach inputs through check_figures_reproduce anyway - "
+                           "was false for one interval, when the two temperature inputs "
+                           "reached only this file and the sweep reported both as read by "
+                           "nothing. They are bound in a document now, which is what makes "
+                           "the exclusion true again rather than merely convenient. "
+                           "W-INTL-235",
 }
 CHECKS = sorted(c for c in (ROOT / "scripts").glob("check_*.py")
                 if c.name not in _SKIP)

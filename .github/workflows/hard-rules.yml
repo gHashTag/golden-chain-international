@@ -189,6 +189,25 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the error budget carries an environmental term
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only environmental_margin.py
+          # Moving the worst-chip figure, which the free-headroom row does not depend on -
+          # W-INTL-235, and the reason a second figure is bound for this model.
+          python3 scripts/control.py research/inputs.py \
+            'TEMPERATURE_FLIP_WORST = 0.11' 'TEMPERATURE_FLIP_WORST = 0.14' \
+            -- python3 scripts/check_models_run.py --only environmental_margin.py
+          # And the same two inputs where a document carries them, which is what makes
+          # them visible to the coverage sweep at all - W-INTL-235.
+          python3 scripts/control.py research/inputs.py \
+            'TEMPERATURE_FLIP_TYPICAL = 0.0263' 'TEMPERATURE_FLIP_TYPICAL = 0.04' \
+            -- python3 scripts/check_figures_reproduce.py
+          # Dropping the aging term from the combined drift.
+          python3 scripts/control.py research/environmental_margin.py \
+            '    drift = sqrt(R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2' \
+            '    drift = 0.0 * sqrt(R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2' \
+            -- python3 scripts/check_models_run.py --only environmental_margin.py
       - name: burn-in widens the difference selection ranks on
         run: |
           set -e

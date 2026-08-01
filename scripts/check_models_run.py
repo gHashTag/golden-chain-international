@@ -43,6 +43,47 @@ HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install
 #
 # Deliberately one figure each. This is not a test suite; it is a tripwire on the number
 # each model exists to produce.
+def _free_temperature(percent=True):
+    """Largest temperature term the recommendation carries without changing."""
+    import importlib, math
+    I = importlib.import_module("inputs")
+    R = importlib.import_module("reliable_bit_selection")
+    S = importlib.import_module("selection_with_bch")
+    keep = 1.0 - I.SELECTION_LOSS
+    noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    age = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+
+    def code_at(flip):
+        drift = math.sqrt(age * age + R.sigma_for_raw_ber(max(flip, 1e-6)) ** 2)
+        eff = R.aged_selected_ber(noise, drift, keep, I.ENROLMENT_READS)
+        best = S.best_at(keep, eff, S.need_k_at(keep))
+        return best[1:5] if best else None
+
+    at_zero, lo, hi = code_at(0.0), 0.0, 0.5
+    for _ in range(30):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if code_at(mid) == at_zero else (lo, mid)
+    return lo * 100 if percent else lo
+
+
+def _tiles_at_worst():
+    """Tiles the budget needs at the worst-chip temperature term. W-INTL-235."""
+    import importlib, math
+    I = importlib.import_module("inputs")
+    R = importlib.import_module("reliable_bit_selection")
+    S = importlib.import_module("selection_with_bch")
+    keep = 1.0 - I.SELECTION_LOSS
+    drift = math.sqrt(R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT) ** 2
+                      + R.sigma_for_raw_ber(I.TEMPERATURE_FLIP_WORST) ** 2)
+    eff = R.aged_selected_ber(R.sigma_for_raw_ber(I.RAW_NOISE_BER), drift, keep,
+                              I.ENROLMENT_READS)
+    best = S.best_at(keep, eff, S.need_k_at(keep))
+    _, n, k, t, blocks, _, raw = best
+    osc = max(S.floor_ent(I.KEY_BITS), S._r(raw))
+    return I.tiles(I.decoder_area(7, t) + I.SLLC_AREA[t] + osc * I.OSCILLATOR_AREA
+                   + I.COUNTERMEASURE_AREA["spongent_permutation"])
+
+
 def _burn_in_half():
     """The selected error rate with half the ten-year drift applied before enrolment."""
     import importlib
@@ -129,6 +170,16 @@ def _expected():
         "min_entropy_from_shannon.py": (
             r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
             I.MIN_ENTROPY_DENSITY, 0.0005),
+        # W-INTL-235. The free-headroom figure, recomputed here rather than obtained from
+        # the model, because a tripwire calling its own subject is what W-INTL-234 caught.
+        "environmental_margin.py": [
+            (r"absorbs a temperature term up to ([\d.]+)% without", _free_temperature(), 0.2),
+            # And the worst-chip row, because the free-headroom figure does not depend on
+            # TEMPERATURE_FLIP_WORST at all - a control on that input left the check green,
+            # which is the unbound-table gap of W-INTL-234 in the loop that recorded it.
+            (r"\n\s+11\.00%\s+[\d.]+\s+no\s+\S+ x \d+\s+\d+\s+([\d.]+)",
+             _tiles_at_worst(), 0.02),
+        ],
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

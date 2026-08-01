@@ -333,6 +333,26 @@ ENROLMENT_READS = 25
 # a declared input.
 RAW_NOISE_BER = 0.06
 
+# ── the source, across conditions ───────────────────────────────────────────
+# measured there, and the conditions differ in three ways that are stated rather than
+# absorbed. A configurable RO-PUF from 25 to 70 degrees reports intra-chip variation
+# averaging 2.63 percent with a maximum of 11 and a minimum of zero. It is a different
+# circuit; the span is 45 degrees where an industrial part sees 125; and the maximum is
+# over the chips measured rather than a bound.
+#
+# W-INTL-235. Declared because until this loop the error budget had a noise term and an
+# aging term and nothing environmental at all - not in these inputs, not in any model,
+# and not among the five rows of research/constraint_register.md. The only mention
+# anywhere was a clause inside the aging row asserting that ring oscillator PUFs are
+# resilient to temperature, which was carrying a whole missing constraint.
+#
+# Two figures and not one, because a word-failure target of one in a million is a claim
+# about every part. The average is what a population meets and the maximum is what the
+# guarantee needs, and the recommendation meets one and not the other - see
+# research/environmental_margin.py, which prices the difference at 2.12 of a tile.
+TEMPERATURE_FLIP_TYPICAL = 0.0263
+TEMPERATURE_FLIP_WORST = 0.11
+
 # measured there: Rahman, Forte, Fahrny and Tehranipoor, DATE 2014. Response-bit flip
 # rates at ten years - HSPICE Monte Carlo, 100 chip instances, 90 nm, 64 oscillators,
 # 23 percent activation time. Simulation rather than silicon, and not this process. The

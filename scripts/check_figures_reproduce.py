@@ -519,6 +519,51 @@ def check_register_figures(rec):
     return len(bound)
 
 
+def check_environmental_figures():
+    """Bind the two environmental error rates. W-INTL-235.
+
+    They belong in a document for the usual reason, and there is a second one here. The two
+    temperature inputs reached only check_models_run, and check_input_coverage skips that
+    file on the stated grounds that "its figures reach inputs through
+    check_figures_reproduce anyway" - which stopped being true the moment an input existed
+    that no document carried. The coverage sweep reported both as read by nothing.
+
+    Recomputed here rather than imported from environmental_margin, so this is an
+    independent path.
+    """
+    import reliable_bit_selection as R
+    import selection_entropy as SE      # noqa: F401 - keeps the import order stable
+    from math import sqrt
+
+    path = ROOT / "research" / "decoder_code_choice.md"
+    if not path.exists():
+        return 0
+    text = path.read_text()
+    keep = 1.0 - I.SELECTION_LOSS
+    noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    age = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+    bound = 0
+    for label, flip, pattern in (
+            ("typical", I.TEMPERATURE_FLIP_TYPICAL,
+             r"selected error rate is \*\*([\d.]+)\*\*"),
+            ("worst", I.TEMPERATURE_FLIP_WORST,
+             r"and \*\*([\d.]+)\*\* at the"),
+    ):
+        want = R.aged_selected_ber(
+            noise, sqrt(age * age + R.sigma_for_raw_ber(flip) ** 2), keep,
+            I.ENROLMENT_READS)
+        m = re.search(pattern, text)
+        if not m:
+            failures.append(f"decoder_code_choice.md: no {label} environmental rate found")
+            continue
+        bound += 1
+        if abs(float(m.group(1)) - want) > 5e-6:
+            failures.append(
+                f"decoder_code_choice.md: {label} environmental error rate reads "
+                f"{m.group(1)}, the model gives {want:.6f}")
+    return bound
+
+
 def check_borrowed_table():
     """Bind the borrowed-margin tables in decoder_code_choice.md to the model.
 
@@ -617,7 +662,7 @@ def main():
                   r"oscillator floor is ([0-9]+) oscillators", osc, 0, required)
 
     n_bound = (check_ledger_figures(rec) + check_register_figures(rec)
-               + check_borrowed_table())
+               + check_borrowed_table() + check_environmental_figures())
     if n_bound < 25:
         failures.append(
             f"only {n_bound} ledger figures were bound; the list has shrunk, which is "

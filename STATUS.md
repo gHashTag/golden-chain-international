@@ -5,13 +5,13 @@ fails if this file and the generator disagree.
 
 ## The recommendation
 
-recommendation BCH(127,57,11) x 6 at 3.51 of 16 tiles, 1402 raw positions, 54 oscillators, post-selection density 0.5889; 66 prose figures bound
+recommendation BCH(127,57,11) x 6 at 3.51 of 16 tiles, 1402 raw positions, 54 oscillators, post-selection density 0.5889; 68 prose figures bound
 
 Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-200 entries in the weakness audit. 167 closed, 33 open or deliberately deferred:
+201 entries in the weakness audit. 167 closed, 34 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -50,12 +50,13 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-183 | open as a threshold; a NAND-gated ring qualifies only if it captures 92.0 percent of the aging-resistant cell's benefit - the figure moved when the tolerance was corrected in W-INTL-193 | W-INTL-193 |
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |  |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |  |
+| W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |  |
 
 Of the open rows, 14 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
 
 ## Checks
 
-15 checks, each with at least one control; 34 controls run in CI.
+15 checks, each with at least one control; 37 controls run in CI.
 
 | Check | What it establishes |
 |---|---|

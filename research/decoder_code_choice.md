@@ -4293,6 +4293,22 @@ recommendation failed:
 <!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1095 above | **1.42x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
 <!-- derived:external --> | min-entropy density | 0.716 | 0.5506 below | **1.3x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
 
+## The environmental term, which was not in the budget at all
+
+W-INTL-235. Every error-rate figure in this work is at one temperature, and the constraint register
+listed five constraints of which none was environmental variation. Temperature enters as a second
+drift - it holds while the temperature holds, is not resampled per read, and is absent at enrolment -
+so it adds to the aging drift in quadrature and needs no new machinery.
+
+<!-- derived:external --> The design's selected error rate is **0.004462** at the 2.63 percent
+intra-chip variation a configurable RO-PUF averages from 25 to 70 degrees, and **0.024584** at the
+11 percent its worst chip reaches. The tolerated rate is 0.01335, so the recommendation carries the
+average and not the maximum.
+
+A one-in-a-million word-failure target is a claim about every part, so the figure that has to fit is
+the worst chip's. Closing it costs 2.12 of a tile and is deliberately not spent on one borrowed
+figure from a different circuit over a narrower span - see `research/environmental_margin.py`.
+
 **The tightest is the min-entropy density, not the aging figure.**
 
 That corrects something this work has been saying for three loops. `AGING_HEADROOM` was introduced
