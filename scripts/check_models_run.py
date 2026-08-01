@@ -224,9 +224,16 @@ def _expected():
         "borrowed_margins.py": (
             r"tightest: min-entropy density at ([\d.]+) times",
             I.MIN_ENTROPY_DENSITY / _density_floor(I, R), 0.02),
-        "min_entropy_from_shannon.py": (
-            r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
-            I.MIN_ENTROPY_DENSITY, 0.0005),
+        "min_entropy_from_shannon.py": [
+            (r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
+             I.MIN_ENTROPY_DENSITY, 0.0005),
+            # W-INTL-245: the distribution-free floor, and the count of convexity
+            # violations that makes it a theorem rather than a reading. Zero is the
+            # figure; a nonzero one would mean Jensen does not apply and the floor is
+            # not a floor.
+            (r"distribution-free floor\s+([\d.]+)", 0.6404, 0.0005),
+            (r"intervals, (\d+) violations", 0, 0),
+        ],
         # W-INTL-235. The free-headroom figure, recomputed here rather than obtained from
         # the model, because a tripwire calling its own subject is what W-INTL-234 caught.
         "environmental_margin.py": [

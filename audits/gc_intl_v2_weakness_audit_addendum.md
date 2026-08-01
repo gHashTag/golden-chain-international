@@ -6674,6 +6674,49 @@ difference is invisible until the control quietly passes.
 `check_models_run` discovers models with a main block now and fails when one pins nothing and
 `UNPINNED` does not say why.
 
+## W-INTL-245  The pessimistic reading was a theorem, and nobody had noticed
+
+Severity: it strengthens the project's most consequential correction from an assumption to a bound
+that holds whatever the source does.
+
+Comparing a figure against itself computed differently has found four defects in five loops. Every
+one was found by hand, because nothing recorded which quantities have a second derivation and which
+have one. That is the wrong way round: a quantity with two paths is checked, and a quantity with one
+is where the next defect is.
+
+`scripts/check_second_opinions.py` keeps both lists. Five quantities derived twice with the agreement
+bound; five with one derivation and what that costs. The second list is the half worth reading, and
+its largest entry is the aging drift model - corrected twice, in W-INTL-232 for its structure and
+W-INTL-242 for its quadrature, both times by reading rather than by comparison.
+
+### And the first quantity it pointed at gave up a theorem
+
+W-INTL-231 converted the published 241.0 Shannon bits into a min-entropy by fitting a Gaussian spread
+of per-position biases, and recorded the equal-bias case as "the pessimistic end" - one reading among
+several, offered as a bracket.
+
+It is not a reading. It is the floor.
+
+The source has 256 independent positions whose Shannon entropies sum to 241.0, and min-entropy of
+independent bits is the sum of the per-bit min-entropies. Min-entropy is a **convex** function of
+Shannon entropy per bit, so by Jensen that sum is minimised when every position carries the same
+Shannon entropy. The equal-bias figure is therefore the least min-entropy any bias distribution with
+this Shannon total can have - including distributions nobody has thought of.
+
+  distribution-free floor   0.6404   163.9 bits
+  the Gaussian fit          0.7162
+  ceiling, the published    0.9414   min-entropy never exceeds Shannon
+  the design is sized at    0.5728   below the floor
+
+**So the construction survives any bias distribution the source could have, not only the one this
+project assumed.** The Gaussian spread stops being load-bearing and becomes a point estimate inside a
+proven interval.
+
+The convexity is checked on every run over thirty-eight intervals rather than asserted, and the
+violation count is bound as a figure - zero. Inverting the comparison makes it report thirty-eight,
+which is the control. A numerical claim nobody re-evaluates is the shape this project has found six
+times, and this one carries a bound.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6849,6 +6892,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-245 | closed; a register of which quantities have two derivations and which have one, and the first it pointed at gave up a theorem - min-entropy is convex in Shannon entropy, so the equal-bias figure is a distribution-free floor at 0.6404 and the design is sized below it |
 | W-INTL-244 | closed; four models ran pinning no figure and two were the end-to-end chain and the SLLC generator - the two-witness argument, corroborated by nothing since W-INTL-229 re-pointed it - now bound from both sides, and the check discovers unpinned models rather than listing pinned ones |
 | W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |
 | W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |

@@ -189,6 +189,21 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the quantities with two derivations, and those with one
+        run: |
+          set -e
+          python3 scripts/check_second_opinions.py
+          python3 scripts/check_models_run.py --only min_entropy_from_shannon.py
+          # An agreement quietly ceasing to be bound. W-INTL-245.
+          python3 scripts/control.py scripts/check_models_run.py \
+            '"entropy_second_opinion.py"' '"entropy_second_opinion_x.py"' \
+            -- python3 scripts/check_second_opinions.py
+          # And the convexity that makes the distribution-free floor a floor rather than
+          # a reading - inverted, the test reports 38 violations instead of none.
+          python3 scripts/control.py research/min_entropy_from_shannon.py \
+            '        if _min_entropy_at_shannon((lo + hi) / 2) > chord + 1e-12:' \
+            '        if _min_entropy_at_shannon((lo + hi) / 2) < chord + 1e-12:' \
+            -- python3 scripts/check_models_run.py --only min_entropy_from_shannon.py
       - name: every model pins a figure or says why not
         run: |
           set -e

@@ -175,6 +175,32 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Keep the register of what has one derivation, and read the second column
+
+Comparing a figure against itself computed a different way found four defects in five iterations —
+each time by hand, because nothing recorded which quantities had two derivations and which had one.
+A quantity with two paths is checked; a quantity with one is **where the next defect is**, and that
+list is the one nobody keeps.
+
+Write both columns. The single-path column is the roadmap: its largest entry names the quantity most
+likely to be wrong next, and here that entry had already been corrected twice, both times by reading
+rather than by comparison.
+
+## A hedge may be a theorem you have not tried to prove
+
+A conversion offered two readings — a fitted model and a "pessimistic end", presented as a bracket
+whose ends were both guesses. The pessimistic end turned out to be a **distribution-free lower
+bound**: the quantity was convex in the one that was published, so Jensen makes the equal-split case
+the minimum over every distribution consistent with the data.
+
+When you find yourself writing "this is the conservative reading", ask whether it is the conservative
+*possible* reading. Convexity, monotonicity and rearrangement arguments turn a hedge into a bound
+surprisingly often, and a bound is worth far more: it removes the assumption from the load path
+instead of documenting it.
+
+And check the property the bound rests on numerically, every run, with the violation count bound as a
+figure. A convexity nobody re-evaluates is exactly the kind of claim that quietly stops being true.
+
 ## A control must break the claim, not perturb the computation
 
 The obvious control for a Monte Carlo that corroborates an analytic model is to change its seed. It
