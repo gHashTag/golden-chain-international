@@ -175,6 +175,27 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A control must break the claim, not perturb the computation
+
+The obvious control for a Monte Carlo that corroborates an analytic model is to change its seed. It
+does not fire — one standard error at the sample size used was wider than the check's tolerance, so a
+reseed lands inside it as often as not. Worse, it tests the wrong thing: the claim is that the two
+methods *agree*, and a reseed preserves the agreement.
+
+The control that works breaks the claim: point the simulation at a different construction from the
+one the model describes. Ask what sentence the check is defending, then write the mutation that makes
+that sentence false — not the one that makes the numbers move.
+
+## Keep the list of what is NOT covered, not the list of what is
+
+A checker held a list of models that pin a figure. Nothing held the list of models that pin nothing,
+so a model producing no checkable output was indistinguishable from one nobody had got to yet. Four
+were in that state, and two of them were the project's headline evidence.
+
+Invert it: discover the population, and maintain the *exclusions* with reasons. A positive list grows
+when someone adds coverage; a negative list grows when someone adds a subject, which is exactly when
+you want to be asked.
+
 ## Writing down the rule about enumerations does not stop you enumerating
 
 One iteration recorded that a rule which enumerates is silent about what it did not enumerate. The

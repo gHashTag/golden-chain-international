@@ -6630,6 +6630,50 @@ grid - 0.06 percent, which does not touch the 1.069 margin.
 
 So the default is now justified rather than assumed, and the case in the check pins it.
 
+## W-INTL-244  Four models pinned nothing, and two of them were the two-witness argument
+
+Severity: high as a coverage gap. The evidence this project cites for its model being right was
+corroborated by no check at all.
+
+W-INTL-243 made the convergence check discover its subjects. `check_models_run` still held the
+opposite arrangement: a list of models that DO pin a figure, and nothing saying which do not. A model
+producing nothing checkable was indistinguishable from a model nobody had got to.
+
+Four were in that state. Two are `bch_code_search.py` and `code_choice_model.py`, whose output is a
+search space and a superseded comparison - both properly unpinned, and now recorded as such with the
+reason. **The other two are `key_generator_e2e.py` and `sllc_key_generator.py`.**
+
+Those are the two-witness argument. That file's own header says it: "a model and an implementation
+that agree are two witnesses; a model alone is one". W-INTL-229 found it exercising a construction
+four moves out of date and re-pointed it. Since then it has run on every CI pass, printed its
+agreement, and been checked by nothing - so the same drift could have happened again in either
+direction and no check would have said so.
+
+Bound now, at the same operating point and from both sides:
+
+  observed word failure at six percent raw   0.403   the chain's own Monte Carlo, fixed seed
+  model word failure at six percent raw      0.394   the binomial, recomputed in the checker
+
+The model column is recomputed in `check_models_run` from the recommendation rather than read from
+the file that prints it, so the two sides remain independent. The SLLC generator is bound the same
+way at four percent.
+
+### The control that does not work, and why it is worth recording
+
+The obvious control - change the Monte Carlo's seed - **does not fire**. At 300 trials and a rate
+near 0.4 one standard error is 0.028, wider than the 0.02 tolerance, so a reseed lands inside it as
+often as not. That is not a loose tolerance to tighten; it is the wrong control. The claim is that
+the chain and the model agree, and a reseed preserves the agreement.
+
+The control that fires is the one that breaks the chain's construction - pinning it back to
+BCH(127,29,21) in 23 blocks, which is exactly what W-INTL-229 found it doing.
+
+A control has to break the claim rather than perturb the computation. Those are different, and the
+difference is invisible until the control quietly passes.
+
+`check_models_run` discovers models with a main block now and fails when one pins nothing and
+`UNPINNED` does not say why.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6805,6 +6849,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-244 | closed; four models ran pinning no figure and two were the end-to-end chain and the SLLC generator - the two-witness argument, corroborated by nothing since W-INTL-229 re-pointed it - now bound from both sides, and the check discovers unpinned models rather than listing pinned ones |
 | W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |
 | W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |
 | W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |

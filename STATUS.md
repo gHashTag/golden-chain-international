@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-209 entries in the weakness audit. 174 closed, 35 open or deliberately deferred:
+210 entries in the weakness audit. 175 closed, 35 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -57,7 +57,7 @@ Of the open rows, 14 concern the identity root this work has been on; the rest a
 
 ## Checks
 
-16 checks, each with at least one control; 51 controls run in CI.
+16 checks, each with at least one control; 53 controls run in CI.
 
 | Check | What it establishes |
 |---|---|

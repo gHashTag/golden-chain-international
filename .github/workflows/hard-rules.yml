@@ -189,6 +189,24 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: every model pins a figure or says why not
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only key_generator_e2e.py
+          python3 scripts/check_models_run.py --only sllc_key_generator.py
+          # A model that runs and pins nothing, dropping out of the list that records why.
+          # Four were in that state and two were the two-witness argument. W-INTL-244.
+          python3 scripts/control.py scripts/check_models_run.py \
+            '    "code_choice_model.py":' '    "code_choice_model_x.py":' \
+            -- python3 scripts/check_models_run.py --only nand_ring.py
+          # And the chain exercising a construction other than the recommendation, which
+          # is what it did for four moves of the design before W-INTL-229 found it. A
+          # seed change is NOT the control here: the tolerance is wider than one standard
+          # error of 300 trials, so it would pass, and the claim is the agreement rather
+          # than the sample.
+          python3 scripts/control.py research/key_generator_e2e.py \
+            'T, K_BITS, BLOCKS = _recommended()' 'T, K_BITS, BLOCKS = 21, 29, 23' \
+            -- python3 scripts/check_models_run.py --only key_generator_e2e.py
       - name: no figure depends on how finely it was asked for
         run: |
           set -e
