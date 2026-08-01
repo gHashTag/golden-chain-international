@@ -6548,6 +6548,49 @@ selection answer if the temperature sweep ever forces the choice.
 numbers drift stops being a record of why it was superseded, and this project has found six cases of
 a figure outliving the reason it existed.
 
+## W-INTL-242  Two call paths, two answers, and every check green
+
+Severity: modelling, small in consequence and exact in class. Found by asking the question W-INTL-241
+ended on - what structure does the method ignore - of the remaining numerical models.
+
+`aged_selected_ber`, written in W-INTL-232, integrated over the whole axis, skipped the samples
+inside the selection threshold, and divided by however many survived. That makes the denominator an
+integer approximation of the kept mass, so one sample lands on the answer - and one sample is a
+six-hundredth of the mass at the resolution most callers use.
+
+    steps    aged figure
+      300      0.0038135
+      600      0.0036695     <- aging_margin, borrowed_margins, burn_in
+     1200      0.0036697
+     4000      0.0036769     <- check_figures_reproduce
+    64000      0.0036769
+
+Non-monotone, which is the signature of a hard domain boundary the grid does not align to. Two call
+paths, two answers, 0.2 percent apart, and every check green throughout - because each check compared
+a document against whichever value its own call produced. Nothing in this repository compares a
+figure against itself computed differently, which is the gap W-INTL-238 and W-INTL-241 have each
+filled by hand for one quantity.
+
+### The corrected version was three lines away
+
+`selected_ber_counts_exact`, immediately below in the same file, integrates over the kept tail
+directly and divides by `steps`. Its comment records its own earlier fault - it once integrated the
+wrong tail - and the correction is exactly the pattern the new function needed. The new function was
+written without following it.
+
+Integrating over the kept tail gives five correct figures at 150 steps, against 4,000 before.
+
+### What it moved
+
+One published figure, by 0.05 percent: the fresh error rate's ceiling, 0.09768 to 0.09763. The
+0.2 percent error was in an intermediate that mostly cancelled inside the bisections that consume it.
+Small, and it is the class rather than the size that matters - a figure that depends on who asked for
+it will not always cancel.
+
+`scripts/check_quadrature_converged.py` requires every integrator taking a `steps` argument to agree
+with itself between 200 and 20,000. It is not a tolerance on accuracy; it is the statement that the
+answer is a property of the question rather than of the caller. Six integrators, six cases.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6723,6 +6766,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |
 | W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |
 | W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |

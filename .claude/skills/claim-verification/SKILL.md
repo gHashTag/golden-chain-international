@@ -175,6 +175,32 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A resolution parameter is a way for one quantity to have several values
+
+A numerical routine took a `steps` argument. Five call sites passed 600, one used the default 4,000,
+and the answers were 0.2% apart — non-monotonically, because the integration domain had a hard
+boundary the grid did not align to and the denominator was a *count of surviving samples* rather than
+the analytic mass.
+
+Every check stayed green the whole time, because each compared a document against whichever value its
+own call produced. **Nothing compared the figure against itself computed differently.**
+
+Two rules. Integrate over the region you mean, rather than over everything and discarding — a
+discarded-sample count is an integer approximation of a continuous mass, and it lands on the answer.
+And add one check that calls every resolution-taking routine at a coarse and a fine setting and
+requires agreement: it is not a tolerance on accuracy, it is the assertion that the answer belongs to
+the question and not to the caller.
+
+## Copy the corrected neighbour, not the first thing that works
+
+The routine with the defect sat three lines above one that did it correctly — and that neighbour's
+comment recorded its own earlier version of a related fault. The new function was written from
+scratch instead of from the fixed pattern next to it.
+
+When you add a function beside an existing one that solves the same shape of problem, read it first,
+especially its comments about what went wrong before. A corrected implementation in the same file is
+the cheapest specification available and the easiest to walk past.
+
 ## "More samples would not help" is a fact about the method, not the problem
 
 An estimator failed at the scale that mattered, its own validity test caught it, and the finding was
