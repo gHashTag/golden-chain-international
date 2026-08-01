@@ -175,6 +175,32 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A mitigation demonstrated in a self-test may not be applied on the real path
+
+A harness carried a `--self-test` reproducing the exact hazard it existed to prevent — a stale
+bytecode cache making an equal-length mutation invisible — and the self-test cleared the cache
+directory to demonstrate it. **The production path never cleared anything.** It set the environment
+variable that stops *writing* a cache and did nothing about *reading* one already on disk, for ninety
+iterations.
+
+The gap survived because the self-test passed, and a passing self-test reads as a working mitigation.
+When a file demonstrates a hazard, diff the demonstration against the real path line by line: the
+demonstration is written to make the failure happen and the real path to make it not, and they drift
+apart in exactly the step nobody re-reads.
+
+Corollary for mutation testing anywhere: **if your mutation preserves the file's length, assume the
+interpreter may not notice it.** Caches keyed on size and mtime are common. Prefer length-changing
+mutations, or clear the cache yourself.
+
+## Run the survey twice before believing it
+
+A tool that restores past defects and reports which checks catch them gave different answers on
+consecutive runs — and the disagreement, not the result, was the finding. Non-determinism in a
+verification tool is a defect in the tool, and it presents as a plausible table.
+
+Before reporting a survey, run it twice and diff. If the two disagree, stop and find out why; that
+question led here to a flaw affecting every control in the repository.
+
 ## A wrong control is a finding, not a failed experiment
 
 Replaying an old defect to test a check, the mutation did something adjacent instead — removed an

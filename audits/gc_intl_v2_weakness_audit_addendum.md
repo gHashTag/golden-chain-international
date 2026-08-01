@@ -6880,6 +6880,54 @@ across ten registries pass it.
 
 Discovered rather than listed, because W-INTL-243 and W-INTL-244 are what a list does.
 
+## W-INTL-250  The control harness could read the cache it refused to write
+
+Severity: high as an apparatus failure. It is the fifth distinct way a control here has reported
+success while testing nothing, and unlike the other four it affects every control at once.
+
+W-INTL-248 asked how many controls name the defect they replay. This asked the other half - of the
+findings with no control, how many would a check catch anyway - and `scripts/replay_defects.py` runs
+that survey: restore a past defect, run every fast check, report which notice, restore by hash.
+
+Nine defects replayed. Eight caught. The ninth was **W-INTL-231**, the Shannon entropy declared under
+the min-entropy name, which is the most consequential correction in this work. Reported: NOTHING
+CAUGHT.
+
+Run alone it is caught immediately. Run in the survey it is not, and the survey does not give the
+same answer twice.
+
+### Why
+
+`control.py` sets `PYTHONDONTWRITEBYTECODE=1`, which stops the run from WRITING a stale cache and
+does nothing about READING one already on disk. Python's cache is keyed on the source file's size and
+modification time, so a mutation preserving length within the same second is invisible to the
+interpreter.
+
+`MIN_ENTROPY_BITS = 183.3` and `MIN_ENTROPY_BITS = 241.0` are both twenty-four characters.
+
+The file demonstrating this hazard is `control.py` itself. Its `--self-test` has reproduced it since
+W-INTL-151, with an equal-length swap shown invisible and a different-length swap shown visible, and
+it clears a temporary directory to do so. **The real path never cleared anything.** The mitigation
+was half the fix, demonstrated in full, for ninety loops.
+
+`control.py` now removes every `__pycache__` under the repository before running the check.
+
+### What it means for the fifty-eight controls
+
+Any control whose mutation preserves length was capable of silently testing nothing, whenever a
+cached module was on disk - which is whenever anyone had run a check outside the harness. Length is
+preserved by: swapping a digit, changing `>` to `<`, changing `True` to `Fals`, and by a good number
+of the substitutions in the workflow. This did not make them wrong; it made them unreliable, in a way
+that shows up as a control quietly passing.
+
+### And the survey overstated its own breadth
+
+Every caught row named the same four checks. That is one detection cascading: `check_status_current`
+regenerates a page whose content includes the recommendation line, so a failure in
+`check_figures_reproduce` propagates. The table reports which checks fire, not which own the defect,
+and W-INTL-249's row is credited to `check_control_anchors` because a CI control anchors on the very
+text being mutated. Both are stated in the file rather than left for a reader to infer.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7055,6 +7103,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-250 | closed; control.py refused to write a stale bytecode cache and never refused to read one, so any length-preserving mutation could silently test nothing - found by a corpus replay reporting NOTHING CAUGHT for W-INTL-231, whose two values are both twenty-four characters |
 | W-INTL-249 | closed; nothing required an exemption to carry a reason, four were labels or absent and one registry was a set with its reason in a comment - all written out, and a check now walks the syntax for exemption registries |
 | W-INTL-248 | closed; eighteen of fifty-seven controls named no finding, so nobody could say which defect they guard - all attributed, and the check found a stale status row, a rule of mine that was too strict, and two attributions I had guessed wrong |
 | W-INTL-247 | closed; the aging cross-check resolved 10 percent against an 8 percent historical defect, so the estimator accumulates the conditional flip probability rather than tossing the coin - 2.5 percent resolution, and the CI control is now W-INTL-232's actual defect, caught at 9.69 standard errors |
