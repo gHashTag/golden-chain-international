@@ -6489,6 +6489,445 @@ rather than a budget.
 Both extrapolations are bound as figures, because binding one would report a settled answer where
 there is a range, and the range is the finding.
 
+## W-INTL-241  The hard problem was one-dimensional, and the answer is two blocks from unsound
+
+Severity: closes the largest open question in the work, one loop after opening it, and tightens the
+finding rather than relaxing it.
+
+W-INTL-240 estimated the ordering's min-entropy by sequential Monte Carlo, watched it produce
+impossible figures above fourteen oscillators, discarded those rows, extrapolated from the rest, and
+reported a range of 0.99 to 1.08 with the note that more trials would not help because the failure is
+structural.
+
+That was true of the method and not of the problem. The constraints f_1 < f_2 < ... < f_R form a
+CHAIN, and a chain of inequalities over independent variables collapses an R-dimensional integral to
+a backward recursion in ONE dimension:
+
+    G_{R+1}(x) = 1
+    G_k(x)     = integral from x to infinity of phi(y - mu_k) G_{k+1}(y) dy
+    P(pi*)     = G_1(-infinity)
+
+One pass per oscillator over a grid, the running scale factored out so a probability near 2^-215 does
+not underflow. No sampling, no extrapolation, under a second at fifty-four oscillators. The self-test
+is exact: with equal means every ordering is equally likely, and the recursion reproduces -log2(R!)
+to 0.05 bits at R = 54.
+
+### What it says
+
+  blocks  carried   osc   ceiling   achievable   present   margin
+       4      228    44     180.8        163.8     134.3    1.220
+       5      285    49     208.6        188.9     167.8    1.125
+       6      342    54     237.1        215.3     201.4    1.069   <- the recommendation
+       7      399    58     260.3        236.6     235.0    1.007
+       8      456    62     284.0        258.7     268.6    0.963   <- fails
+
+The recommendation holds at **1.069**, against 215.3 bits achievable rather than the 237.1 ceiling.
+Over five draws of the systematic offsets it runs 1.039 to 1.069, so layout alone moves it by three
+points.
+
+**And the crossing is at eight blocks, not ten.** W-INTL-239 measured against the ceiling and put the
+design four blocks from unsound; against what the ordering achieves it is two. The density headroom
+rule took three blocks to four and the min-entropy correction took four to six - the last two
+corrections between them consumed exactly the distance that remains.
+
+### An interaction nobody would have looked for
+
+W-INTL-236 found two answers to the worst temperature corner: more blocks, or a deeper selection
+fraction, at 0.25 of a tile either way. They are not equivalent here. A deeper fraction needs far
+more raw positions, so far more oscillators, so it raises the ceiling faster than it raises the
+claim - the nine-block construction at twenty percent retained uses 108 oscillators and is nowhere
+near binding. More blocks at the declared fraction is the path that crosses.
+
+Two answers that cost the same in area differ in whether the source can supply the key. That is not
+visible from either the area figures or the error figures, and it is the reason to prefer the
+selection answer if the temperature sweep ever forces the choice.
+
+### The Monte Carlo is kept and stays bound
+
+`ordering_achievable.py` is superseded and its figures are still checked. A superseded model whose
+numbers drift stops being a record of why it was superseded, and this project has found six cases of
+a figure outliving the reason it existed.
+
+## W-INTL-242  Two call paths, two answers, and every check green
+
+Severity: modelling, small in consequence and exact in class. Found by asking the question W-INTL-241
+ended on - what structure does the method ignore - of the remaining numerical models.
+
+`aged_selected_ber`, written in W-INTL-232, integrated over the whole axis, skipped the samples
+inside the selection threshold, and divided by however many survived. That makes the denominator an
+integer approximation of the kept mass, so one sample lands on the answer - and one sample is a
+six-hundredth of the mass at the resolution most callers use.
+
+    steps    aged figure
+      300      0.0038135
+      600      0.0036695     <- aging_margin, borrowed_margins, burn_in
+     1200      0.0036697
+     4000      0.0036769     <- check_figures_reproduce
+    64000      0.0036769
+
+Non-monotone, which is the signature of a hard domain boundary the grid does not align to. Two call
+paths, two answers, 0.2 percent apart, and every check green throughout - because each check compared
+a document against whichever value its own call produced. Nothing in this repository compares a
+figure against itself computed differently, which is the gap W-INTL-238 and W-INTL-241 have each
+filled by hand for one quantity.
+
+### The corrected version was three lines away
+
+`selected_ber_counts_exact`, immediately below in the same file, integrates over the kept tail
+directly and divides by `steps`. Its comment records its own earlier fault - it once integrated the
+wrong tail - and the correction is exactly the pattern the new function needed. The new function was
+written without following it.
+
+Integrating over the kept tail gives five correct figures at 150 steps, against 4,000 before.
+
+### What it moved
+
+One published figure, by 0.05 percent: the fresh error rate's ceiling, 0.09768 to 0.09763. The
+0.2 percent error was in an intermediate that mostly cancelled inside the bisections that consume it.
+Small, and it is the class rather than the size that matters - a figure that depends on who asked for
+it will not always cancel.
+
+`scripts/check_quadrature_converged.py` requires every integrator taking a `steps` argument to agree
+with itself between 200 and 20,000. It is not a tolerance on accuracy; it is the statement that the
+answer is a property of the question rather than of the caller. Six integrators, six cases.
+
+## W-INTL-243  The check written against an enumeration weakness enumerated
+
+Severity: method, and the shortest gap between recording a rule and breaking it that this project has
+managed.
+
+W-INTL-233 recorded that a rule which enumerates is silent about what it did not enumerate, in the
+skill file, as a lesson. W-INTL-242 then wrote `check_quadrature_converged` with six hand-listed
+cases. There are **fourteen** functions in `research/` taking a resolution argument. The check
+covered two of them by name.
+
+It discovers them now, from the argument names rather than from a list: any function taking `steps`,
+`grid`, `trials` or `samples` must be exercised at a coarse and a fine setting, or be listed as
+exempt with the reason. Nine cases over six integrators, eight exempt, and the discovery is what
+fails when a fourteenth becomes a fifteenth.
+
+The exemptions are the interesting half. Four are primitives exercised through the functions built on
+them. Two are diagnostics that reach no document. Two are Monte Carlo, where a coarse-against-fine
+comparison tests luck rather than convergence - and those carry stronger checks already: the
+superseded estimator has its own impossibility test, and the burn-in sampler has its agreement with
+the closed form bound as a figure.
+
+### What the sweep found
+
+Nothing broken, which is worth stating because the previous three loops each found something.
+
+  min_entropy_from_shannon, Shannon density       0.00 percent apart
+  min_entropy_from_shannon, min-entropy density   0.06
+  entropy_second_opinion, two-level density       0.04
+  entropy_second_opinion, threshold               0.02
+  ordering_exact, equal means at R = 20           0.35   <- real, and understood
+
+`ordering_exact` is the one with genuine grid dependence, and it is the trapezoid rule behaving
+exactly as it should: the equal-means self-test error falls as grid^-2, 0.186 to 0.047 to 0.0117 to
+0.0029 as the grid quadruples twice. At the default of 6,000 the error is 0.047 bits in 237, and the
+achievable figure at fifty-four oscillators moves from 215.18 to 215.32 over an eightfold change of
+grid - 0.06 percent, which does not touch the 1.069 margin.
+
+So the default is now justified rather than assumed, and the case in the check pins it.
+
+## W-INTL-244  Four models pinned nothing, and two of them were the two-witness argument
+
+Severity: high as a coverage gap. The evidence this project cites for its model being right was
+corroborated by no check at all.
+
+W-INTL-243 made the convergence check discover its subjects. `check_models_run` still held the
+opposite arrangement: a list of models that DO pin a figure, and nothing saying which do not. A model
+producing nothing checkable was indistinguishable from a model nobody had got to.
+
+Four were in that state. Two are `bch_code_search.py` and `code_choice_model.py`, whose output is a
+search space and a superseded comparison - both properly unpinned, and now recorded as such with the
+reason. **The other two are `key_generator_e2e.py` and `sllc_key_generator.py`.**
+
+Those are the two-witness argument. That file's own header says it: "a model and an implementation
+that agree are two witnesses; a model alone is one". W-INTL-229 found it exercising a construction
+four moves out of date and re-pointed it. Since then it has run on every CI pass, printed its
+agreement, and been checked by nothing - so the same drift could have happened again in either
+direction and no check would have said so.
+
+Bound now, at the same operating point and from both sides:
+
+  observed word failure at six percent raw   0.403   the chain's own Monte Carlo, fixed seed
+  model word failure at six percent raw      0.394   the binomial, recomputed in the checker
+
+The model column is recomputed in `check_models_run` from the recommendation rather than read from
+the file that prints it, so the two sides remain independent. The SLLC generator is bound the same
+way at four percent.
+
+### The control that does not work, and why it is worth recording
+
+The obvious control - change the Monte Carlo's seed - **does not fire**. At 300 trials and a rate
+near 0.4 one standard error is 0.028, wider than the 0.02 tolerance, so a reseed lands inside it as
+often as not. That is not a loose tolerance to tighten; it is the wrong control. The claim is that
+the chain and the model agree, and a reseed preserves the agreement.
+
+The control that fires is the one that breaks the chain's construction - pinning it back to
+BCH(127,29,21) in 23 blocks, which is exactly what W-INTL-229 found it doing.
+
+A control has to break the claim rather than perturb the computation. Those are different, and the
+difference is invisible until the control quietly passes.
+
+`check_models_run` discovers models with a main block now and fails when one pins nothing and
+`UNPINNED` does not say why.
+
+## W-INTL-245  The pessimistic reading was a theorem, and nobody had noticed
+
+Severity: it strengthens the project's most consequential correction from an assumption to a bound
+that holds whatever the source does.
+
+Comparing a figure against itself computed differently has found four defects in five loops. Every
+one was found by hand, because nothing recorded which quantities have a second derivation and which
+have one. That is the wrong way round: a quantity with two paths is checked, and a quantity with one
+is where the next defect is.
+
+`scripts/check_second_opinions.py` keeps both lists. Five quantities derived twice with the agreement
+bound; five with one derivation and what that costs. The second list is the half worth reading, and
+its largest entry is the aging drift model - corrected twice, in W-INTL-232 for its structure and
+W-INTL-242 for its quadrature, both times by reading rather than by comparison.
+
+### And the first quantity it pointed at gave up a theorem
+
+W-INTL-231 converted the published 241.0 Shannon bits into a min-entropy by fitting a Gaussian spread
+of per-position biases, and recorded the equal-bias case as "the pessimistic end" - one reading among
+several, offered as a bracket.
+
+It is not a reading. It is the floor.
+
+The source has 256 independent positions whose Shannon entropies sum to 241.0, and min-entropy of
+independent bits is the sum of the per-bit min-entropies. Min-entropy is a **convex** function of
+Shannon entropy per bit, so by Jensen that sum is minimised when every position carries the same
+Shannon entropy. The equal-bias figure is therefore the least min-entropy any bias distribution with
+this Shannon total can have - including distributions nobody has thought of.
+
+  distribution-free floor   0.6404   163.9 bits
+  the Gaussian fit          0.7162
+  ceiling, the published    0.9414   min-entropy never exceeds Shannon
+  the design is sized at    0.5728   below the floor
+
+**So the construction survives any bias distribution the source could have, not only the one this
+project assumed.** The Gaussian spread stops being load-bearing and becomes a point estimate inside a
+proven interval.
+
+The convexity is checked on every run over thirty-eight intervals rather than asserted, and the
+violation count is bound as a figure - zero. Inverting the comparison makes it report thirty-eight,
+which is the control. A numerical claim nobody re-evaluates is the shape this project has found six
+times, and this one carries a bound.
+
+## W-INTL-246  The register was wrong within one iteration, and the check now computes
+
+Severity: method. A register that asserts goes stale; one that computes cannot.
+
+W-INTL-245 wrote `check_second_opinions` as two lists: quantities with two derivations, with a note
+saying where the agreement was bound, and quantities with one. It named the aging drift model as
+"the largest quantity in the work with no second path".
+
+That was wrong when it was written. `multi_condition_enrolment` at a zero temperature term is exactly
+`aged_selected_ber`, and has been since W-INTL-237 - two loops earlier, by this same author. The two
+agree to 0.82 standard errors.
+
+The error ran in the harmless direction, claiming less coverage than exists. A list that can be wrong
+one way can be wrong the other, and the version that would have mattered is the one asserting an
+agreement that is not there.
+
+So the check computes now. Three quantities are derived both ways inside it and compared on every
+run, and the min-entropy conversion is checked to sit inside its proven interval:
+
+  post-selection min-entropy density           0.58894 / 0.591725
+  selected error rate at ten years             0.00367731 / 0.0037856
+  ordering min-entropy, twelve oscillators     25.1106 / 25.8133
+  min-entropy sandwich                         0.6404 <= 0.7160 <= 0.9414
+
+The ordering pair is compared at twelve oscillators rather than fifty-four, because the Monte Carlo
+fails its own impossibility test above fourteen - W-INTL-240 - and a comparison against a figure
+known to be wrong is not a comparison.
+
+### What the comparisons cannot see
+
+Each now prints its resolution, and this is the part worth keeping.
+
+  post-selection density        resolves above 2 percent
+  selected error rate           resolves above 10 percent
+  ordering entropy              resolves above 5 percent
+
+A sampling comparison can only see a difference larger than its own noise. **The aging comparison
+cannot resolve the eight percent modelling error that W-INTL-232 corrected** - that break is 1.4
+standard errors at this sample size, and the check would pass it. The control that fires had to break
+the derivation by twenty-two standard errors.
+
+A check whose power is unstated reads as coverage it does not have. This one says what it would miss.
+
+### The list that remains
+
+Five quantities have one derivation, and the largest is now every synthesised area: `verify_inputs`
+re-runs yosys, which checks transcription rather than derivation, and a second path would count cells
+in the netlist against the liberty file. Two of those areas cannot be re-measured at all - W-INTL-233.
+
+## W-INTL-247  The comparison can now see the defect it was built after
+
+Severity: method, and it closes the gap W-INTL-246 named in the same breath as finding it.
+
+That entry made the second-opinion register compute its comparisons and print what each can resolve.
+The aging pair resolved ten percent, and the modelling error W-INTL-232 corrected was eight - so the
+check that exists because of that defect could not have seen it.
+
+The noise was almost all Bernoulli. At an error rate near 0.0037, drawing the regeneration noise and
+counting whether the bit flipped puts a standard deviation of 0.061 on a quantity of 0.0037; the
+sampling of the difference and the drift contributes far less.
+
+So the estimator accumulates the CONDITIONAL probability of a flip for each kept position instead of
+a zero or a one. Everything the closed form assumes is still simulated - the finite-sample ranking,
+the drift, the enrolment noise - and only the last coin toss is replaced by its expectation. That is
+a variance reduction rather than a different question, which is the distinction that decides whether
+a second opinion is still a second opinion.
+
+  flip-counting, 400,000 samples      resolves above 10.5 percent
+  conditional,   400,000 samples      resolves above  5.0
+  conditional, 1,600,000 samples      resolves above  2.5      in under three seconds
+
+Stratifying the difference was tried and does not help - the variance lives in the drift and in the
+spread of the conditional probabilities - and that is measured rather than assumed.
+
+### The control is now the defect
+
+The CI control for this comparison was an artificial break of twenty-two standard errors, chosen
+because nothing smaller would fire. It is W-INTL-232's actual quadrature now - folding the drift into
+the enrolment noise - and the check catches it at **9.69 standard errors**.
+
+A control that replays a real historical defect is worth more than one invented to be large enough:
+it is the statement that this check would have caught the last bug of its kind, which is the only
+useful thing a check can claim about the future.
+
+## W-INTL-248  Eighteen controls could not say what they guard
+
+Severity: method, and it turns W-INTL-247's lesson into a rule with a number attached.
+
+That entry recorded that a control replaying a real historical defect is worth more than one invented
+to be large enough, because only the first says the check would have caught the last bug of its kind.
+This asks how many of the fifty-seven controls could make that claim.
+
+Thirty-nine named a finding near themselves. Eighteen did not: mutations chosen to make something
+red, which proves the wiring and says nothing about whether the check catches the thing it exists
+for. All eighteen are attributed now, by reading each mutation and finding the entry whose defect it
+restores.
+
+### What the gap did NOT mean
+
+The repository has 213 recorded findings and thirty-two now have a control that replays them. Read
+carelessly that says 181 defects are unprotected, and it does not, because most closed findings are
+corrections to a figure and the sixty-nine bound figures catch those generically.
+
+Tested rather than asserted. Restoring W-INTL-221's hand-edited status page goes red on
+`check_status_current`; restoring W-INTL-225's wrong joint-sweep cell goes red on
+`check_figures_reproduce`; neither has a control naming it. The narrower and worse reading is the
+right one: for eighteen controls nobody could say which defect they guard, so nobody could say
+whether they still guard it.
+
+### Three things the check found while being written
+
+**A status row that had stopped being true.** W-INTL-240 was still marked open although W-INTL-241
+settled it exactly one loop later. The check noticed because a control cited it and the citation had
+to resolve.
+
+**A rule of mine that was too strict.** The first version required a cited finding to be *closed*.
+Two controls guard findings the audit keeps open on purpose - the units method finding and the
+environmental omission - and a control against an open finding is the useful kind: it is the guard
+that the fix holds while the question stays open. Relaxed to "the audit has a status row".
+
+**Two attributions I guessed wrong.** I assigned the provenance-marker and concession controls to
+W-INTL-131 and W-INTL-127 from memory; neither entry exists. They are W-INTL-178 and W-INTL-150, found
+by searching the audit for the defect rather than for the number. The check caught both, which is the
+argument for making the citation resolve rather than merely appear.
+
+### The control had to be moved to another file
+
+Mutating a comment in the workflow makes the anchor appear twice - once as the comment and once as
+the control's own argument - which is W-INTL-181's self-reference and what `control.py` now refuses as
+ambiguous. The control mutates the audit instead, removing the status row a citation points at.
+
+## W-INTL-249  Nothing required an exemption to say why
+
+Severity: small in consequence, exact in class, and found because a control of mine was wrong.
+
+Restoring W-INTL-217's defect - an exclusion kept without a reason - the mutation removed the
+exclusion entirely instead, and the check passed. That was the control being wrong rather than the
+check being weak, and it is the third time in three loops that a control perturbed the computation
+instead of breaking the claim. Writing the right mutation raised the real question: does anything
+require an exclusion's reason to exist?
+
+Nothing did. Ten exemption registries across nine files, every one carrying reasons by convention,
+and an empty string would have passed all of them. Four checks print "with reasons" in their OK
+lines, which is a claim nobody was verifying.
+
+Four entries were in that state and are now written out:
+
+  _SKIP["check_input_coverage.py"]     nine characters
+  _SKIP["check_commit_claims.py"]      twenty-two
+  _SKIP["check_control_anchors.py"]    eighteen
+  ALLOWED                              a SET, so no reasons at all
+
+The last is the interesting one. `ALLOWED` in `check_input_coverage` held its single entry's reason
+in a comment above the declaration, where a reason goes to stop being checkable - the same shape this
+project has found four times as prose sitting next to code. It is a mapping now.
+
+`scripts/check_exemptions_have_reasons.py` walks the syntax for module-level dicts and sets whose
+name is an exemption name, and fails on a missing reason, a set instead of a mapping, or a reason
+under twenty-four characters, which is a label rather than an explanation. Thirty-five exemptions
+across ten registries pass it.
+
+Discovered rather than listed, because W-INTL-243 and W-INTL-244 are what a list does.
+
+## W-INTL-250  The control harness could read the cache it refused to write
+
+Severity: high as an apparatus failure. It is the fifth distinct way a control here has reported
+success while testing nothing, and unlike the other four it affects every control at once.
+
+W-INTL-248 asked how many controls name the defect they replay. This asked the other half - of the
+findings with no control, how many would a check catch anyway - and `scripts/replay_defects.py` runs
+that survey: restore a past defect, run every fast check, report which notice, restore by hash.
+
+Nine defects replayed. Eight caught. The ninth was **W-INTL-231**, the Shannon entropy declared under
+the min-entropy name, which is the most consequential correction in this work. Reported: NOTHING
+CAUGHT.
+
+Run alone it is caught immediately. Run in the survey it is not, and the survey does not give the
+same answer twice.
+
+### Why
+
+`control.py` sets `PYTHONDONTWRITEBYTECODE=1`, which stops the run from WRITING a stale cache and
+does nothing about READING one already on disk. Python's cache is keyed on the source file's size and
+modification time, so a mutation preserving length within the same second is invisible to the
+interpreter.
+
+`MIN_ENTROPY_BITS = 183.3` and `MIN_ENTROPY_BITS = 241.0` are both twenty-four characters.
+
+The file demonstrating this hazard is `control.py` itself. Its `--self-test` has reproduced it since
+W-INTL-151, with an equal-length swap shown invisible and a different-length swap shown visible, and
+it clears a temporary directory to do so. **The real path never cleared anything.** The mitigation
+was half the fix, demonstrated in full, for ninety loops.
+
+`control.py` now removes every `__pycache__` under the repository before running the check.
+
+### What it means for the fifty-eight controls
+
+Any control whose mutation preserves length was capable of silently testing nothing, whenever a
+cached module was on disk - which is whenever anyone had run a check outside the harness. Length is
+preserved by: swapping a digit, changing `>` to `<`, changing `True` to `Fals`, and by a good number
+of the substitutions in the workflow. This did not make them wrong; it made them unreliable, in a way
+that shows up as a control quietly passing.
+
+### And the survey overstated its own breadth
+
+Every caught row named the same four checks. That is one detection cascading: `check_status_current`
+regenerates a page whose content includes the recommendation line, so a failure in
+`check_figures_reproduce` propagates. The table reports which checks fire, not which own the defect,
+and W-INTL-249's row is credited to `check_control_anchors` because a CI control anchors on the very
+text being mutated. Both are stated in the file rather than left for a reader to infer.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6664,7 +7103,17 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
-| W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
+| W-INTL-250 | closed; control.py refused to write a stale bytecode cache and never refused to read one, so any length-preserving mutation could silently test nothing - found by a corpus replay reporting NOTHING CAUGHT for W-INTL-231, whose two values are both twenty-four characters |
+| W-INTL-249 | closed; nothing required an exemption to carry a reason, four were labels or absent and one registry was a set with its reason in a comment - all written out, and a check now walks the syntax for exemption registries |
+| W-INTL-248 | closed; eighteen of fifty-seven controls named no finding, so nobody could say which defect they guard - all attributed, and the check found a stale status row, a rule of mine that was too strict, and two attributions I had guessed wrong |
+| W-INTL-247 | closed; the aging cross-check resolved 10 percent against an 8 percent historical defect, so the estimator accumulates the conditional flip probability rather than tossing the coin - 2.5 percent resolution, and the CI control is now W-INTL-232's actual defect, caught at 9.69 standard errors |
+| W-INTL-246 | closed; the second-opinion register asserted rather than computed and was wrong within one iteration - the aging model's second path had existed since W-INTL-237 - so it computes three comparisons on every run and prints what each can resolve, which for the aging pair is 10 percent against the 8 percent error W-INTL-232 fixed |
+| W-INTL-245 | closed; a register of which quantities have two derivations and which have one, and the first it pointed at gave up a theorem - min-entropy is convex in Shannon entropy, so the equal-bias figure is a distribution-free floor at 0.6404 and the design is sized below it |
+| W-INTL-244 | closed; four models ran pinning no figure and two were the end-to-end chain and the SLLC generator - the two-witness argument, corroborated by nothing since W-INTL-229 re-pointed it - now bound from both sides, and the check discovers unpinned models rather than listing pinned ones |
+| W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |
+| W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |
+| W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |
+| W-INTL-240 | closed by W-INTL-241, which computed the same quantity exactly and left this entry as the record of what the Monte Carlo could and could not say; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |
