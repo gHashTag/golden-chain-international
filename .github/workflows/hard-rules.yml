@@ -189,6 +189,21 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the budget is audited for absent terms
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only budget_audit.py
+          # Reporting the worst corner uncorrelated, which is the optimistic end and the
+          # assumption W-INTL-235 made without pricing it. W-INTL-236.
+          python3 scripts/control.py research/budget_audit.py \
+            '    worst = best_over_fractions(I.TEMPERATURE_FLIP_WORST, 1.0)' \
+            '    worst = best_over_fractions(I.TEMPERATURE_FLIP_WORST, 0.0)' \
+            -- python3 scripts/check_models_run.py --only budget_audit.py
+          # And dropping the correlation term from the combined drift entirely.
+          python3 scripts/control.py research/budget_audit.py \
+            '    return sqrt(age * age + temp * temp + 2 * correlation * age * temp)' \
+            '    return sqrt(age * age + temp * temp)' \
+            -- python3 scripts/check_models_run.py --only budget_audit.py
       - name: the error budget carries an environmental term
         run: |
           set -e
