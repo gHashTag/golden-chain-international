@@ -189,6 +189,22 @@ jobs:
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: the post-selection density has a second derivation
+        run: |
+          set -e
+          python3 scripts/check_models_run.py --only entropy_second_opinion.py
+          # Dropping the conditioning on selection, which is the mistake the first
+          # version of that file made and would have reported as a 0.116 discrepancy.
+          # W-INTL-238.
+          python3 scripts/control.py research/entropy_second_opinion.py \
+            '        weighted += survives * _min_entropy(up / survives)' \
+            '        weighted += survives * _min_entropy(1.0 - ND.cdf(-t))' \
+            -- python3 scripts/check_models_run.py --only entropy_second_opinion.py
+          # And moving the published figure the spread is fitted to, which must move both
+          # derivations and the gap between them.
+          python3 scripts/control.py research/inputs.py \
+            'SHANNON_ENTROPY_BITS = 241.0' 'SHANNON_ENTROPY_BITS = 230.0' \
+            -- python3 scripts/check_models_run.py --only entropy_second_opinion.py
       - name: two enrolment temperatures beat one
         run: |
           set -e

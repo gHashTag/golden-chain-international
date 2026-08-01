@@ -224,6 +224,13 @@ def _expected():
             (r"and two give ([\d.]+), a factor", 0.00636, 5e-5),
             (r"apart by ([\d.]+) standard errors", 1.1, 0.6),
         ],
+        # W-INTL-238. The two-level density and the gap to the single-bias derivation.
+        # The gap is the figure that matters: it is the claim that the derivation
+        # sixty-eight documents rest on is sound, and it is worth nothing unbound.
+        "entropy_second_opinion.py": [
+            (r"two levels \(this file\)\s+([\d.]+)", 0.5917, 0.0005),
+            (r"difference \+([\d.]+) per bit", 0.0028, 0.0005),
+        ],
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (

@@ -6321,6 +6321,56 @@ Every other cross-check in this repository compares a document against a model. 
 time two independent implementations of one quantity have been compared, and both are bound, because
 an agreement nobody checks is worth what the agreement it replaces was worth.
 
+## W-INTL-238  The derivation sixty-eight figures rest on, derived a second time
+
+Severity: confirmation, which this project has not produced before. The load-bearing derivation is
+sound and the file that checks it is more interesting than the result.
+
+Every check here compares a document against a model. None can find an error *in* the model, and
+sixty-eight bound figures rest on one derivation: `selection_entropy` fits a single bias to the
+declared min-entropy density, applies reliable-bit selection, and reports what survives. W-INTL-237
+produced the first model-against-model agreement in this work by accident, needing a second
+implementation for another reason. This is the first written deliberately.
+
+### The reason to doubt it
+
+`selection_entropy` collapses the source to one bias: every position is v ~ N(mu, 1) for a single mu.
+That was consistent while the declared density was itself a single number, and W-INTL-231 changed
+that: the density is now derived from a model in which each position has its own probability,
+p_k = Phi(-t_k), with t across positions Gaussian of spread 0.3737. The input acquired a spread that
+its consumer does not carry.
+
+The spread is not obviously harmless. Selection keeps positions whose |v| is large, a position with a
+large offset is likelier to clear the threshold, and those are the positions carrying least entropy.
+That is an amplification the single-bias model cannot express.
+
+### The answer
+
+  single bias (selection_entropy)   0.5889
+  two levels (this file)            0.5917
+
+Half a percent apart, with the single-bias derivation the conservative one. k required is 217.3
+against 216.3 - the same construction, so nothing moves. The derivation is sound and the spread the
+input acquired does not invalidate the consumer that ignores it.
+
+### The false alarm, which is the instructive part
+
+The first version of this file computed each position's entropy as -log2 max(p_k, 1-p_k) WITHOUT
+conditioning on selection, and reported 0.7052 against 0.5889 - a discrepancy of 0.116 per bit that
+would have read as a major finding about the most load-bearing quantity in the work.
+
+It was wrong. The entire content of the selection term is that being retained is itself information
+about the device - the effect Delvaux names and this project has cited since W-INTL-144 - and an
+implementation that drops it is not a second opinion, it is a different question.
+
+The rule that follows is not comfortable and is worth writing down: **a second implementation that
+disagrees is more likely to be the one at fault.** It is the one nobody has checked against
+sixty-eight documents for thirty loops. Disagreement is a reason to audit the new implementation
+first, and only then the old one.
+
+That mistake is the control. Restoring the unconditioned entropy makes the check print 0.7053, which
+is the false alarm reproduced to four decimals.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6496,6 +6546,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |
 | W-INTL-236 | closed; the budget enumerated by mechanism rather than by declaration - two terms ABSENT and named, the drift-correlation assumption priced and not load-bearing at the typical figure, and the worst corner repriced from 2.12 tiles to 0.25 once the selection fraction is allowed to move |
 | W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |
