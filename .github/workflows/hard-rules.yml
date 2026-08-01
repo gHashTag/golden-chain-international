@@ -73,15 +73,19 @@ jobs:
           # mutation applied, disables bytecode caching so the mutation is visible, and
           # verifies the file was restored by hash.
           python3 scripts/control.py --self-test
+          # W-INTL-192: an input perturbable with nothing noticing.
           python3 scripts/control.py research/inputs.py \
             'SELECTION_LOSS = 1 - 381 / 701' 'SELECTION_LOSS = 0.0' \
             -- python3 scripts/check_figures_reproduce.py
+          # W-INTL-166: a ratio declared without saying what divides what.
           python3 scripts/control.py research/inputs.py \
             '# units: positions / positions' '' \
             -- python3 scripts/check_units.py
+          # W-INTL-99: a measured figure stated in a document and not in the model.
           python3 scripts/control.py paper/evidence_ledger.md \
             'decoder 24,659,' 'decoder 24,700,' \
             -- python3 scripts/check_figures_reproduce.py
+          # W-INTL-144: the density after selection stated wrongly.
           python3 scripts/control.py research/decoder_code_choice.md \
             'density after selection is 0.5889' 'density after selection is 0.9500' \
             -- python3 scripts/check_figures_reproduce.py
@@ -108,15 +112,19 @@ jobs:
           python3 scripts/control.py research/rtl/sllc127t7.v \
             'module sllc127t7_unmask' 'module sllc127t7_unmask2' \
             -- python3 scripts/check_generated_rtl.py
+          # W-INTL-176: a testbench parameter that no longer matches its code.
           python3 scripts/control.py research/rtl/measure_all.sh \
             '-DMVAL=8 -DTVAL=30' '-DMVAL=8 -DTVAL=99' \
             -- python3 scripts/check_testbench_coverage.py
+          # W-INTL-169: a module that computes on import and cannot be cross-checked.
           python3 scripts/control.py research/nand_ring.py \
             'if __name__ == "__main__":' 'if True:' \
             -- python3 scripts/check_module_hygiene.py
+          # W-INTL-221: the generated status page edited by hand.
           python3 scripts/control.py STATUS.md \
             '# Status' '# Status (edited)' \
             -- python3 scripts/check_status_current.py
+          # W-INTL-153: a count in a document that nothing recomputes.
           python3 scripts/control.py paper/evidence_ledger.md \
             '  total        31 rows' '  total        30 rows' \
             -- python3 scripts/check_consistency.py
@@ -124,12 +132,15 @@ jobs:
             '`scripts/check_figures_reproduce.py` recomputes the headline from its inputs' \
             '`scripts/check_figures_reproduced.py` recomputes the headline from its inputs' \
             -- python3 scripts/check_consistency.py
+          # W-INTL-178: a competitor understated for want of a provenance marker.
           python3 scripts/control.py research/hub71_ai_competitor_matrix.md \
             '9.51 tok/s [PUB]' '9.51 tok/s' \
             -- python3 scripts/check_consistency.py
+          # W-INTL-150: the concession cross-check, promoted from advisory to failure.
           python3 scripts/control.py paper/hub71_form_answers.md \
             '<!-- concedes: E26 -->' '' \
             -- python3 scripts/check_consistency.py
+          # W-INTL-99 again, in the register: the utilisation factor dropped.
           python3 scripts/control.py research/constraint_register.md \
             '58 percent' '57 percent' \
             -- python3 scripts/check_figures_reproduce.py
@@ -183,12 +194,36 @@ jobs:
           python3 scripts/check_no_stale_literals.py
           # Both forms it has actually appeared in: a tuple assignment, which the first
           # version of the check missed on its own control, and a bare determined value.
+          # W-INTL-229: the end-to-end chain pinned to a superseded construction.
           python3 scripts/control.py research/key_generator_e2e.py \
             'T, K_BITS, BLOCKS = _recommended()' 'T, K_BITS, BLOCKS = 21, 29, 23' \
             -- python3 scripts/check_no_stale_literals.py
+          # W-INTL-233: a determined figure written down rather than derived.
           python3 scripts/control.py research/borrowed_margins.py \
             'K_TOTAL = _k_total()' 'K_TOTAL = 228' \
             -- python3 scripts/check_no_stale_literals.py
+      - name: every exemption says why
+        run: |
+          set -e
+          python3 scripts/check_exemptions_have_reasons.py
+          # W-INTL-249: an exemption whose reason is a label rather than an explanation,
+          # which is the state four of them were in and which nothing checked.
+          python3 scripts/control.py scripts/check_quadrature_converged.py \
+            '        "the primitive threshold_for bisects over, exercised through it",' \
+            '        "x",' \
+            -- python3 scripts/check_exemptions_have_reasons.py
+      - name: every control names the defect it replays
+        run: |
+          set -e
+          python3 scripts/check_controls_cite_defects.py
+          # W-INTL-248: a cited finding losing its status row, so a control points at
+          # nothing. The mutation is in the audit rather than in this file, because any
+          # anchor naming a comment here would appear twice - once as the comment and
+          # once as the control's own argument - which is W-INTL-181's shape and what
+          # control.py now refuses as ambiguous.
+          python3 scripts/control.py audits/gc_intl_v2_weakness_audit_addendum.md \
+            '| W-INTL-221 |' '| W-INTL-9221 |' \
+            -- python3 scripts/check_controls_cite_defects.py
       - name: the quantities with two derivations, and those with one
         run: |
           set -e
@@ -211,6 +246,7 @@ jobs:
             -- python3 scripts/check_second_opinions.py
           # And the convexity that makes the distribution-free floor a floor rather than
           # a reading - inverted, the test reports 38 violations instead of none.
+          # W-INTL-245: the convexity that makes the floor a floor rather than a reading.
           python3 scripts/control.py research/min_entropy_from_shannon.py \
             '        if _min_entropy_at_shannon((lo + hi) / 2) > chord + 1e-12:' \
             '        if _min_entropy_at_shannon((lo + hi) / 2) < chord + 1e-12:' \
@@ -539,10 +575,12 @@ jobs:
             -- python3 scripts/check_models_run.py --only borrowed_margins.py
           # Drops the selection term from the density floor, which is the bug this model
           # shipped with for one interval: it made the margin read 1.26 instead of 1.13.
+          # W-INTL-224: a density compared across the selection step it does not survive.
           python3 scripts/control.py research/borrowed_margins.py \
             'after = SE.density_for_bias(SE.selected_bias(SE.mean_for_density(mid), 1 - keep)[0])' \
             'after = mid' \
             -- python3 scripts/check_models_run.py --only borrowed_margins.py
+          # W-INTL-205: the aging rule enforced in a checker and absent from the model.
           python3 scripts/control.py research/selection_with_bch.py \
             'if m == 7 and not AM.meets_aging_headroom(t, k, blocks):' 'if False:' \
             -- python3 scripts/check_models_run.py --only selection_with_bch.py

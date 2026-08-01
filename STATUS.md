@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-213 entries in the weakness audit. 178 closed, 35 open or deliberately deferred:
+215 entries in the weakness audit. 181 closed, 34 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -51,13 +51,12 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |  |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |  |
 | W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |  |
-| W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |  |
 
 Of the open rows, 14 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
 
 ## Checks
 
-17 checks, each with at least one control; 56 controls run in CI.
+19 checks, each with at least one control; 58 controls run in CI.
 
 | Check | What it establishes |
 |---|---|
@@ -66,6 +65,8 @@ Of the open rows, 14 concern the identity root this work has been on; the rest a
 | `check_commit_claims.py` | A commit message must not name an audit entry its diff never mentions. |
 | `check_consistency.py` | Structural checks over the Wave-intl-2 documents. |
 | `check_control_anchors.py` | Every control in the workflow must still find the text it breaks. |
+| `check_controls_cite_defects.py` | Every control must name the defect it replays. |
+| `check_exemptions_have_reasons.py` | Every exemption must carry a reason, and the reason must say something. |
 | `check_figures_reproduce.py` | The load-bearing figures in the documents must be reproducible by running the model. |
 | `check_generated_rtl.py` | Every generated Verilog file must still match what its generator produces. |
 | `check_input_coverage.py` | Perturb every declared input and fail if any check would not notice. |

@@ -6801,6 +6801,85 @@ A control that replays a real historical defect is worth more than one invented 
 it is the statement that this check would have caught the last bug of its kind, which is the only
 useful thing a check can claim about the future.
 
+## W-INTL-248  Eighteen controls could not say what they guard
+
+Severity: method, and it turns W-INTL-247's lesson into a rule with a number attached.
+
+That entry recorded that a control replaying a real historical defect is worth more than one invented
+to be large enough, because only the first says the check would have caught the last bug of its kind.
+This asks how many of the fifty-seven controls could make that claim.
+
+Thirty-nine named a finding near themselves. Eighteen did not: mutations chosen to make something
+red, which proves the wiring and says nothing about whether the check catches the thing it exists
+for. All eighteen are attributed now, by reading each mutation and finding the entry whose defect it
+restores.
+
+### What the gap did NOT mean
+
+The repository has 213 recorded findings and thirty-two now have a control that replays them. Read
+carelessly that says 181 defects are unprotected, and it does not, because most closed findings are
+corrections to a figure and the sixty-nine bound figures catch those generically.
+
+Tested rather than asserted. Restoring W-INTL-221's hand-edited status page goes red on
+`check_status_current`; restoring W-INTL-225's wrong joint-sweep cell goes red on
+`check_figures_reproduce`; neither has a control naming it. The narrower and worse reading is the
+right one: for eighteen controls nobody could say which defect they guard, so nobody could say
+whether they still guard it.
+
+### Three things the check found while being written
+
+**A status row that had stopped being true.** W-INTL-240 was still marked open although W-INTL-241
+settled it exactly one loop later. The check noticed because a control cited it and the citation had
+to resolve.
+
+**A rule of mine that was too strict.** The first version required a cited finding to be *closed*.
+Two controls guard findings the audit keeps open on purpose - the units method finding and the
+environmental omission - and a control against an open finding is the useful kind: it is the guard
+that the fix holds while the question stays open. Relaxed to "the audit has a status row".
+
+**Two attributions I guessed wrong.** I assigned the provenance-marker and concession controls to
+W-INTL-131 and W-INTL-127 from memory; neither entry exists. They are W-INTL-178 and W-INTL-150, found
+by searching the audit for the defect rather than for the number. The check caught both, which is the
+argument for making the citation resolve rather than merely appear.
+
+### The control had to be moved to another file
+
+Mutating a comment in the workflow makes the anchor appear twice - once as the comment and once as
+the control's own argument - which is W-INTL-181's self-reference and what `control.py` now refuses as
+ambiguous. The control mutates the audit instead, removing the status row a citation points at.
+
+## W-INTL-249  Nothing required an exemption to say why
+
+Severity: small in consequence, exact in class, and found because a control of mine was wrong.
+
+Restoring W-INTL-217's defect - an exclusion kept without a reason - the mutation removed the
+exclusion entirely instead, and the check passed. That was the control being wrong rather than the
+check being weak, and it is the third time in three loops that a control perturbed the computation
+instead of breaking the claim. Writing the right mutation raised the real question: does anything
+require an exclusion's reason to exist?
+
+Nothing did. Ten exemption registries across nine files, every one carrying reasons by convention,
+and an empty string would have passed all of them. Four checks print "with reasons" in their OK
+lines, which is a claim nobody was verifying.
+
+Four entries were in that state and are now written out:
+
+  _SKIP["check_input_coverage.py"]     nine characters
+  _SKIP["check_commit_claims.py"]      twenty-two
+  _SKIP["check_control_anchors.py"]    eighteen
+  ALLOWED                              a SET, so no reasons at all
+
+The last is the interesting one. `ALLOWED` in `check_input_coverage` held its single entry's reason
+in a comment above the declaration, where a reason goes to stop being checkable - the same shape this
+project has found four times as prose sitting next to code. It is a mapping now.
+
+`scripts/check_exemptions_have_reasons.py` walks the syntax for module-level dicts and sets whose
+name is an exemption name, and fails on a missing reason, a set instead of a mapping, or a reason
+under twenty-four characters, which is a label rather than an explanation. Thirty-five exemptions
+across ten registries pass it.
+
+Discovered rather than listed, because W-INTL-243 and W-INTL-244 are what a list does.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6976,6 +7055,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-249 | closed; nothing required an exemption to carry a reason, four were labels or absent and one registry was a set with its reason in a comment - all written out, and a check now walks the syntax for exemption registries |
+| W-INTL-248 | closed; eighteen of fifty-seven controls named no finding, so nobody could say which defect they guard - all attributed, and the check found a stale status row, a rule of mine that was too strict, and two attributions I had guessed wrong |
 | W-INTL-247 | closed; the aging cross-check resolved 10 percent against an 8 percent historical defect, so the estimator accumulates the conditional flip probability rather than tossing the coin - 2.5 percent resolution, and the CI control is now W-INTL-232's actual defect, caught at 9.69 standard errors |
 | W-INTL-246 | closed; the second-opinion register asserted rather than computed and was wrong within one iteration - the aging model's second path had existed since W-INTL-237 - so it computes three comparisons on every run and prints what each can resolve, which for the aging pair is 10 percent against the 8 percent error W-INTL-232 fixed |
 | W-INTL-245 | closed; a register of which quantities have two derivations and which have one, and the first it pointed at gave up a theorem - min-entropy is convex in Shannon entropy, so the equal-bias figure is a distribution-free floor at 0.6404 and the design is sized below it |
@@ -6983,7 +7064,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |
 | W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |
 | W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |
-| W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
+| W-INTL-240 | closed by W-INTL-241, which computed the same quantity exactly and left this entry as the record of what the Monte Carlo could and could not say; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |

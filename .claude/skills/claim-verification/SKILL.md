@@ -175,6 +175,51 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A wrong control is a finding, not a failed experiment
+
+Replaying an old defect to test a check, the mutation did something adjacent instead — removed an
+exclusion rather than emptying its reason — and the check passed. The instinct is to record "the
+check is weak". The truth was that the control was wrong, for the third time in three iterations.
+
+Then writing the *correct* mutation raised the question that mattered: does anything require an
+exclusion's reason to exist? Nothing did, across ten registries in nine files, and four checks were
+printing "with reasons" as a claim nobody verified.
+
+When a control does not fire, the first suspect is the control. Fix it — and notice that the act of
+writing the precise mutation is what forces you to state the property precisely, which is where the
+real gap turns up.
+
+## An exemption's reason belongs in the data, not the comment above it
+
+One exclusion registry was a set, with its single entry's reason in a comment above the declaration.
+Every other was a mapping. The set passed every check, because a comment is where a reason goes to
+stop being checkable.
+
+Make exemption lists mappings from the item to the reason, and check the reason exists and has
+substance — a threshold on length is crude and catches labels masquerading as explanations. If a
+check's output claims "with reasons", something must verify that.
+
+## Make every control name the defect it replays, and make the name resolve
+
+Auditing fifty-seven controls found eighteen that named nothing — mutations chosen to make something
+red, which proves the wiring and says nothing about whether the check catches what it exists for.
+Requiring each to cite the recorded finding it restores, and requiring that citation to *resolve
+against the record*, found three further things in one pass: a status row that had stopped being
+true, a rule of mine that was too strict, and two attributions I had written from memory that named
+entries which do not exist.
+
+A citation nobody resolves is a comment. Make the check look the finding up.
+
+## Count coverage the narrow way, not the alarming way
+
+Thirty-two of 213 recorded findings had a control replaying them. Read carelessly that is "181
+defects unprotected" — and it is wrong, because most were corrections to figures that a generic
+binding catches. I tested two at random by restoring them; both went red with no control naming them.
+
+When a coverage number looks alarming, find out what the uncovered cases actually do before reporting
+it. The honest statement here was narrower and worse than the loud one: not that defects could
+recur, but that for eighteen guards nobody could say what they were guarding.
+
 ## Make the control a defect you actually had
 
 A cross-check's control was an artificial break, sized large enough to fire — which is a control that
