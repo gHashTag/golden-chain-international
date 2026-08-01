@@ -195,8 +195,16 @@ jobs:
           python3 scripts/check_second_opinions.py
           python3 scripts/check_models_run.py --only min_entropy_from_shannon.py
           # An agreement quietly ceasing to be bound. W-INTL-245.
-          python3 scripts/control.py scripts/check_models_run.py \
-            '"entropy_second_opinion.py"' '"entropy_second_opinion_x.py"' \
+          # Moving one derivation past the resolution of the comparison that witnesses
+          # it. A smaller break would NOT fire, and the check prints what it can resolve.
+          python3 scripts/control.py research/reliable_bit_selection.py \
+            '        u = 1.0 - half * (i + 0.5) / steps' \
+            '        u = 1.0 - half * (i + 0.5) / steps * 0.8' \
+            -- python3 scripts/check_second_opinions.py
+          # The proven interval the fitted min-entropy sits inside.
+          python3 scripts/control.py research/min_entropy_from_shannon.py \
+            '    return _min_entropy_at_shannon(I.SHANNON_ENTROPY_BITS / I.MIN_ENTROPY_OVER)' \
+            '    return 0.80' \
             -- python3 scripts/check_second_opinions.py
           # And the convexity that makes the distribution-free floor a floor rather than
           # a reading - inverted, the test reports 38 violations instead of none.

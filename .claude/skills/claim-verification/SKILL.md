@@ -175,6 +175,30 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A register that asserts goes stale; make it compute
+
+A list recording which quantities had two derivations, and where their agreement was checked, was
+wrong within one iteration of being written — it named a quantity as having no second path when the
+second path had existed for two iterations, built by the same author.
+
+The error ran the harmless way, claiming less coverage than existed. A list that can be wrong one way
+can be wrong the other, and the version that matters is the one asserting an agreement that is not
+there. So don't record *that* two derivations agree — **compute both and compare, every run**. The
+register then cannot lie about the half it covers, and the hand-written half shrinks to the
+quantities it admits it does not.
+
+## State what a comparison can resolve, or it reads as coverage it does not have
+
+Three cross-checks were computed and agreed. Printing only "they agree" would have implied far more
+than was true: the sampling comparison for one of them **cannot resolve the eight-percent modelling
+error that had been corrected two iterations earlier** — that break is 1.4 standard errors at the
+sample size used, and the check passes it. The control that fires had to break the derivation by
+twenty-two.
+
+Every comparison has a detection threshold: sampling noise, quadrature error, tolerance. Compute it,
+print it beside the result, and check it against the size of the defects you have historically found.
+A check that would not have caught your last bug is worth knowing about before the next one.
+
 ## Keep the register of what has one derivation, and read the second column
 
 Comparing a figure against itself computed a different way found four defects in five iterations —

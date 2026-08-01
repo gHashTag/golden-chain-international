@@ -6717,6 +6717,55 @@ violation count is bound as a figure - zero. Inverting the comparison makes it r
 which is the control. A numerical claim nobody re-evaluates is the shape this project has found six
 times, and this one carries a bound.
 
+## W-INTL-246  The register was wrong within one iteration, and the check now computes
+
+Severity: method. A register that asserts goes stale; one that computes cannot.
+
+W-INTL-245 wrote `check_second_opinions` as two lists: quantities with two derivations, with a note
+saying where the agreement was bound, and quantities with one. It named the aging drift model as
+"the largest quantity in the work with no second path".
+
+That was wrong when it was written. `multi_condition_enrolment` at a zero temperature term is exactly
+`aged_selected_ber`, and has been since W-INTL-237 - two loops earlier, by this same author. The two
+agree to 0.82 standard errors.
+
+The error ran in the harmless direction, claiming less coverage than exists. A list that can be wrong
+one way can be wrong the other, and the version that would have mattered is the one asserting an
+agreement that is not there.
+
+So the check computes now. Three quantities are derived both ways inside it and compared on every
+run, and the min-entropy conversion is checked to sit inside its proven interval:
+
+  post-selection min-entropy density           0.58894 / 0.591725
+  selected error rate at ten years             0.00367731 / 0.0037856
+  ordering min-entropy, twelve oscillators     25.1106 / 25.8133
+  min-entropy sandwich                         0.6404 <= 0.7160 <= 0.9414
+
+The ordering pair is compared at twelve oscillators rather than fifty-four, because the Monte Carlo
+fails its own impossibility test above fourteen - W-INTL-240 - and a comparison against a figure
+known to be wrong is not a comparison.
+
+### What the comparisons cannot see
+
+Each now prints its resolution, and this is the part worth keeping.
+
+  post-selection density        resolves above 2 percent
+  selected error rate           resolves above 10 percent
+  ordering entropy              resolves above 5 percent
+
+A sampling comparison can only see a difference larger than its own noise. **The aging comparison
+cannot resolve the eight percent modelling error that W-INTL-232 corrected** - that break is 1.4
+standard errors at this sample size, and the check would pass it. The control that fires had to break
+the derivation by twenty-two standard errors.
+
+A check whose power is unstated reads as coverage it does not have. This one says what it would miss.
+
+### The list that remains
+
+Five quantities have one derivation, and the largest is now every synthesised area: `verify_inputs`
+re-runs yosys, which checks transcription rather than derivation, and a second path would count cells
+in the netlist against the liberty file. Two of those areas cannot be re-measured at all - W-INTL-233.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6892,6 +6941,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
+| W-INTL-246 | closed; the second-opinion register asserted rather than computed and was wrong within one iteration - the aging model's second path had existed since W-INTL-237 - so it computes three comparisons on every run and prints what each can resolve, which for the aging pair is 10 percent against the 8 percent error W-INTL-232 fixed |
 | W-INTL-245 | closed; a register of which quantities have two derivations and which have one, and the first it pointed at gave up a theorem - min-entropy is convex in Shannon entropy, so the equal-bias figure is a distribution-free floor at 0.6404 and the design is sized below it |
 | W-INTL-244 | closed; four models ran pinning no figure and two were the end-to-end chain and the SLLC generator - the two-witness argument, corroborated by nothing since W-INTL-229 re-pointed it - now bound from both sides, and the check discovers unpinned models rather than listing pinned ones |
 | W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |

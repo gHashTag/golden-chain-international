@@ -21,79 +21,154 @@ from this file is a quantity nobody claimed had a second opinion.
 Exit code 1 if a declared agreement is no longer bound by check_models_run.
 """
 
+import math
 import pathlib
-import re
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "research"))
+import inputs as I  # noqa: E402
+import reliable_bit_selection as R  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MODELS_CHECK = ROOT / "scripts" / "check_models_run.py"
 
-# (quantity, first derivation, second derivation, where the agreement is bound)
-PAIRED = [
-    ("post-selection min-entropy density",
-     "selection_entropy, one bias fitted to the declared density",
-     "entropy_second_opinion, per-position biases with a spread",
-     "entropy_second_opinion.py"),
-    ("ordering min-entropy at the design's oscillator count",
-     "ordering_achievable, sequential Monte Carlo",
-     "ordering_exact, the chain integral in one dimension",
-     "ordering_exact.py"),
-    ("selected bit error rate at the declared fraction",
-     "reliable_bit_selection.selected_ber_counts_exact, closed form",
-     "multi_condition_enrolment, Monte Carlo with a fixed seed",
-     "multi_condition_enrolment.py"),
-    ("word failure of the recommendation",
-     "the binomial sum in check_figures_reproduce",
-     "key_generator_e2e, the whole chain in software",
-     "key_generator_e2e.py"),
-    ("min-entropy implied by the published Shannon figure",
-     "min_entropy_from_shannon, a Gaussian spread fitted to reproduce it",
-     "the same file's distribution-free floor, from convexity and Jensen",
-     "min_entropy_from_shannon.py"),
-]
-
-# Quantities with one derivation, and what that costs. This is the half worth reading.
+# Quantities with one derivation, and what that costs. The half worth reading: it names
+# where the next defect is. The aging drift model was here in the first version and should
+# not have been - W-INTL-246 found the second path already existed and had since
+# W-INTL-237, which is what a list that asserts rather than computes does within a loop.
 SINGLE = {
     "every synthesised area":
         "verify_inputs re-runs yosys, which checks transcription rather than derivation - "
         "a second path would be counting cells in the netlist against the liberty file. "
-        "Not done; W-INTL-233 records that two of these cannot be re-measured at all",
+        "Not done, and W-INTL-233 records that two of these cannot be re-measured at all. "
+        "This is now the largest quantity in the work with one derivation",
     "tolerated bit error rate":
-        "one bisection over the binomial, in aging_margin. The binomial itself now has a "
-        "second witness through key_generator_e2e, so what is unchecked is the bisection",
+        "one bisection over the binomial in aging_margin. The binomial has a second "
+        "witness through key_generator_e2e, so what is unchecked is the bisection",
     "the tile arithmetic":
-        "cells / utilisation / tile area, three multiplications - a second derivation "
-        "would restate the same arithmetic and witness nothing",
+        "cells / utilisation / tile area - a second derivation would restate the same "
+        "three multiplications and witness nothing",
     "oscillator floor and pairs-for-positions":
         "two counting loops, checked by inspection; the ordering bound they feed has two "
         "derivations and is the load-bearing half",
-    "the aging drift model":
-        "aged_selected_ber has one derivation. W-INTL-232 corrected its structure and "
-        "W-INTL-242 its quadrature, both by reading rather than by comparison. This is "
-        "the largest quantity in the work with no second path",
+    "word failure of the recommendation":
+        "the binomial sum, with key_generator_e2e as a witness bound in check_models_run "
+        "rather than computed here, because running the whole chain costs minutes",
 }
 
 
+def comparisons():
+    """(quantity, first, second, value one, value two, tolerance, units) computed here.
+
+    W-INTL-246: the first version of this file asserted that agreements were bound
+    elsewhere and listed which quantities had one derivation. It was wrong within one
+    iteration - it named the aging drift model as the largest quantity with no second
+    path, and `multi_condition_enrolment` with a zero temperature term had been that path
+    since W-INTL-237. A register that asserts is a register that goes stale; this one
+    computes.
+    """
+    import entropy_second_opinion as E
+    import min_entropy_from_shannon as M
+    import multi_condition_enrolment as MC
+    import ordering_achievable as OA
+    import ordering_exact as OE
+    import random
+
+    keep = 1.0 - I.SELECTION_LOSS
+    noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    aging = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+    out = []
+
+    out.append((
+        "post-selection min-entropy density",
+        "selection_entropy, one bias fitted to the declared density",
+        "entropy_second_opinion, per-position biases with a spread",
+        E.single_bias_density(), E.two_level_density(), 0.02, "relative"))
+
+    # The aging drift, which the register's first version said had no second path. The
+    # Monte Carlo at a zero temperature term is exactly this quantity.
+    mc = MC.selected_ber(0.0, keep, 1)
+    out.append((
+        "selected error rate at ten years",
+        "reliable_bit_selection.aged_selected_ber, closed form",
+        "multi_condition_enrolment, Monte Carlo at a zero temperature term",
+        R.aged_selected_ber(noise, aging, keep, I.ENROLMENT_READS), mc, 3.0,
+        "standard errors"))
+
+    # The ordering entropy, compared where the Monte Carlo is still valid - it fails its
+    # own impossibility test above fourteen oscillators, which is W-INTL-240.
+    spread = M.densities()[2]
+    rng = random.Random(7)
+    mu = sorted(rng.gauss(0.0, spread) for _ in range(12))
+    out.append((
+        "ordering min-entropy, twelve oscillators",
+        "ordering_achievable, sequential Monte Carlo",
+        "ordering_exact, the chain integral in one dimension",
+        -OA.log2_p_most_likely(mu, trials=200_000, seed=91),
+        -OE.log2_p_ordered(mu), 0.05, "relative"))
+
+    return out
+
+
+def sandwich():
+    """(label, low, middle, high) for the bound the min-entropy conversion sits inside."""
+    import min_entropy_from_shannon as M
+    return ("min-entropy implied by the published Shannon figure",
+            M.distribution_free_bound(), I.MIN_ENTROPY_DENSITY,
+            I.SHANNON_ENTROPY_BITS / I.MIN_ENTROPY_OVER)
+
+
 def main():
-    bound = MODELS_CHECK.read_text()
     failures = []
-    for quantity, first, second, where in PAIRED:
-        if f'"{where}"' not in bound:
-            failures.append(
-                f"{quantity}: the agreement between two derivations is recorded here as "
-                f"bound in {where}, and check_models_run does not mention that file")
+    rows = comparisons()
+    for quantity, first, second, one, two, tol, units in rows:
+        if units == "relative":
+            apart = abs(one - two) / abs(two) if two else 0.0
+            ok = apart <= tol
+            detail = f"{apart:.2%} apart, tolerance {tol:.0%}"
+        else:
+            import multi_condition_enrolment as MC
+            kept = MC.SAMPLES * (1.0 - I.SELECTION_LOSS)
+            band = math.sqrt(max(two, 1e-12) * (1 - two) / kept)
+            apart = abs(one - two) / band if band else 0.0
+            ok = apart <= tol
+            # The resolution, stated rather than implied. A sampling comparison can only
+            # see a difference larger than its own noise, and this one cannot resolve the
+            # eight percent modelling error W-INTL-232 corrected - that is 1.4 standard
+            # errors here. W-INTL-246: a check whose power is unstated reads as coverage
+            # it does not have.
+            resolution = tol * band / abs(two) if two else 0.0
+            detail = (f"{apart:.2f} standard errors, tolerance {tol:.0f}; this comparison "
+                      f"resolves differences above {resolution:.1%}")
+        if not ok:
+            failures.append(f"{quantity}: {one:.6g} against {two:.6g}, {detail}")
+
+    label, low, middle, high = sandwich()
+    if not low <= middle <= high:
+        failures.append(
+            f"{label}: the fitted {middle:.4f} is outside the proven interval "
+            f"[{low:.4f}, {high:.4f}] - the floor rests on convexity and the ceiling on "
+            f"min-entropy never exceeding Shannon, so one of those has stopped holding")
 
     for f in failures:
         print(f"FAIL: {f}")
     if failures:
-        print(f"\ncheck_second_opinions: {len(failures)} of {len(PAIRED)} agreements are "
-              f"no longer bound")
+        print(f"\ncheck_second_opinions: {len(failures)} of {len(rows) + 1} "
+              f"comparisons disagree")
         return 1
 
-    print(f"check_second_opinions: OK ({len(PAIRED)} quantities derived twice with the "
-          f"agreement bound, {len(SINGLE)} with one derivation)")
-    for quantity, _, _, where in PAIRED:
-        print(f"  two paths: {quantity} -> {where}")
+    print(f"check_second_opinions: OK ({len(rows)} quantities computed both ways and "
+          f"agreeing, one bound sandwich, {len(SINGLE)} with one derivation)")
+    for quantity, first, second, one, two, tol, units in rows:
+        if units == "standard errors":
+            import multi_condition_enrolment as MC
+            kept = MC.SAMPLES * (1.0 - I.SELECTION_LOSS)
+            band = math.sqrt(max(two, 1e-12) * (1 - two) / kept)
+            note = f"  (resolves above {tol * band / abs(two):.0%})"
+        else:
+            note = f"  (resolves above {tol:.0%})"
+        print(f"  two paths: {quantity}: {one:.6g} / {two:.6g}{note}")
+    print(f"  sandwich:  {label}: {low:.4f} <= {middle:.4f} <= {high:.4f}")
     for quantity, why in sorted(SINGLE.items()):
         print(f"  one path:  {quantity} - {why}")
     return 0
