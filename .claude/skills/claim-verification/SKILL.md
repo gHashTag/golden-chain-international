@@ -175,6 +175,31 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## Give an estimator a test it must pass, and discard the rows that fail it
+
+A sequential estimator for a very small probability produced clean-looking numbers at every scale.
+Above a certain size they were **impossible** — the quantity it estimated has a hard ceiling from
+first principles, and the estimates exceeded it. Without that test the design would have been
+credited with a comfortable margin computed from garbage.
+
+Before trusting an estimator anywhere, find a relation it cannot violate — a normalisation, a bound,
+a symmetry, a known special case — and evaluate it alongside every output. Print pass/fail per row
+and discard the failures rather than averaging them in. Here that test is the whole reason the entry
+reports an honest range instead of a confident wrong number.
+
+And when the estimator fails, say whether more samples would fix it. Variance that grows with the
+problem size is a structural failure, not a budget.
+
+## Two extrapolations that straddle the claim are the finding
+
+Carrying a measured ratio from where an estimator works to where the design lives gave 199.8 bits
+under one scaling law and 217.7 under another, against 201.4 claimed. Picking either would have
+reported a settled answer.
+
+Report both, bind both, and say the range is the result. A single extrapolated number carries none of
+the information that matters — which is that the design sits on the boundary and the method cannot
+say which side.
+
 ## A margin table answers the question it was built for, not "what is tightest"
 
 A sweep of every borrowed input reported its tightest row at 1.30 and was read, for several
