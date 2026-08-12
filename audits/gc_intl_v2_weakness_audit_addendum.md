@@ -6928,6 +6928,186 @@ regenerates a page whose content includes the recommendation line, so a failure 
 and W-INTL-249's row is credited to `check_control_anchors` because a CI control anchors on the very
 text being mutated. Both are stated in the file rather than left for a reader to infer.
 
+## W-INTL-251  Two hundred measurements and no proof, and the first control refuted its own theorem
+
+Severity: high as a gap and the entry is mostly about what happened when it was filled.
+
+Every entry in this file up to here is a measurement. A measurement says what this
+construction does at this operating point; a bound says what no construction can do at any
+operating point. Nothing here had ever said the second kind of thing, which is why the
+twelve-loop arc W-INTL-117 diagnosed could optimise inside one framing for twelve loops
+without anything contradicting it, and why the reversal in W-INTL-118 could only answer
+"does this code beat that code" and not "is either near the limit".
+
+research/theory_bounds.py states four theorems and one conjecture, each with a numerical
+control that runs in the models job.
+
+Theorem 1. For d ~ N(0,1) fixed at manufacture and read noise n ~ N(0, sigma^2), the raw
+bit error rate is exactly arccos(rho)/pi with rho = 1/sqrt(1+sigma^2). Proof by Sheppard's
+orthant formula for the centred bivariate Gaussian (d, d+n). The control agrees with the
+4,000-point numerical integral this project has been using to 1.4e-7, and the integral had
+never been checked against anything. The inverse is closed form too, which retires a
+bisection search.
+
+Theorem 2. The minimum helper data for a reliable-bit selection of fraction f over n
+positions is exactly n*h(f) bits, for any encoding, and the differential encoding of the
+gaps attains it. Proof: the helper data is a lossless code for a Bernoulli(f) mask of
+length n, so Shannon bounds it below by n*h(f); the gaps are Geometric(f) with entropy
+h(f)/f each and there are f*n of them. The cost is therefore linear in positions read and
+not in positions kept, and it is worst at f = 1/2.
+
+Theorem 3. If the response bit is sign(d) with d symmetric and selection depends on the
+measurements only through a statistic invariant under d -> -d, the mask is independent of
+the bits and the pointers leak zero key bits. Holds for perfect ranking, where the
+statistic is |d|, and for the achievable vote-margin estimator, where d -> -d maps the vote
+count k -> r-k and fixes the margin while flipping the bit. Control: the share of ones
+among selected positions is 0.4983 to 0.5008 for both rules at three fractions.
+
+Theorem 4 is the one that matters and it is stated in the next entry.
+
+The conjecture: the excess error of the vote-margin estimator over perfect ranking decays
+as Theta(1/r) in enrolment reads. Numerically the product of excess and r moves from 0.129
+to 0.161 across r = 5 to 101, a quarter over a twentyfold range. That is support and it is
+not a proof, and the entry says so.
+
+What actually happened is the useful part. Theorem 4's control asserted monotonicity and
+failed on the first run, on the quantity the theorem is about. The theorem was right and the
+way it had been computed was wrong; see the next entry. This is the first assertion in this
+repository to catch an error in the reasoning rather than in a figure, and it caught it
+inside the same file, before the claim reached a document.
+
+## W-INTL-252  An effective bit error rate is a lossy summary, and every comparison here is stated in one
+
+Severity: critical as a correction of method. It does not overturn a number in a document
+and it changes what the numbers can be read as saying.
+
+Theorem 4. With q(d) = Phi(-|d|/sigma) the per-position flip probability, define the
+extraction density of a selection rule S as the integral of (1 - h(q(d))) over S. Then C is
+monotone under inclusion, strictly on positions with q < 1/2, so C(f) < C(1) for every
+f < 1: selecting a proper subset strictly reduces the information extractable per position
+read, and no inner code of any strength recovers the difference. Proof: each read is one
+use of a binary symmetric channel of capacity 1 - h(q(d)) >= 0, the positions are
+independent, capacities of parallel channels add, and a selection rule is the policy that
+refuses some of them.
+
+Computed the natural way, the theorem is false. Summarise the selected set by its average
+error rate p_eff and treat it as one binary symmetric channel, giving f*(1 - h(p_eff(f))) -
+which is the quantity this project's own W-INTL-118 reasoned with and the quantity every
+row of the dissertation's comparison table is stated in. That expression peaks at f = 0.85
+at six percent raw error and falls eleven percent by f = 1. At nine percent it peaks at 0.85
+and falls thirteen percent; at fifteen percent it peaks at 0.70 and falls seventeen percent.
+The control now asserts both facts: that C is monotone and that the naive summary is not.
+
+The contradiction is Jensen's inequality. The map q -> 1 - h(q) is convex, so
+E[1 - h(q)] >= 1 - h(E[q]), and averaging the error rate before substituting it understates
+capacity by exactly what the spread of q carries. The spread is largest at f = 1, because
+that is the only set still containing both the near-certain positions and the coin flips, so
+the naive expression is most wrong precisely where the theorem is tightest.
+
+The consequence is the finding. An effective bit error rate discards the reliability
+distribution, and the reliability distribution is the entire resource that reliable-bit
+selection exploits. Every construction comparison in this repository, every row of the
+dissertation's table, and the whole framing of W-INTL-118 are stated in that summary. They
+are not thereby wrong - they compare implementations that really do operate on hard
+decisions - but none of them can be read as a statement about what is achievable, and
+W-INTL-118 came within one assumption of being read that way.
+
+It also disposes of the opening W-INTL-118 left. Whether a convolutional code with Viterbi
+decoding reverses that verdict is answered no for the capacity question and for every inner
+code at once. Selection is a hard quantisation of reliability side information: it uses the
+information once, to decide, and then throws it away. A soft-decision decoder uses the same
+information as a weight and keeps every position, and it dominates. Selection is an
+implementation trade - a weaker inner code bought with positions - and never a capacity
+improvement. What remains open is finite-length coding efficiency, which can move the
+selection column down only as far as selection's own floor, and that floor is above the
+f = 1 floor by the theorem.
+
+## W-INTL-253  The floor is set by the source and not by the error correction, and both constructions are far above it
+
+Severity: high, and it reframes what the remaining engineering is for.
+
+Two independent floors on response positions for a 128-bit key, computed at the declared
+six percent raw error rate.
+
+The channel floor is KEY_BITS divided by C(1) from the theorem above: 0.8054 secret bits per
+position, so 159 positions. The min-entropy floor is KEY_BITS divided by the measured
+min-entropy density of 0.7160 bits per position, so 179 positions. The min-entropy floor
+binds. That is a fact about this device rather than about any construction, and it means the
+honest target for this design is set by the oscillator bank and not by the code.
+
+Against 179: SLLC as measured here needs 635 positions, 3.5 times the floor. Reliable-bit
+selection paired with repetition needs 1,211, 6.8 times. Neither is near optimal, both are
+within a factor of seven, and the distance between them is smaller than the distance from
+either to the floor. Six loops of choosing between them were spent inside a factor of two of
+each other while a factor of 3.5 sat unexamined.
+
+This does not make either construction wrong. Finite-length codes do not reach capacity, a
+decoder has to fit in sixteen tiles, and the floor assumes a soft-decision decoder with
+per-position reliability at regeneration, which this design does not have and has never
+budgeted. It does mean the gap has a name and a size now, and that the next reduction is
+more likely to come from using the reliability information rather than from choosing between
+two ways of discarding it.
+
+## W-INTL-254  The converse bound has published prior art, from the group whose dissertation this project is reading
+
+Severity: high for novelty, and the timing is the part worth keeping.
+
+Maringer and Hiller, Information Theoretic Analysis of PUF-Based Tamper Protection,
+arXiv:2502.03221, February 2025, derives converse lower bounds on the number of PUF cells
+needed at a given security level, reporting at least 459 cells for 128-bit security under
+three-bit quantisation and 1,400 cells under an erasure attacker model, and establishes a
+zero-leakage quantisation and wiretap-coding helper-data algorithm. Verified by direct fetch
+of the abstract page.
+
+The setting is not the same as the one above - three-bit quantisation of an analog cell in a
+tamper-protection wiretap model, against one-bit sign responses from a ring-oscillator bank
+with a measured min-entropy density - so the numbers are not comparable and 459 does not
+replace 179. The kind of result is the same: a converse bound on cells for a 128-bit key.
+And Hiller is an author of the Differential Sequence Coding work this project has spent
+fourteen loops reading. The bound derived above must be presented as a reproduction in this
+project's own model, citing that paper, and not as this project's contribution.
+
+This is the third instance of the pattern W-INTL-32 named and W-INTL-117 escalated: deriving
+a result before searching for it. It is also the first instance caught in the same loop as the
+derivation, because the literature search ran in parallel with the proof rather than after
+it. That is the method change worth keeping, and it is cheap: the search cost nothing that
+the loop was not already spending.
+
+Also from the same search, and unresolved here: arXiv:2510.24422 attacks a PUF-based secure
+binary neural network, tagged a threat and not yet read against this design.
+
+## W-INTL-255  No commercial vendor publishes the number this project competes on
+
+Severity: medium, and it is a positioning finding rather than a defect.
+
+research/competitor_puf_ip_2026-08-13.md surveys eleven commercial PUF lines - Synopsys with
+the acquired Intrinsic ID, PUFsecurity and eMemory, Secure-IC now inside Cadence, Rambus,
+ICTK, Analog Devices ChipDNA, and Verayo, which PitchBook and Craft both record as out of
+business - each verified against the vendor's own materials.
+
+Not one publishes a response-bit count paired with a helper-data size at a stated word error
+rate. The closest are Intrinsic ID's own white paper, which says roughly 0.5 KByte of SRAM
+response is needed for a 128-bit key and separately quotes reconstruction failure below
+1e-12, without tying them together, and its DemoKey datasheet, which gives an activation
+code of 480 or 788 bytes without the corresponding failure rate. Secure-IC publishes
+"Entropy = 128.0 bit" and a reliability "fixed to the desired value". No vendor names
+hashing the helper data into the key as a manipulation countermeasure, which is the
+countermeasure W-INTL-116 found and W-INTL-120 measured and G18 still has open.
+
+The academic literature publishes exactly this pairing, and four figures place this project.
+A DATE 2018 paper reports 1,060 raw bits and 932 helper bits for a 128-bit key at 1e-6 with
+a 10.22 percent average error rate, reducible to 288 helper bits with bit selection and
+lossless compression. arXiv:2508.07510, 2025, reports a 128-bit key from 1,024 SRAM bits and
+896 helper bits at fifteen percent error with failure below 1e-9. The MIT trapdoor
+computation paper reports 450 to 1,870 helper bits, against PUFKY's 2,052.
+
+Two consequences. The comparison that matters is against the literature and not against the
+vendors, because the vendors do not publish the axis. And the 288 compressed helper bits in
+the DATE row are a direct test of Theorem 2: at n = 1,060 that is h(f) = 0.272, so f = 0.046
+or 0.954, and which of the two it is decides whether that row is a selection of the reliable
+few or a rejection of the unreliable few. It is not stated in what was retrieved and it is
+the next thing to read.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7165,3 +7345,8 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |
 | W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |
+| W-INTL-251 | closed; four theorems with controls in CI, and the first control refuted its own theorem's stated form before the claim left the file |
+| W-INTL-252 | open as a method finding, critical; an effective bit error rate understates capacity by eleven to seventeen percent through Jensen, and every comparison here is stated in one |
+| W-INTL-253 | open as a target; the floor is 179 positions, set by min-entropy and not by the code, and both constructions sit 3.5 to 6.8 times above it |
+| W-INTL-254 | open for novelty; arXiv:2502.03221 derives converse bounds of this kind, from an author of the Differential Sequence Coding work this project reads, so the bound is a reproduction |
+| W-INTL-255 | closed; eleven commercial PUF lines publish no response-bit and helper-data pair at a stated word error rate, so the comparison axis belongs to the literature |
