@@ -199,6 +199,26 @@ def _density_floor(I, R):
     return hi
 
 
+
+def _min_entropy_floor():
+    """Positions the min-entropy density needs for a 128-bit key. W-INTL-253.
+
+    Recomputed here from the declared inputs on an independent path, because the whole
+    point of that entry is that the floor is set by the source and not by the code, and a
+    floor nothing recomputes is a number that stops being true quietly.
+    """
+    import importlib, math
+    I = importlib.import_module("inputs")
+    return math.ceil(I.KEY_BITS / I.MIN_ENTROPY_DENSITY)
+
+
+def _pointer_helper_floor():
+    """The n*h(f) pointer bound at the dissertation's own n and f. W-INTL-251."""
+    import math
+    n, f = 974, 0.326
+    h = -f * math.log2(f) - (1 - f) * math.log2(1 - f)
+    return math.floor(n * h)
+
 def _expected():
     import importlib, math, sys as _sys
     _sys.path.insert(0, str(MODELS))
@@ -246,6 +266,14 @@ def _expected():
         ],
         # W-INTL-236. The worst corner with the fraction free, recomputed here on an
         # independent path rather than by calling budget_audit.
+        # W-INTL-251 and W-INTL-253. Two figures, because the file states two kinds of
+        # thing: a bound on helper data that can be checked against a published coder, and
+        # the floor on positions that reframes what the remaining engineering is for. The
+        # second is the one that matters and it is the one that would rot unbound.
+        "theory_bounds.py": [
+            (r"the bound is (\d+), so that coder sits", _pointer_helper_floor(), 0),
+            (r"binding floor\s+(\d+) positions", _min_entropy_floor(), 0),
+        ],
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the
