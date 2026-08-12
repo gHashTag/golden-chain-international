@@ -84,6 +84,7 @@ def cases():
     import entropy_second_opinion as E
     import min_entropy_from_shannon as M
     import ordering_exact as OE
+    import theory_bounds as TB
 
     noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
     aging = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
@@ -100,6 +101,26 @@ def cases():
         # what it is - W-INTL-243.
         ("ordering_exact.log2_p_ordered", "ordering probability at twenty",
          lambda n: OE.log2_p_ordered([0.0] * 20, grid=max(n, 2000))),
+        # W-INTL-251. Four integrators arrived with the theory file, and the four theorems
+        # are only as good as the grids they were checked on: the raw-error integral is the
+        # witness Theorem 1 is compared against, so if it moves with the caller's
+        # resolution the agreement to 1.4e-7 means nothing. extraction_density is the
+        # quantity Theorem 4 asserts monotone, and a monotonicity claim decided by
+        # quadrature noise is the failure mode this whole check exists for.
+        ("theory_bounds.raw_ber_numeric", "witness for the closed form",
+         lambda n: TB.raw_ber_numeric(TB.sigma_exact(I.RAW_NOISE_BER), steps=n)),
+        ("theory_bounds.selected_ber", "perfect ranking at the design point",
+         lambda n: TB.selected_ber(TB.sigma_exact(I.RAW_NOISE_BER),
+                                   1.0 - I.SELECTION_LOSS, steps=n)),
+        ("theory_bounds.extraction_density", "the monotone quantity, mid selection",
+         lambda n: TB.extraction_density(TB.sigma_exact(I.RAW_NOISE_BER), 0.5,
+                                         steps=n)),
+        ("theory_bounds.extraction_density", "the monotone quantity, no selection",
+         lambda n: TB.extraction_density(TB.sigma_exact(I.RAW_NOISE_BER), 1.0,
+                                         steps=n)),
+        ("theory_bounds.vote_curve", "the achievable estimator, deepest margin",
+         lambda n: TB.vote_curve(TB.sigma_exact(I.RAW_NOISE_BER),
+                                 I.ENROLMENT_READS, grid=max(n, 200))[-1][1]),
         ("reliable_bit_selection.selected_ber_counts_exact", "design point",
          lambda n: R.selected_ber_counts_exact(noise, keep, I.ENROLMENT_READS, steps=n)),
         ("reliable_bit_selection.selected_ber_counts_exact", "deep selection",
