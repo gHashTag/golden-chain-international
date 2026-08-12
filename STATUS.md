@@ -11,7 +11,7 @@ Every figure in that line is recomputed from `research/inputs.py` on each run.
 
 ## Findings
 
-216 entries in the weakness audit. 182 closed, 34 open or deliberately deferred:
+221 entries in the weakness audit. 184 closed, 37 open or deliberately deferred:
 
 Of those, 2 name a later entry in their own text and may have been answered by it without the row being updated.
 
@@ -51,6 +51,9 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-186 | open as a method finding; a bound was quoted downstream as an achievable figure, and a bound should carry its direction in its name |  |
 | W-INTL-213 | recorded, not changed; a module default encodes a selected-bit count three revisions old, and defaults are where stale numbers hide |  |
 | W-INTL-235 | open as a design question, closed as an omission; the error budget carried no environmental term at all and temperature was not a row in the constraint register - the recommendation absorbs 8.1 percent free and not the 11 of the worst chip in the one measurement found, priced at 2.12 tiles and deliberately not spent |  |
+| W-INTL-252 | open as a method finding, critical; an effective bit error rate understates capacity by eleven to seventeen percent through Jensen, and every comparison here is stated in one |  |
+| W-INTL-253 | open as a target; the floor is 179 positions, set by min-entropy and not by the code, and both constructions sit 3.5 to 6.8 times above it |  |
+| W-INTL-254 | open for novelty; arXiv:2502.03221 derives converse bounds of this kind, from an author of the Differential Sequence Coding work this project reads, so the bound is a reproduction |  |
 
 Of the open rows, 14 concern the identity root this work has been on; the rest are earlier findings about the wider project - deployed contracts, radio figures, the numeric catalog - which this workstream does not touch and which mostly need the owner or hardware.
 
