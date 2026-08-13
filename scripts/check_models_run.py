@@ -274,6 +274,11 @@ def _expected():
             (r"the bound is (\d+), so that coder sits", _pointer_helper_floor(), 0),
             (r"binding floor\s+(\d+) positions", _min_entropy_floor(), 0),
         ],
+        # W-INTL-256. The DATE row's compressed helper total identifies two symmetric
+        # selection-mask fractions. The source convention is not inferred from the
+        # arithmetic, so the model pins both branches and keeps the interpretation open.
+        "date_helper_ambiguity.py": (
+            r"low retained-fraction branch:\s+([\d.]+)", 0.046, 0.001),
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the

@@ -7108,6 +7108,34 @@ or 0.954, and which of the two it is decides whether that row is a selection of 
 few or a rejection of the unreliable few. It is not stated in what was retrieved and it is
 the next thing to read.
 
+## W-INTL-256  The compressed helper total does not identify the selection convention
+
+Severity: medium as a literature-reading gap. The repository had the 288-bit figure
+and Theorem 2 had the entropy lower bound, but no executable calculation re-read the
+external row. That left a reviewer able to ask whether the selected fraction was the
+small retained set or its complement.
+
+The new model `research/date_helper_ambiguity.py` [measured] computes the mask-entropy equation
+for the cited DATE 2018 row
+(https://past.date-conference.com/proceedings-archive/2018/pdf/0479.pdf). With
+\(n=1060\) and 288 compressed helper bits, the target is \(h(f)=288/1060\).
+[proved] Binary entropy is symmetric, so the equation has two branches:
+\(f=0.046582\), about 49.4 retained positions, and
+\(1-f=0.953418\), about 1010.6 retained positions. Recomputing \(n h(f)\)
+returns 288.000000 bits on both branches, and
+`scripts/check_models_run.py` pins this numerical control in CI.
+
+The calculation does not identify which branch the DATE implementation means.
+The source's exact selection convention and representation must be read before
+the row is used to support a retained-bit or discarded-bit comparison.
+[open conjecture] Until that reading is done, the honest statement is that 288
+bits is consistent with either side of the symmetric mask-entropy equation, not
+that it proves one selection fraction.
+
+Action: read the cited paper's encoding definition and update the model only if
+the convention resolves the branch. Keep both branches in the control so a future
+change cannot turn an ambiguous external figure into an asserted one.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7350,3 +7378,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-253 | open as a target; the floor is 179 positions, set by min-entropy and not by the code, and both constructions sit 3.5 to 6.8 times above it |
 | W-INTL-254 | open for novelty; arXiv:2502.03221 derives converse bounds of this kind, from an author of the Differential Sequence Coding work this project reads, so the bound is a reproduction |
 | W-INTL-255 | closed; eleven commercial PUF lines publish no response-bit and helper-data pair at a stated word error rate, so the comparison axis belongs to the literature |
+| W-INTL-256 | open as a literature-reading gap; 288 compressed helper bits at n=1060 has symmetric mask-entropy branches f=0.046582 and f=0.953418, and the source convention is not yet identified |
