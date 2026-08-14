@@ -279,6 +279,12 @@ def _expected():
         # arithmetic, so the model pins both branches and keeps the interpretation open.
         "date_helper_ambiguity.py": (
             r"low retained-fraction branch:\s+([\d.]+)", 0.046, 0.001),
+        # W-INTL-257. The DATE paper's Table 1 splits the 288-bit row into a
+        # 256-bit selected-reliability mask and a 32-bit syndrome. This is a
+        # source-convention correction to W-INTL-256, not a replacement of its
+        # symmetric entropy control.
+        "date_source_convention.py": (
+            r"selected raw fraction:\s+([\d.]+)", 256.0 / 1060.0, 1e-6),
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the

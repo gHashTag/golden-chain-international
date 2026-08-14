@@ -7136,6 +7136,39 @@ Action: read the cited paper's encoding definition and update the model only if
 the convention resolves the branch. Keep both branches in the control so a future
 change cannot turn an ambiguous external figure into an asserted one.
 
+## W-INTL-257  The DATE table separates the selected mask from its syndrome
+
+Severity: medium as a correction of source interpretation. It supersedes the
+branch ambiguity for the Table 1 row, but it does not erase the earlier
+calculation: the introductory sentence and the table use 288 in different
+ways and that mismatch remains open.
+
+The cited DATE 2018 paper says that a one in its mask codeword means that the
+corresponding SRAM cell is reliable and selected for key generation. Its Table 1
+then decomposes the Dark-bit row as 256 mask bits plus a 32-bit syndrome, for
+288 total helper bits, over 1,060 raw positions. The selected fraction is
+therefore 256/1060 = 0.241509433962264, and the rejected complement is
+804/1060 = 0.758490566037736. This is [measured] from the source row and its
+explicit convention, not inferred from entropy symmetry.
+
+`research/date_source_convention.py` [measured] recomputes the split and pins
+it in `scripts/check_models_run.py`. It also computes
+`1060*h(256/1060) = 845.393903` bits. That number is deliberately not treated
+as the row's 288-bit helper total: the row contains a 256-bit reliability mask
+and a 32-bit BCH syndrome, and the mask is selected by a reliability threshold,
+not declared to be an iid Bernoulli mask. [proved] The arithmetic therefore
+invalidates the previous assignment of all 288 bits to one mask-entropy
+equation, while preserving `date_helper_ambiguity.py` as a record of what the
+equation alone can and cannot identify.
+
+The source still contains a wording mismatch: the introduction calls 288 bits
+the result of bit selection with lossless compression, while Table 1 labels the
+288-bit row Dark-bit and labels its Lossless row 244 mask plus 32 syndrome,
+276 total. [open conjecture] The selected-versus-rejected convention is settled
+for the table row; the provenance of the introductory 288-bit sentence needs a
+source-level reconciliation before either figure is used as a like-for-like
+compression comparison.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7379,3 +7412,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-254 | open for novelty; arXiv:2502.03221 derives converse bounds of this kind, from an author of the Differential Sequence Coding work this project reads, so the bound is a reproduction |
 | W-INTL-255 | closed; eleven commercial PUF lines publish no response-bit and helper-data pair at a stated word error rate, so the comparison axis belongs to the literature |
 | W-INTL-256 | open as a literature-reading gap; 288 compressed helper bits at n=1060 has symmetric mask-entropy branches f=0.046582 and f=0.953418, and the source convention is not yet identified |
+| W-INTL-257 | corrected for the DATE Table 1 row; 288 helper bits split into a 256-bit selected mask and 32-bit syndrome, giving selected fraction 0.241509, while the introduction's separate 288-bit wording remains open |
