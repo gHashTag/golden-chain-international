@@ -7169,6 +7169,41 @@ for the table row; the provenance of the introductory 288-bit sentence needs a
 source-level reconciliation before either figure is used as a like-for-like
 compression comparison.
 
+
+## W-INTL-258  The mean BER hides capacity carried by the reliability distribution
+
+Severity: critical as a method finding, and measured rather than resolved by argument.
+
+The prior entry named the defect: every comparison in this work reports one effective bit
+error rate, although reliable-bit selection creates a population of positions with different
+crossover probabilities. The existing theorem in `research/theory_bounds.py` gives the
+convexity direction for an ideal Gaussian selection model. This loop makes the correction an
+independent numerical artefact over explicit parallel binary symmetric channels rather than
+leaving it as a theorem printout.
+
+`research/effective_ber_capacity.py` evaluates each position as a binary symmetric channel
+and compares the sum of its capacities with the capacity of a single channel whose crossover
+probability is the arithmetic mean. At mean BER 0.060000, 1,000 homogeneous positions give
+672.555081 bits either way. Two mean-matched heterogeneous populations give 684.569163 bits
+versus the scalar proxy, a gap of 12.014082, and 731.056347 versus the same proxy, a gap of
+58.501266. A 40/60 population at 0.010000 and 0.0933333333, also mean BER 0.060000, gives
+699.183193 exact bits versus 672.555081 scalar bits, a gap of 26.628112.
+
+These are [measured] numerical capacity comparisons, not finite-length BCH or convolutional
+code results. The conclusion that survives is narrow: an effective BER is not sufficient to
+recover the parallel-channel capacity when per-position reliabilities differ. The translation
+from this gap into a decoder's word-failure rate remains [open conjecture] and needs a decoder
+experiment. The 2020 PUF error-correction review explicitly recommends using available
+reliability information, which supports the audit direction but is not a numerical result for
+this construction: https://link.springer.com/article/10.1007/s13389-020-00223-w.
+The converse-bound line is prior art, not a new bound here: arXiv:2502.03221,
+https://arxiv.org/abs/2502.03221.
+
+The model has [proved] controls for the homogeneous equality, equal-mean indistinguishability
+of the scalar proxy, and a positive gap at the current 6 percent operating point. It does not
+close W-INTL-252 as a publication-discipline issue: documents that compare finite constructions
+still need to label an effective-BER column as a proxy and not an achievable limit.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7413,3 +7448,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-255 | closed; eleven commercial PUF lines publish no response-bit and helper-data pair at a stated word error rate, so the comparison axis belongs to the literature |
 | W-INTL-256 | open as a literature-reading gap; 288 compressed helper bits at n=1060 has symmetric mask-entropy branches f=0.046582 and f=0.953418, and the source convention is not yet identified |
 | W-INTL-257 | corrected for the DATE Table 1 row; 288 helper bits split into a 256-bit selected mask and 32-bit syndrome, giving selected fraction 0.241509, while the introduction's separate 288-bit wording remains open |
+| W-INTL-258 | measured; explicit per-position BSC capacity exceeds the scalar effective-BER proxy by 12.014082 to 58.501266 bits at the same mean BER, while finite-length decoder impact remains open |

@@ -285,6 +285,16 @@ def _expected():
         # symmetric entropy control.
         "date_source_convention.py": (
             r"selected raw fraction:\s+([\d.]+)", 256.0 / 1060.0, 1e-6),
+        # W-INTL-258. Mean BER is not a sufficient summary when the selected
+        # positions have different crossover probabilities.  Keep the exact
+        # parallel-channel capacity and the scalar-BER proxy under separate
+        # tripwires; the finite-length code consequence remains open.
+        "effective_ber_capacity.py": [
+            (r"selected_like_mean_6pct\s+0\.060000\s+[\d.]+\s+[\d.]+\s+([\d.]+)",
+             26.628112, 1e-6),
+            (r"mean_matched_split\s+0\.060000\s+[\d.]+\s+[\d.]+\s+([\d.]+)",
+             58.501266, 1e-6),
+        ],
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the
