@@ -295,6 +295,13 @@ def _expected():
             (r"mean_matched_split\s+0\.060000\s+[\d.]+\s+[\d.]+\s+([\d.]+)",
              58.501266, 1e-6),
         ],
+        # W-INTL-259. Exact finite repetition-code control: the mean-BER majority
+        # baseline is compared with a per-position weighted-LLR decoder. This does
+        # not bind a BCH claim; it binds the narrow model that was actually measured.
+        "heterogeneous_repetition_decoder.py": [
+            (r"mild_same_mean\s+0\.060000\s+[\d.]+\s+([\d.]+)", 0.000000047, 1e-9),
+            (r"split_same_mean\s+0\.060000\s+[\d.]+\s+([\d.]+)", 0.000000000, 1e-12),
+        ],
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the

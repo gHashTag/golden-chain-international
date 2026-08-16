@@ -7204,6 +7204,16 @@ of the scalar proxy, and a positive gap at the current 6 percent operating point
 close W-INTL-252 as a publication-discipline issue: documents that compare finite constructions
 still need to label an effective-BER column as a proxy and not an achievable limit.
 
+## W-INTL-259  A finite repetition decoder uses reliability information
+
+Severity: medium as a bounded method finding; measured for the toy code and open for BCH.
+
+[measured] The open remainder in W-INTL-258 was narrowed with an exact enumeration for a 15-fold repetition word. At mean BER 0.06, the scalar hard-majority baseline has word error 0.000000737 in all three cases. With the same mean but per-position crossover groups (five positions each at 0.01, 0.06, 0.11), a reliability-aware weighted-LLR decoder gives 0.000000047; with (0.001, 0.06, 0.119), it gives 0.000000000 at the printed precision. The homogeneous control agrees with the scalar baseline to below 1e-12. These are exact independent-BSC sums, not Monte Carlo data and not a BCH result.
+
+[proved] The control establishes only the stated finite repetition model: the probability mass is enumerated by group error counts, and the weighted decision uses the declared per-position log-likelihood weights. [open conjecture] The effect for the project's BCH construction, soft information retention, helper-data binding, and an implementation cost for reliability metadata remain unmeasured. The capacity comparison itself is a reproduction/control of the Varying Binary Symmetric Channel literature, not a new channel theorem; see research/lit_notes_2026-08-16.md and arXiv:2112.02198.
+
+The actionable gate is now specific: run a decoder experiment for the actual BCH construction before converting this toy-code result into a design claim. G16 still requires the dated three-node shared-uplink demonstration on assembled hardware. Hub71 Cohort 20 still closes on 21 August 2026.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7449,3 +7459,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-256 | open as a literature-reading gap; 288 compressed helper bits at n=1060 has symmetric mask-entropy branches f=0.046582 and f=0.953418, and the source convention is not yet identified |
 | W-INTL-257 | corrected for the DATE Table 1 row; 288 helper bits split into a 256-bit selected mask and 32-bit syndrome, giving selected fraction 0.241509, while the introduction's separate 288-bit wording remains open |
 | W-INTL-258 | measured; explicit per-position BSC capacity exceeds the scalar effective-BER proxy by 12.014082 to 58.501266 bits at the same mean BER, while finite-length decoder impact remains open |
+| W-INTL-259 | measured; exact 15-fold repetition enumeration shows reliability-aware weighted LLR reduces word error at the same mean BER in two heterogeneous controls, while BCH impact and metadata cost remain open |

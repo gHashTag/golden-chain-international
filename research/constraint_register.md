@@ -270,3 +270,6 @@ kept visible until the paper's row naming is reconciled. The 288-bit total
 must not be substituted into `n*h(f)` without first stating a mask-distribution
 model: at the table's selected fraction, that iid-mask expression is
 845.393903 bits, not 288.
+## Finite-length decoder impact, 2026-08-16
+
+W-INTL-259 narrows the open capacity question with an exact 15-fold repetition model. A scalar mean-BER majority decoder and a reliability-aware weighted-LLR decoder agree under homogeneous channels; at mean BER 0.06 the heterogeneous controls reduce the exact word error from 0.000000737 to 0.000000047 and below the printed precision. This is [measured] for the toy code only. BCH decoding, retained reliability metadata, helper-data binding, and implementation cost remain [open conjecture]. The Varying Binary Symmetric Channel framing is prior art, so the result is a reproduction/control rather than a novelty claim.
