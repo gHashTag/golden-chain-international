@@ -302,6 +302,20 @@ def _expected():
             (r"mild_same_mean\s+0\.060000\s+[\d.]+\s+([\d.]+)", 0.000000047, 1e-9),
             (r"split_same_mean\s+0\.060000\s+[\d.]+\s+([\d.]+)", 0.000000000, 1e-12),
         ],
+        # W-INTL-260. Actual BCH(127,57,11) algebraic decoding, compared with a
+        # one-bit reliability-aware Chase list at the same mean BER. The deterministic
+        # frame counts bind the finite experiment only; they do not bind helper-data
+        # metadata cost or an RTL implementation.
+        "bch_reliability_decoder.py": [
+            (r"mild\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*(\d+)",
+             56, 0),
+            (r"mild\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*\d+\s+"
+             r"chase_failures=\s*(\d+)", 38, 0),
+            (r"split\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*(\d+)",
+             69, 0),
+            (r"split\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*\d+\s+"
+             r"chase_failures=\s*(\d+)", 39, 0),
+        ],
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the

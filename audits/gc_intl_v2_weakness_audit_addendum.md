@@ -7214,6 +7214,14 @@ Severity: medium as a bounded method finding; measured for the toy code and open
 
 The actionable gate is now specific: run a decoder experiment for the actual BCH construction before converting this toy-code result into a design claim. G16 still requires the dated three-node shared-uplink demonstration on assembled hardware. Hub71 Cohort 20 still closes on 21 August 2026.
 
+## W-INTL-260  Actual BCH decoding changes the finite-length question
+
+Severity: medium as a bounded method finding; measured for BCH(127,57,11) and open for metadata cost and hardware.
+
+[measured] The next bounded experiment uses the repository's actual recommended BCH(127,57,11) construction. `research/bch_reliability_decoder.py` builds its binary generator from GF(2^7) cyclotomic cosets, exercises Berlekamp--Massey plus Chien correction, and compares hard algebraic decoding with a one-bit reliability-aware Chase list over 1,000 deterministic frames per case at the same mean BER 0.06. The mild heterogeneous case has 56 hard-decoder failures versus 38 with the list; the split case has 69 versus 39. A homogeneous control has 79 versus 69, so the result does not isolate heterogeneity from the list mechanism.
+
+[proved] The model corrects deterministic error patterns of every weight from zero through 11 and verifies the corrected word by recomputing all 22 syndromes. [measured] The four printed failure counts are pinned in `scripts/check_models_run.py`; a changed count fails the models job. [open conjecture] This does not establish BCH hardware timing, area, helper-data binding, reliability-metadata retention cost, or performance for a larger Chase list. The unequal-reliability framing is prior art in arXiv:2112.02198, so this is a finite-code reproduction/control rather than a channel-theory contribution. The literature note also records arXiv:2607.17835 as a methodological threat to broad format-plus-hardware selection claims and arXiv:2607.23715 as a threat that narrows the formal-semantics versus RTL gap.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7460,3 +7468,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-257 | corrected for the DATE Table 1 row; 288 helper bits split into a 256-bit selected mask and 32-bit syndrome, giving selected fraction 0.241509, while the introduction's separate 288-bit wording remains open |
 | W-INTL-258 | measured; explicit per-position BSC capacity exceeds the scalar effective-BER proxy by 12.014082 to 58.501266 bits at the same mean BER, while finite-length decoder impact remains open |
 | W-INTL-259 | measured; exact 15-fold repetition enumeration shows reliability-aware weighted LLR reduces word error at the same mean BER in two heterogeneous controls, while BCH impact and metadata cost remain open |
+| W-INTL-260 | measured; BCH(127,57,11) finite decoding changes from 56 to 38 failures in the mild heterogeneous control and from 69 to 39 in the split control with a one-bit reliability list; helper-data binding, metadata cost, and hardware remain open |

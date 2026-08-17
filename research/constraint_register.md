@@ -273,3 +273,22 @@ model: at the table's selected fraction, that iid-mask expression is
 ## Finite-length decoder impact, 2026-08-16
 
 W-INTL-259 narrows the open capacity question with an exact 15-fold repetition model. A scalar mean-BER majority decoder and a reliability-aware weighted-LLR decoder agree under homogeneous channels; at mean BER 0.06 the heterogeneous controls reduce the exact word error from 0.000000737 to 0.000000047 and below the printed precision. This is [measured] for the toy code only. BCH decoding, retained reliability metadata, helper-data binding, and implementation cost remain [open conjecture]. The Varying Binary Symmetric Channel framing is prior art, so the result is a reproduction/control rather than a novelty claim.
+
+## Actual BCH finite-length decoding, 2026-08-17
+
+W-INTL-260 closes one bounded remainder of the reliability question with the
+repository's actual recommended code, BCH(127,57,11), rather than another
+repetition or capacity model. `research/bch_reliability_decoder.py` builds the
+binary generator from GF(2^7) cyclotomic cosets, exercises the algebraic
+Berlekamp--Massey/Chien path, and compares it with a one-bit reliability-aware
+Chase list over 1,000 deterministic frames per case.
+
+[measured] At mean BER 0.06, the mild heterogeneous case has 56 hard-decoder
+failures versus 38 with the reliability list; the split case has 69 versus 39.
+The homogeneous control is 79 versus 69. These are finite simulation counts,
+not an FPGA, area, or helper-data result. [proved] The correction control
+decodes deterministic error patterns of every weight from zero through 11.
+[open conjecture] Reliability metadata retention, larger candidate lists,
+helper-data binding, and a hardware implementation remain unmeasured. The
+unequal-reliability framing is prior art in arXiv:2112.02198, so this is a
+reproduction/control rather than a channel-theory contribution.
