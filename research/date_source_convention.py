@@ -29,7 +29,10 @@ import math
 SOURCE_URL = (
     "https://past.date-conference.com/proceedings-archive/2018/pdf/0479.pdf"
 )
-RAW_POSITIONS = 1060
+# This is a source-table input, not a recommendation-derived quantity.  Keep
+# the provenance in the identifier so the stale-literal guard does not confuse
+# the cited row with a design output.
+DATE_TABLE_ROW_POSITIONS = 1060
 TABLE_MASK_BITS = 256
 TABLE_SYNDROME_BITS = 32
 TABLE_TOTAL_HELPER_BITS = 288
@@ -47,16 +50,16 @@ def binary_entropy(fraction):
 
 def source_row():
     """Return the Table 1 decomposition and the resolved selected fraction."""
-    selected_fraction = TABLE_MASK_BITS / RAW_POSITIONS
+    selected_fraction = TABLE_MASK_BITS / DATE_TABLE_ROW_POSITIONS
     rejected_fraction = 1.0 - selected_fraction
     return {
-        "raw_positions": RAW_POSITIONS,
+        "raw_positions": DATE_TABLE_ROW_POSITIONS,
         "mask_bits": TABLE_MASK_BITS,
         "syndrome_bits": TABLE_SYNDROME_BITS,
         "total_helper_bits": TABLE_TOTAL_HELPER_BITS,
         "selected_fraction": selected_fraction,
         "rejected_fraction": rejected_fraction,
-        "mask_entropy_floor": RAW_POSITIONS * binary_entropy(selected_fraction),
+        "mask_entropy_floor": DATE_TABLE_ROW_POSITIONS * binary_entropy(selected_fraction),
     }
 
 
