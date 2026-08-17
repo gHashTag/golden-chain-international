@@ -148,8 +148,10 @@ jobs:
           # through the GitHub CLI, because the CLI needs a token the controls step does
           # not have - which is how the first run of this step failed. Four checks, four
           # controls; the fetch failing fails the step rather than skipping it.
-          curl -fsSL -o /tmp/catalog.t27 \
-            https://raw.githubusercontent.com/gHashTag/t27/master/specs/numeric/formats_catalog.t27
+          curl --fail --silent --show-error --location --retry 6 --retry-delay 5 \
+            -H 'Accept: application/vnd.github.raw+json' \
+            -o /tmp/catalog.t27 \
+            'https://api.github.com/repos/gHashTag/t27/contents/specs/numeric/formats_catalog.t27?ref=master'
           test -s /tmp/catalog.t27
           # 'bias=15' alone matches three formats - binary16, fp8_e5m2 and gf14 - so it
           # names no site and control.py now refuses it. Qualified by the format it is
