@@ -316,6 +316,17 @@ def _expected():
             (r"split\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*\d+\s+"
              r"chase_failures=\s*(\d+)", 39, 0),
         ],
+        # W-INTL-261. Quantised reliability metadata is a separate axis from the
+        # BCH list itself: at the same finite experiment, one bit per response
+        # position reaches the same measured failure count as 2, 3, or 8 bits
+        # in the two heterogeneous controls.  This pins the cost/precision
+        # comparison without treating metadata as helper-data binding.
+        "reliability_metadata_cost.py": [
+            (r"mild\s+0\s+0\s+0\.060000\s+200\s+\d+\s+(\d+)", 10, 0),
+            (r"mild\s+1\s+127\s+0\.060000\s+200\s+\d+\s+(\d+)", 5, 0),
+            (r"split\s+0\s+0\s+0\.060000\s+200\s+\d+\s+(\d+)", 15, 0),
+            (r"split\s+1\s+127\s+0\.060000\s+200\s+\d+\s+(\d+)", 8, 0),
+        ],
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the

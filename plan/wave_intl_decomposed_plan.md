@@ -70,6 +70,15 @@ G14 and G15 last, because they are quick once the rest is settled.
 
 ---
 
+
+## Wave-intl-261 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Reliability metadata precision before the BCH list | [measured] one bit per response position (127 metadata bits per 127-bit word) reaches the same finite failure counts as 2, 3, and 8 bits in the two heterogeneous controls | [open conjecture] helper-data encoding, binding, larger lists, area, timing, and G16 hardware |
+
+The result is a finite-code control, not a claim that a deployed helper-data protocol needs exactly one bit.
+
 ## Note on the numbering
 
 The repository README referred to a fifteen-gate roadmap in a file named

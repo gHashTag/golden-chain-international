@@ -292,3 +292,20 @@ decodes deterministic error patterns of every weight from zero through 11.
 helper-data binding, and a hardware implementation remain unmeasured. The
 unequal-reliability framing is prior art in arXiv:2112.02198, so this is a
 reproduction/control rather than a channel-theory contribution.
+
+
+## Reliability metadata precision, 2026-08-18
+
+W-INTL-261 measures a previously unchecked lever rather than closing helper-data binding.
+The exact per-position crossover probabilities used by W-INTL-260 are quantised before the
+same one-bit BCH(127,57,11) Chase list. In 200 deterministic frames per case at mean BER
+0.060000, zero metadata bits gives 10 list failures in the mild heterogeneous case and 15 in
+the split case; one bit per response position, 127 metadata bits per word, gives 5 and 8.
+Two, three, and eight bits per position give the same finite counts in these controls.
+
+This is [measured] for the finite decoder experiment only. The metadata count is not a helper-data
+format, and it has not been bound into K = S xor f(W). [open conjecture] Encoding, leakage,
+key-binding, larger candidate lists, FPGA timing, and area remain open. The adjacent literature
+search found probabilistic failure curves (arXiv:2602.11362, https://arxiv.org/abs/2602.11362)
+and reliable communication in dynamic Byzantine networks (arXiv:2503.22452,
+https://arxiv.org/abs/2503.22452); neither is a result about this finite BCH metadata curve.

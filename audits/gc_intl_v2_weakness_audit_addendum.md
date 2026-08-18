@@ -7222,6 +7222,39 @@ Severity: medium as a bounded method finding; measured for BCH(127,57,11) and op
 
 [proved] The model corrects deterministic error patterns of every weight from zero through 11 and verifies the corrected word by recomputing all 22 syndromes. [measured] The four printed failure counts are pinned in `scripts/check_models_run.py`; a changed count fails the models job. [open conjecture] This does not establish BCH hardware timing, area, helper-data binding, reliability-metadata retention cost, or performance for a larger Chase list. The unequal-reliability framing is prior art in arXiv:2112.02198, so this is a finite-code reproduction/control rather than a channel-theory contribution. The literature note also records arXiv:2607.17835 as a methodological threat to broad format-plus-hardware selection claims and arXiv:2607.23715 as a threat that narrows the formal-semantics versus RTL gap.
 
+## W-INTL-261  Reliability metadata has a measured finite-code cost curve
+
+Severity: medium as a bounded method finding; measured for metadata precision and open for helper-data binding.
+
+[measured] W-INTL-260 used the exact per-position crossover probabilities in a one-bit
+reliability-aware Chase list, leaving the retention cost of those probabilities open.
+`research/reliability_metadata_cost.py` holds the BCH(127,57,11) decoder and the received
+words fixed while quantising the reliability metadata to 0, 1, 2, 3, or 8 bits per response
+position. Each case uses 200 deterministic frames at mean BER 0.060000; the zero-metadata
+path supplies the scalar 0.06 to the same one-bit candidate list.
+
+The homogeneous control is 22 hard failures and 18 list failures for every metadata width.
+For the mild heterogeneous case, zero bits gives 10 list failures and one bit per position
+(127 metadata bits per word) gives 5; 2, 3, and 8 bits also give 5. For the split case, zero
+bits gives 15 and one bit per position gives 8; the larger widths also give 8. These are
+finite deterministic counts, not an area, FPGA, helper-data, or security result. They show
+that this experiment's measured gain saturates at one bit per response position, not that
+one bit is sufficient for a deployed design.
+
+[proved] The script's controls enforce 127 positions, equal mean BER, a silent homogeneous
+case, and a non-worsening finest quantiser in the finite run; `scripts/check_models_run.py`
+pins the zero- and one-bit rows for both heterogeneous cases. [open conjecture] The encoding
+of metadata into helper data, its binding to the key equation, larger Chase lists, and an
+implementation cost remain unmeasured. The unequal-reliability channel framing is prior art,
+not a new theorem: arXiv:2112.02198, https://arxiv.org/abs/2112.02198. Two adjacent reliability
+works were checked directly: probabilistic failure curves in arXiv:2602.11362,
+https://arxiv.org/abs/2602.11362, and reliable communication under dynamic topology in
+arXiv:2503.22452, https://arxiv.org/abs/2503.22452. Neither supplies this finite BCH
+metadata experiment.
+
+G16 still requires the dated three-node shared-uplink demonstration on assembled hardware.
+Hub71 Cohort 20 still closes on 21 August 2026.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7469,3 +7502,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-258 | measured; explicit per-position BSC capacity exceeds the scalar effective-BER proxy by 12.014082 to 58.501266 bits at the same mean BER, while finite-length decoder impact remains open |
 | W-INTL-259 | measured; exact 15-fold repetition enumeration shows reliability-aware weighted LLR reduces word error at the same mean BER in two heterogeneous controls, while BCH impact and metadata cost remain open |
 | W-INTL-260 | measured; BCH(127,57,11) finite decoding changes from 56 to 38 failures in the mild heterogeneous control and from 69 to 39 in the split control with a one-bit reliability list; helper-data binding, metadata cost, and hardware remain open |
+| W-INTL-261 | measured; at 200 deterministic BCH frames, one metadata bit per response position changes mild list failures 10 to 5 and split list failures 15 to 8 versus zero metadata; helper-data binding and hardware remain open |
