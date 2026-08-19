@@ -49,6 +49,10 @@ UNPINNED = {
     "code_choice_model.py":
         "a construction table superseded by selection_with_bch, kept for the record of "
         "what was compared - W-INTL-202 is it having stopped running unnoticed",
+    "helper_data_binding.py":
+        "recomputes a helper-data binding control; its output is a negative-control "
+        "diagnostic rather than a paper figure, so the finite result stays unpinned "
+        "until a deployed encoding and threat model are fixed",
 }
 
 

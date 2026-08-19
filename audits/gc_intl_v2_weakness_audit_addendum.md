@@ -7255,6 +7255,16 @@ metadata experiment.
 G16 still requires the dated three-node shared-uplink demonstration on assembled hardware.
 Hub71 Cohort 20 still closes on 21 August 2026.
 
+## W-INTL-262  Helper data reaches the key equation, but the result is only a finite control
+
+Severity: medium as a bounded implementation finding; measured in software for the recommended BCH(127,57,11) chain and open for security, leakage, and hardware.
+
+[measured] `research/helper_data_binding.py` adds the missing finite key-equation path. It packs the six-block syndrome helper into 924 canonical bits, derives `K = S xor H(W)`, and holds the recovered response fixed while sampling 2,048 deterministic one-bit helper mutations across 64 enrolment trials. Clean reconstruction matches the enrolled bound key in 64/64 trials. For the direct mutation control, the bound key matches the enrolled key in 0/2,048 samples, while the deliberately unbound response digest is unchanged in 2,048/2,048 samples. With the actual syndrome decoder, one of 2,048 altered-helper trials returned a candidate; none returned the enrolled bound key, and the other 2,047 were refused.
+
+[proved] The direct control establishes the stated byte-level property of this hash binding for the sampled finite inputs: changing the helper bytes changes the bound digest in every sample, while a key that omits the helper is invariant by construction. It does not prove collision resistance, robustness, or resistance to an active attack. The literature search ran in parallel with the implementation and records public-helper-data leakage attacks in IACR ePrint 2020/888, finite-blocklength and tamper-protection bounds in arXiv:2502.03221, and unequal-reliability PUF channels in arXiv:2112.02198. Those works are prior art and set the boundary of this control rather than supplying its numbers.
+
+[open conjecture] This is not a deployed helper-data format, leakage bound, side-channel result, FPGA result, or security proof. The exact encoding policy, adversarial decoder strategy, larger candidate lists, implementation cost, and G16 three-node shared-uplink demonstration remain open. Hub71 Cohort 20 still closes on 21 August 2026.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7503,3 +7513,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-259 | measured; exact 15-fold repetition enumeration shows reliability-aware weighted LLR reduces word error at the same mean BER in two heterogeneous controls, while BCH impact and metadata cost remain open |
 | W-INTL-260 | measured; BCH(127,57,11) finite decoding changes from 56 to 38 failures in the mild heterogeneous control and from 69 to 39 in the split control with a one-bit reliability list; helper-data binding, metadata cost, and hardware remain open |
 | W-INTL-261 | measured; at 200 deterministic BCH frames, one metadata bit per response position changes mild list failures 10 to 5 and split list failures 15 to 8 versus zero metadata; helper-data binding and hardware remain open |
+| W-INTL-262 | measured; the finite `K = S xor H(W)` control changes the bound key in 2,048/2,048 direct one-bit helper mutations, while an unbound digest is unchanged; deployment security, leakage, and hardware remain open |

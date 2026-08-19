@@ -309,3 +309,21 @@ key-binding, larger candidate lists, FPGA timing, and area remain open. The adja
 search found probabilistic failure curves (arXiv:2602.11362, https://arxiv.org/abs/2602.11362)
 and reliable communication in dynamic Byzantine networks (arXiv:2503.22452,
 https://arxiv.org/abs/2503.22452); neither is a result about this finite BCH metadata curve.
+
+
+## Helper-data binding control, 2026-08-19
+
+W-INTL-262 closes the narrow software omission without closing the security question.
+`research/helper_data_binding.py` binds the exact 924-bit six-block syndrome helper into
+`K = S xor H(W)`. Across 64 deterministic clean trials the bound key round-trips 64/64.
+A direct fixed-response control over 2,048 one-bit helper mutations changes the bound key
+in 2,048/2,048 samples; the unbound response digest remains unchanged in 2,048/2,048.
+With the actual syndrome decoder, 1/2,048 altered-helper trials returns a candidate and
+none returns the enrolled bound key. This is [measured] for the finite software control.
+
+The result does not establish collision resistance, a leakage bound, an active-attacker
+security claim, hardware cost, or a deployed helper-data encoding. [open conjecture] Those
+items and G16 remain open. Prior art is recorded in
+`research/lit_notes_2026-08-19.md`: IACR ePrint 2020/888 on public-helper-data leakage,
+arXiv:2502.03221 on finite-blocklength PUF tamper-protection bounds, and arXiv:2112.02198
+on unequal-reliability PUF channels.

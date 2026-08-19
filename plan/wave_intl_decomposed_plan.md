@@ -31,7 +31,7 @@ that cannot be checked is not a gate.
 | G20 | Comparisons re-read as implementation figures | no document reads an effective-bit-error-rate comparison as a statement about what is achievable | open 2026-08-13. Theorem 4 shows the summary is lossy by 11 to 17 percent through Jensen; W-INTL-118 and the dissertation table both use it. Nothing external states it yet, so this is a discipline gate rather than a correction. See W-INTL-252. W-INTL-256 recorded the entropy-only ambiguity; W-INTL-257 resolves the DATE Table 1 row as 256 selected-mask bits plus 32 syndrome bits, while the introduction's separate 288-bit wording remains open. |
 | G21 | Positioned against the literature, not the vendors | the comparison axis is one the field publishes | CLOSED 2026-08-13. Eleven commercial PUF lines surveyed and none publishes response bits paired with helper data at a stated word error rate; four academic figures do and are recorded. See W-INTL-255 |
 | G17 | Reliable-bit selection evaluated or dropped | the alternative framing has a measured response-bit count at this project's error rate, not a quoted one | closed 2026-07-30. research/reliable_bit_selection.py measures it: the mechanism transfers, the advantage does not. 1,211 to 1,765 response bits at six percent raw against 635 under SLLC, and thirty-one enrolment reads per position against one. Bounded to repetition as the inner code; a convolutional pairing was not measured. See W-INTL-118, W-INTL-119 |
-| G18 | Helper data folded into the key | K = S xor f(W) present in the key derivation | open 2026-07-30. The countermeasure is measured at 64.3 of 128 key bits changed per flipped helper bit and costs one hash, and no design here does it. See W-INTL-120 |
+| G18 | Helper data folded into the key | K = S xor f(W) present in the key derivation | partly closed by W-INTL-262 as a finite software control; the deployed encoding, leakage, attacker model, and hardware integration remain open |
 | G10 | Settlement layer described consistently | no external document describes the four-proof economics as implemented | CLOSED 2026-07-29. Four places corrected: the solution paragraph, the business model, the traction list and the host-programme note. The traction line claiming settlement contracts written and deployed was the sharpest and is gone |
 | G11 | Silicon vocabulary split | no external document uses an unqualified "silicon" to span shuttle tile and custom die | CLOSED 2026-07-29. The application now defines both terms and states that the shuttle tile is submitted and awaiting fabrication while the custom die is neither funded nor existing |
 | G12 | Public cross-references resolve | every link in the README returns content to an anonymous reader | CLOSED 2026-07-29. All four remaining repository links return HTTP 200 to a logged-out request. The private preprint repository is now cited by arXiv identifier, which resolves for anyone, and the derivation claim resting on a non-public origin is withdrawn from Scope |
@@ -78,6 +78,14 @@ G14 and G15 last, because they are quick once the rest is settled.
 | Reliability metadata precision before the BCH list | [measured] one bit per response position (127 metadata bits per 127-bit word) reaches the same finite failure counts as 2, 3, and 8 bits in the two heterogeneous controls | [open conjecture] helper-data encoding, binding, larger lists, area, timing, and G16 hardware |
 
 The result is a finite-code control, not a claim that a deployed helper-data protocol needs exactly one bit.
+
+## Wave-intl-262 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Helper-data binding in the key equation | [measured] `K = S xor H(W)` round-trips 64/64 clean trials; under 2,048 direct one-bit helper mutations the bound key changes in 2,048/2,048 samples while the unbound control remains unchanged | [open conjecture] security proof, leakage, helper-data encoding policy, adversarial decoder strategy, area, timing, and G16 hardware |
+
+The script is a finite control of the key equation, not evidence that a deployed PUF construction is secure.
 
 ## Note on the numbering
 
