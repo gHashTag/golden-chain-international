@@ -53,6 +53,10 @@ UNPINNED = {
         "recomputes a helper-data binding control; its output is a negative-control "
         "diagnostic rather than a paper figure, so the finite result stays unpinned "
         "until a deployed encoding and threat model are fixed",
+    "syndrome_basis_compression.py":
+        "derives a rank-sized coordinate encoding for the finite BCH syndrome helper; "
+        "its controls assert lossless reconstruction and decoder agreement, but no "
+        "deployed wire format or security figure is claimed",
 }
 
 

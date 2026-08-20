@@ -7265,6 +7265,19 @@ Severity: medium as a bounded implementation finding; measured in software for t
 
 [open conjecture] This is not a deployed helper-data format, leakage bound, side-channel result, FPGA result, or security proof. The exact encoding policy, adversarial decoder strategy, larger candidate lists, implementation cost, and G16 three-node shared-uplink demonstration remain open. Hub71 Cohort 20 still closes on 21 August 2026.
 
+
+## W-INTL-263  The syndrome helper has 154 emitted bits but a 70-bit binary image
+
+Severity: medium as a bounded representation finding; measured in software for the recommended BCH(127,57,11) chain and open for leakage, deployment, and hardware.
+
+[measured] `research/syndrome_basis_compression.py` derives the binary image of one BCH(127,57,11) parity-check map from the repository's own `syndromes` function. The 22 GF(2^7) symbols expose 154 emitted bits per block, but the binary map has rank 70 = n-k. Across six blocks, the existing canonical helper contains 924 semantic bits (116 packed bytes), while deterministic basis coordinates contain 420 semantic bits (53 packed bytes): 504 semantic bits and 63 packed bytes fewer, a 54.54545454545455 percent semantic reduction.
+
+[proved] The rank is computed by binary elimination over all 127 one-hot response columns, and every sampled helper reconstructs exactly. The control runs 64 deterministic enrolment trials, obtains 64/64 exact helper round-trips, agrees with the full helper in 64/64 decoder outputs at BER 0.02, and exercises 26,880 independent one-coordinate mutations without an alias. This is a representation control, not a new security bound.
+
+The literature search ran in parallel with the implementation. The rank criterion and syndrome-space security boundary are prior art in IACR ePrint 2016/854, public-helper-data leakage attacks include BCH in IACR ePrint 2020/888, and finite-blocklength/converse helper-data bounds are in arXiv:2502.03221. Those sources prevent reading the 504-bit storage reduction as a 504-bit security gain.
+
+[open conjecture] The coordinate encoding is not a deployed wire format, leakage estimate, collision-resistance result, active-attacker guarantee, side-channel result, area/timing result, FPGA result, or G16 demonstration. The semantic helper-data bound, adversarial decoder strategy, and hardware integration remain open. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20 still closes on 21 August 2026.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7514,3 +7527,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-260 | measured; BCH(127,57,11) finite decoding changes from 56 to 38 failures in the mild heterogeneous control and from 69 to 39 in the split control with a one-bit reliability list; helper-data binding, metadata cost, and hardware remain open |
 | W-INTL-261 | measured; at 200 deterministic BCH frames, one metadata bit per response position changes mild list failures 10 to 5 and split list failures 15 to 8 versus zero metadata; helper-data binding and hardware remain open |
 | W-INTL-262 | measured; the finite `K = S xor H(W)` control changes the bound key in 2,048/2,048 direct one-bit helper mutations, while an unbound digest is unchanged; deployment security, leakage, and hardware remain open |
+| W-INTL-263 | measured; BCH syndrome basis coordinates reduce the six-block helper from 924 to 420 semantic bits (116 to 53 packed bytes) with 64/64 reconstruction and decoder agreement; leakage, deployment, and hardware remain open |

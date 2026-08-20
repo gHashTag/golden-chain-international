@@ -327,3 +327,10 @@ items and G16 remain open. Prior art is recorded in
 `research/lit_notes_2026-08-19.md`: IACR ePrint 2020/888 on public-helper-data leakage,
 arXiv:2502.03221 on finite-blocklength PUF tamper-protection bounds, and arXiv:2112.02198
 on unequal-reliability PUF channels.
+
+
+## Syndrome helper coordinate representation, 2026-08-20
+
+W-INTL-263 measures a representation boundary left open by W-INTL-262. The repository's six-block helper emits 924 syndrome bits, but binary elimination of the BCH(127,57,11) parity-check map gives rank 70 per block. `research/syndrome_basis_compression.py` therefore packs 420 semantic basis-coordinate bits instead of 924 emitted syndrome bits, with 116 to 53 packed bytes, 64/64 exact helper round-trips, and 64/64 agreement with the original decoder outputs at BER 0.02. All 26,880 one-coordinate mutations in the finite control remain distinct.
+
+This is [measured] as a lossless finite representation, not as a leakage bound. IACR ePrint 2016/854 supplies the rank-based security framing, IACR ePrint 2020/888 supplies a public-helper-data leakage threat including BCH, and arXiv:2502.03221 supplies finite-blocklength and converse bounds under explicit attacker models. [open conjecture] A deployed encoding, residual min-entropy, active-attacker robustness, side-channel behavior, area, timing, FPGA behavior, and G16 remain unmeasured.

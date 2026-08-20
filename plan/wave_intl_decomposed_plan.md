@@ -87,6 +87,15 @@ The result is a finite-code control, not a claim that a deployed helper-data pro
 
 The script is a finite control of the key equation, not evidence that a deployed PUF construction is secure.
 
+
+## Wave-intl-263 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Rank-sized syndrome helper coordinates | [measured] binary elimination over the repository's BCH(127,57,11) syndrome map gives rank 70 per block; six blocks reconstruct exactly from 420 semantic coordinate bits, with 64/64 decoder agreement and 26,880 independent coordinate mutations | [open conjecture] this is not a leakage theorem or a deployed wire format; adversarial decoding, side channels, area, timing, FPGA integration, and G16 hardware remain open |
+
+The 504-bit semantic reduction is a storage representation fact. It must not be presented as a security gain, because the literature treats syndrome rank and public helper-data leakage as separate questions.
+
 ## Note on the numbering
 
 The repository README referred to a fifteen-gate roadmap in a file named
