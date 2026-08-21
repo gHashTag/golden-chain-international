@@ -334,3 +334,11 @@ on unequal-reliability PUF channels.
 W-INTL-263 measures a representation boundary left open by W-INTL-262. The repository's six-block helper emits 924 syndrome bits, but binary elimination of the BCH(127,57,11) parity-check map gives rank 70 per block. `research/syndrome_basis_compression.py` therefore packs 420 semantic basis-coordinate bits instead of 924 emitted syndrome bits, with 116 to 53 packed bytes, 64/64 exact helper round-trips, and 64/64 agreement with the original decoder outputs at BER 0.02. All 26,880 one-coordinate mutations in the finite control remain distinct.
 
 This is [measured] as a lossless finite representation, not as a leakage bound. IACR ePrint 2016/854 supplies the rank-based security framing, IACR ePrint 2020/888 supplies a public-helper-data leakage threat including BCH, and arXiv:2502.03221 supplies finite-blocklength and converse bounds under explicit attacker models. [open conjecture] A deployed encoding, residual min-entropy, active-attacker robustness, side-channel behavior, area, timing, FPGA behavior, and G16 remain unmeasured.
+
+---
+
+## W-INTL-264 — exact helper-image membership, 2026-08-21
+
+The syndrome helper has two different spaces that must not be conflated. The emitted representation is 154 bits per BCH(127,57,11) block, while the attainable binary image has rank 70 and codimension 84. The new control uses the repository's own syndrome map and elimination basis to distinguish an attainable helper from an arbitrary ambient word. It accepts every sampled enrolled helper (384/384), rejects every one of 256 sampled ambient 154-bit words, and reports 212/256 one-symbol-bit perturbations outside the image with 44/256 still attainable.
+
+This constraint changes the interpretation of compressed helper data, not the security claim: the exact image fraction is 2^-84, but IACR ePrint 2016/854 and IACR ePrint 2020/888 make the rank/security and public-helper-data leakage boundary explicit. Therefore the number is a representation-domain fact and a possible integrity precheck, not a leakage estimate. Physical error targets, helper encoding, active manipulation, area, timing, FPGA integration, and G16 remain open.

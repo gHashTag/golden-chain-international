@@ -7278,6 +7278,18 @@ The literature search ran in parallel with the implementation. The rank criterio
 
 [open conjecture] The coordinate encoding is not a deployed wire format, leakage estimate, collision-resistance result, active-attacker guarantee, side-channel result, area/timing result, FPGA result, or G16 demonstration. The semantic helper-data bound, adversarial decoder strategy, and hardware integration remain open. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20 still closes on 21 August 2026.
 
+## W-INTL-264  The syndrome image has an exact membership boundary
+
+Severity: medium as a bounded representation finding; measured in software for the recommended BCH(127,57,11) chain and open for leakage, deployment, and hardware.
+
+[measured] W-INTL-263 compressed the BCH helper to rank-sized coordinates. This follow-up tests the boundary rather than only the round-trip: one 22-symbol helper block emits 154 bits, while the binary syndrome image has rank 70 and codimension 84. Across 64 deterministic enrolment trials (384 block helpers), every enrolled helper was accepted by the exact membership test. Across 256 uniformly sampled 154-bit ambient words, all 256 were rejected as non-syndromes. A nearby one-symbol-bit perturbation control rejected 212 of 256 and left 44 in the image, showing why “one changed helper bit” is not itself a universal invalidity test.
+
+[proved] Membership is decided by the repository's binary elimination map, not by a heuristic or by a decoder success flag. The image contains 2^70 of 2^154 ambient words, so its exact fraction is 2^-84. [measured] The sampled controls agree with that finite-domain contract: valid helpers are accepted, arbitrary ambient words are rejected, and perturbations are reported in both outcomes rather than forced into a binary story.
+
+The literature search ran in parallel with implementation. The rank/security boundary is prior art in IACR ePrint 2016/854, public-helper-data leakage including syndrome constructions is a known threat in IACR ePrint 2020/888, and finite PUF bounds are treated in arXiv:2502.03221. arXiv:2603.15320 shows that helper-data size is tied to physical error targets in an SRAM-PUF setting; it does not supply a number for this BCH chain. FormalRTL (arXiv:2603.08738) and ARCH HDL (arXiv:2607.23715) are adjacent formal-RTL work, not evidence for this finite membership control.
+
+[open conjecture] The 2^-84 image fraction is a representation fact, not a leakage estimate or a security margin. The control does not establish collision resistance, an active-attacker guarantee, helper-data encoding policy, side-channel resistance, area/timing, FPGA integration, or the G16 three-node shared-uplink demonstration. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20 closes on 21 August 2026.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7528,3 +7540,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-261 | measured; at 200 deterministic BCH frames, one metadata bit per response position changes mild list failures 10 to 5 and split list failures 15 to 8 versus zero metadata; helper-data binding and hardware remain open |
 | W-INTL-262 | measured; the finite `K = S xor H(W)` control changes the bound key in 2,048/2,048 direct one-bit helper mutations, while an unbound digest is unchanged; deployment security, leakage, and hardware remain open |
 | W-INTL-263 | measured; BCH syndrome basis coordinates reduce the six-block helper from 924 to 420 semantic bits (116 to 53 packed bytes) with 64/64 reconstruction and decoder agreement; leakage, deployment, and hardware remain open |
+| W-INTL-264 | measured; the 154-bit BCH syndrome space has an exact rank-70 membership boundary: 384/384 valid helpers accepted, 256/256 random ambient words rejected, and 212/256 nearby bit perturbations rejected; the 2^-84 image fraction is not a security or leakage claim |

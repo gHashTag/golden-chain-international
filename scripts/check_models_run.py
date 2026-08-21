@@ -57,6 +57,10 @@ UNPINNED = {
         "derives a rank-sized coordinate encoding for the finite BCH syndrome helper; "
         "its controls assert lossless reconstruction and decoder agreement, but no "
         "deployed wire format or security figure is claimed",
+    "helper_image_membership.py":
+        "checks exact membership in the finite binary image of the BCH syndrome map; "
+        "the result is a representation-control diagnostic, not a leakage, security, "
+        "deployment, or hardware figure",
 }
 
 

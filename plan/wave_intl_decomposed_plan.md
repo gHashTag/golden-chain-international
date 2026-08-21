@@ -112,3 +112,12 @@ addendum names as the document it extends. That file does not exist, so the
 addendum extends nothing and its numbering starts at 16 for historical reasons
 only. Rather than invent fifteen findings to fill the gap, the addendum has been
 marked to say so.
+
+
+## Wave-intl-264 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Exact membership of the BCH syndrome helper image | [measured] rank-70 elimination accepts 384/384 helpers from deterministic enrolment, rejects 256/256 random 154-bit ambient words, and reports 212/256 one-symbol-bit perturbations outside the image while 44/256 remain valid | [open conjecture] the exact 2^-84 image fraction is not a leakage/security bound; helper encoding, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
+
+This is a finite representation and integrity-precheck control. A decoder's refusal is not used as the membership oracle, and the nearby perturbation control is reported with both outcomes rather than being forced into “invalid”.
