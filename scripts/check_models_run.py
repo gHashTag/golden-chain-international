@@ -61,6 +61,10 @@ UNPINNED = {
         "checks exact membership in the finite binary image of the BCH syndrome map; "
         "the result is a representation-control diagnostic, not a leakage, security, "
         "deployment, or hardware figure",
+    "helper_wire_contract.py":
+        "checks the finite canonical packed-helper boundary; its padding and payload "
+        "mutation counts are representation diagnostics, not integrity, leakage, "
+        "security, deployment, or hardware figures",
 }
 
 

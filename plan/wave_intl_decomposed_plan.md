@@ -121,3 +121,12 @@ marked to say so.
 | Exact membership of the BCH syndrome helper image | [measured] rank-70 elimination accepts 384/384 helpers from deterministic enrolment, rejects 256/256 random 154-bit ambient words, and reports 212/256 one-symbol-bit perturbations outside the image while 44/256 remain valid | [open conjecture] the exact 2^-84 image fraction is not a leakage/security bound; helper encoding, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
 
 This is a finite representation and integrity-precheck control. A decoder's refusal is not used as the membership oracle, and the nearby perturbation control is reported with both outcomes rather than being forced into “invalid”.
+
+
+## Wave-intl-265 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Canonical packed helper-data boundary | [measured] six rank-70 coordinate words occupy 420 semantic bits in 53 bytes with four padding bits; 64/64 canonical round-trips pass, 256/256 padding-bit mutations reject, and 64/64 payload mutations remain syntactically accepted while changing the expanded helper | [open conjecture] authenticated framing, helper-data integrity, leakage, active attacks, area, timing, FPGA integration, and G16 hardware |
+
+This result narrows the interface boundary rather than proposing a deployed wire format: exact syndrome-image membership catches ambient-word errors before compression, while a full coordinate payload needs a separate integrity mechanism.

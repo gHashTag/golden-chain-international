@@ -7290,6 +7290,18 @@ The literature search ran in parallel with implementation. The rank/security bou
 
 [open conjecture] The 2^-84 image fraction is a representation fact, not a leakage estimate or a security margin. The control does not establish collision resistance, an active-attacker guarantee, helper-data encoding policy, side-channel resistance, area/timing, FPGA integration, or the G16 three-node shared-uplink demonstration. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20 closes on 21 August 2026.
 
+## W-INTL-265  Canonical packed helper data has a four-bit padding boundary
+
+Severity: medium as a bounded representation and interface finding; measured in software for the rank-sized BCH(127,57,11) coordinate representation and open for an authenticated deployment.
+
+[measured] W-INTL-263 established six rank-70 coordinate words: 420 semantic payload bits packed into 53 bytes, with exactly four leading storage-padding bits. `research/helper_wire_contract.py` makes that boundary executable. It accepts 64/64 canonical packets after byte-for-byte unpack/repack. Flipping each of the four padding bits in 64 packets rejects 256/256 packets. In contrast, one payload-bit mutation in each of 64 packets is accepted by the coordinate decoder and changes the expanded syndrome helper in 64/64 cases. A deterministic sample of 256 uniformly random 53-byte strings accepts 11 (4.296875 percent), close to the exact 1/16 padding-only acceptance fraction; this is a finite representation check, not a probability claim about a protocol.
+
+[proved] The four padding bits are outside the 420-bit coordinate stream, while the coordinate space is full by construction: every 420-bit word reconstructs a syndrome in the measured rank image. Therefore exact syndrome-image membership, useful before compression in W-INTL-264, cannot by itself detect a payload mutation after rank-coordinate compression. A payload integrity mechanism would be a separate protocol component.
+
+The literature search ran in parallel with implementation. Robust and reusable fuzzy extractors make helper-data tamper detection an explicit security property (Panja, Jiang, and Safavi-Naini, arXiv:2405.04021); public-helper-data attacks include BCH and other linear codes (Strieder, Frisch, and Pehl, TCHES 2021 / IACR ePrint 2020/888); and finite-blocklength PUF bounds depend on the attacker model (Maringer and Hiller, arXiv:2502.03221). These are prior art and boundary conditions, not numbers supplied by this control.
+
+[open conjecture] The 53-byte candidate is not a deployed wire format, authenticated encoding, leakage estimate, collision-resistance result, active-attacker guarantee, area/timing result, FPGA result, or G16 three-node shared-uplink demonstration. G16 remains open. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated here. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7541,3 +7553,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-262 | measured; the finite `K = S xor H(W)` control changes the bound key in 2,048/2,048 direct one-bit helper mutations, while an unbound digest is unchanged; deployment security, leakage, and hardware remain open |
 | W-INTL-263 | measured; BCH syndrome basis coordinates reduce the six-block helper from 924 to 420 semantic bits (116 to 53 packed bytes) with 64/64 reconstruction and decoder agreement; leakage, deployment, and hardware remain open |
 | W-INTL-264 | measured; the 154-bit BCH syndrome space has an exact rank-70 membership boundary: 384/384 valid helpers accepted, 256/256 random ambient words rejected, and 212/256 nearby bit perturbations rejected; the 2^-84 image fraction is not a security or leakage claim |
+| W-INTL-265 | measured; the canonical 53-byte rank-coordinate helper has four padding bits: 256/256 padding mutations rejected, 64/64 payload mutations accepted but changed the expanded helper, and random-packet acceptance is a representation control rather than integrity or security evidence |
