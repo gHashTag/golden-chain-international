@@ -7302,6 +7302,18 @@ The literature search ran in parallel with implementation. Robust and reusable f
 
 [open conjecture] The 53-byte candidate is not a deployed wire format, authenticated encoding, leakage estimate, collision-resistance result, active-attacker guarantee, area/timing result, FPGA result, or G16 three-node shared-uplink demonstration. G16 remains open. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated here. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
 
+## W-INTL-266  A candidate helper frame has a parser contract before authentication
+
+Severity: medium as a bounded protocol-boundary finding; measured in software and open for authenticated deployment.
+
+[measured] `research/framed_helper_contract.py` wraps the 53-byte rank-coordinate payload in a fixed magic, version, format identifier, explicit payload length, and a domain-separated 16-byte digest witness. Across 64 deterministic trials, 64/64 canonical frames parse and round-trip. The same finite control rejects 64/64 truncations, 64/64 extensions, 64/64 wrong-version frames, 64/64 wrong-format frames, and 64/64 single-byte payload mutations. The result separates a canonical parse contract from W-INTL-262's key-equation binding and W-INTL-265's padding boundary.
+
+[proved] The parser checks the declared length before accepting the payload and recomputes the digest over the complete header and payload. This is a property of the candidate software parser and its fixed byte layout. It is not a proof of collision resistance, authenticity, or robustness against an active attacker.
+
+The literature search ran in parallel with implementation. Panja, Jiang, and Safavi-Naini, [arXiv:2405.04021](https://arxiv.org/abs/2405.04021), make helper-data tamper detection an explicit robustness property and use an information-theoretic MAC; Maringer and Hiller, [arXiv:2502.03221](https://arxiv.org/abs/2502.03221), make attacker models and finite-blocklength bounds explicit; and Strieder, Frisch, and Pehl, [IACR ePrint 2020/888](https://eprint.iacr.org/2020/888), show that public helper data and BCH redundancy can expose learnable structure. These are prior art and boundaries, so W-INTL-266 is not a robust fuzzy-extractor or security contribution.
+
+[open conjecture] The 16-byte digest is not a keyed authenticator. A deployed encoding, key separation, leakage analysis, active-attacker model, side-channel analysis, area, timing, FPGA behaviour, and G16 three-node shared-uplink demonstration remain open. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated here.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7554,3 +7566,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-263 | measured; BCH syndrome basis coordinates reduce the six-block helper from 924 to 420 semantic bits (116 to 53 packed bytes) with 64/64 reconstruction and decoder agreement; leakage, deployment, and hardware remain open |
 | W-INTL-264 | measured; the 154-bit BCH syndrome space has an exact rank-70 membership boundary: 384/384 valid helpers accepted, 256/256 random ambient words rejected, and 212/256 nearby bit perturbations rejected; the 2^-84 image fraction is not a security or leakage claim |
 | W-INTL-265 | measured; the canonical 53-byte rank-coordinate helper has four padding bits: 256/256 padding mutations rejected, 64/64 payload mutations accepted but changed the expanded helper, and random-packet acceptance is a representation control rather than integrity or security evidence |
+| W-INTL-266 | measured; a candidate versioned frame accepts 64/64 canonical packets and rejects 64/64 truncations, extensions, wrong-version frames, wrong-format frames, and payload mutations; the digest is not a keyed authenticator |

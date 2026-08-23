@@ -349,3 +349,22 @@ This constraint changes the interpretation of compressed helper data, not the se
 W-INTL-263's rank coordinates pack six BCH(127,57,11) blocks into 420 semantic bits and 53 bytes. The new `research/helper_wire_contract.py` treats that representation as a candidate canonical packet without calling it a deployed wire format. It measures 64/64 byte-for-byte round-trips, rejects 256/256 flips of the four leading padding bits, and accepts 64/64 selected payload mutations while each changes the expanded syndrome helper. Of 256 deterministic random 53-byte strings, 11 are accepted, consistent with the four-bit padding boundary and not with any security or integrity probability.
 
 [proved] The coordinate payload is full by construction, so exact syndrome-image membership from W-INTL-264 cannot detect payload mutations after compression. [measured] The result is a finite interface/representation control. [open conjecture] Authenticated framing, residual leakage, robustness against active manipulation, side channels, area, timing, FPGA behavior, and G16 remain unmeasured. Robust reusable fuzzy extractors and public-helper-data attacks in the literature make this separation mandatory; see `research/lit_notes_2026-08-22.md`.
+
+## W-INTL-266 — candidate frame parsing before authentication, 2026-08-23
+
+The 53-byte rank-coordinate payload now has a finite candidate frame control in
+`research/framed_helper_contract.py`: fixed magic, version, format identifier,
+explicit payload length, and a domain-separated 16-byte digest witness. Across 64
+deterministic trials, canonical frames parse 64/64. Truncations, extensions,
+wrong-version frames, wrong-format frames, and one-byte payload mutations are each
+rejected 64/64. `scripts/check_models_run.py` pins all six numerical rejection
+counts.
+
+[proved] The parser's declared length and digest cover the complete candidate
+header and payload in this finite software control. [measured] The result is a
+framing/interface diagnostic, distinct from W-INTL-262's key binding and W-INTL-265's
+packed-coordinate padding boundary. [open conjecture] The digest is not a keyed
+authenticator, and no security theorem, collision-resistance result, leakage bound,
+active-attacker result, deployed protocol, area, timing, FPGA result, or G16
+three-node shared-uplink demonstration is claimed. Prior art is recorded in
+`research/lit_notes_2026-08-23.md`.

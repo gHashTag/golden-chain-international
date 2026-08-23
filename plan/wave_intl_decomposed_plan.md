@@ -130,3 +130,12 @@ This is a finite representation and integrity-precheck control. A decoder's refu
 | Canonical packed helper-data boundary | [measured] six rank-70 coordinate words occupy 420 semantic bits in 53 bytes with four padding bits; 64/64 canonical round-trips pass, 256/256 padding-bit mutations reject, and 64/64 payload mutations remain syntactically accepted while changing the expanded helper | [open conjecture] authenticated framing, helper-data integrity, leakage, active attacks, area, timing, FPGA integration, and G16 hardware |
 
 This result narrows the interface boundary rather than proposing a deployed wire format: exact syndrome-image membership catches ambient-word errors before compression, while a full coordinate payload needs a separate integrity mechanism.
+
+
+## Wave-intl-266 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Versioned helper-frame parser boundary | [measured] `research/framed_helper_contract.py` accepts 64/64 canonical frames and rejects 64/64 truncations, extensions, wrong-version frames, wrong-format frames, and payload mutations; `scripts/check_models_run.py` pins all six counts | [open conjecture] the digest is not a keyed authenticator; robust fuzzy-extractor security, leakage, active attacks, deployment, area, timing, FPGA integration, and G16 hardware remain open |
+
+This is a parser and framing control, not an authenticated wire format. The literature search found direct prior art for robust helper-data tamper detection and public-helper-data leakage, so the implementation is positioned as a bounded interface result and not as a security novelty.

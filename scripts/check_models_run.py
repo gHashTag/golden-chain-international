@@ -61,10 +61,10 @@ UNPINNED = {
         "checks exact membership in the finite binary image of the BCH syndrome map; "
         "the result is a representation-control diagnostic, not a leakage, security, "
         "deployment, or hardware figure",
-    "helper_wire_contract.py":
-        "checks the finite canonical packed-helper boundary; its padding and payload "
-        "mutation counts are representation diagnostics, not integrity, leakage, "
-        "security, deployment, or hardware figures",
+        "helper_wire_contract.py":
+            "checks the finite canonical packed-helper boundary; its padding and payload "
+            "mutation counts are representation diagnostics, not integrity, leakage, "
+            "security, deployment, or hardware figures",
 }
 
 
@@ -405,6 +405,18 @@ def _expected():
                 I.decoder_area(7, 11) + I.POINTER_AREA["ibs_select_block4"]
                 + I.COUNTERMEASURE_AREA["spongent_permutation"]
                 + _pointer_oscillators() * I.OSCILLATOR_AREA), 0.02),
+        # W-INTL-266. A candidate helper frame has a parse contract distinct from
+        # W-INTL-262's key binding and W-INTL-265's packed-coordinate boundary.
+        # Pin each rejection class so a future edit cannot silently remove one
+        # of the checks while leaving the model executable.
+        "framed_helper_contract.py": [
+            (r"canonical_accepted=(\d+)", 64, 0),
+            (r"truncated_rejected=(\d+)", 64, 0),
+            (r"extended_rejected=(\d+)", 64, 0),
+            (r"wrong_version_rejected=(\d+)", 64, 0),
+            (r"wrong_format_rejected=(\d+)", 64, 0),
+            (r"payload_mutation_rejected=(\d+)", 64, 0),
+        ],
     }
 
 
