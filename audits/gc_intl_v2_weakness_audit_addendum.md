@@ -7314,6 +7314,16 @@ The literature search ran in parallel with implementation. Panja, Jiang, and Saf
 
 [open conjecture] The 16-byte digest is not a keyed authenticator. A deployed encoding, key separation, leakage analysis, active-attacker model, side-channel analysis, area, timing, FPGA behaviour, and G16 three-node shared-uplink demonstration remain open. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated here.
 
+## W-INTL-267 — keyed authentication boundary around the candidate frame, 2026-08-24
+
+Severity: medium as a bounded protocol-boundary finding; measured in software and open for deployment, key management, freshness, and security.
+
+The W-INTL-266 frame had a parser and an unkeyed digest witness, but no key-dependent acceptance step. The new `research/keyed_frame_auth.py` adds a deliberately separate finite control: HMAC-SHA256 truncated to a 16-byte tag over the complete already-framed packet and a fixed domain string. It does not change W-INTL-262's PUF key equation or treat the transport tag as helper-data binding.
+
+[measured] Across 64 deterministic frames, 64/64 canonical authenticated frames were accepted. Wrong-key frames, one-byte tag mutations, altered inner frames, tags made under a different domain string, and malformed inner frames were each rejected 64/64. `scripts/check_models_run.py` pins all six counts, so removing a mutation class makes the models-run control fail.
+
+[proved] For the fixed byte layout and public test fixture key, the verifier authenticates the exact candidate frame before delegating to the W-INTL-266 parser. [open conjecture] This is not a deployed authenticator, a freshness/replay protocol, a leakage bound, a collision-resistance theorem, an active-attacker result, an area/timing result, an FPGA result, or a G16 three-node shared-uplink demonstration. The literature search found prior art for robust helper-data tamper detection and replay/freshness threats; the result is a bounded software control, not a security novelty. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7567,3 +7577,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-264 | measured; the 154-bit BCH syndrome space has an exact rank-70 membership boundary: 384/384 valid helpers accepted, 256/256 random ambient words rejected, and 212/256 nearby bit perturbations rejected; the 2^-84 image fraction is not a security or leakage claim |
 | W-INTL-265 | measured; the canonical 53-byte rank-coordinate helper has four padding bits: 256/256 padding mutations rejected, 64/64 payload mutations accepted but changed the expanded helper, and random-packet acceptance is a representation control rather than integrity or security evidence |
 | W-INTL-266 | measured; a candidate versioned frame accepts 64/64 canonical packets and rejects 64/64 truncations, extensions, wrong-version frames, wrong-format frames, and payload mutations; the digest is not a keyed authenticator |
+| W-INTL-267 | measured; a keyed tag over the candidate frame rejects wrong-key, tag, inner-frame, domain, and malformed-parser cases 64/64; this is not a deployed authenticator or security claim |

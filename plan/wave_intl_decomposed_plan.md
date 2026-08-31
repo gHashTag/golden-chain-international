@@ -139,3 +139,11 @@ This result narrows the interface boundary rather than proposing a deployed wire
 | Versioned helper-frame parser boundary | [measured] `research/framed_helper_contract.py` accepts 64/64 canonical frames and rejects 64/64 truncations, extensions, wrong-version frames, wrong-format frames, and payload mutations; `scripts/check_models_run.py` pins all six counts | [open conjecture] the digest is not a keyed authenticator; robust fuzzy-extractor security, leakage, active attacks, deployment, area, timing, FPGA integration, and G16 hardware remain open |
 
 This is a parser and framing control, not an authenticated wire format. The literature search found direct prior art for robust helper-data tamper detection and public-helper-data leakage, so the implementation is positioned as a bounded interface result and not as a security novelty.
+
+## Wave-intl-267 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Keyed authentication boundary around the candidate helper frame | [measured] `research/keyed_frame_auth.py` accepts 64/64 canonical frames and rejects 64/64 wrong-key, tag-mutation, inner-frame, domain-swap, and malformed-inner-parser cases | [open conjecture] the public fixture key is not deployment key material; HMAC truncation, key management, freshness/replay, leakage, active attacks, area, timing, FPGA integration, and G16 remain unmeasured |
+
+The control is intentionally separate from W-INTL-262's `K = S xor H(W)` binding and W-INTL-266's unkeyed parser/digest boundary. The literature already covers robust helper-data tamper detection and replay/freshness; no security novelty is claimed.

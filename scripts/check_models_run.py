@@ -417,6 +417,18 @@ def _expected():
             (r"wrong_format_rejected=(\d+)", 64, 0),
             (r"payload_mutation_rejected=(\d+)", 64, 0),
         ],
+        # W-INTL-267. Keyed transport authentication is a separate boundary from
+        # W-INTL-262's helper-data binding and W-INTL-266's parser/digest control.
+        # Pin every mutation class so the model cannot silently become an
+        # acceptance-only demonstration.
+        "keyed_frame_auth.py": [
+            (r"canonical_accepted=(\d+)", 64, 0),
+            (r"wrong_key_rejected=(\d+)", 64, 0),
+            (r"tag_mutation_rejected=(\d+)", 64, 0),
+            (r"frame_mutation_rejected=(\d+)", 64, 0),
+            (r"domain_swap_rejected=(\d+)", 64, 0),
+            (r"inner_parser_rejected=(\d+)", 64, 0),
+        ],
     }
 
 
