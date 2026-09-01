@@ -7324,6 +7324,18 @@ The W-INTL-266 frame had a parser and an unkeyed digest witness, but no key-depe
 
 [proved] For the fixed byte layout and public test fixture key, the verifier authenticates the exact candidate frame before delegating to the W-INTL-266 parser. [open conjecture] This is not a deployed authenticator, a freshness/replay protocol, a leakage bound, a collision-resistance theorem, an active-attacker result, an area/timing result, an FPGA result, or a G16 three-node shared-uplink demonstration. The literature search found prior art for robust helper-data tamper detection and replay/freshness threats; the result is a bounded software control, not a security novelty. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
 
+## W-INTL-268 — a finite freshness state rejects replayed candidate frames, 2026-09-01
+
+Severity: medium as a bounded protocol-boundary finding; measured in software and open for deployment, distributed ordering, rollback resistance, and security.
+
+W-INTL-267 supplied key-dependent acceptance but intentionally left freshness and replay open. The new `research/frame_freshness_control.py` wraps the complete framed packet in an eight-byte sequence number and a domain-separated truncated HMAC, then keeps an explicit `last_sequence` state. This is a strict monotone policy: it is deliberately not a sliding window, loss-tolerant transport, or deployed protocol.
+
+[measured] Across 64 deterministic frames, 64/64 increasing frames were accepted once. Exact replays, distinct valid frames with a lower sequence, sequence mutations without a recomputed tag, wrong-key frames, and truncated frames were each rejected 64/64. `scripts/check_models_run.py` pins all six counts. [proved] In this finite verifier, state is updated only after keyed verification and the canonical inner parser succeed, and a sequence not greater than the stored state is rejected.
+
+The literature search ran in parallel with implementation. A targeted 2025–2026 search returned no directly relevant fresh source; the nearest result was a 2024 PUF authentication protocol, [arXiv:2405.13146](https://arxiv.org/abs/2405.13146). The already checked PUF-authentication review records replay/freshness as a protocol boundary, [Secure PUF-Based Authentication Systems](https://pmc.ncbi.nlm.nih.gov/articles/PMC11487452/), while robust fuzzy-extractor work treats helper-data tamper detection as a security property, [arXiv:2405.04021](https://arxiv.org/abs/2405.04021). These are prior art and threat boundaries; W-INTL-268 is a finite reproduction/control, not a security novelty.
+
+[open conjecture] The public key is test data and the 16-byte tag is not a security level. Key management, rollback-resistant state, distributed ordering, loss recovery, leakage, active attackers, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7578,3 +7590,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-265 | measured; the canonical 53-byte rank-coordinate helper has four padding bits: 256/256 padding mutations rejected, 64/64 payload mutations accepted but changed the expanded helper, and random-packet acceptance is a representation control rather than integrity or security evidence |
 | W-INTL-266 | measured; a candidate versioned frame accepts 64/64 canonical packets and rejects 64/64 truncations, extensions, wrong-version frames, wrong-format frames, and payload mutations; the digest is not a keyed authenticator |
 | W-INTL-267 | measured; a keyed tag over the candidate frame rejects wrong-key, tag, inner-frame, domain, and malformed-parser cases 64/64; this is not a deployed authenticator or security claim |
+| W-INTL-268 | measured; an explicit monotone sequence state accepts 64/64 fresh frames and rejects 64/64 exact replays, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |

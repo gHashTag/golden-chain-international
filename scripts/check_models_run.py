@@ -429,6 +429,17 @@ def _expected():
             (r"domain_swap_rejected=(\d+)", 64, 0),
             (r"inner_parser_rejected=(\d+)", 64, 0),
         ],
+        # W-INTL-268. A keyed tag alone does not distinguish a fresh frame from
+        # a replay. Pin the finite monotone-state and inherited key-boundary
+        # rejection classes separately; this is not a deployed security claim.
+        "frame_freshness_control.py": [
+            (r"stream_accepted=(\d+)", 64, 0),
+            (r"replay_rejected=(\d+)", 64, 0),
+            (r"stale_rejected=(\d+)", 64, 0),
+            (r"sequence_mutation_rejected=(\d+)", 64, 0),
+            (r"wrong_key_rejected=(\d+)", 64, 0),
+            (r"truncated_rejected=(\d+)", 64, 0),
+        ],
     }
 
 

@@ -368,3 +368,13 @@ authenticator, and no security theorem, collision-resistance result, leakage bou
 active-attacker result, deployed protocol, area, timing, FPGA result, or G16
 three-node shared-uplink demonstration is claimed. Prior art is recorded in
 `research/lit_notes_2026-08-23.md`.
+
+## Freshness state, 2026-09-01
+
+W-INTL-268 adds a finite strict-monotone sequence check around the keyed candidate frame:
+64/64 increasing frames are accepted once, while exact replays and valid lower-sequence
+frames are rejected 64/64. This is [measured] software state, not a freshness theorem.
+The state is volatile in this control; rollback-resistant storage, distributed ordering,
+loss recovery, key management, leakage, active attackers, area, timing, FPGA behaviour,
+and G16 remain [open conjecture]. The anti-replay boundary is prior art in PUF
+authentication protocols, including https://pmc.ncbi.nlm.nih.gov/articles/PMC11487452/ .

@@ -147,3 +147,11 @@ This is a parser and framing control, not an authenticated wire format. The lite
 | Keyed authentication boundary around the candidate helper frame | [measured] `research/keyed_frame_auth.py` accepts 64/64 canonical frames and rejects 64/64 wrong-key, tag-mutation, inner-frame, domain-swap, and malformed-inner-parser cases | [open conjecture] the public fixture key is not deployment key material; HMAC truncation, key management, freshness/replay, leakage, active attacks, area, timing, FPGA integration, and G16 remain unmeasured |
 
 The control is intentionally separate from W-INTL-262's `K = S xor H(W)` binding and W-INTL-266's unkeyed parser/digest boundary. The literature already covers robust helper-data tamper detection and replay/freshness; no security novelty is claimed.
+
+## Wave-intl-268 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Freshness and replay boundary around the keyed helper frame | [measured] `research/frame_freshness_control.py` accepts 64/64 increasing frames and rejects 64/64 exact replays, lower valid sequences, sequence mutations without a new tag, wrong-key frames, and truncations; `scripts/check_models_run.py` pins all six counts | [open conjecture] strict monotone state is not a deployed anti-replay protocol; rollback-resistant storage, loss recovery, distributed ordering, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
+
+The result is a finite state-machine control and a reproduction of an ordinary anti-replay boundary, not a security theorem. The literature search found no directly relevant 2025–2026 source; the closest checked sources already identify replay/freshness and helper-data robustness as prior-art boundaries.
