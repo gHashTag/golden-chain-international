@@ -155,3 +155,11 @@ The control is intentionally separate from W-INTL-262's `K = S xor H(W)` binding
 | Freshness and replay boundary around the keyed helper frame | [measured] `research/frame_freshness_control.py` accepts 64/64 increasing frames and rejects 64/64 exact replays, lower valid sequences, sequence mutations without a new tag, wrong-key frames, and truncations; `scripts/check_models_run.py` pins all six counts | [open conjecture] strict monotone state is not a deployed anti-replay protocol; rollback-resistant storage, loss recovery, distributed ordering, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
 
 The result is a finite state-machine control and a reproduction of an ordinary anti-replay boundary, not a security theorem. The literature search found no directly relevant 2025–2026 source; the closest checked sources already identify replay/freshness and helper-data robustness as prior-art boundaries.
+
+## Wave-intl-269 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Sliding-window freshness boundary around the keyed helper frame | [measured] `research/sliding_window_freshness.py` accepts 64/64 in-order frames and 64/64 unseen out-of-order frames inside an eight-sequence bitmap window; it rejects 64/64 duplicates, sequences exactly eight positions behind the high-water mark, sequence mutations without a new tag, wrong-key frames, and truncations | [open conjecture] the finite window is a control parameter, not a deployment recommendation; rollback-resistant storage, distributed ordering, loss recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
+
+The mechanism is a reproduction of the standard bounded bitmap anti-replay pattern, not a security novelty. The implementation keeps keyed verification and inner-frame parsing before state mutation, while explicitly covering the out-of-order delivery case left open by W-INTL-268. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.

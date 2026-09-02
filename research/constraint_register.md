@@ -378,3 +378,20 @@ The state is volatile in this control; rollback-resistant storage, distributed o
 loss recovery, key management, leakage, active attackers, area, timing, FPGA behaviour,
 and G16 remain [open conjecture]. The anti-replay boundary is prior art in PUF
 authentication protocols, including https://pmc.ncbi.nlm.nih.gov/articles/PMC11487452/ .
+
+## Sliding-window freshness state, 2026-09-02
+
+W-INTL-269 adds a finite bitmap window around the keyed candidate frame. With
+width eight and seed 20260902, 64/64 in-order frames and 64/64 unseen
+out-of-order frames are accepted, while duplicates, sequences exactly eight
+positions behind the high-water mark, sequence mutations without a new tag,
+wrong-key frames, and truncations are each rejected 64/64.
+
+This is [measured] software state and a bounded reproduction of a standard
+anti-replay pattern, not a deployment or security result. [proved] In the
+finite verifier, keyed verification and inner parsing precede bitmap mutation,
+and each in-window sequence can be accepted once. [open conjecture]
+Rollback-resistant storage, distributed ordering, loss recovery, key
+management, leakage, active attackers, side channels, area, timing, FPGA
+behaviour, and G16 remain unmeasured. The catalog remains 83 formats and the
+HW Tier-E union remains approximately 49-55/83.

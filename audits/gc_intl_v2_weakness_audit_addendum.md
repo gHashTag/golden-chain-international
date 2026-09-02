@@ -7336,6 +7336,19 @@ The literature search ran in parallel with implementation. A targeted 2025–202
 
 [open conjecture] The public key is test data and the 16-byte tag is not a security level. Key management, rollback-resistant state, distributed ordering, loss recovery, leakage, active attackers, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
 
+## W-INTL-269 — a bounded window admits reordered frames without accepting duplicates, 2026-09-02
+
+Severity: medium as a bounded protocol-boundary finding; measured in software and open for deployment, distributed ordering, rollback resistance, and security.
+
+W-INTL-268 used a strict monotone sequence state. That policy rejects a valid frame that arrives behind the high-water mark, even when the frame is inside a finite delivery window. The new `research/sliding_window_freshness.py` keeps the keyed candidate frame and inner parser, then adds an explicit eight-sequence bitmap window. It accepts unseen lower sequences within the window while retaining duplicate and stale rejection.
+
+[measured] With seed 20260902 and 64 deterministic trials, the control accepted 64/64 in-order frames and 64/64 unseen out-of-order frames. It rejected 64/64 duplicate frames, 64/64 frames exactly eight positions behind the high-water mark, 64/64 sequence mutations without a recomputed tag, 64/64 wrong-key frames, and 64/64 truncated frames. `scripts/check_models_run.py` pins all seven numerical counts, so removal of any class makes the models-run control fail.
+
+[proved] In this finite verifier, keyed verification and inner-frame parsing precede bitmap mutation; a valid unseen sequence inside the declared window is accepted once, and a duplicate or out-of-window sequence is rejected. [measured] This is a software reproduction/control of the bounded bitmap anti-replay pattern described by RFC 6479, not a cryptographic or protocol novelty. The literature note records RFC 6479 and related PUF/authentication sources, including the failed page-reader attempt and direct metadata fallback.
+
+[open conjecture] The width eight is a test parameter, not a deployment recommendation. The public fixture key and 16-byte tag are not security parameters. Rollback-resistant storage, distributed ordering, loss recovery, key management, leakage, active attackers, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
+
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7591,3 +7604,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-266 | measured; a candidate versioned frame accepts 64/64 canonical packets and rejects 64/64 truncations, extensions, wrong-version frames, wrong-format frames, and payload mutations; the digest is not a keyed authenticator |
 | W-INTL-267 | measured; a keyed tag over the candidate frame rejects wrong-key, tag, inner-frame, domain, and malformed-parser cases 64/64; this is not a deployed authenticator or security claim |
 | W-INTL-268 | measured; an explicit monotone sequence state accepts 64/64 fresh frames and rejects 64/64 exact replays, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |
+| W-INTL-269 | measured; a bounded eight-sequence bitmap accepts 64/64 unseen in-window reorderings and rejects 64/64 duplicates, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |

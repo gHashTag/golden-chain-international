@@ -440,6 +440,18 @@ def _expected():
             (r"wrong_key_rejected=(\d+)", 64, 0),
             (r"truncated_rejected=(\d+)", 64, 0),
         ],
+        # W-INTL-269. A strict monotone counter rejects legitimate reordering;
+        # pin the bounded bitmap-window acceptance and inherited rejection
+        # classes separately. This remains a finite software control.
+        "sliding_window_freshness.py": [
+            (r"stream_accepted=(\d+)", 64, 0),
+            (r"reordered_accepted=(\d+)", 64, 0),
+            (r"replay_rejected=(\d+)", 64, 0),
+            (r"stale_rejected=(\d+)", 64, 0),
+            (r"sequence_mutation_rejected=(\d+)", 64, 0),
+            (r"wrong_key_rejected=(\d+)", 64, 0),
+            (r"truncated_rejected=(\d+)", 64, 0),
+        ],
     }
 
 
