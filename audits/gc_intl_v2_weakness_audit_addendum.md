@@ -7349,6 +7349,20 @@ W-INTL-268 used a strict monotone sequence state. That policy rejects a valid fr
 [open conjecture] The width eight is a test parameter, not a deployment recommendation. The public fixture key and 16-byte tag are not security parameters. Rollback-resistant storage, distributed ordering, loss recovery, key management, leakage, active attackers, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
 
 
+## W-INTL-270 — an unsigned sequence boundary refuses apparent rollover, 2026-09-03
+
+Severity: medium as a bounded protocol-boundary finding; measured in software and open for serial-number policy, deployment, and security.
+
+W-INTL-269 exercised a finite bitmap window but did not exercise the sequence encoder's endpoints or the transition from its maximum value to zero. `research/sequence_boundary_control.py` makes that boundary explicit without changing the existing verifier: it accepts the zero and maximum values as encodable endpoints, rejects values outside the unsigned 64-bit domain, and tests the attempted maximum-to-zero transition against the fixed high-water state.
+
+[measured] With seed 20260903 and 64 deterministic trials, zero and maximum sequences were accepted 64/64 each. Values above the maximum and below zero were rejected 64/64; two non-integer representations were rejected 128/128; and an apparent rollover from `2^64 - 1` to zero was rejected 64/64 without changing verifier state. `scripts/check_models_run.py` pins all six count classes.
+
+[proved] The finite encoder uses an unsigned 64-bit domain and the existing verifier does not silently truncate, coerce, or modularly advance a maximum high-water mark to zero. This is a boundary property of the checked implementation, not a claim that the chosen policy is suitable for a deployed transport.
+
+The literature search ran in parallel with implementation. [RFC 1982](https://www.rfc-editor.org/rfc/rfc1982) defines finite serial-number arithmetic with modulo-\(2^{SERIAL_BITS}\) addition and warns that some comparisons around half the serial space are undefined; [RFC 6479](https://www.rfc-editor.org/rfc/rfc6479) records a production anti-replay implementation that treats sequence zero as an initial-or-wrapped condition. Those sources are prior art for the boundary and show that rollover policy is a protocol decision, not a result supplied by this control. No new serial-number arithmetic or anti-replay protocol is claimed.
+
+[open conjecture] A deployed rollover policy, serial-number comparison window, persistent rollback resistance, distributed ordering, loss recovery, key management, leakage, active attacks, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7605,3 +7619,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-267 | measured; a keyed tag over the candidate frame rejects wrong-key, tag, inner-frame, domain, and malformed-parser cases 64/64; this is not a deployed authenticator or security claim |
 | W-INTL-268 | measured; an explicit monotone sequence state accepts 64/64 fresh frames and rejects 64/64 exact replays, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |
 | W-INTL-269 | measured; a bounded eight-sequence bitmap accepts 64/64 unseen in-window reorderings and rejects 64/64 duplicates, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |
+| W-INTL-270 | measured; unsigned 64-bit endpoints are accepted 64/64, out-of-domain values are rejected, and a maximum-to-zero apparent rollover is rejected 64/64 without state mutation; serial-number policy and deployment remain open |

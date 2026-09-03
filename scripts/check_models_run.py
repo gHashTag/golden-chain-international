@@ -452,6 +452,18 @@ def _expected():
             (r"wrong_key_rejected=(\d+)", 64, 0),
             (r"truncated_rejected=(\d+)", 64, 0),
         ],
+        # W-INTL-270. The unsigned sequence field has explicit endpoints, and
+        # apparent rollover is a policy boundary rather than a silent wrap.
+        # Pin each endpoint/domain class and the no-state-mutation rollover
+        # rejection as a separate finite software control.
+        "sequence_boundary_control.py": [
+            (r"zero_accepted=(\d+)", 64, 0),
+            (r"max_accepted=(\d+)", 64, 0),
+            (r"overflow_rejected=(\d+)", 64, 0),
+            (r"negative_rejected=(\d+)", 64, 0),
+            (r"noninteger_rejected=(\d+)", 128, 0),
+            (r"wrap_rejected=(\d+)", 64, 0),
+        ],
     }
 
 

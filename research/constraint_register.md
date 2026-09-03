@@ -395,3 +395,9 @@ Rollback-resistant storage, distributed ordering, loss recovery, key
 management, leakage, active attackers, side channels, area, timing, FPGA
 behaviour, and G16 remain unmeasured. The catalog remains 83 formats and the
 HW Tier-E union remains approximately 49-55/83.
+
+## Unsigned sequence endpoint and rollover boundary, 2026-09-03
+
+W-INTL-270 adds a narrow boundary control around the keyed frame sequence field. The existing encoder declares an unsigned 64-bit sequence domain. `research/sequence_boundary_control.py` exercises both endpoints and the attempted transition from `2^64 - 1` to zero against the existing bitmap verifier. Across 64 deterministic trials, zero and maximum endpoints are accepted 64/64; overflow and negative values are rejected 64/64; two non-integer inputs are rejected 128/128; and apparent rollover is rejected 64/64 without changing the high-water state.
+
+This is [measured] finite software behavior, with [proved] domain and no-state-mutation properties for the checked implementation. [RFC 1982](https://www.rfc-editor.org/rfc/rfc1982) explicitly defines serial-number spaces and modular addition, while [RFC 6479](https://www.rfc-editor.org/rfc/rfc6479) records a bounded anti-replay implementation that treats zero as initial-or-wrapped. The control therefore records a selected non-wrapping policy at this verifier boundary rather than a new serial-number rule. [open conjecture] A deployed rollover policy, half-range comparisons, persistent rollback resistance, distributed ordering, loss recovery, key management, leakage, active attacks, side channels, area, timing, FPGA behavior, and G16 remain unmeasured.

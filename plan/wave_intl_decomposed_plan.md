@@ -163,3 +163,11 @@ The result is a finite state-machine control and a reproduction of an ordinary a
 | Sliding-window freshness boundary around the keyed helper frame | [measured] `research/sliding_window_freshness.py` accepts 64/64 in-order frames and 64/64 unseen out-of-order frames inside an eight-sequence bitmap window; it rejects 64/64 duplicates, sequences exactly eight positions behind the high-water mark, sequence mutations without a new tag, wrong-key frames, and truncations | [open conjecture] the finite window is a control parameter, not a deployment recommendation; rollback-resistant storage, distributed ordering, loss recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
 
 The mechanism is a reproduction of the standard bounded bitmap anti-replay pattern, not a security novelty. The implementation keeps keyed verification and inner-frame parsing before state mutation, while explicitly covering the out-of-order delivery case left open by W-INTL-268. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
+
+## Wave-intl-270 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Unsigned sequence endpoint and rollover boundary | [measured] `research/sequence_boundary_control.py` accepts 64/64 zero and 64/64 maximum sequence endpoints, rejects 64/64 overflow and negative values plus 128/128 non-integer encodings, and rejects 64/64 maximum-to-zero rollover attempts without state mutation | [open conjecture] serial-number comparison policy, deployed rollover handling, rollback-resistant storage, distributed ordering, loss recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
+
+The result is a finite representation/state control. [RFC 1982](https://www.rfc-editor.org/rfc/rfc1982) and [RFC 6479](https://www.rfc-editor.org/rfc/rfc6479) make serial-number rollover and anti-replay policy prior-art boundaries; this loop does not claim a new arithmetic rule or deployed protocol. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
