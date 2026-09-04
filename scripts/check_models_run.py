@@ -464,6 +464,18 @@ def _expected():
             (r"noninteger_rejected=(\d+)", 128, 0),
             (r"wrap_rejected=(\d+)", 64, 0),
         ],
+        # W-INTL-271. In-memory replay state is not persistent state. Pin the
+        # canonical checkpoint, corruption/length rejection, bitmap-domain
+        # rejection, and forward-generation transition separately. This is a
+        # finite software control, not rollback-resistant storage.
+        "freshness_checkpoint_control.py": [
+            (r"roundtrip_accepted=(\d+)", 64, 0),
+            (r"checksum_rejected=(\d+)", 64, 0),
+            (r"length_rejected=(\d+)", 128, 0),
+            (r"mask_rejected=(\d+)", 64, 0),
+            (r"stale_rejected=(\d+)", 64, 0),
+            (r"forward_accepted=(\d+)", 64, 0),
+        ],
     }
 
 

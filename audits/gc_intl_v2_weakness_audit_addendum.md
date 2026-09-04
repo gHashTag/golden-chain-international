@@ -7363,6 +7363,20 @@ The literature search ran in parallel with implementation. [RFC 1982](https://ww
 
 [open conjecture] A deployed rollover policy, serial-number comparison window, persistent rollback resistance, distributed ordering, loss recovery, key management, leakage, active attacks, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
 
+## W-INTL-271 — a canonical checkpoint rejects stale freshness state, 2026-09-04
+
+Severity: medium as a bounded persistence/interface finding; measured in software and open for rollback-resistant storage, crash recovery, deployment, and security.
+
+W-INTL-270 exercised the unsigned sequence endpoint and rollover boundary, but the sliding-window state was still only in memory. The new `research/freshness_checkpoint_control.py` makes a separate persistence boundary explicit: it encodes the generation, highest sequence, and eight-bit bitmap in a canonical 48-byte record with a domain-separated digest witness, then applies only a strictly newer generation after complete parsing.
+
+[measured] With seed 20260904 and 64 deterministic trials, canonical checkpoints round-tripped 64/64; checksum mutations were rejected 64/64; truncations and extensions were rejected 128/128; out-of-window bitmap values were rejected 64/64; stale generations were rejected 64/64 without changing active state; and strictly newer generations were accepted 64/64. `scripts/check_models_run.py` pins the six count classes.
+
+[proved] For this fixed byte layout and in-memory state machine, malformed or stale records cannot update active state, while a canonical record round-trips. The digest witness is an integrity check for the candidate control, not a keyed authenticator, a monotonic counter, or a rollback-resistance proof.
+
+The literature search ran in parallel with implementation. [TEE Is Not a Healer: Rollback-Resistant Reliable Storage](https://drops.dagstuhl.de/storage/00lipics/lipics-vol356-disc2025/html/LIPIcs.DISC.2025.39/LIPIcs.DISC.2025.39.html) distinguishes evidence that a state was written by a TEE from evidence that it is the most recent state and separates crash consistency, rollback, and monotonic counters. [Chimera](https://arxiv.org/abs/2606.09101) treats stale persistent state and recovery metadata/log separation as protocol concerns; [It's a Feature, Not a Bug](https://arxiv.org/abs/2511.13641) separates authorised rollback, malicious replay, atomic updates, and auditable versions; and [CRISP](https://arxiv.org/abs/2408.06822) treats disk-state rollback as distinct from TEE integrity. The already checked [finite-blocklength PUF bounds](https://arxiv.org/abs/2502.03221) remain prior art for labelling overlapping finite controls as reproductions rather than new theorems.
+
+[open conjecture] Ordinary-storage rollback resistance, crash atomicity, recovery after partial writes, distributed ordering, key management, leakage, active attacks, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7620,3 +7634,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-268 | measured; an explicit monotone sequence state accepts 64/64 fresh frames and rejects 64/64 exact replays, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |
 | W-INTL-269 | measured; a bounded eight-sequence bitmap accepts 64/64 unseen in-window reorderings and rejects 64/64 duplicates, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |
 | W-INTL-270 | measured; unsigned 64-bit endpoints are accepted 64/64, out-of-domain values are rejected, and a maximum-to-zero apparent rollover is rejected 64/64 without state mutation; serial-number policy and deployment remain open |
+| W-INTL-271 | measured; canonical 48-byte checkpoints round-trip 64/64, malformed/tampered/stale states reject without mutation, and forward generation applies 64/64; rollback-resistant storage and deployment remain open |

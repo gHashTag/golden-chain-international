@@ -171,3 +171,11 @@ The mechanism is a reproduction of the standard bounded bitmap anti-replay patte
 | Unsigned sequence endpoint and rollover boundary | [measured] `research/sequence_boundary_control.py` accepts 64/64 zero and 64/64 maximum sequence endpoints, rejects 64/64 overflow and negative values plus 128/128 non-integer encodings, and rejects 64/64 maximum-to-zero rollover attempts without state mutation | [open conjecture] serial-number comparison policy, deployed rollover handling, rollback-resistant storage, distributed ordering, loss recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
 
 The result is a finite representation/state control. [RFC 1982](https://www.rfc-editor.org/rfc/rfc1982) and [RFC 6479](https://www.rfc-editor.org/rfc/rfc6479) make serial-number rollover and anti-replay policy prior-art boundaries; this loop does not claim a new arithmetic rule or deployed protocol. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
+
+## Wave-intl-271 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Persistent checkpoint boundary around the sliding-window state | [measured] `research/freshness_checkpoint_control.py` accepts 64/64 canonical 48-byte checkpoints and strictly newer generations; it rejects 64/64 checksum mutations, 128/128 truncation/extension cases, 64/64 out-of-window bitmap values, and 64/64 stale generations without changing active state | [open conjecture] ordinary-storage rollback resistance, crash atomicity, distributed ordering, recovery after partial writes, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
+
+This is a finite checkpoint parser and in-memory state-transition control, not trusted persistent storage or a deployed rollback-resistant protocol. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
