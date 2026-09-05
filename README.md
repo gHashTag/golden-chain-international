@@ -5,7 +5,7 @@
 - Author: Dmitrii Vasilev (ORCID: [0009-0008-4294-6159](https://orcid.org/0009-0008-4294-6159))
 - Group: Trinity S3AI / gHashTag
 - Contact: admin@t27.ai
-- Anchors: `phi^2 + phi^-2 = 3`, GoldenFloat family (arXiv:2606.05017), numeric format catalog (arXiv:2606.09686)
+- Anchors: `phi^2 + phi^-2 = 3`, GoldenFloat family (arXiv:2606.05017), Golden Ruler numeric format catalog (arXiv:2606.09686, v3 announced 7 Sep 2026)
 - Jurisdiction (planned legal vessel): UAE ADGM / DIFC Foundation (backup: Armenia)
 - Text license: CC-BY 4.0 · Code license: Apache-2.0
 
@@ -70,11 +70,11 @@ withdrawn from the list.
 
 Reachability checked anonymously on 2026-07-29, which is what an external reviewer sees.
 
-- `gHashTag/paper3-methodology` — arXiv:2606.09686 (numeric format catalog) — reachable
-- `gHashTag/tt-trinity-corona` — shuttle tile, TTGF26a run — reachable. Shuttle tile, not custom die; the two are kept distinct throughout this repository
+- `gHashTag/paper3-methodology` — arXiv:2606.09686 (Golden Ruler numeric format catalog) — reachable
+- `gHashTag/tt-trinity-corona` — TTGF26a shuttle-tile design; not submitted, no die — reachable. Shuttle tile, not custom die; the two are kept distinct throughout this repository
 - `gHashTag/t27` — TRI-27 language + numeric SSOT — reachable
 - `gHashTag/trios-mcp-rag` — render pipeline — reachable
 - [arXiv:2606.05017](https://arxiv.org/abs/2606.05017) — GoldenFloat. Cited by identifier rather than by repository: the repository is private and returns 404 to an external reader, while the preprint resolves for anyone.
 
-The catalog count is a live SSOT invariant, not a fixed number: 83 formats in 13 clusters at arXiv:2606.09686v2 (2026-06-22), 109 formats in 12 clusters in `gHashTag/t27` as of 2026-09-04 (v3 submitted).
+The catalog count is a live SSOT invariant, not a fixed number: 83 formats in 13 clusters at arXiv:2606.09686v2 (2026-06-22), 109 formats in `gHashTag/t27` as of 2026-09-04 (v3 submitted under the title *Golden Ruler: A Numeric Format Catalog with Bit-Exact Conformance Vectors for FP8, BF16, MXFP4, and Microscaling Formats*, announced 7 Sep 2026).
 The superseded count 84 appears only in the two published errata, which is correct.
