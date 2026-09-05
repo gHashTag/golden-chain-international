@@ -228,3 +228,184 @@ The other half stays open and is named precisely: the slow-corner liberty
 `sky130_fd_sc_hd__ss_100C_1v60` is not present in this environment, so the derate has not been
 measured. An argument that a constraint is slack by a factor of ten is not the same as measuring it,
 and this register's own rule is to say which one a row is.
+
+
+## What no constraint in this register is
+
+Every row above is a constraint on a design. None is a bound on what any design could do,
+and until 2026-08-13 nothing in this project was. research/theory_bounds.py adds four
+proved statements with controls in CI, and the one that binds is a floor of 179 response
+positions for a 128-bit key - set by the measured min-entropy density of 0.7160 bits per
+position, not by the error correction, because the channel floor at six percent raw error
+is 159 and the source floor is above it.
+
+SLLC at 635 positions is 3.5 times that floor and reliable-bit selection with repetition at
+1,211 is 6.8 times. The two constructions this register has been arbitrating between are
+closer to each other than either is to the floor.
+
+The floor assumes a soft-decision decoder holding per-position reliability at regeneration,
+which this design does not have and has never budgeted. That is the first unchecked
+constraint that is a lever rather than a risk, and it is recorded above.
+
+Prior art: Maringer and Hiller, arXiv:2502.03221, derive converse bounds of this kind for a
+different quantisation and attacker model. The bound here is a reproduction in this
+project's own model and is not this project's result.
+
+## DATE helper-data convention, 2026-08-14
+
+The DATE 2018 Table 1 row that was previously treated as one 288-bit compressed
+selection mask is more specific. The paper states that a one in its mask
+codeword marks a reliable SRAM cell selected for key generation. The row has
+1,060 raw positions, a 256-bit reliability mask, and a 32-bit BCH syndrome:
+256 + 32 = 288 helper bits. The selected fraction is therefore
+0.241509433962264, with a rejected complement of 0.758490566037736.
+`research/date_source_convention.py` recomputes these values and its controls
+run in the models job.
+
+This changes the interpretation, not the source data. The introductory text
+also calls 288 bits the result of bit selection with lossless compression,
+whereas the table labels 288 as Dark-bit and gives the Lossless row as
+244 + 32 = 276. That source-level mismatch is [open conjecture] and must be
+kept visible until the paper's row naming is reconciled. The 288-bit total
+must not be substituted into `n*h(f)` without first stating a mask-distribution
+model: at the table's selected fraction, that iid-mask expression is
+845.393903 bits, not 288.
+## Finite-length decoder impact, 2026-08-16
+
+W-INTL-259 narrows the open capacity question with an exact 15-fold repetition model. A scalar mean-BER majority decoder and a reliability-aware weighted-LLR decoder agree under homogeneous channels; at mean BER 0.06 the heterogeneous controls reduce the exact word error from 0.000000737 to 0.000000047 and below the printed precision. This is [measured] for the toy code only. BCH decoding, retained reliability metadata, helper-data binding, and implementation cost remain [open conjecture]. The Varying Binary Symmetric Channel framing is prior art, so the result is a reproduction/control rather than a novelty claim.
+
+## Actual BCH finite-length decoding, 2026-08-17
+
+W-INTL-260 closes one bounded remainder of the reliability question with the
+repository's actual recommended code, BCH(127,57,11), rather than another
+repetition or capacity model. `research/bch_reliability_decoder.py` builds the
+binary generator from GF(2^7) cyclotomic cosets, exercises the algebraic
+Berlekamp--Massey/Chien path, and compares it with a one-bit reliability-aware
+Chase list over 1,000 deterministic frames per case.
+
+[measured] At mean BER 0.06, the mild heterogeneous case has 56 hard-decoder
+failures versus 38 with the reliability list; the split case has 69 versus 39.
+The homogeneous control is 79 versus 69. These are finite simulation counts,
+not an FPGA, area, or helper-data result. [proved] The correction control
+decodes deterministic error patterns of every weight from zero through 11.
+[open conjecture] Reliability metadata retention, larger candidate lists,
+helper-data binding, and a hardware implementation remain unmeasured. The
+unequal-reliability framing is prior art in arXiv:2112.02198, so this is a
+reproduction/control rather than a channel-theory contribution.
+
+
+## Reliability metadata precision, 2026-08-18
+
+W-INTL-261 measures a previously unchecked lever rather than closing helper-data binding.
+The exact per-position crossover probabilities used by W-INTL-260 are quantised before the
+same one-bit BCH(127,57,11) Chase list. In 200 deterministic frames per case at mean BER
+0.060000, zero metadata bits gives 10 list failures in the mild heterogeneous case and 15 in
+the split case; one bit per response position, 127 metadata bits per word, gives 5 and 8.
+Two, three, and eight bits per position give the same finite counts in these controls.
+
+This is [measured] for the finite decoder experiment only. The metadata count is not a helper-data
+format, and it has not been bound into K = S xor f(W). [open conjecture] Encoding, leakage,
+key-binding, larger candidate lists, FPGA timing, and area remain open. The adjacent literature
+search found probabilistic failure curves (arXiv:2602.11362, https://arxiv.org/abs/2602.11362)
+and reliable communication in dynamic Byzantine networks (arXiv:2503.22452,
+https://arxiv.org/abs/2503.22452); neither is a result about this finite BCH metadata curve.
+
+
+## Helper-data binding control, 2026-08-19
+
+W-INTL-262 closes the narrow software omission without closing the security question.
+`research/helper_data_binding.py` binds the exact 924-bit six-block syndrome helper into
+`K = S xor H(W)`. Across 64 deterministic clean trials the bound key round-trips 64/64.
+A direct fixed-response control over 2,048 one-bit helper mutations changes the bound key
+in 2,048/2,048 samples; the unbound response digest remains unchanged in 2,048/2,048.
+With the actual syndrome decoder, 1/2,048 altered-helper trials returns a candidate and
+none returns the enrolled bound key. This is [measured] for the finite software control.
+
+The result does not establish collision resistance, a leakage bound, an active-attacker
+security claim, hardware cost, or a deployed helper-data encoding. [open conjecture] Those
+items and G16 remain open. Prior art is recorded in
+`research/lit_notes_2026-08-19.md`: IACR ePrint 2020/888 on public-helper-data leakage,
+arXiv:2502.03221 on finite-blocklength PUF tamper-protection bounds, and arXiv:2112.02198
+on unequal-reliability PUF channels.
+
+
+## Syndrome helper coordinate representation, 2026-08-20
+
+W-INTL-263 measures a representation boundary left open by W-INTL-262. The repository's six-block helper emits 924 syndrome bits, but binary elimination of the BCH(127,57,11) parity-check map gives rank 70 per block. `research/syndrome_basis_compression.py` therefore packs 420 semantic basis-coordinate bits instead of 924 emitted syndrome bits, with 116 to 53 packed bytes, 64/64 exact helper round-trips, and 64/64 agreement with the original decoder outputs at BER 0.02. All 26,880 one-coordinate mutations in the finite control remain distinct.
+
+This is [measured] as a lossless finite representation, not as a leakage bound. IACR ePrint 2016/854 supplies the rank-based security framing, IACR ePrint 2020/888 supplies a public-helper-data leakage threat including BCH, and arXiv:2502.03221 supplies finite-blocklength and converse bounds under explicit attacker models. [open conjecture] A deployed encoding, residual min-entropy, active-attacker robustness, side-channel behavior, area, timing, FPGA behavior, and G16 remain unmeasured.
+
+---
+
+## W-INTL-264 — exact helper-image membership, 2026-08-21
+
+The syndrome helper has two different spaces that must not be conflated. The emitted representation is 154 bits per BCH(127,57,11) block, while the attainable binary image has rank 70 and codimension 84. The new control uses the repository's own syndrome map and elimination basis to distinguish an attainable helper from an arbitrary ambient word. It accepts every sampled enrolled helper (384/384), rejects every one of 256 sampled ambient 154-bit words, and reports 212/256 one-symbol-bit perturbations outside the image with 44/256 still attainable.
+
+This constraint changes the interpretation of compressed helper data, not the security claim: the exact image fraction is 2^-84, but IACR ePrint 2016/854 and IACR ePrint 2020/888 make the rank/security and public-helper-data leakage boundary explicit. Therefore the number is a representation-domain fact and a possible integrity precheck, not a leakage estimate. Physical error targets, helper encoding, active manipulation, area, timing, FPGA integration, and G16 remain open.
+
+
+## W-INTL-265 — canonical packed helper boundary, 2026-08-22
+
+W-INTL-263's rank coordinates pack six BCH(127,57,11) blocks into 420 semantic bits and 53 bytes. The new `research/helper_wire_contract.py` treats that representation as a candidate canonical packet without calling it a deployed wire format. It measures 64/64 byte-for-byte round-trips, rejects 256/256 flips of the four leading padding bits, and accepts 64/64 selected payload mutations while each changes the expanded syndrome helper. Of 256 deterministic random 53-byte strings, 11 are accepted, consistent with the four-bit padding boundary and not with any security or integrity probability.
+
+[proved] The coordinate payload is full by construction, so exact syndrome-image membership from W-INTL-264 cannot detect payload mutations after compression. [measured] The result is a finite interface/representation control. [open conjecture] Authenticated framing, residual leakage, robustness against active manipulation, side channels, area, timing, FPGA behavior, and G16 remain unmeasured. Robust reusable fuzzy extractors and public-helper-data attacks in the literature make this separation mandatory; see `research/lit_notes_2026-08-22.md`.
+
+## W-INTL-266 — candidate frame parsing before authentication, 2026-08-23
+
+The 53-byte rank-coordinate payload now has a finite candidate frame control in
+`research/framed_helper_contract.py`: fixed magic, version, format identifier,
+explicit payload length, and a domain-separated 16-byte digest witness. Across 64
+deterministic trials, canonical frames parse 64/64. Truncations, extensions,
+wrong-version frames, wrong-format frames, and one-byte payload mutations are each
+rejected 64/64. `scripts/check_models_run.py` pins all six numerical rejection
+counts.
+
+[proved] The parser's declared length and digest cover the complete candidate
+header and payload in this finite software control. [measured] The result is a
+framing/interface diagnostic, distinct from W-INTL-262's key binding and W-INTL-265's
+packed-coordinate padding boundary. [open conjecture] The digest is not a keyed
+authenticator, and no security theorem, collision-resistance result, leakage bound,
+active-attacker result, deployed protocol, area, timing, FPGA result, or G16
+three-node shared-uplink demonstration is claimed. Prior art is recorded in
+`research/lit_notes_2026-08-23.md`.
+
+## Freshness state, 2026-09-01
+
+W-INTL-268 adds a finite strict-monotone sequence check around the keyed candidate frame:
+64/64 increasing frames are accepted once, while exact replays and valid lower-sequence
+frames are rejected 64/64. This is [measured] software state, not a freshness theorem.
+The state is volatile in this control; rollback-resistant storage, distributed ordering,
+loss recovery, key management, leakage, active attackers, area, timing, FPGA behaviour,
+and G16 remain [open conjecture]. The anti-replay boundary is prior art in PUF
+authentication protocols, including https://pmc.ncbi.nlm.nih.gov/articles/PMC11487452/ .
+
+## Sliding-window freshness state, 2026-09-02
+
+W-INTL-269 adds a finite bitmap window around the keyed candidate frame. With
+width eight and seed 20260902, 64/64 in-order frames and 64/64 unseen
+out-of-order frames are accepted, while duplicates, sequences exactly eight
+positions behind the high-water mark, sequence mutations without a new tag,
+wrong-key frames, and truncations are each rejected 64/64.
+
+This is [measured] software state and a bounded reproduction of a standard
+anti-replay pattern, not a deployment or security result. [proved] In the
+finite verifier, keyed verification and inner parsing precede bitmap mutation,
+and each in-window sequence can be accepted once. [open conjecture]
+Rollback-resistant storage, distributed ordering, loss recovery, key
+management, leakage, active attackers, side channels, area, timing, FPGA
+behaviour, and G16 remain unmeasured. The catalog remains 83 formats and the
+HW Tier-E union remains approximately 49-55/83.
+
+## Unsigned sequence endpoint and rollover boundary, 2026-09-03
+
+W-INTL-270 adds a narrow boundary control around the keyed frame sequence field. The existing encoder declares an unsigned 64-bit sequence domain. `research/sequence_boundary_control.py` exercises both endpoints and the attempted transition from `2^64 - 1` to zero against the existing bitmap verifier. Across 64 deterministic trials, zero and maximum endpoints are accepted 64/64; overflow and negative values are rejected 64/64; two non-integer inputs are rejected 128/128; and apparent rollover is rejected 64/64 without changing the high-water state.
+
+This is [measured] finite software behavior, with [proved] domain and no-state-mutation properties for the checked implementation. [RFC 1982](https://www.rfc-editor.org/rfc/rfc1982) explicitly defines serial-number spaces and modular addition, while [RFC 6479](https://www.rfc-editor.org/rfc/rfc6479) records a bounded anti-replay implementation that treats zero as initial-or-wrapped. The control therefore records a selected non-wrapping policy at this verifier boundary rather than a new serial-number rule. [open conjecture] A deployed rollover policy, half-range comparisons, persistent rollback resistance, distributed ordering, loss recovery, key management, leakage, active attacks, side channels, area, timing, FPGA behavior, and G16 remain unmeasured.
+
+## Two-slot checkpoint journal recovery, 2026-09-05
+
+W-INTL-272 adds a finite two-slot recovery boundary around the canonical checkpoint from W-INTL-271. Each slot carries an exact-length outer record, a domain-separated digest, and the complete 48-byte inner checkpoint. Recovery validates both layers, chooses the greatest valid generation, retains the older valid slot when the newer slot is torn or corrupted, and fails closed for two invalid slots or conflicting valid records at one generation.
+
+[measured] With seed 20260905 and 64 deterministic trials, newest-record selection, torn-write fallback, corruption fallback, both-invalid rejection, same-generation conflict rejection, and malformed-length rejection each passed 64/64. A clean recovery state remained unchanged across 64/64 controls. The slot record is 96 bytes; this is a software layout measurement, not a storage-device or durability measurement.
+
+[proved] For the fixed parser and injected-fault model, no invalid or ambiguous slot result is selected. [open conjecture] Filesystem ordering, power-loss atomicity, write barriers, durability, rollback of both slots, distributed recovery, key management, leakage, active attacks, side channels, area, timing, FPGA behaviour, and G16 remain unmeasured. [AWS torn-write guidance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage-twp.html) records doublewrite/data-logging recovery as prior art; [TEE Is Not a Healer](https://drops.dagstuhl.de/storage/00lipics/lipics-vol356-disc2025/html/LIPIcs.DISC.2025.39/LIPIcs.DISC.2025.39.html) separates failure atomicity from rollback freshness; no security or novelty claim is made here.
