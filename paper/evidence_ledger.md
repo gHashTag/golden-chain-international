@@ -71,7 +71,7 @@ the level was lowered rather than the artefact restated.
 |---|---|---|---|---|
 | E17 | GoldenFloat format family published | written, external | arXiv:2606.05017 | withdrawal of the preprint |
 | E18 | Numeric format catalog published | written, external | arXiv:2606.09686 | withdrawal of the preprint |
-| E19 | Catalog size is 83 formats in 13 families | written, external | arXiv:2606.09686v2 of 2026-06-22 states 83 in title and abstract; SSOT specs/numeric/formats_catalog.t27 in gHashTag/t27 counts 83 records with no duplicate ids; public READMEs of gHashTag/trinity-fpga and gHashTag/t27 both state 83; the superseded count 84 survives only inside the two published errata, which is where it belongs | a direct count of the SSOT returning a number other than 83, or any public artefact outside an erratum asserting a different size |
+| E19 | Catalog size is a live SSOT invariant, counted rather than cited | written, external | arXiv:2606.09686v2 of 2026-06-22 states 83 in its title and abstract, the SSOT count at that date; the SSOT specs/numeric/formats_catalog.t27 in gHashTag/t27 has grown since: a direct count on 2026-09-05 (origin/master 10889fc7, tools/gen_formats_catalog.py) returns 109 records with no duplicate ids; the v3 replacement submitted 2026-09-04 (announces 2026-09-07) drops the count from the title, which becomes Golden Ruler: A Numeric Format Catalog with Bit-Exact Conformance Vectors for FP8, BF16, MXFP4, and Microscaling Formats; superseded counts survive only in dated artefacts (the two published errata and the dated count in the appendix below), never as a current figure | any living public artefact of the project asserting a fixed catalog size as current, or a dated artefact whose stated count disagrees with the SSOT at the commit or version it names |
 | E20 | Energy advantage over a general-purpose baseline | modelled, device side only | re-checked 2026-07-30 by enumerating file trees rather than by searching an index, after the index was shown unreliable. Found: a device-side power model in t27 at conformance/fpga_power.json, with stated constants for an Artix-7 - 10 uW per MHz per LUT, 5 per flip-flop, 50 per block RAM, 100 per DSP, 20 per IO, 50 mW static base, 12 percent default toggle rate - plus device limits and a 2 W typical budget, and declared invariants. Coarse, round-numbered, and real. Not found: any comparison against a general-purpose baseline, and no derivation from the naive 20x to the quoted 4x to 8x | a measured end-to-end comparison outside the interval. The device half is modelled with stated assumptions; the comparison half does not exist, and that is now established by enumeration across six repositories rather than by a search index |
 
 ## 4. Economics
@@ -198,7 +198,10 @@ Reproduced by execution rather than by reading:
   GoldenFloat 22, HistoricalVendor 10, PositUnumIII 8, IntegerFixed 8,
   MlLowPrecision 7, Ieee754Binary 5, Theoretical 4, Lns 4, CompressionTrick 4,
   Microscaling 3, Ieee754Decimal 3, ExtendedFloat 3, QuantTuned 2. Both published
-  numbers hold.
+  numbers hold for that date. Recounted on 2026-09-05 at origin/master 10889fc7
+  with tools/gen_formats_catalog.py: 109 records, 109 unique ids. The count is an
+  invariant that grows between revisions, so the 83 above is the figure at its
+  date, not the current size; see E19.
 - A note on method, since this ledger asks others to check it. The first count of
   clusters run here returned 12, not 13. The pattern used had truncated
   Ieee754Binary and Ieee754Decimal to a common prefix and merged two clusters into

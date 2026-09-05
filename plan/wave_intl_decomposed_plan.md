@@ -15,7 +15,7 @@ that cannot be checked is not a gate.
 |---|---|---|
 | G1 | Hard-rules gate passes in CI | a run of the workflow returns success; three consecutive runs have |
 | G2 | Ledger arithmetic reconciles | counts derived by parsing the level column match the table row for row |
-| G3 | Catalog size and family count settled | direct count of the single source of truth: 83 records, 13 clusters summing to 83 |
+| G3 | Catalog size and family count settled | direct count of the single source of truth: 83 records, 13 clusters summing to 83 at the 2026-07-29 count recorded in the ledger appendix; the count is a live invariant that has grown since (109 records at origin/master, 2026-09-05), so no document states it as a fixed current figure |
 | G4 | Competitor figures verified at source | 9.51 tok/s found in the contributions and evaluation sections of the cited paper, not only its abstract; 25 tok/s under 5 W confirmed in the second |
 | G5 | Ternary tile reproduced | testbench compiled and run: 206 of 206 pass; synthesis emits no DSP primitive |
 | G6 | Submission target and deadline established | Cohort 20 closes 21 August 2026; Hub71+ AI is an ecosystem, not a track |
