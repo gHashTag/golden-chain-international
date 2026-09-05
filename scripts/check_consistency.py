@@ -89,7 +89,7 @@ TOPICS = {
     "radio front end": (["5.8 GHz", "108.6"], "E3"),
     "three mesh nodes": (["Three nodes assembled"], "E4"),
     "ternary tile": (["ternary tile"], "E14"),
-    "numeric catalog": (["83-format", "83 formats"], "E19"),
+    "numeric catalog": (["Golden Ruler", "catalog invariant"], "E19"),
     "energy multiplier": (["4x to 8x"], "E20"),
     "settlement contract": (["MiningPool"], "E21"),
     "allocation": (["renounces ownership"], "E22"),

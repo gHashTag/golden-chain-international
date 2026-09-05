@@ -32,8 +32,8 @@ section 5.
 | Three mesh nodes physically connected | assembled and powered | hardware, weak evidence type, see section 4 |
 | Three compute boards | inventory | hardware |
 | Multiplier-free ternary tile | testbench runs 206 of 206 passing; synthesis emits no DSP primitive | test, reproduced by execution here |
-| Numeric catalog | 83 records in 13 clusters, counted directly from the single source of truth | external, published |
-| Two preprints | arXiv:2606.05017 and arXiv:2606.09686, the latter at v2 | external, published |
+| Numeric catalog | counted directly from the single source of truth; the count is a live invariant that grows between revisions, 109 records at v3 (Sep 2026) | external, published |
+| Two preprints | arXiv:2606.05017 and arXiv:2606.09686, the latter at v2 (v3 announced 7 Sep 2026, retitled Golden Ruler) | external, published |
 | Token deployed | Sepolia, chain id 11155111, address recorded | confirmed, third-party verifiable |
 | Research conduct | five public challenge submissions, three withdrawn by the author on stated technical grounds | external, third-party visible |
 | Rust crate carries forbid(unsafe_code) | enforced, and confirmed to have no unsafe block | test |

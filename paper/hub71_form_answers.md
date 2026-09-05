@@ -159,8 +159,9 @@ measured comes from spending a bit on mantissa instead of exponent, which pays
 only because per-row scaling removes the dynamic range that the exponent bit would
 have earned.
 
-Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and an 83-format
-numeric catalog (arXiv:2606.09686), with an open reference implementation.
+Numeric foundation, published. GoldenFloat (arXiv:2606.05017) and the Golden Ruler
+numeric format catalog (arXiv:2606.09686; v3 announced 7 Sep 2026), with an open
+reference implementation.
 
 One thing we state rather than let a reader find. Our 16-bit format has the same
 field layout as IBM's DLFloat, published in 2019: one sign bit, six exponent bits,
@@ -309,12 +310,13 @@ claim, the line says so.
 - 118 Rust test blocks in the public mesh repository, reproducible with
   `grep -rE '^\s*#\[test\]' src tests`; the crate carries forbid(unsafe_code)
   and contains no unsafe block.
-- Numeric catalog of 83 formats in 13 families, counted directly from its single
-  source of truth rather than cited.
+- Numeric catalog counted directly from its single source of truth rather than
+  cited; the count is a catalog invariant that grows between revisions, so we
+  state it only with a date: 109 formats (v3, Sep 2026).
 - One token deployed to a public testnet, with its allocation fixed in the
   contract. The four-proof settlement contract is not written; see Economics.
-- Two arXiv preprints, the second at v2 after we published an erratum correcting
-  our own catalog count downward.
+- Two arXiv preprints, the second at v2 (v3 announced 7 Sep 2026) after we
+  published an erratum correcting our own catalog count downward.
 - Five submissions to a public model-compression challenge, three of them
   withdrawn by us after we found the measurement invalid.
 - Apache-2.0 for code, CC-BY 4.0 for text, publicly auditable.
@@ -384,11 +386,13 @@ air, and we mark it that way everywhere. On the compute side, a multiplier-free
 ternary tile passes 206 of 206 self-checking vectors against a golden model and
 synthesises with no DSP primitive allocated; both results reproduce from the
 repository in minutes. Our numeric work is published as two preprints and the
-catalog behind it is a single source of truth of 83 formats in 13 families, which
-counts to 83 when you count it. What is not built is marked as not built:
-multi-hop routing is in simulation, nothing has been transmitted over the air, and
-there is no end-to-end language model. Every claim we make carries the level of
-evidence that supports it, and a public ledger records which ones failed checking.
+catalog behind it is a single source of truth whose size is counted, not cited;
+the count is a catalog invariant that grows between revisions, so we state it
+only with a date: 109 formats (v3, Sep 2026). What is not built is marked as not
+built: multi-hop routing is in simulation, nothing has been transmitted over the
+air, and there is no end-to-end language model. Every claim we make carries the
+level of evidence that supports it, and a public ledger records which ones failed
+checking.
 
 ### Opening if Hub71+ Digital Assets is chosen
 
