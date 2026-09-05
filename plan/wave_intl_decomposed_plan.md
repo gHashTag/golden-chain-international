@@ -179,3 +179,11 @@ The result is a finite representation/state control. [RFC 1982](https://www.rfc-
 | Persistent checkpoint boundary around the sliding-window state | [measured] `research/freshness_checkpoint_control.py` accepts 64/64 canonical 48-byte checkpoints and strictly newer generations; it rejects 64/64 checksum mutations, 128/128 truncation/extension cases, 64/64 out-of-window bitmap values, and 64/64 stale generations without changing active state | [open conjecture] ordinary-storage rollback resistance, crash atomicity, distributed ordering, recovery after partial writes, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
 
 This is a finite checkpoint parser and in-memory state-transition control, not trusted persistent storage or a deployed rollback-resistant protocol. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
+
+## Wave-intl-272 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Two-slot journal recovery after a partial or corrupt checkpoint write | [measured] `research/checkpoint_journal_recovery.py` selects the newest valid record 64/64, falls back to the previous complete record after torn/corrupt newer slots 64/64, rejects both-invalid and conflicting same-generation records 64/64, rejects malformed slot lengths 64/64, and leaves the returned recovery state unchanged 64/64 | [open conjecture] device power-loss ordering, filesystem durability, write barriers, both-slot rollback, crash atomicity, distributed recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain unmeasured |
+
+The journal is a bounded recovery control around W-INTL-271's canonical checkpoint, not a durable journal protocol. Literature on doublewrite recovery and rollback-resistant storage is recorded in `research/lit_notes_2026-09-05.md`; no novelty or security claim is made.

@@ -476,6 +476,21 @@ def _expected():
             (r"stale_rejected=(\d+)", 64, 0),
             (r"forward_accepted=(\d+)", 64, 0),
         ],
+        # W-INTL-272. A canonical checkpoint is still only one record. The
+        # two-slot journal control makes recovery after a torn or corrupted
+        # write explicit: keep the last complete slot, fail closed when both
+        # slots are invalid, and reject conflicting records at one generation.
+        # This is a bounded recovery experiment, not crash atomicity or
+        # rollback-resistant storage.
+        "checkpoint_journal_recovery.py": [
+            (r"newest_selected=(\d+)", 64, 0),
+            (r"torn_fallback=(\d+)", 64, 0),
+            (r"corruption_fallback=(\d+)", 64, 0),
+            (r"both_invalid_rejected=(\d+)", 64, 0),
+            (r"conflict_rejected=(\d+)", 64, 0),
+            (r"length_rejected=(\d+)", 64, 0),
+            (r"state_unchanged_on_recovery=(\d+)", 64, 0),
+        ],
     }
 
 

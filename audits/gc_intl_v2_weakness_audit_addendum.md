@@ -7377,6 +7377,20 @@ The literature search ran in parallel with implementation. [TEE Is Not a Healer:
 
 [open conjecture] Ordinary-storage rollback resistance, crash atomicity, recovery after partial writes, distributed ordering, key management, leakage, active attacks, side channels, area, timing, FPGA integration, and the G16 three-node shared-uplink demonstration remain unmeasured. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
 
+## W-INTL-272 — a two-slot journal recovers the last complete checkpoint, 2026-09-05
+
+Severity: medium as a bounded recovery/interface finding; measured in software and open for crash atomicity, durable rollback resistance, and deployment.
+
+W-INTL-271 made a canonical checkpoint and a strictly newer in-memory transition explicit, but it did not define what recovery does when the newest write is partial or corrupt. `research/checkpoint_journal_recovery.py` adds a deliberately finite two-slot journal around that record. Recovery validates the outer slot digest and the inner checkpoint, selects the greatest valid generation, and refuses to choose between two different valid records carrying the same generation.
+
+[measured] With seed 20260905 and 64 deterministic trials, a complete journal selected the newest record 64/64; a torn newer slot fell back to the previous complete slot 64/64; a same-sized corruption in the newer slot fell back 64/64; two invalid slots were rejected 64/64; conflicting same-generation records were rejected 64/64; and truncated or extended slots were rejected 64/64. The recovery decision left the returned state unchanged across 64/64 clean checks. The fixed slot wire size is 96 bytes, separate from W-INTL-271's 48-byte inner checkpoint.
+
+[proved] For this finite parser, a valid older slot remains recoverable when the other slot fails the exact-length, outer-digest, inner-checkpoint, or generation-consistency checks; a journal with no valid slot or with conflicting newest records fails closed. These are properties of the software control and its injected faults, not proofs about a storage device.
+
+The literature search ran in parallel with implementation. [AWS's torn-write guidance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage-twp.html) describes data logging and doublewrite recovery for incomplete writes, while [TEE Is Not a Healer](https://drops.dagstuhl.de/storage/00lipics/lipics-vol356-disc2025/html/LIPIcs.DISC.2025.39/LIPIcs.DISC.2025.39.html) separates failure atomicity from rollback of non-volatile state and explains why sealing does not identify the most recent version. [Rebound](https://arxiv.org/abs/2511.13641), [CRISP](https://arxiv.org/abs/2408.06822), and [Chimera](https://arxiv.org/abs/2606.09101) further distinguish authorised rollback, disk-state rollback, and distributed recovery. These are prior-art boundaries; this loop does not claim a journal protocol, crash-consistency theorem, monotonic counter, rollback resistance, or security result.
+
+[open conjecture] The two-slot model does not measure power-loss ordering, filesystem or device durability, write ordering barriers, replay after both slots roll back, distributed recovery, key management, leakage, active attacks, side channels, area, timing, FPGA integration, or the G16 three-node shared-uplink demonstration. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7635,3 +7649,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-269 | measured; a bounded eight-sequence bitmap accepts 64/64 unseen in-window reorderings and rejects 64/64 duplicates, stale sequences, sequence mutations, wrong-key frames, and truncations; deployment and security remain open |
 | W-INTL-270 | measured; unsigned 64-bit endpoints are accepted 64/64, out-of-domain values are rejected, and a maximum-to-zero apparent rollover is rejected 64/64 without state mutation; serial-number policy and deployment remain open |
 | W-INTL-271 | measured; canonical 48-byte checkpoints round-trip 64/64, malformed/tampered/stale states reject without mutation, and forward generation applies 64/64; rollback-resistant storage and deployment remain open |
+| W-INTL-272 | measured; two-slot recovery selects the newest valid record 64/64, falls back after torn/corrupt newer writes 64/64, and rejects both-invalid, conflicting-generation, and malformed journals 64/64; crash atomicity and durable rollback resistance remain open |
