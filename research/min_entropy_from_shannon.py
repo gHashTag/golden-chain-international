@@ -95,6 +95,65 @@ def densities():
             _integrate(s, lambda t: min_entropy(_p(t))), s)
 
 
+def min_entropy_is_convex_in_shannon(points=40):
+    """Check that min-entropy is a convex function of Shannon entropy, per bit.
+
+    Verified on every run rather than asserted, because the bound below rests on it and a
+    numerical claim nobody re-evaluates is the shape this project has found six times.
+
+    Returns (intervals tested, intervals where the midpoint sits above the chord).
+    """
+    xs = [i / points for i in range(1, points)]
+    violations = 0
+    for lo, hi in zip(xs, xs[1:]):
+        chord = (_min_entropy_at_shannon(lo) + _min_entropy_at_shannon(hi)) / 2
+        if _min_entropy_at_shannon((lo + hi) / 2) > chord + 1e-12:
+            violations += 1
+    return len(xs) - 1, violations
+
+
+def _bias_for_shannon(target):
+    """The bias above one half whose Shannon entropy is `target`."""
+    lo, hi = 0.5, 1.0 - 1e-15
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        if shannon(mid) > target:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def _min_entropy_at_shannon(target):
+    return min_entropy(_bias_for_shannon(target))
+
+
+def distribution_free_bound():
+    """The least min-entropy any bias distribution with this Shannon total can have.
+
+    W-INTL-245, and it turns the pessimistic reading below from a choice into a theorem.
+
+    The source has 256 independent positions whose Shannon entropies sum to the published
+    241.0. Min-entropy of independent bits is the sum of the per-bit min-entropies, so the
+    question is: over all ways of splitting 241.0 across 256 positions, what is the least
+    that sum can be?
+
+    Min-entropy is a CONVEX function of Shannon entropy per bit - checked above, not
+    assumed - so by Jensen the sum is minimised when every position carries the same
+    Shannon entropy. The equal-bias reading is therefore not one interpretation among
+    several: it is the floor, and it holds for any distribution consistent with the
+    published figure, including ones nobody has thought of.
+
+    The ceiling is the published figure itself, since min-entropy never exceeds Shannon.
+
+    So the true density lies in [0.6404, 0.9414] whatever the source does, the Gaussian
+    fit puts it at 0.7162, and the design is sized against 0.7162 / 1.25 = 0.5730 - below
+    the floor. The construction survives any bias distribution the source could have, not
+    only the one this project assumed.
+    """
+    return _min_entropy_at_shannon(I.SHANNON_ENTROPY_BITS / I.MIN_ENTROPY_OVER)
+
+
 def equal_bias_reading():
     """Min-entropy density if every position carried the same bias. The pessimistic end."""
     target = I.SHANNON_ENTROPY_BITS / I.MIN_ENTROPY_OVER
@@ -121,6 +180,19 @@ if __name__ == "__main__":
     print(f"{'min-entropy, equal bias p=%.4f' % p:38} {mn_flat*over:8.1f} {mn_flat:9.4f}")
     print(f"\nthe construction is sized against min-entropy density {mn:.4f}")
     print(f"declared in inputs.py as {I.MIN_ENTROPY_BITS} bits over {over}")
+    tested, bad = min_entropy_is_convex_in_shannon()
+    floor = distribution_free_bound()
+    sized = I.MIN_ENTROPY_DENSITY / I.DENSITY_HEADROOM
+    print(f"\nconvexity of min-entropy in Shannon entropy: {tested - bad} of {tested} "
+          f"intervals, {bad} violations")
+    print(f"so the equal-bias figure is a FLOOR over every bias distribution with this")
+    print(f"Shannon total, not one reading among several - W-INTL-245.")
+    print(f"  distribution-free floor   {floor:.4f}   ({floor * over:.1f} bits)")
+    print(f"  Gaussian fit              {mn:.4f}")
+    print(f"  ceiling, the published    {sh:.4f}")
+    print(f"  the design is sized at    {sized:.4f}, "
+          f"{'below the floor' if sized < floor else 'ABOVE THE FLOOR'}")
+
     print("\nShannon entropy is an upper bound on min-entropy and the paper calls its own")
     print("figure an upper bound as well. Sizing a fuzzy extractor against it overstates")
     print("the extractable key, which is the direction that costs a key rather than area.")
