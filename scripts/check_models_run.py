@@ -491,6 +491,19 @@ def _expected():
             (r"length_rejected=(\d+)", 64, 0),
             (r"state_unchanged_on_recovery=(\d+)", 64, 0),
         ],
+        # W-INTL-273. A two-slot journal can itself be restored to an older
+        # valid image. A separate monotone anchor is modelled as a narrow
+        # anti-rollback boundary; this is still a finite software control, not
+        # a claim that ordinary storage provides such an anchor.
+        "rollback_anchor_control.py": [
+            (r"forward_anchor_accept=(\d+)", 64, 0),
+            (r"both_slot_rollback_rejected=(\d+)", 64, 0),
+            (r"tampered_anchor_rejected=(\d+)", 64, 0),
+            (r"stale_anchor_update_rejected=(\d+)", 128, 0),
+            (r"anchor_roundtrip=(\d+)", 64, 0),
+            (r"anchor_length_rejected=(\d+)", 64, 0),
+            (r"state_unchanged_on_success=(\d+)", 64, 0),
+        ],
     }
 
 

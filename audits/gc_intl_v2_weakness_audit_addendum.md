@@ -7391,6 +7391,20 @@ The literature search ran in parallel with implementation. [AWS's torn-write gui
 
 [open conjecture] The two-slot model does not measure power-loss ordering, filesystem or device durability, write ordering barriers, replay after both slots roll back, distributed recovery, key management, leakage, active attacks, side channels, area, timing, FPGA integration, or the G16 three-node shared-uplink demonstration. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83.
 
+## W-INTL-273 — a separate monotone anchor rejects a rollback of both valid slots, 2026-09-06
+
+Severity: medium as a bounded anti-rollback/interface finding; measured in software and open for trusted storage, power-loss ordering, and deployment.
+
+W-INTL-272 showed that one complete journal slot survives a torn or corrupt newer slot, but it deliberately left a harder case open: both slots may be restored to an older, internally valid image. `research/rollback_anchor_control.py` adds a separate monotone anchor to the finite model. Recovery requires the journal generation to equal the anchored generation; anchor updates require a canonical record and a strictly newer generation.
+
+[measured] With seed 20260906 and 64 deterministic trials, a journal at the anchored newer generation was accepted 64/64; a rollback of both valid journal slots was rejected 64/64; tampered anchors were rejected 64/64; stale or equal anchor updates were rejected 128/128; canonical anchors round-tripped 64/64; malformed anchors were rejected 64/64; and successful recovery left the candidate state unchanged 64/64. The anchor record is 32 bytes and the inherited journal slot is 96 bytes.
+
+[proved] For this fixed parser and finite state transition, a valid older journal image cannot pass the independent newer-generation equality check, and malformed or non-increasing anchor records do not update the model. This is a property of the software control, not evidence that ordinary storage provides an irreversible counter.
+
+The literature search ran in parallel with implementation. [TEE Is Not a Healer: Rollback-Resistant Reliable Storage](https://arxiv.org/html/2505.18648v3) separates rollback-resistant recovery from durable storage and specialised monotone hardware; [Anchor: A Library for Building Secure Persistent Memory Systems](https://dse.in.tum.de/wp-content/uploads/2024/01/Anchor-SIGMOD.pdf) treats trusted counters and crash consistency as system mechanisms; [AWS torn-write prevention](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage-twp.html) treats incomplete-write protection as a block-storage feature; and [Machine-Checked Dual-Write Recovery](https://arxiv.org/html/2608.00501v4) separates the durable accepted record from recorded progress. These are prior-art boundaries, not claims that this control is a new journal or security protocol.
+
+[open conjecture] The anchor has no device-backed monotonicity, power-loss ordering, filesystem durability, write-barrier evidence, protection when the anchor itself rolls back, distributed recovery, key management, leakage, active attacks, side channels, area, timing, FPGA integration, or G16 three-node shared-uplink evidence. The catalogue remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7650,3 +7664,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-270 | measured; unsigned 64-bit endpoints are accepted 64/64, out-of-domain values are rejected, and a maximum-to-zero apparent rollover is rejected 64/64 without state mutation; serial-number policy and deployment remain open |
 | W-INTL-271 | measured; canonical 48-byte checkpoints round-trip 64/64, malformed/tampered/stale states reject without mutation, and forward generation applies 64/64; rollback-resistant storage and deployment remain open |
 | W-INTL-272 | measured; two-slot recovery selects the newest valid record 64/64, falls back after torn/corrupt newer writes 64/64, and rejects both-invalid, conflicting-generation, and malformed journals 64/64; crash atomicity and durable rollback resistance remain open |
+| W-INTL-273 | measured; an independent 32-byte monotone anchor rejects a both-slot rollback 64/64 and malformed/non-increasing anchor updates 192/192; device-backed monotonicity and crash ordering remain open |
