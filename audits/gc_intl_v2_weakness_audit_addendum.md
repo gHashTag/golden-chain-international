@@ -7405,6 +7405,20 @@ The literature search ran in parallel with implementation. [TEE Is Not a Healer:
 
 [open conjecture] The anchor has no device-backed monotonicity, power-loss ordering, filesystem durability, write-barrier evidence, protection when the anchor itself rolls back, distributed recovery, key management, leakage, active attacks, side channels, area, timing, FPGA integration, or G16 three-node shared-uplink evidence. The catalogue remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
 
+## W-INTL-274 — mixed-generation paired updates fail closed, 2026-09-07
+
+Severity: medium as a bounded update-boundary finding; measured in software and open for storage atomicity, durability, and deployment.
+
+W-INTL-273 checked a journal against an independent anchor at recovery time, but it did not exercise the update boundary between those records. `research/paired_anchor_commit_control.py` adds a fixed 96-byte commit record that binds the canonical two-slot journal bytes and the canonical 32-byte anchor bytes to one generation. The finite bundle has three update components: journal, anchor, and commit record.
+
+[measured] With seed 20260907 and 64 deterministic trials, the old complete bundle was accepted 64/64; every complete target bundle was accepted under all six component orders, 384/384; every one- or two-component crash prefix was rejected, 768/768; commit records round-tripped 64/64; tampered commit records were rejected 64/64; truncated or extended commit records were rejected 128/128; and successful recovery left the candidate state unchanged 448/448. The commit record is 96 bytes; the inherited journal slot remains 96 bytes and the inherited anchor remains 32 bytes.
+
+[proved] For this fixed parser and finite three-component transition model, a partially published generation cannot be accepted as a complete bundle merely because one or two of its components are internally valid. The proof is only about the checked byte layout and injected crash prefixes; it is not a transaction, a crash-consistency proof, or a storage-device guarantee.
+
+The literature search ran in parallel with implementation. [Machine-Checked Dual-Write Recovery from a Committed Log](https://arxiv.org/abs/2608.00501) is direct prior art for the general dual-write recovery boundary and generation/fence reasoning; it narrows this loop to a reproduction/control of a concrete mixed-generation parser rather than a new dual-write protocol. [TEE is not a Healer: Rollback-Resistant Reliable Storage](https://arxiv.org/abs/2505.18648) separates rollback-resistant recovery, failure-atomic updates, crash-consistent writes, and monotone incarnation state. [AWS torn-write prevention](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage-twp.html) places incomplete-write protection at the storage layer. These sources support the boundary classification and do not establish the result for this wire layout.
+
+[open conjecture] The model does not measure transaction atomicity, power-loss ordering, filesystem or device durability, recovery after all three components roll back together, distributed ordering, key management, leakage, active attacks, side channels, area, timing, FPGA integration, or the G16 three-node shared-uplink demonstration. The catalogue remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7665,3 +7679,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-271 | measured; canonical 48-byte checkpoints round-trip 64/64, malformed/tampered/stale states reject without mutation, and forward generation applies 64/64; rollback-resistant storage and deployment remain open |
 | W-INTL-272 | measured; two-slot recovery selects the newest valid record 64/64, falls back after torn/corrupt newer writes 64/64, and rejects both-invalid, conflicting-generation, and malformed journals 64/64; crash atomicity and durable rollback resistance remain open |
 | W-INTL-273 | measured; an independent 32-byte monotone anchor rejects a both-slot rollback 64/64 and malformed/non-increasing anchor updates 192/192; device-backed monotonicity and crash ordering remain open |
+| W-INTL-274 | measured; a 96-byte commit record rejects all 768 one- or two-component mixed-generation update prefixes, while 384/384 complete update orders accept; storage atomicity, durability, and deployment remain open |

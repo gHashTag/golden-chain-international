@@ -187,4 +187,17 @@ This is a finite checkpoint parser and in-memory state-transition control, not t
 | Two-slot journal recovery after a partial or corrupt checkpoint write | [measured] `research/checkpoint_journal_recovery.py` selects the newest valid record 64/64, falls back to the previous complete record after torn/corrupt newer slots 64/64, rejects both-invalid and conflicting same-generation records 64/64, rejects malformed slot lengths 64/64, and leaves the returned recovery state unchanged 64/64 | [open conjecture] device power-loss ordering, filesystem durability, write barriers, both-slot rollback, crash atomicity, distributed recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain unmeasured |
 
 The journal is a bounded recovery control around W-INTL-271's canonical checkpoint, not a durable journal protocol. Literature on doublewrite recovery and rollback-resistant storage is recorded in `research/lit_notes_2026-09-05.md`; no novelty or security claim is made.
+
 | Independent rollback anchor for the two-slot journal | [measured] `research/rollback_anchor_control.py` accepts a journal at the anchored newer generation 64/64, rejects a rollback of both valid slots 64/64, rejects tampered anchors 64/64, rejects stale/equal anchor updates 128/128, and leaves successful recovery unchanged 64/64 | [open conjecture] the anchor is not device-backed; power-loss ordering, filesystem durability, write barriers, anchor rollback, distributed recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain unmeasured |
+
+## Wave-intl-274 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Paired journal/anchor update boundary | [measured] `research/paired_anchor_commit_control.py` binds the two-slot journal and independent anchor with a 96-byte commit record: all 768 one- or two-component crash prefixes reject, while 384/384 complete update orders accept and malformed/tampered commit records reject 192/192 | [open conjecture] this is not a storage transaction or crash-consistency proof; power-loss ordering, filesystem/device durability, rollback of all components, distributed recovery, key management, leakage, active attacks, area, timing, FPGA integration, and G16 hardware remain open |
+
+The literature search found direct prior art on dual-write recovery and generation fences in
+Andreakis, *Machine-Checked Dual-Write Recovery from a Committed Log*
+([arXiv:2608.00501](https://arxiv.org/abs/2608.00501)). W-INTL-274 is therefore framed as a
+finite reproduction/control of one concrete parser boundary, not as a new dual-write or
+rollback-resistant protocol.

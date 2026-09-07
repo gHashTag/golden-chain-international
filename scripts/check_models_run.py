@@ -504,6 +504,20 @@ def _expected():
             (r"anchor_length_rejected=(\d+)", 64, 0),
             (r"state_unchanged_on_success=(\d+)", 64, 0),
         ],
+        # W-INTL-274. The journal and independent anchor are two durable
+        # components, and the commit record is a third. Pin every one- and
+        # two-component crash prefix: a parser that accepts a mixed-generation
+        # bundle would make the update boundary ambiguous. This remains a
+        # finite software control, not a storage transaction.
+        "paired_anchor_commit_control.py": [
+            (r"old_bundle_accept=(\d+)", 64, 0),
+            (r"complete_order_accept=(\d+)", 384, 0),
+            (r"mixed_prefix_rejected=(\d+)", 768, 0),
+            (r"commit_roundtrip=(\d+)", 64, 0),
+            (r"tampered_commit_rejected=(\d+)", 64, 0),
+            (r"length_rejected=(\d+)", 128, 0),
+            (r"state_unchanged_on_success=(\d+)", 448, 0),
+        ],
     }
 
 
