@@ -4289,7 +4289,7 @@ recommendation failed:
 |---|---|---|---|---|
 <!-- derived:external --> | inverter area | 3.756 | 189.7 above | **50.5x** | a published tile's inverter count; cross-checked against the library |
 <!-- derived:external --> | tile utilisation | 0.5795 | 0.1272 below | **4.56x** | a 1x2-tile design, applied to one of 3.4 tiles |
-<!-- derived:external --> | fresh error rate | 0.06 | 0.09768 above | **1.63x** | this project's own working figure rather than a measurement |
+<!-- derived:external --> | fresh error rate | 0.06 | 0.09763 above | **1.63x** | this project's own working figure rather than a measurement |
 <!-- derived:external --> | ten-year flip rate | 0.0773 | 0.1095 above | **1.42x** | HSPICE at 90 nm, 23 percent activation, a cell this design does not use |
 <!-- derived:external --> | min-entropy density | 0.716 | 0.5506 below | **1.3x** | Spartan-3E FPGAs at room temperature, disjoint neighbour pairing |
 

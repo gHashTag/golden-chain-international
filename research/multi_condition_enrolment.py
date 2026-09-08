@@ -53,12 +53,14 @@ Usage: multi_condition_enrolment.py    prints the comparison
 import math
 import random
 import sys
+from statistics import NormalDist
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 import aging_margin as AM
 import inputs as I
 import reliable_bit_selection as R
 
+ND = NormalDist()
 SAMPLES = 400_000
 SEED = 12345
 
@@ -91,6 +93,51 @@ def selected_ber(temperature_sigma, keep, conditions, samples=SAMPLES, seed=SEED
         if (regenerated >= 0.0) != (nominal >= 0.0):
             wrong += 1
     return wrong / len(kept)
+
+
+def selected_ber_conditional(temperature_sigma, keep, samples=1_600_000, seed=SEED):
+    """The same quantity, estimated without tossing the coin. W-INTL-247.
+
+    `selected_ber` above draws the regeneration noise and counts whether the bit flipped.
+    At an error rate near 0.0037 that Bernoulli draw is almost all of the variance: the
+    standard error is 3.5 percent of the value at four hundred thousand samples, so the
+    comparison it feeds could resolve differences above ten percent - and the modelling
+    error W-INTL-232 corrected was eight.
+
+    A check that would not have caught the last defect is worth knowing about before the
+    next, so this estimator accumulates the CONDITIONAL probability of a flip for each kept
+    position instead of a zero or a one. Everything the closed form assumes is still
+    simulated - the finite-sample ranking, the drift, the enrolment noise - and only the
+    last coin toss is replaced by its expectation, which is what makes it a variance
+    reduction rather than a different question.
+
+    Halves the standard error at the same cost, and four times the samples halves it again:
+    2.5 percent resolution in under three seconds, against the eight percent that matters.
+
+    Stratifying the difference d does not help - the variance lives in the drift and in the
+    spread of the conditional probabilities, not in d - and that was measured rather than
+    assumed.
+    """
+    rng = random.Random(seed)
+    noise = R.sigma_for_raw_ber(I.RAW_NOISE_BER)
+    aging = R.sigma_for_raw_ber(I.AGED_FLIP_RESISTANT)
+    tau = noise / math.sqrt(I.ENROLMENT_READS)
+    drift_sigma = math.sqrt(aging * aging + temperature_sigma * temperature_sigma)
+
+    rows = []
+    for _ in range(samples):
+        d = rng.gauss(0.0, 1.0)
+        drift = rng.gauss(0.0, drift_sigma)
+        nominal = d + rng.gauss(0.0, tau)
+        rows.append((abs(nominal), d + drift, nominal))
+
+    rows.sort(key=lambda row: -row[0])
+    kept = rows[:int(samples * keep)]
+    values = [ND.cdf(-(aged if nominal >= 0.0 else -aged) / noise)
+              for _, aged, nominal in kept]
+    mean = sum(values) / len(values)
+    variance = sum((v - mean) ** 2 for v in values) / (len(values) - 1)
+    return mean, math.sqrt(variance / len(values))
 
 
 if __name__ == "__main__":

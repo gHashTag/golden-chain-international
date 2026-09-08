@@ -40,6 +40,8 @@ import pathlib
 import shutil
 import subprocess
 import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 import tempfile
 
 
@@ -108,6 +110,19 @@ def main():
         print(f"FAIL: the mutation left {path} unchanged")
         return 1
 
+    # Clear every cached module in the repository first. W-INTL-250: setting
+    # PYTHONDONTWRITEBYTECODE stops the run from WRITING a stale cache and does nothing
+    # about READING one that is already there - and one is, whenever anybody has run a
+    # check outside this harness. Python's cache is keyed on the source file's size and
+    # modification time, so a mutation that preserves length within the same second is
+    # invisible: `MIN_ENTROPY_BITS = 183.3` and `MIN_ENTROPY_BITS = 241.0` are both
+    # twenty-four characters, and replaying that defect reported NOTHING CAUGHT for the
+    # most consequential correction in this work.
+    #
+    # The self-test below has demonstrated this hazard since W-INTL-151 and clears a
+    # temporary directory to do it. The real path never cleared anything.
+    for cache in ROOT.rglob("__pycache__"):
+        shutil.rmtree(cache, ignore_errors=True)
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     result = subprocess.run(command, capture_output=True, text=True, env=env)
 
