@@ -518,6 +518,20 @@ def _expected():
             (r"length_rejected=(\d+)", 128, 0),
             (r"state_unchanged_on_success=(\d+)", 448, 0),
         ],
+        # W-INTL-275. The paired bundle is a valid complete record, but a
+        # caller still needs a local transition rule. Pin adjacent-generation
+        # acceptance and replay/stale/skip/ambiguity rejection separately. This
+        # is a pure software control, not persistent monotonic storage.
+        "generation_transition_control.py": [
+            (r"adjacent_accepted=(\d+)", 64, 0),
+            (r"replay_rejected=(\d+)", 64, 0),
+            (r"stale_rejected=(\d+)", 64, 0),
+            (r"skip_rejected=(\d+)", 64, 0),
+            (r"ambiguous_rejected=(\d+)", 64, 0),
+            (r"tampered_rejected=(\d+)", 64, 0),
+            (r"length_rejected=(\d+)", 128, 0),
+            (r"rejected_state_unchanged=(\d+)", 448, 0),
+        ],
     }
 
 

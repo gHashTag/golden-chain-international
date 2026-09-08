@@ -201,3 +201,11 @@ Andreakis, *Machine-Checked Dual-Write Recovery from a Committed Log*
 ([arXiv:2608.00501](https://arxiv.org/abs/2608.00501)). W-INTL-274 is therefore framed as a
 finite reproduction/control of one concrete parser boundary, not as a new dual-write or
 rollback-resistant protocol.
+
+## Wave-intl-275 bounded follow-up
+
+| Item | Result | Remaining boundary |
+|---|---|---|
+| Adjacent-generation transition around the paired journal/anchor bundle | [measured] `research/generation_transition_control.py` accepts 64/64 exact next-generation bundles; rejects 64/64 replays, stale candidates, skipped generations, ambiguous same-generation bundles, and tampered candidates; rejects 128/128 malformed commit lengths; rejected candidates leave the active state unchanged 448/448 | [open conjecture] this is a pure transition policy over canonical bytes, not a persistent monotonic counter, transaction, crash-consistency proof, storage-durability result, deployment-security result, FPGA result, or G16 demonstration |
+
+The literature positions forward-only state continuity and rollback-resistant storage as established boundaries. W-INTL-275 is a finite reproduction/control of the repository's exact-one-generation caller policy, not a new replay or rollback protocol; see `research/lit_notes_2026-09-08.md`.

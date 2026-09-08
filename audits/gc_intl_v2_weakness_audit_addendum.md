@@ -7419,6 +7419,20 @@ The literature search ran in parallel with implementation. [Machine-Checked Dual
 
 [open conjecture] The model does not measure transaction atomicity, power-loss ordering, filesystem or device durability, recovery after all three components roll back together, distributed ordering, key management, leakage, active attacks, side channels, area, timing, FPGA integration, or the G16 three-node shared-uplink demonstration. The catalogue remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's stated deadline was 21 August 2026; submission status is not evaluated.
 
+## W-INTL-275 — adjacent-generation guard rejects replay and skipped updates, 2026-09-08
+
+Severity: medium as a bounded transition-policy finding; measured in software and open for persistent monotonicity, storage atomicity, and deployment.
+
+W-INTL-274 binds the journal, independent anchor, and commit record, but a complete older bundle remains a valid parser input. `research/generation_transition_control.py` adds the caller-side rule that an accepted candidate must be exactly one generation beyond the active bundle.
+
+[measured] With seed 20260908 and 64 deterministic trials, exact adjacent-generation bundles were accepted 64/64; replays, stale candidates, skipped generations, ambiguous same-generation bundles, and tampered candidates were rejected 64/64 each; malformed commit lengths were rejected 128/128; and every rejection left the active state unchanged 448/448. The control operates over the inherited 96-byte commit record and does not change the journal or anchor wire formats.
+
+[proved] For this fixed pure transition function, a candidate that is not the next integer generation cannot be applied, and the active bundle is not mutated on rejection. The claim is limited to the checked byte layout and parser model.
+
+The literature search ran in parallel with implementation. [It's a Feature, Not a Bug: Secure and Auditable State Rollback for Confidential Cloud Applications](https://arxiv.org/abs/2511.13641) treats replay and rollback as stale-but-authentic state and discusses forward-only state continuity; [TEE is not a Healer: Rollback-Resistant Reliable Storage](https://arxiv.org/abs/2505.18648) separates rollback-resistant storage from crash-consistent recovery; [CRISP](https://arxiv.org/abs/2408.06822) keeps rollback of state on disk distinct from runtime integrity; and the [IETF execution-finality draft](https://datatracker.ietf.org/doc/html/draft-das-rats-openai-anthropic-extraction-02) defines rollback resistance as protected state that cannot recreate consumed authority. These sources make W-INTL-275 a finite reproduction/control rather than a new replay or rollback protocol.
+
+[open conjecture] The control has no persistent monotonic counter, transaction atomicity, power-loss ordering, filesystem or device durability, rollback-resistant deployment, distributed concurrency result, key-management result, leakage result, active-attacker result, side-channel result, area/timing result, FPGA integration, or G16 three-node shared-uplink evidence. The catalogue remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20's 21 August 2026 deadline is historical; submission status is not evaluated.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -7680,3 +7694,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-272 | measured; two-slot recovery selects the newest valid record 64/64, falls back after torn/corrupt newer writes 64/64, and rejects both-invalid, conflicting-generation, and malformed journals 64/64; crash atomicity and durable rollback resistance remain open |
 | W-INTL-273 | measured; an independent 32-byte monotone anchor rejects a both-slot rollback 64/64 and malformed/non-increasing anchor updates 192/192; device-backed monotonicity and crash ordering remain open |
 | W-INTL-274 | measured; a 96-byte commit record rejects all 768 one- or two-component mixed-generation update prefixes, while 384/384 complete update orders accept; storage atomicity, durability, and deployment remain open |
+| W-INTL-275 | measured; exact-one-generation transition accepts 64/64 adjacent bundles, rejects replay/stale/skip/ambiguous/tampered candidates 64/64 and malformed lengths 128/128; persistent monotonicity and storage durability remain open |
