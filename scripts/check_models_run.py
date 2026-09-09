@@ -34,6 +34,35 @@ MODELS = ROOT / "research"
 # the name is printed on every run so it stays known.
 HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install"}
 
+# Models that run and pin no figure, each with the reason. W-INTL-244: this file used to
+# hold only the list of models that DO pin one, so a model producing nothing checkable was
+# indistinguishable from a model nobody had got to. Four were in that state, and two of
+# them were the end-to-end chain and the SLLC generator - the two-witness argument this
+# project cites as evidence, corroborated by nothing.
+#
+# The rule from W-INTL-234 was that a limit on how many figures to pin is a decision about
+# which go unpinned. This is that decision, written down.
+UNPINNED = {
+    "bch_code_search.py":
+        "enumerates every BCH code over two fields; its output is a search space rather "
+        "than a figure, and the code it selects is pinned through selection_with_bch",
+    "code_choice_model.py":
+        "a construction table superseded by selection_with_bch, kept for the record of "
+        "what was compared - W-INTL-202 is it having stopped running unnoticed",
+    "helper_data_binding.py":
+        "recomputes a helper-data binding control; its output is a negative-control "
+        "diagnostic rather than a paper figure, so the finite result stays unpinned "
+        "until a deployed encoding and threat model are fixed",
+    "syndrome_basis_compression.py":
+        "derives a rank-sized coordinate encoding for the finite BCH syndrome helper; "
+        "its controls assert lossless reconstruction and decoder agreement, but no "
+        "deployed wire format or security figure is claimed",
+    "helper_image_membership.py":
+        "checks exact membership in the finite binary image of the BCH syndrome map; "
+        "the result is a representation-control diagnostic, not a leakage, security, "
+        "deployment, or hardware figure",
+}
+
 
 # One figure per model, recomputed from research/inputs.py and matched against what the
 # model prints. W-INTL-203: running a model proves it does not raise, which is the
@@ -116,6 +145,14 @@ def _tiles_at_worst():
                    + I.COUNTERMEASURE_AREA["spongent_permutation"])
 
 
+def _word_failure_at(ber):
+    """Word failure of the recommendation at this raw bit error rate. W-INTL-244."""
+    import importlib
+    C = importlib.import_module("check_figures_reproduce")
+    _, n, _, t, blocks, _, _, _ = C.recommendation()
+    return C.word_failure(n, t, blocks, ber)
+
+
 def _burn_in_half():
     """The selected error rate with half the ten-year drift applied before enrolment."""
     import importlib
@@ -174,6 +211,26 @@ def _density_floor(I, R):
     return hi
 
 
+
+def _min_entropy_floor():
+    """Positions the min-entropy density needs for a 128-bit key. W-INTL-253.
+
+    Recomputed here from the declared inputs on an independent path, because the whole
+    point of that entry is that the floor is set by the source and not by the code, and a
+    floor nothing recomputes is a number that stops being true quietly.
+    """
+    import importlib, math
+    I = importlib.import_module("inputs")
+    return math.ceil(I.KEY_BITS / I.MIN_ENTROPY_DENSITY)
+
+
+def _pointer_helper_floor():
+    """The n*h(f) pointer bound at the dissertation's own n and f. W-INTL-251."""
+    import math
+    n, f = 974, 0.326
+    h = -f * math.log2(f) - (1 - f) * math.log2(1 - f)
+    return math.floor(n * h)
+
 def _expected():
     import importlib, math, sys as _sys
     _sys.path.insert(0, str(MODELS))
@@ -199,9 +256,16 @@ def _expected():
         "borrowed_margins.py": (
             r"tightest: min-entropy density at ([\d.]+) times",
             I.MIN_ENTROPY_DENSITY / _density_floor(I, R), 0.02),
-        "min_entropy_from_shannon.py": (
-            r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
-            I.MIN_ENTROPY_DENSITY, 0.0005),
+        "min_entropy_from_shannon.py": [
+            (r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
+             I.MIN_ENTROPY_DENSITY, 0.0005),
+            # W-INTL-245: the distribution-free floor, and the count of convexity
+            # violations that makes it a theorem rather than a reading. Zero is the
+            # figure; a nonzero one would mean Jensen does not apply and the floor is
+            # not a floor.
+            (r"distribution-free floor\s+([\d.]+)", 0.6404, 0.0005),
+            (r"intervals, (\d+) violations", 0, 0),
+        ],
         # W-INTL-235. The free-headroom figure, recomputed here rather than obtained from
         # the model, because a tripwire calling its own subject is what W-INTL-234 caught.
         "environmental_margin.py": [
@@ -214,6 +278,67 @@ def _expected():
         ],
         # W-INTL-236. The worst corner with the fraction free, recomputed here on an
         # independent path rather than by calling budget_audit.
+        # W-INTL-251 and W-INTL-253. Two figures, because the file states two kinds of
+        # thing: a bound on helper data that can be checked against a published coder, and
+        # the floor on positions that reframes what the remaining engineering is for. The
+        # second is the one that matters and it is the one that would rot unbound.
+        "theory_bounds.py": [
+            (r"the bound is (\d+), so that coder sits", _pointer_helper_floor(), 0),
+            (r"binding floor\s+(\d+) positions", _min_entropy_floor(), 0),
+        ],
+        # W-INTL-256. The DATE row's compressed helper total identifies two symmetric
+        # selection-mask fractions. The source convention is not inferred from the
+        # arithmetic, so the model pins both branches and keeps the interpretation open.
+        "date_helper_ambiguity.py": (
+            r"low retained-fraction branch:\s+([\d.]+)", 0.046, 0.001),
+        # W-INTL-257. The DATE paper's Table 1 splits the 288-bit row into a
+        # 256-bit selected-reliability mask and a 32-bit syndrome. This is a
+        # source-convention correction to W-INTL-256, not a replacement of its
+        # symmetric entropy control.
+        "date_source_convention.py": (
+            r"selected raw fraction:\s+([\d.]+)", 256.0 / 1060.0, 1e-6),
+        # W-INTL-258. Mean BER is not a sufficient summary when the selected
+        # positions have different crossover probabilities.  Keep the exact
+        # parallel-channel capacity and the scalar-BER proxy under separate
+        # tripwires; the finite-length code consequence remains open.
+        "effective_ber_capacity.py": [
+            (r"selected_like_mean_6pct\s+0\.060000\s+[\d.]+\s+[\d.]+\s+([\d.]+)",
+             26.628112, 1e-6),
+            (r"mean_matched_split\s+0\.060000\s+[\d.]+\s+[\d.]+\s+([\d.]+)",
+             58.501266, 1e-6),
+        ],
+        # W-INTL-259. Exact finite repetition-code control: the mean-BER majority
+        # baseline is compared with a per-position weighted-LLR decoder. This does
+        # not bind a BCH claim; it binds the narrow model that was actually measured.
+        "heterogeneous_repetition_decoder.py": [
+            (r"mild_same_mean\s+0\.060000\s+[\d.]+\s+([\d.]+)", 0.000000047, 1e-9),
+            (r"split_same_mean\s+0\.060000\s+[\d.]+\s+([\d.]+)", 0.000000000, 1e-12),
+        ],
+        # W-INTL-260. Actual BCH(127,57,11) algebraic decoding, compared with a
+        # one-bit reliability-aware Chase list at the same mean BER. The deterministic
+        # frame counts bind the finite experiment only; they do not bind helper-data
+        # metadata cost or an RTL implementation.
+        "bch_reliability_decoder.py": [
+            (r"mild\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*(\d+)",
+             56, 0),
+            (r"mild\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*\d+\s+"
+             r"chase_failures=\s*(\d+)", 38, 0),
+            (r"split\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*(\d+)",
+             69, 0),
+            (r"split\s+mean_ber=0\.060000\s+frames=1000\s+hard_failures=\s*\d+\s+"
+             r"chase_failures=\s*(\d+)", 39, 0),
+        ],
+        # W-INTL-261. Quantised reliability metadata is a separate axis from the
+        # BCH list itself: at the same finite experiment, one bit per response
+        # position reaches the same measured failure count as 2, 3, or 8 bits
+        # in the two heterogeneous controls.  This pins the cost/precision
+        # comparison without treating metadata as helper-data binding.
+        "reliability_metadata_cost.py": [
+            (r"mild\s+0\s+0\s+0\.060000\s+200\s+\d+\s+(\d+)", 10, 0),
+            (r"mild\s+1\s+127\s+0\.060000\s+200\s+\d+\s+(\d+)", 5, 0),
+            (r"split\s+0\s+0\s+0\.060000\s+200\s+\d+\s+(\d+)", 15, 0),
+            (r"split\s+1\s+127\s+0\.060000\s+200\s+\d+\s+(\d+)", 8, 0),
+        ],
         "budget_audit.py": (
             r"the worst corner costs ([\d.]+) of a tile", _worst_corner_cost(), 0.01),
         # W-INTL-237. Two figures: the two-condition rate the lever is worth, and the
@@ -239,12 +364,29 @@ def _expected():
             (r"accounting stops being sound at (\d+) blocks", 10, 0),
         ],
         # W-INTL-240. Both extrapolations, because they straddle the claim and the whole
-        # content of the file is that they disagree - binding one would report a settled
-        # answer where there is a range.
+        # content of that file is that they disagree. Kept bound after W-INTL-241 settled
+        # the question exactly: the Monte Carlo is superseded and its figures still have
+        # to be the figures it produced, or the record of why it was superseded rots.
         "ordering_achievable.py": [
             (r"carried at constant ratio\s+([\d.]+)", 199.8, 1.0),
             (r"carried at constant deficit\s+([\d.]+)", 217.7, 1.0),
         ],
+        # W-INTL-241. The exact figure and the crossing, which is the number that moved -
+        # four blocks against the ceiling, two against what the ordering achieves.
+        "ordering_exact.py": [
+            (r"stops being sound at (\d+) blocks", 8, 0),
+            (r"so the margin runs [\d.]+ to (\d+\.\d+)\.", 1.069, 0.003),
+        ],
+        # W-INTL-244. The two-witness argument: the chain's own Monte Carlo against the
+        # binomial model it is supposed to corroborate. Both figures at the same operating
+        # point, and the model column recomputed here from the recommendation rather than
+        # read from the model that prints it.
+        "key_generator_e2e.py": [
+            (r"\n\s+0\.06\s+\d+\s+([\d.]+)\s", 0.403, 0.02),
+            (r"\n\s+0\.06\s+\d+\s+[\d.]+\s+([\d.]+)", _word_failure_at(0.06), 0.002),
+        ],
+        "sllc_key_generator.py": (
+            r"\n\s+0\.04\s+\d+\s+\d+/\d+\s+([\d.e-]+)", _word_failure_at(0.04), 0.002),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (
@@ -268,6 +410,14 @@ def main():
     only = None
     if "--only" in sys.argv:
         only = sys.argv[sys.argv.index("--only") + 1]
+    # Discovery, not enumeration - W-INTL-243 is this check's sibling learning the same
+    # lesson one loop earlier. Every model with a main block must pin a figure or be
+    # listed in UNPINNED with the reason.
+    with_main = {p.name for p in MODELS.glob("*.py")
+                 if not p.name.startswith("_") and "__main__" in p.read_text()}
+    unlisted = sorted(with_main - set(_expected()) - set(UNPINNED) - set(HEAVY))
+    stale_unpinned = sorted(set(UNPINNED) - with_main)
+
     files = sorted(p for p in MODELS.glob("*.py")
                    if not p.name.startswith("_") and p.name not in HEAVY
                    and (only is None or p.name == only))
@@ -310,6 +460,11 @@ def main():
                     f"{path.name}: prints {got:g} where inputs give {want:.4g} "
                     f"(tolerance {tol})")
 
+    for name in unlisted:
+        failures.append(f"{name} runs and pins no figure, and UNPINNED does not say why")
+    for name in stale_unpinned:
+        failures.append(f"UNPINNED names {name}, which research/ no longer defines")
+
     for f in failures:
         print(f"FAIL: {f}")
     if failures:
@@ -320,6 +475,9 @@ def main():
         print(f"FAIL: {checked} of {len(expected)} declared model figures were checked")
         return 1
     skipped = ", ".join(f"{n} ({why})" for n, why in sorted(HEAVY.items()))
+    if only is None:
+        for name, why in sorted(UNPINNED.items()):
+            print(f"  runs and pins nothing: {name} - {why}")
     print(f"check_models_run: OK ({len(files)} models run, {checked} figures verified"
           + (f"; not run: {skipped})" if skipped else ")"))
     return 0

@@ -6489,6 +6489,807 @@ rather than a budget.
 Both extrapolations are bound as figures, because binding one would report a settled answer where
 there is a range, and the range is the finding.
 
+## W-INTL-241  The hard problem was one-dimensional, and the answer is two blocks from unsound
+
+Severity: closes the largest open question in the work, one loop after opening it, and tightens the
+finding rather than relaxing it.
+
+W-INTL-240 estimated the ordering's min-entropy by sequential Monte Carlo, watched it produce
+impossible figures above fourteen oscillators, discarded those rows, extrapolated from the rest, and
+reported a range of 0.99 to 1.08 with the note that more trials would not help because the failure is
+structural.
+
+That was true of the method and not of the problem. The constraints f_1 < f_2 < ... < f_R form a
+CHAIN, and a chain of inequalities over independent variables collapses an R-dimensional integral to
+a backward recursion in ONE dimension:
+
+    G_{R+1}(x) = 1
+    G_k(x)     = integral from x to infinity of phi(y - mu_k) G_{k+1}(y) dy
+    P(pi*)     = G_1(-infinity)
+
+One pass per oscillator over a grid, the running scale factored out so a probability near 2^-215 does
+not underflow. No sampling, no extrapolation, under a second at fifty-four oscillators. The self-test
+is exact: with equal means every ordering is equally likely, and the recursion reproduces -log2(R!)
+to 0.05 bits at R = 54.
+
+### What it says
+
+  blocks  carried   osc   ceiling   achievable   present   margin
+       4      228    44     180.8        163.8     134.3    1.220
+       5      285    49     208.6        188.9     167.8    1.125
+       6      342    54     237.1        215.3     201.4    1.069   <- the recommendation
+       7      399    58     260.3        236.6     235.0    1.007
+       8      456    62     284.0        258.7     268.6    0.963   <- fails
+
+The recommendation holds at **1.069**, against 215.3 bits achievable rather than the 237.1 ceiling.
+Over five draws of the systematic offsets it runs 1.039 to 1.069, so layout alone moves it by three
+points.
+
+**And the crossing is at eight blocks, not ten.** W-INTL-239 measured against the ceiling and put the
+design four blocks from unsound; against what the ordering achieves it is two. The density headroom
+rule took three blocks to four and the min-entropy correction took four to six - the last two
+corrections between them consumed exactly the distance that remains.
+
+### An interaction nobody would have looked for
+
+W-INTL-236 found two answers to the worst temperature corner: more blocks, or a deeper selection
+fraction, at 0.25 of a tile either way. They are not equivalent here. A deeper fraction needs far
+more raw positions, so far more oscillators, so it raises the ceiling faster than it raises the
+claim - the nine-block construction at twenty percent retained uses 108 oscillators and is nowhere
+near binding. More blocks at the declared fraction is the path that crosses.
+
+Two answers that cost the same in area differ in whether the source can supply the key. That is not
+visible from either the area figures or the error figures, and it is the reason to prefer the
+selection answer if the temperature sweep ever forces the choice.
+
+### The Monte Carlo is kept and stays bound
+
+`ordering_achievable.py` is superseded and its figures are still checked. A superseded model whose
+numbers drift stops being a record of why it was superseded, and this project has found six cases of
+a figure outliving the reason it existed.
+
+## W-INTL-242  Two call paths, two answers, and every check green
+
+Severity: modelling, small in consequence and exact in class. Found by asking the question W-INTL-241
+ended on - what structure does the method ignore - of the remaining numerical models.
+
+`aged_selected_ber`, written in W-INTL-232, integrated over the whole axis, skipped the samples
+inside the selection threshold, and divided by however many survived. That makes the denominator an
+integer approximation of the kept mass, so one sample lands on the answer - and one sample is a
+six-hundredth of the mass at the resolution most callers use.
+
+    steps    aged figure
+      300      0.0038135
+      600      0.0036695     <- aging_margin, borrowed_margins, burn_in
+     1200      0.0036697
+     4000      0.0036769     <- check_figures_reproduce
+    64000      0.0036769
+
+Non-monotone, which is the signature of a hard domain boundary the grid does not align to. Two call
+paths, two answers, 0.2 percent apart, and every check green throughout - because each check compared
+a document against whichever value its own call produced. Nothing in this repository compares a
+figure against itself computed differently, which is the gap W-INTL-238 and W-INTL-241 have each
+filled by hand for one quantity.
+
+### The corrected version was three lines away
+
+`selected_ber_counts_exact`, immediately below in the same file, integrates over the kept tail
+directly and divides by `steps`. Its comment records its own earlier fault - it once integrated the
+wrong tail - and the correction is exactly the pattern the new function needed. The new function was
+written without following it.
+
+Integrating over the kept tail gives five correct figures at 150 steps, against 4,000 before.
+
+### What it moved
+
+One published figure, by 0.05 percent: the fresh error rate's ceiling, 0.09768 to 0.09763. The
+0.2 percent error was in an intermediate that mostly cancelled inside the bisections that consume it.
+Small, and it is the class rather than the size that matters - a figure that depends on who asked for
+it will not always cancel.
+
+`scripts/check_quadrature_converged.py` requires every integrator taking a `steps` argument to agree
+with itself between 200 and 20,000. It is not a tolerance on accuracy; it is the statement that the
+answer is a property of the question rather than of the caller. Six integrators, six cases.
+
+## W-INTL-243  The check written against an enumeration weakness enumerated
+
+Severity: method, and the shortest gap between recording a rule and breaking it that this project has
+managed.
+
+W-INTL-233 recorded that a rule which enumerates is silent about what it did not enumerate, in the
+skill file, as a lesson. W-INTL-242 then wrote `check_quadrature_converged` with six hand-listed
+cases. There are **fourteen** functions in `research/` taking a resolution argument. The check
+covered two of them by name.
+
+It discovers them now, from the argument names rather than from a list: any function taking `steps`,
+`grid`, `trials` or `samples` must be exercised at a coarse and a fine setting, or be listed as
+exempt with the reason. Nine cases over six integrators, eight exempt, and the discovery is what
+fails when a fourteenth becomes a fifteenth.
+
+The exemptions are the interesting half. Four are primitives exercised through the functions built on
+them. Two are diagnostics that reach no document. Two are Monte Carlo, where a coarse-against-fine
+comparison tests luck rather than convergence - and those carry stronger checks already: the
+superseded estimator has its own impossibility test, and the burn-in sampler has its agreement with
+the closed form bound as a figure.
+
+### What the sweep found
+
+Nothing broken, which is worth stating because the previous three loops each found something.
+
+  min_entropy_from_shannon, Shannon density       0.00 percent apart
+  min_entropy_from_shannon, min-entropy density   0.06
+  entropy_second_opinion, two-level density       0.04
+  entropy_second_opinion, threshold               0.02
+  ordering_exact, equal means at R = 20           0.35   <- real, and understood
+
+`ordering_exact` is the one with genuine grid dependence, and it is the trapezoid rule behaving
+exactly as it should: the equal-means self-test error falls as grid^-2, 0.186 to 0.047 to 0.0117 to
+0.0029 as the grid quadruples twice. At the default of 6,000 the error is 0.047 bits in 237, and the
+achievable figure at fifty-four oscillators moves from 215.18 to 215.32 over an eightfold change of
+grid - 0.06 percent, which does not touch the 1.069 margin.
+
+So the default is now justified rather than assumed, and the case in the check pins it.
+
+## W-INTL-244  Four models pinned nothing, and two of them were the two-witness argument
+
+Severity: high as a coverage gap. The evidence this project cites for its model being right was
+corroborated by no check at all.
+
+W-INTL-243 made the convergence check discover its subjects. `check_models_run` still held the
+opposite arrangement: a list of models that DO pin a figure, and nothing saying which do not. A model
+producing nothing checkable was indistinguishable from a model nobody had got to.
+
+Four were in that state. Two are `bch_code_search.py` and `code_choice_model.py`, whose output is a
+search space and a superseded comparison - both properly unpinned, and now recorded as such with the
+reason. **The other two are `key_generator_e2e.py` and `sllc_key_generator.py`.**
+
+Those are the two-witness argument. That file's own header says it: "a model and an implementation
+that agree are two witnesses; a model alone is one". W-INTL-229 found it exercising a construction
+four moves out of date and re-pointed it. Since then it has run on every CI pass, printed its
+agreement, and been checked by nothing - so the same drift could have happened again in either
+direction and no check would have said so.
+
+Bound now, at the same operating point and from both sides:
+
+  observed word failure at six percent raw   0.403   the chain's own Monte Carlo, fixed seed
+  model word failure at six percent raw      0.394   the binomial, recomputed in the checker
+
+The model column is recomputed in `check_models_run` from the recommendation rather than read from
+the file that prints it, so the two sides remain independent. The SLLC generator is bound the same
+way at four percent.
+
+### The control that does not work, and why it is worth recording
+
+The obvious control - change the Monte Carlo's seed - **does not fire**. At 300 trials and a rate
+near 0.4 one standard error is 0.028, wider than the 0.02 tolerance, so a reseed lands inside it as
+often as not. That is not a loose tolerance to tighten; it is the wrong control. The claim is that
+the chain and the model agree, and a reseed preserves the agreement.
+
+The control that fires is the one that breaks the chain's construction - pinning it back to
+BCH(127,29,21) in 23 blocks, which is exactly what W-INTL-229 found it doing.
+
+A control has to break the claim rather than perturb the computation. Those are different, and the
+difference is invisible until the control quietly passes.
+
+`check_models_run` discovers models with a main block now and fails when one pins nothing and
+`UNPINNED` does not say why.
+
+## W-INTL-245  The pessimistic reading was a theorem, and nobody had noticed
+
+Severity: it strengthens the project's most consequential correction from an assumption to a bound
+that holds whatever the source does.
+
+Comparing a figure against itself computed differently has found four defects in five loops. Every
+one was found by hand, because nothing recorded which quantities have a second derivation and which
+have one. That is the wrong way round: a quantity with two paths is checked, and a quantity with one
+is where the next defect is.
+
+`scripts/check_second_opinions.py` keeps both lists. Five quantities derived twice with the agreement
+bound; five with one derivation and what that costs. The second list is the half worth reading, and
+its largest entry is the aging drift model - corrected twice, in W-INTL-232 for its structure and
+W-INTL-242 for its quadrature, both times by reading rather than by comparison.
+
+### And the first quantity it pointed at gave up a theorem
+
+W-INTL-231 converted the published 241.0 Shannon bits into a min-entropy by fitting a Gaussian spread
+of per-position biases, and recorded the equal-bias case as "the pessimistic end" - one reading among
+several, offered as a bracket.
+
+It is not a reading. It is the floor.
+
+The source has 256 independent positions whose Shannon entropies sum to 241.0, and min-entropy of
+independent bits is the sum of the per-bit min-entropies. Min-entropy is a **convex** function of
+Shannon entropy per bit, so by Jensen that sum is minimised when every position carries the same
+Shannon entropy. The equal-bias figure is therefore the least min-entropy any bias distribution with
+this Shannon total can have - including distributions nobody has thought of.
+
+  distribution-free floor   0.6404   163.9 bits
+  the Gaussian fit          0.7162
+  ceiling, the published    0.9414   min-entropy never exceeds Shannon
+  the design is sized at    0.5728   below the floor
+
+**So the construction survives any bias distribution the source could have, not only the one this
+project assumed.** The Gaussian spread stops being load-bearing and becomes a point estimate inside a
+proven interval.
+
+The convexity is checked on every run over thirty-eight intervals rather than asserted, and the
+violation count is bound as a figure - zero. Inverting the comparison makes it report thirty-eight,
+which is the control. A numerical claim nobody re-evaluates is the shape this project has found six
+times, and this one carries a bound.
+
+## W-INTL-246  The register was wrong within one iteration, and the check now computes
+
+Severity: method. A register that asserts goes stale; one that computes cannot.
+
+W-INTL-245 wrote `check_second_opinions` as two lists: quantities with two derivations, with a note
+saying where the agreement was bound, and quantities with one. It named the aging drift model as
+"the largest quantity in the work with no second path".
+
+That was wrong when it was written. `multi_condition_enrolment` at a zero temperature term is exactly
+`aged_selected_ber`, and has been since W-INTL-237 - two loops earlier, by this same author. The two
+agree to 0.82 standard errors.
+
+The error ran in the harmless direction, claiming less coverage than exists. A list that can be wrong
+one way can be wrong the other, and the version that would have mattered is the one asserting an
+agreement that is not there.
+
+So the check computes now. Three quantities are derived both ways inside it and compared on every
+run, and the min-entropy conversion is checked to sit inside its proven interval:
+
+  post-selection min-entropy density           0.58894 / 0.591725
+  selected error rate at ten years             0.00367731 / 0.0037856
+  ordering min-entropy, twelve oscillators     25.1106 / 25.8133
+  min-entropy sandwich                         0.6404 <= 0.7160 <= 0.9414
+
+The ordering pair is compared at twelve oscillators rather than fifty-four, because the Monte Carlo
+fails its own impossibility test above fourteen - W-INTL-240 - and a comparison against a figure
+known to be wrong is not a comparison.
+
+### What the comparisons cannot see
+
+Each now prints its resolution, and this is the part worth keeping.
+
+  post-selection density        resolves above 2 percent
+  selected error rate           resolves above 10 percent
+  ordering entropy              resolves above 5 percent
+
+A sampling comparison can only see a difference larger than its own noise. **The aging comparison
+cannot resolve the eight percent modelling error that W-INTL-232 corrected** - that break is 1.4
+standard errors at this sample size, and the check would pass it. The control that fires had to break
+the derivation by twenty-two standard errors.
+
+A check whose power is unstated reads as coverage it does not have. This one says what it would miss.
+
+### The list that remains
+
+Five quantities have one derivation, and the largest is now every synthesised area: `verify_inputs`
+re-runs yosys, which checks transcription rather than derivation, and a second path would count cells
+in the netlist against the liberty file. Two of those areas cannot be re-measured at all - W-INTL-233.
+
+## W-INTL-247  The comparison can now see the defect it was built after
+
+Severity: method, and it closes the gap W-INTL-246 named in the same breath as finding it.
+
+That entry made the second-opinion register compute its comparisons and print what each can resolve.
+The aging pair resolved ten percent, and the modelling error W-INTL-232 corrected was eight - so the
+check that exists because of that defect could not have seen it.
+
+The noise was almost all Bernoulli. At an error rate near 0.0037, drawing the regeneration noise and
+counting whether the bit flipped puts a standard deviation of 0.061 on a quantity of 0.0037; the
+sampling of the difference and the drift contributes far less.
+
+So the estimator accumulates the CONDITIONAL probability of a flip for each kept position instead of
+a zero or a one. Everything the closed form assumes is still simulated - the finite-sample ranking,
+the drift, the enrolment noise - and only the last coin toss is replaced by its expectation. That is
+a variance reduction rather than a different question, which is the distinction that decides whether
+a second opinion is still a second opinion.
+
+  flip-counting, 400,000 samples      resolves above 10.5 percent
+  conditional,   400,000 samples      resolves above  5.0
+  conditional, 1,600,000 samples      resolves above  2.5      in under three seconds
+
+Stratifying the difference was tried and does not help - the variance lives in the drift and in the
+spread of the conditional probabilities - and that is measured rather than assumed.
+
+### The control is now the defect
+
+The CI control for this comparison was an artificial break of twenty-two standard errors, chosen
+because nothing smaller would fire. It is W-INTL-232's actual quadrature now - folding the drift into
+the enrolment noise - and the check catches it at **9.69 standard errors**.
+
+A control that replays a real historical defect is worth more than one invented to be large enough:
+it is the statement that this check would have caught the last bug of its kind, which is the only
+useful thing a check can claim about the future.
+
+## W-INTL-248  Eighteen controls could not say what they guard
+
+Severity: method, and it turns W-INTL-247's lesson into a rule with a number attached.
+
+That entry recorded that a control replaying a real historical defect is worth more than one invented
+to be large enough, because only the first says the check would have caught the last bug of its kind.
+This asks how many of the fifty-seven controls could make that claim.
+
+Thirty-nine named a finding near themselves. Eighteen did not: mutations chosen to make something
+red, which proves the wiring and says nothing about whether the check catches the thing it exists
+for. All eighteen are attributed now, by reading each mutation and finding the entry whose defect it
+restores.
+
+### What the gap did NOT mean
+
+The repository has 213 recorded findings and thirty-two now have a control that replays them. Read
+carelessly that says 181 defects are unprotected, and it does not, because most closed findings are
+corrections to a figure and the sixty-nine bound figures catch those generically.
+
+Tested rather than asserted. Restoring W-INTL-221's hand-edited status page goes red on
+`check_status_current`; restoring W-INTL-225's wrong joint-sweep cell goes red on
+`check_figures_reproduce`; neither has a control naming it. The narrower and worse reading is the
+right one: for eighteen controls nobody could say which defect they guard, so nobody could say
+whether they still guard it.
+
+### Three things the check found while being written
+
+**A status row that had stopped being true.** W-INTL-240 was still marked open although W-INTL-241
+settled it exactly one loop later. The check noticed because a control cited it and the citation had
+to resolve.
+
+**A rule of mine that was too strict.** The first version required a cited finding to be *closed*.
+Two controls guard findings the audit keeps open on purpose - the units method finding and the
+environmental omission - and a control against an open finding is the useful kind: it is the guard
+that the fix holds while the question stays open. Relaxed to "the audit has a status row".
+
+**Two attributions I guessed wrong.** I assigned the provenance-marker and concession controls to
+W-INTL-131 and W-INTL-127 from memory; neither entry exists. They are W-INTL-178 and W-INTL-150, found
+by searching the audit for the defect rather than for the number. The check caught both, which is the
+argument for making the citation resolve rather than merely appear.
+
+### The control had to be moved to another file
+
+Mutating a comment in the workflow makes the anchor appear twice - once as the comment and once as
+the control's own argument - which is W-INTL-181's self-reference and what `control.py` now refuses as
+ambiguous. The control mutates the audit instead, removing the status row a citation points at.
+
+## W-INTL-249  Nothing required an exemption to say why
+
+Severity: small in consequence, exact in class, and found because a control of mine was wrong.
+
+Restoring W-INTL-217's defect - an exclusion kept without a reason - the mutation removed the
+exclusion entirely instead, and the check passed. That was the control being wrong rather than the
+check being weak, and it is the third time in three loops that a control perturbed the computation
+instead of breaking the claim. Writing the right mutation raised the real question: does anything
+require an exclusion's reason to exist?
+
+Nothing did. Ten exemption registries across nine files, every one carrying reasons by convention,
+and an empty string would have passed all of them. Four checks print "with reasons" in their OK
+lines, which is a claim nobody was verifying.
+
+Four entries were in that state and are now written out:
+
+  _SKIP["check_input_coverage.py"]     nine characters
+  _SKIP["check_commit_claims.py"]      twenty-two
+  _SKIP["check_control_anchors.py"]    eighteen
+  ALLOWED                              a SET, so no reasons at all
+
+The last is the interesting one. `ALLOWED` in `check_input_coverage` held its single entry's reason
+in a comment above the declaration, where a reason goes to stop being checkable - the same shape this
+project has found four times as prose sitting next to code. It is a mapping now.
+
+`scripts/check_exemptions_have_reasons.py` walks the syntax for module-level dicts and sets whose
+name is an exemption name, and fails on a missing reason, a set instead of a mapping, or a reason
+under twenty-four characters, which is a label rather than an explanation. Thirty-five exemptions
+across ten registries pass it.
+
+Discovered rather than listed, because W-INTL-243 and W-INTL-244 are what a list does.
+
+## W-INTL-250  The control harness could read the cache it refused to write
+
+Severity: high as an apparatus failure. It is the fifth distinct way a control here has reported
+success while testing nothing, and unlike the other four it affects every control at once.
+
+W-INTL-248 asked how many controls name the defect they replay. This asked the other half - of the
+findings with no control, how many would a check catch anyway - and `scripts/replay_defects.py` runs
+that survey: restore a past defect, run every fast check, report which notice, restore by hash.
+
+Nine defects replayed. Eight caught. The ninth was **W-INTL-231**, the Shannon entropy declared under
+the min-entropy name, which is the most consequential correction in this work. Reported: NOTHING
+CAUGHT.
+
+Run alone it is caught immediately. Run in the survey it is not, and the survey does not give the
+same answer twice.
+
+### Why
+
+`control.py` sets `PYTHONDONTWRITEBYTECODE=1`, which stops the run from WRITING a stale cache and
+does nothing about READING one already on disk. Python's cache is keyed on the source file's size and
+modification time, so a mutation preserving length within the same second is invisible to the
+interpreter.
+
+`MIN_ENTROPY_BITS = 183.3` and `MIN_ENTROPY_BITS = 241.0` are both twenty-four characters.
+
+The file demonstrating this hazard is `control.py` itself. Its `--self-test` has reproduced it since
+W-INTL-151, with an equal-length swap shown invisible and a different-length swap shown visible, and
+it clears a temporary directory to do so. **The real path never cleared anything.** The mitigation
+was half the fix, demonstrated in full, for ninety loops.
+
+`control.py` now removes every `__pycache__` under the repository before running the check.
+
+### What it means for the fifty-eight controls
+
+Any control whose mutation preserves length was capable of silently testing nothing, whenever a
+cached module was on disk - which is whenever anyone had run a check outside the harness. Length is
+preserved by: swapping a digit, changing `>` to `<`, changing `True` to `Fals`, and by a good number
+of the substitutions in the workflow. This did not make them wrong; it made them unreliable, in a way
+that shows up as a control quietly passing.
+
+### And the survey overstated its own breadth
+
+Every caught row named the same four checks. That is one detection cascading: `check_status_current`
+regenerates a page whose content includes the recommendation line, so a failure in
+`check_figures_reproduce` propagates. The table reports which checks fire, not which own the defect,
+and W-INTL-249's row is credited to `check_control_anchors` because a CI control anchors on the very
+text being mutated. Both are stated in the file rather than left for a reader to infer.
+
+## W-INTL-251  Two hundred measurements and no proof, and the first control refuted its own theorem
+
+Severity: high as a gap and the entry is mostly about what happened when it was filled.
+
+Every entry in this file up to here is a measurement. A measurement says what this
+construction does at this operating point; a bound says what no construction can do at any
+operating point. Nothing here had ever said the second kind of thing, which is why the
+twelve-loop arc W-INTL-117 diagnosed could optimise inside one framing for twelve loops
+without anything contradicting it, and why the reversal in W-INTL-118 could only answer
+"does this code beat that code" and not "is either near the limit".
+
+research/theory_bounds.py states four theorems and one conjecture, each with a numerical
+control that runs in the models job.
+
+Theorem 1. For d ~ N(0,1) fixed at manufacture and read noise n ~ N(0, sigma^2), the raw
+bit error rate is exactly arccos(rho)/pi with rho = 1/sqrt(1+sigma^2). Proof by Sheppard's
+orthant formula for the centred bivariate Gaussian (d, d+n). The control agrees with the
+4,000-point numerical integral this project has been using to 1.4e-7, and the integral had
+never been checked against anything. The inverse is closed form too, which retires a
+bisection search.
+
+Theorem 2. The minimum helper data for a reliable-bit selection of fraction f over n
+positions is exactly n*h(f) bits, for any encoding, and the differential encoding of the
+gaps attains it. Proof: the helper data is a lossless code for a Bernoulli(f) mask of
+length n, so Shannon bounds it below by n*h(f); the gaps are Geometric(f) with entropy
+h(f)/f each and there are f*n of them. The cost is therefore linear in positions read and
+not in positions kept, and it is worst at f = 1/2.
+
+Theorem 3. If the response bit is sign(d) with d symmetric and selection depends on the
+measurements only through a statistic invariant under d -> -d, the mask is independent of
+the bits and the pointers leak zero key bits. Holds for perfect ranking, where the
+statistic is |d|, and for the achievable vote-margin estimator, where d -> -d maps the vote
+count k -> r-k and fixes the margin while flipping the bit. Control: the share of ones
+among selected positions is 0.4983 to 0.5008 for both rules at three fractions.
+
+Theorem 4 is the one that matters and it is stated in the next entry.
+
+The conjecture: the excess error of the vote-margin estimator over perfect ranking decays
+as Theta(1/r) in enrolment reads. Numerically the product of excess and r moves from 0.129
+to 0.161 across r = 5 to 101, a quarter over a twentyfold range. That is support and it is
+not a proof, and the entry says so.
+
+What actually happened is the useful part. Theorem 4's control asserted monotonicity and
+failed on the first run, on the quantity the theorem is about. The theorem was right and the
+way it had been computed was wrong; see the next entry. This is the first assertion in this
+repository to catch an error in the reasoning rather than in a figure, and it caught it
+inside the same file, before the claim reached a document.
+
+## W-INTL-252  An effective bit error rate is a lossy summary, and every comparison here is stated in one
+
+Severity: critical as a correction of method. It does not overturn a number in a document
+and it changes what the numbers can be read as saying.
+
+Theorem 4. With q(d) = Phi(-|d|/sigma) the per-position flip probability, define the
+extraction density of a selection rule S as the integral of (1 - h(q(d))) over S. Then C is
+monotone under inclusion, strictly on positions with q < 1/2, so C(f) < C(1) for every
+f < 1: selecting a proper subset strictly reduces the information extractable per position
+read, and no inner code of any strength recovers the difference. Proof: each read is one
+use of a binary symmetric channel of capacity 1 - h(q(d)) >= 0, the positions are
+independent, capacities of parallel channels add, and a selection rule is the policy that
+refuses some of them.
+
+Computed the natural way, the theorem is false. Summarise the selected set by its average
+error rate p_eff and treat it as one binary symmetric channel, giving f*(1 - h(p_eff(f))) -
+which is the quantity this project's own W-INTL-118 reasoned with and the quantity every
+row of the dissertation's comparison table is stated in. That expression peaks at f = 0.85
+at six percent raw error and falls eleven percent by f = 1. At nine percent it peaks at 0.85
+and falls thirteen percent; at fifteen percent it peaks at 0.70 and falls seventeen percent.
+The control now asserts both facts: that C is monotone and that the naive summary is not.
+
+The contradiction is Jensen's inequality. The map q -> 1 - h(q) is convex, so
+E[1 - h(q)] >= 1 - h(E[q]), and averaging the error rate before substituting it understates
+capacity by exactly what the spread of q carries. The spread is largest at f = 1, because
+that is the only set still containing both the near-certain positions and the coin flips, so
+the naive expression is most wrong precisely where the theorem is tightest.
+
+The consequence is the finding. An effective bit error rate discards the reliability
+distribution, and the reliability distribution is the entire resource that reliable-bit
+selection exploits. Every construction comparison in this repository, every row of the
+dissertation's table, and the whole framing of W-INTL-118 are stated in that summary. They
+are not thereby wrong - they compare implementations that really do operate on hard
+decisions - but none of them can be read as a statement about what is achievable, and
+W-INTL-118 came within one assumption of being read that way.
+
+It also disposes of the opening W-INTL-118 left. Whether a convolutional code with Viterbi
+decoding reverses that verdict is answered no for the capacity question and for every inner
+code at once. Selection is a hard quantisation of reliability side information: it uses the
+information once, to decide, and then throws it away. A soft-decision decoder uses the same
+information as a weight and keeps every position, and it dominates. Selection is an
+implementation trade - a weaker inner code bought with positions - and never a capacity
+improvement. What remains open is finite-length coding efficiency, which can move the
+selection column down only as far as selection's own floor, and that floor is above the
+f = 1 floor by the theorem.
+
+## W-INTL-253  The floor is set by the source and not by the error correction, and both constructions are far above it
+
+Severity: high, and it reframes what the remaining engineering is for.
+
+Two independent floors on response positions for a 128-bit key, computed at the declared
+six percent raw error rate.
+
+The channel floor is KEY_BITS divided by C(1) from the theorem above: 0.8054 secret bits per
+position, so 159 positions. The min-entropy floor is KEY_BITS divided by the measured
+min-entropy density of 0.7160 bits per position, so 179 positions. The min-entropy floor
+binds. That is a fact about this device rather than about any construction, and it means the
+honest target for this design is set by the oscillator bank and not by the code.
+
+Against 179: SLLC as measured here needs 635 positions, 3.5 times the floor. Reliable-bit
+selection paired with repetition needs 1,211, 6.8 times. Neither is near optimal, both are
+within a factor of seven, and the distance between them is smaller than the distance from
+either to the floor. Six loops of choosing between them were spent inside a factor of two of
+each other while a factor of 3.5 sat unexamined.
+
+This does not make either construction wrong. Finite-length codes do not reach capacity, a
+decoder has to fit in sixteen tiles, and the floor assumes a soft-decision decoder with
+per-position reliability at regeneration, which this design does not have and has never
+budgeted. It does mean the gap has a name and a size now, and that the next reduction is
+more likely to come from using the reliability information rather than from choosing between
+two ways of discarding it.
+
+## W-INTL-254  The converse bound has published prior art, from the group whose dissertation this project is reading
+
+Severity: high for novelty, and the timing is the part worth keeping.
+
+Maringer and Hiller, Information Theoretic Analysis of PUF-Based Tamper Protection,
+arXiv:2502.03221, February 2025, derives converse lower bounds on the number of PUF cells
+needed at a given security level, reporting at least 459 cells for 128-bit security under
+three-bit quantisation and 1,400 cells under an erasure attacker model, and establishes a
+zero-leakage quantisation and wiretap-coding helper-data algorithm. Verified by direct fetch
+of the abstract page.
+
+The setting is not the same as the one above - three-bit quantisation of an analog cell in a
+tamper-protection wiretap model, against one-bit sign responses from a ring-oscillator bank
+with a measured min-entropy density - so the numbers are not comparable and 459 does not
+replace 179. The kind of result is the same: a converse bound on cells for a 128-bit key.
+And Hiller is an author of the Differential Sequence Coding work this project has spent
+fourteen loops reading. The bound derived above must be presented as a reproduction in this
+project's own model, citing that paper, and not as this project's contribution.
+
+This is the third instance of the pattern W-INTL-32 named and W-INTL-117 escalated: deriving
+a result before searching for it. It is also the first instance caught in the same loop as the
+derivation, because the literature search ran in parallel with the proof rather than after
+it. That is the method change worth keeping, and it is cheap: the search cost nothing that
+the loop was not already spending.
+
+Also from the same search, and unresolved here: arXiv:2510.24422 attacks a PUF-based secure
+binary neural network, tagged a threat and not yet read against this design.
+
+## W-INTL-255  No commercial vendor publishes the number this project competes on
+
+Severity: medium, and it is a positioning finding rather than a defect.
+
+research/competitor_puf_ip_2026-08-13.md surveys eleven commercial PUF lines - Synopsys with
+the acquired Intrinsic ID, PUFsecurity and eMemory, Secure-IC now inside Cadence, Rambus,
+ICTK, Analog Devices ChipDNA, and Verayo, which PitchBook and Craft both record as out of
+business - each verified against the vendor's own materials.
+
+Not one publishes a response-bit count paired with a helper-data size at a stated word error
+rate. The closest are Intrinsic ID's own white paper, which says roughly 0.5 KByte of SRAM
+response is needed for a 128-bit key and separately quotes reconstruction failure below
+1e-12, without tying them together, and its DemoKey datasheet, which gives an activation
+code of 480 or 788 bytes without the corresponding failure rate. Secure-IC publishes
+"Entropy = 128.0 bit" and a reliability "fixed to the desired value". No vendor names
+hashing the helper data into the key as a manipulation countermeasure, which is the
+countermeasure W-INTL-116 found and W-INTL-120 measured and G18 still has open.
+
+The academic literature publishes exactly this pairing, and four figures place this project.
+A DATE 2018 paper reports 1,060 raw bits and 932 helper bits for a 128-bit key at 1e-6 with
+a 10.22 percent average error rate, reducible to 288 helper bits with bit selection and
+lossless compression. arXiv:2508.07510, 2025, reports a 128-bit key from 1,024 SRAM bits and
+896 helper bits at fifteen percent error with failure below 1e-9. The MIT trapdoor
+computation paper reports 450 to 1,870 helper bits, against PUFKY's 2,052.
+
+Two consequences. The comparison that matters is against the literature and not against the
+vendors, because the vendors do not publish the axis. And the 288 compressed helper bits in
+the DATE row are a direct test of Theorem 2: at n = 1,060 that is h(f) = 0.272, so f = 0.046
+or 0.954, and which of the two it is decides whether that row is a selection of the reliable
+few or a rejection of the unreliable few. It is not stated in what was retrieved and it is
+the next thing to read.
+
+## W-INTL-256  The compressed helper total does not identify the selection convention
+
+Severity: medium as a literature-reading gap. The repository had the 288-bit figure
+and Theorem 2 had the entropy lower bound, but no executable calculation re-read the
+external row. That left a reviewer able to ask whether the selected fraction was the
+small retained set or its complement.
+
+The new model `research/date_helper_ambiguity.py` [measured] computes the mask-entropy equation
+for the cited DATE 2018 row
+(https://past.date-conference.com/proceedings-archive/2018/pdf/0479.pdf). With
+\(n=1060\) and 288 compressed helper bits, the target is \(h(f)=288/1060\).
+[proved] Binary entropy is symmetric, so the equation has two branches:
+\(f=0.046582\), about 49.4 retained positions, and
+\(1-f=0.953418\), about 1010.6 retained positions. Recomputing \(n h(f)\)
+returns 288.000000 bits on both branches, and
+`scripts/check_models_run.py` pins this numerical control in CI.
+
+The calculation does not identify which branch the DATE implementation means.
+The source's exact selection convention and representation must be read before
+the row is used to support a retained-bit or discarded-bit comparison.
+[open conjecture] Until that reading is done, the honest statement is that 288
+bits is consistent with either side of the symmetric mask-entropy equation, not
+that it proves one selection fraction.
+
+Action: read the cited paper's encoding definition and update the model only if
+the convention resolves the branch. Keep both branches in the control so a future
+change cannot turn an ambiguous external figure into an asserted one.
+
+## W-INTL-257  The DATE table separates the selected mask from its syndrome
+
+Severity: medium as a correction of source interpretation. It supersedes the
+branch ambiguity for the Table 1 row, but it does not erase the earlier
+calculation: the introductory sentence and the table use 288 in different
+ways and that mismatch remains open.
+
+The cited DATE 2018 paper says that a one in its mask codeword means that the
+corresponding SRAM cell is reliable and selected for key generation. Its Table 1
+then decomposes the Dark-bit row as 256 mask bits plus a 32-bit syndrome, for
+288 total helper bits, over 1,060 raw positions. The selected fraction is
+therefore 256/1060 = 0.241509433962264, and the rejected complement is
+804/1060 = 0.758490566037736. This is [measured] from the source row and its
+explicit convention, not inferred from entropy symmetry.
+
+`research/date_source_convention.py` [measured] recomputes the split and pins
+it in `scripts/check_models_run.py`. It also computes
+`1060*h(256/1060) = 845.393903` bits. That number is deliberately not treated
+as the row's 288-bit helper total: the row contains a 256-bit reliability mask
+and a 32-bit BCH syndrome, and the mask is selected by a reliability threshold,
+not declared to be an iid Bernoulli mask. [proved] The arithmetic therefore
+invalidates the previous assignment of all 288 bits to one mask-entropy
+equation, while preserving `date_helper_ambiguity.py` as a record of what the
+equation alone can and cannot identify.
+
+The source still contains a wording mismatch: the introduction calls 288 bits
+the result of bit selection with lossless compression, while Table 1 labels the
+288-bit row Dark-bit and labels its Lossless row 244 mask plus 32 syndrome,
+276 total. [open conjecture] The selected-versus-rejected convention is settled
+for the table row; the provenance of the introductory 288-bit sentence needs a
+source-level reconciliation before either figure is used as a like-for-like
+compression comparison.
+
+
+## W-INTL-258  The mean BER hides capacity carried by the reliability distribution
+
+Severity: critical as a method finding, and measured rather than resolved by argument.
+
+The prior entry named the defect: every comparison in this work reports one effective bit
+error rate, although reliable-bit selection creates a population of positions with different
+crossover probabilities. The existing theorem in `research/theory_bounds.py` gives the
+convexity direction for an ideal Gaussian selection model. This loop makes the correction an
+independent numerical artefact over explicit parallel binary symmetric channels rather than
+leaving it as a theorem printout.
+
+`research/effective_ber_capacity.py` evaluates each position as a binary symmetric channel
+and compares the sum of its capacities with the capacity of a single channel whose crossover
+probability is the arithmetic mean. At mean BER 0.060000, 1,000 homogeneous positions give
+672.555081 bits either way. Two mean-matched heterogeneous populations give 684.569163 bits
+versus the scalar proxy, a gap of 12.014082, and 731.056347 versus the same proxy, a gap of
+58.501266. A 40/60 population at 0.010000 and 0.0933333333, also mean BER 0.060000, gives
+699.183193 exact bits versus 672.555081 scalar bits, a gap of 26.628112.
+
+These are [measured] numerical capacity comparisons, not finite-length BCH or convolutional
+code results. The conclusion that survives is narrow: an effective BER is not sufficient to
+recover the parallel-channel capacity when per-position reliabilities differ. The translation
+from this gap into a decoder's word-failure rate remains [open conjecture] and needs a decoder
+experiment. The 2020 PUF error-correction review explicitly recommends using available
+reliability information, which supports the audit direction but is not a numerical result for
+this construction: https://link.springer.com/article/10.1007/s13389-020-00223-w.
+The converse-bound line is prior art, not a new bound here: arXiv:2502.03221,
+https://arxiv.org/abs/2502.03221.
+
+The model has [proved] controls for the homogeneous equality, equal-mean indistinguishability
+of the scalar proxy, and a positive gap at the current 6 percent operating point. It does not
+close W-INTL-252 as a publication-discipline issue: documents that compare finite constructions
+still need to label an effective-BER column as a proxy and not an achievable limit.
+
+## W-INTL-259  A finite repetition decoder uses reliability information
+
+Severity: medium as a bounded method finding; measured for the toy code and open for BCH.
+
+[measured] The open remainder in W-INTL-258 was narrowed with an exact enumeration for a 15-fold repetition word. At mean BER 0.06, the scalar hard-majority baseline has word error 0.000000737 in all three cases. With the same mean but per-position crossover groups (five positions each at 0.01, 0.06, 0.11), a reliability-aware weighted-LLR decoder gives 0.000000047; with (0.001, 0.06, 0.119), it gives 0.000000000 at the printed precision. The homogeneous control agrees with the scalar baseline to below 1e-12. These are exact independent-BSC sums, not Monte Carlo data and not a BCH result.
+
+[proved] The control establishes only the stated finite repetition model: the probability mass is enumerated by group error counts, and the weighted decision uses the declared per-position log-likelihood weights. [open conjecture] The effect for the project's BCH construction, soft information retention, helper-data binding, and an implementation cost for reliability metadata remain unmeasured. The capacity comparison itself is a reproduction/control of the Varying Binary Symmetric Channel literature, not a new channel theorem; see research/lit_notes_2026-08-16.md and arXiv:2112.02198.
+
+The actionable gate is now specific: run a decoder experiment for the actual BCH construction before converting this toy-code result into a design claim. G16 still requires the dated three-node shared-uplink demonstration on assembled hardware. Hub71 Cohort 20 still closes on 21 August 2026.
+
+## W-INTL-260  Actual BCH decoding changes the finite-length question
+
+Severity: medium as a bounded method finding; measured for BCH(127,57,11) and open for metadata cost and hardware.
+
+[measured] The next bounded experiment uses the repository's actual recommended BCH(127,57,11) construction. `research/bch_reliability_decoder.py` builds its binary generator from GF(2^7) cyclotomic cosets, exercises Berlekamp--Massey plus Chien correction, and compares hard algebraic decoding with a one-bit reliability-aware Chase list over 1,000 deterministic frames per case at the same mean BER 0.06. The mild heterogeneous case has 56 hard-decoder failures versus 38 with the list; the split case has 69 versus 39. A homogeneous control has 79 versus 69, so the result does not isolate heterogeneity from the list mechanism.
+
+[proved] The model corrects deterministic error patterns of every weight from zero through 11 and verifies the corrected word by recomputing all 22 syndromes. [measured] The four printed failure counts are pinned in `scripts/check_models_run.py`; a changed count fails the models job. [open conjecture] This does not establish BCH hardware timing, area, helper-data binding, reliability-metadata retention cost, or performance for a larger Chase list. The unequal-reliability framing is prior art in arXiv:2112.02198, so this is a finite-code reproduction/control rather than a channel-theory contribution. The literature note also records arXiv:2607.17835 as a methodological threat to broad format-plus-hardware selection claims and arXiv:2607.23715 as a threat that narrows the formal-semantics versus RTL gap.
+
+## W-INTL-261  Reliability metadata has a measured finite-code cost curve
+
+Severity: medium as a bounded method finding; measured for metadata precision and open for helper-data binding.
+
+[measured] W-INTL-260 used the exact per-position crossover probabilities in a one-bit
+reliability-aware Chase list, leaving the retention cost of those probabilities open.
+`research/reliability_metadata_cost.py` holds the BCH(127,57,11) decoder and the received
+words fixed while quantising the reliability metadata to 0, 1, 2, 3, or 8 bits per response
+position. Each case uses 200 deterministic frames at mean BER 0.060000; the zero-metadata
+path supplies the scalar 0.06 to the same one-bit candidate list.
+
+The homogeneous control is 22 hard failures and 18 list failures for every metadata width.
+For the mild heterogeneous case, zero bits gives 10 list failures and one bit per position
+(127 metadata bits per word) gives 5; 2, 3, and 8 bits also give 5. For the split case, zero
+bits gives 15 and one bit per position gives 8; the larger widths also give 8. These are
+finite deterministic counts, not an area, FPGA, helper-data, or security result. They show
+that this experiment's measured gain saturates at one bit per response position, not that
+one bit is sufficient for a deployed design.
+
+[proved] The script's controls enforce 127 positions, equal mean BER, a silent homogeneous
+case, and a non-worsening finest quantiser in the finite run; `scripts/check_models_run.py`
+pins the zero- and one-bit rows for both heterogeneous cases. [open conjecture] The encoding
+of metadata into helper data, its binding to the key equation, larger Chase lists, and an
+implementation cost remain unmeasured. The unequal-reliability channel framing is prior art,
+not a new theorem: arXiv:2112.02198, https://arxiv.org/abs/2112.02198. Two adjacent reliability
+works were checked directly: probabilistic failure curves in arXiv:2602.11362,
+https://arxiv.org/abs/2602.11362, and reliable communication under dynamic topology in
+arXiv:2503.22452, https://arxiv.org/abs/2503.22452. Neither supplies this finite BCH
+metadata experiment.
+
+G16 still requires the dated three-node shared-uplink demonstration on assembled hardware.
+Hub71 Cohort 20 still closes on 21 August 2026.
+
+## W-INTL-262  Helper data reaches the key equation, but the result is only a finite control
+
+Severity: medium as a bounded implementation finding; measured in software for the recommended BCH(127,57,11) chain and open for security, leakage, and hardware.
+
+[measured] `research/helper_data_binding.py` adds the missing finite key-equation path. It packs the six-block syndrome helper into 924 canonical bits, derives `K = S xor H(W)`, and holds the recovered response fixed while sampling 2,048 deterministic one-bit helper mutations across 64 enrolment trials. Clean reconstruction matches the enrolled bound key in 64/64 trials. For the direct mutation control, the bound key matches the enrolled key in 0/2,048 samples, while the deliberately unbound response digest is unchanged in 2,048/2,048 samples. With the actual syndrome decoder, one of 2,048 altered-helper trials returned a candidate; none returned the enrolled bound key, and the other 2,047 were refused.
+
+[proved] The direct control establishes the stated byte-level property of this hash binding for the sampled finite inputs: changing the helper bytes changes the bound digest in every sample, while a key that omits the helper is invariant by construction. It does not prove collision resistance, robustness, or resistance to an active attack. The literature search ran in parallel with the implementation and records public-helper-data leakage attacks in IACR ePrint 2020/888, finite-blocklength and tamper-protection bounds in arXiv:2502.03221, and unequal-reliability PUF channels in arXiv:2112.02198. Those works are prior art and set the boundary of this control rather than supplying its numbers.
+
+[open conjecture] This is not a deployed helper-data format, leakage bound, side-channel result, FPGA result, or security proof. The exact encoding policy, adversarial decoder strategy, larger candidate lists, implementation cost, and G16 three-node shared-uplink demonstration remain open. Hub71 Cohort 20 still closes on 21 August 2026.
+
+
+## W-INTL-263  The syndrome helper has 154 emitted bits but a 70-bit binary image
+
+Severity: medium as a bounded representation finding; measured in software for the recommended BCH(127,57,11) chain and open for leakage, deployment, and hardware.
+
+[measured] `research/syndrome_basis_compression.py` derives the binary image of one BCH(127,57,11) parity-check map from the repository's own `syndromes` function. The 22 GF(2^7) symbols expose 154 emitted bits per block, but the binary map has rank 70 = n-k. Across six blocks, the existing canonical helper contains 924 semantic bits (116 packed bytes), while deterministic basis coordinates contain 420 semantic bits (53 packed bytes): 504 semantic bits and 63 packed bytes fewer, a 54.54545454545455 percent semantic reduction.
+
+[proved] The rank is computed by binary elimination over all 127 one-hot response columns, and every sampled helper reconstructs exactly. The control runs 64 deterministic enrolment trials, obtains 64/64 exact helper round-trips, agrees with the full helper in 64/64 decoder outputs at BER 0.02, and exercises 26,880 independent one-coordinate mutations without an alias. This is a representation control, not a new security bound.
+
+The literature search ran in parallel with the implementation. The rank criterion and syndrome-space security boundary are prior art in IACR ePrint 2016/854, public-helper-data leakage attacks include BCH in IACR ePrint 2020/888, and finite-blocklength/converse helper-data bounds are in arXiv:2502.03221. Those sources prevent reading the 504-bit storage reduction as a 504-bit security gain.
+
+[open conjecture] The coordinate encoding is not a deployed wire format, leakage estimate, collision-resistance result, active-attacker guarantee, side-channel result, area/timing result, FPGA result, or G16 demonstration. The semantic helper-data bound, adversarial decoder strategy, and hardware integration remain open. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20 still closes on 21 August 2026.
+
+## W-INTL-264  The syndrome image has an exact membership boundary
+
+Severity: medium as a bounded representation finding; measured in software for the recommended BCH(127,57,11) chain and open for leakage, deployment, and hardware.
+
+[measured] W-INTL-263 compressed the BCH helper to rank-sized coordinates. This follow-up tests the boundary rather than only the round-trip: one 22-symbol helper block emits 154 bits, while the binary syndrome image has rank 70 and codimension 84. Across 64 deterministic enrolment trials (384 block helpers), every enrolled helper was accepted by the exact membership test. Across 256 uniformly sampled 154-bit ambient words, all 256 were rejected as non-syndromes. A nearby one-symbol-bit perturbation control rejected 212 of 256 and left 44 in the image, showing why “one changed helper bit” is not itself a universal invalidity test.
+
+[proved] Membership is decided by the repository's binary elimination map, not by a heuristic or by a decoder success flag. The image contains 2^70 of 2^154 ambient words, so its exact fraction is 2^-84. [measured] The sampled controls agree with that finite-domain contract: valid helpers are accepted, arbitrary ambient words are rejected, and perturbations are reported in both outcomes rather than forced into a binary story.
+
+The literature search ran in parallel with implementation. The rank/security boundary is prior art in IACR ePrint 2016/854, public-helper-data leakage including syndrome constructions is a known threat in IACR ePrint 2020/888, and finite PUF bounds are treated in arXiv:2502.03221. arXiv:2603.15320 shows that helper-data size is tied to physical error targets in an SRAM-PUF setting; it does not supply a number for this BCH chain. FormalRTL (arXiv:2603.08738) and ARCH HDL (arXiv:2607.23715) are adjacent formal-RTL work, not evidence for this finite membership control.
+
+[open conjecture] The 2^-84 image fraction is a representation fact, not a leakage estimate or a security margin. The control does not establish collision resistance, an active-attacker guarantee, helper-data encoding policy, side-channel resistance, area/timing, FPGA integration, or the G16 three-node shared-uplink demonstration. The catalog remains 83 formats and the HW Tier-E union remains approximately 49-55/83. Hub71 Cohort 20 closes on 21 August 2026.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6664,7 +7465,17 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-210 | closed; five declared inputs read by nobody, two of them measured areas nothing verified - now twenty-nine areas re-synthesise and three are retained with reasons |
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
-| W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
+| W-INTL-250 | closed; control.py refused to write a stale bytecode cache and never refused to read one, so any length-preserving mutation could silently test nothing - found by a corpus replay reporting NOTHING CAUGHT for W-INTL-231, whose two values are both twenty-four characters |
+| W-INTL-249 | closed; nothing required an exemption to carry a reason, four were labels or absent and one registry was a set with its reason in a comment - all written out, and a check now walks the syntax for exemption registries |
+| W-INTL-248 | closed; eighteen of fifty-seven controls named no finding, so nobody could say which defect they guard - all attributed, and the check found a stale status row, a rule of mine that was too strict, and two attributions I had guessed wrong |
+| W-INTL-247 | closed; the aging cross-check resolved 10 percent against an 8 percent historical defect, so the estimator accumulates the conditional flip probability rather than tossing the coin - 2.5 percent resolution, and the CI control is now W-INTL-232's actual defect, caught at 9.69 standard errors |
+| W-INTL-246 | closed; the second-opinion register asserted rather than computed and was wrong within one iteration - the aging model's second path had existed since W-INTL-237 - so it computes three comparisons on every run and prints what each can resolve, which for the aging pair is 10 percent against the 8 percent error W-INTL-232 fixed |
+| W-INTL-245 | closed; a register of which quantities have two derivations and which have one, and the first it pointed at gave up a theorem - min-entropy is convex in Shannon entropy, so the equal-bias figure is a distribution-free floor at 0.6404 and the design is sized below it |
+| W-INTL-244 | closed; four models ran pinning no figure and two were the end-to-end chain and the SLLC generator - the two-witness argument, corroborated by nothing since W-INTL-229 re-pointed it - now bound from both sides, and the check discovers unpinned models rather than listing pinned ones |
+| W-INTL-243 | closed; the convergence check listed six cases where fourteen functions take a resolution argument - it discovers them now and requires each to be exercised or exempt with a reason, and the sweep found the remaining integrators sound |
+| W-INTL-242 | closed; aged_selected_ber divided by a count of surviving samples rather than integrating the kept tail, so five call sites at 600 steps and one at 4,000 got answers 0.2 percent apart with every check green - fixed, and a check now requires every integrator to agree with itself across resolutions |
+| W-INTL-241 | closed; the chain of inequalities makes the integral one-dimensional, so the ordering entropy is exact rather than extrapolated - 215.3 bits at 54 oscillators, margin 1.069, and the crossing is two blocks out rather than four |
+| W-INTL-240 | closed by W-INTL-241, which computed the same quantity exactly and left this entry as the record of what the Monte Carlo could and could not say; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |
@@ -6716,3 +7527,17 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |
 | W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |
+| W-INTL-251 | closed; four theorems with controls in CI, and the first control refuted its own theorem's stated form before the claim left the file |
+| W-INTL-252 | open as a method finding, critical; an effective bit error rate understates capacity by eleven to seventeen percent through Jensen, and every comparison here is stated in one |
+| W-INTL-253 | open as a target; the floor is 179 positions, set by min-entropy and not by the code, and both constructions sit 3.5 to 6.8 times above it |
+| W-INTL-254 | open for novelty; arXiv:2502.03221 derives converse bounds of this kind, from an author of the Differential Sequence Coding work this project reads, so the bound is a reproduction |
+| W-INTL-255 | closed; eleven commercial PUF lines publish no response-bit and helper-data pair at a stated word error rate, so the comparison axis belongs to the literature |
+| W-INTL-256 | open as a literature-reading gap; 288 compressed helper bits at n=1060 has symmetric mask-entropy branches f=0.046582 and f=0.953418, and the source convention is not yet identified |
+| W-INTL-257 | corrected for the DATE Table 1 row; 288 helper bits split into a 256-bit selected mask and 32-bit syndrome, giving selected fraction 0.241509, while the introduction's separate 288-bit wording remains open |
+| W-INTL-258 | measured; explicit per-position BSC capacity exceeds the scalar effective-BER proxy by 12.014082 to 58.501266 bits at the same mean BER, while finite-length decoder impact remains open |
+| W-INTL-259 | measured; exact 15-fold repetition enumeration shows reliability-aware weighted LLR reduces word error at the same mean BER in two heterogeneous controls, while BCH impact and metadata cost remain open |
+| W-INTL-260 | measured; BCH(127,57,11) finite decoding changes from 56 to 38 failures in the mild heterogeneous control and from 69 to 39 in the split control with a one-bit reliability list; helper-data binding, metadata cost, and hardware remain open |
+| W-INTL-261 | measured; at 200 deterministic BCH frames, one metadata bit per response position changes mild list failures 10 to 5 and split list failures 15 to 8 versus zero metadata; helper-data binding and hardware remain open |
+| W-INTL-262 | measured; the finite `K = S xor H(W)` control changes the bound key in 2,048/2,048 direct one-bit helper mutations, while an unbound digest is unchanged; deployment security, leakage, and hardware remain open |
+| W-INTL-263 | measured; BCH syndrome basis coordinates reduce the six-block helper from 924 to 420 semantic bits (116 to 53 packed bytes) with 64/64 reconstruction and decoder agreement; leakage, deployment, and hardware remain open |
+| W-INTL-264 | measured; the 154-bit BCH syndrome space has an exact rank-70 membership boundary: 384/384 valid helpers accepted, 256/256 random ambient words rejected, and 212/256 nearby bit perturbations rejected; the 2^-84 image fraction is not a security or leakage claim |
