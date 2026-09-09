@@ -228,3 +228,25 @@ The other half stays open and is named precisely: the slow-corner liberty
 `sky130_fd_sc_hd__ss_100C_1v60` is not present in this environment, so the derate has not been
 measured. An argument that a constraint is slack by a factor of ten is not the same as measuring it,
 and this register's own rule is to say which one a row is.
+
+
+## What no constraint in this register is
+
+Every row above is a constraint on a design. None is a bound on what any design could do,
+and until 2026-08-13 nothing in this project was. research/theory_bounds.py adds four
+proved statements with controls in CI, and the one that binds is a floor of 179 response
+positions for a 128-bit key - set by the measured min-entropy density of 0.7160 bits per
+position, not by the error correction, because the channel floor at six percent raw error
+is 159 and the source floor is above it.
+
+SLLC at 635 positions is 3.5 times that floor and reliable-bit selection with repetition at
+1,211 is 6.8 times. The two constructions this register has been arbitrating between are
+closer to each other than either is to the floor.
+
+The floor assumes a soft-decision decoder holding per-position reliability at regeneration,
+which this design does not have and has never budgeted. That is the first unchecked
+constraint that is a lever rather than a risk, and it is recorded above.
+
+Prior art: Maringer and Hiller, arXiv:2502.03221, derive converse bounds of this kind for a
+different quantisation and attacker model. The bound here is a reproduction in this
+project's own model and is not this project's result.

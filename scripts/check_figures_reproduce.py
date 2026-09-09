@@ -541,6 +541,22 @@ def check_ordering_ceiling():
     _, n, k, t, blocks, _, oscillators, rho_sel = rec
     ceiling = lgamma(oscillators + 1) / log(2.0)
     present = k * blocks * rho_sel
+    # W-INTL-241: the ceiling is not achievable. The orderings are not equiprobable, and
+    # the exact chain integral puts what fifty-four oscillators actually carry at 215
+    # bits rather than 237. Comparing against the ceiling reported a margin of 1.177 and
+    # a crossing four blocks out; against the achievable figure it is 1.069 and two.
+    import ordering_exact as OE
+    achievable = OE.achievable_bits(oscillators)
+    if achievable is not None and present > achievable:
+        failures.append(
+            f"ordering: the accounting claims {present:.1f} bits from {oscillators} "
+            f"oscillators, which achieve {achievable:.1f} - the ceiling of "
+            f"{ceiling:.1f} is not attained because the orderings are not equiprobable")
+    elif achievable is not None and achievable / present < 1.03:
+        failures.append(
+            f"ordering: {achievable:.1f} bits achievable against {present:.1f} claimed, "
+            f"a margin of {achievable / present:.3f} - inside the spread that layout "
+            f"alone produces, so this is a decision rather than a check failure")
     if present > ceiling:
         failures.append(
             f"ordering: the accounting claims {present:.1f} bits from {oscillators} "
