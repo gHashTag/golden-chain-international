@@ -34,6 +34,23 @@ MODELS = ROOT / "research"
 # the name is printed on every run so it stays known.
 HEAVY = {"quantiser_emulation_check.py": "needs torch, which CI does not install"}
 
+# Models that run and pin no figure, each with the reason. W-INTL-244: this file used to
+# hold only the list of models that DO pin one, so a model producing nothing checkable was
+# indistinguishable from a model nobody had got to. Four were in that state, and two of
+# them were the end-to-end chain and the SLLC generator - the two-witness argument this
+# project cites as evidence, corroborated by nothing.
+#
+# The rule from W-INTL-234 was that a limit on how many figures to pin is a decision about
+# which go unpinned. This is that decision, written down.
+UNPINNED = {
+    "bch_code_search.py":
+        "enumerates every BCH code over two fields; its output is a search space rather "
+        "than a figure, and the code it selects is pinned through selection_with_bch",
+    "code_choice_model.py":
+        "a construction table superseded by selection_with_bch, kept for the record of "
+        "what was compared - W-INTL-202 is it having stopped running unnoticed",
+}
+
 
 # One figure per model, recomputed from research/inputs.py and matched against what the
 # model prints. W-INTL-203: running a model proves it does not raise, which is the
@@ -114,6 +131,14 @@ def _tiles_at_worst():
     osc = max(S.floor_ent(I.KEY_BITS), S._r(raw))
     return I.tiles(I.decoder_area(7, t) + I.SLLC_AREA[t] + osc * I.OSCILLATOR_AREA
                    + I.COUNTERMEASURE_AREA["spongent_permutation"])
+
+
+def _word_failure_at(ber):
+    """Word failure of the recommendation at this raw bit error rate. W-INTL-244."""
+    import importlib
+    C = importlib.import_module("check_figures_reproduce")
+    _, n, _, t, blocks, _, _, _ = C.recommendation()
+    return C.word_failure(n, t, blocks, ber)
 
 
 def _burn_in_half():
@@ -199,9 +224,16 @@ def _expected():
         "borrowed_margins.py": (
             r"tightest: min-entropy density at ([\d.]+) times",
             I.MIN_ENTROPY_DENSITY / _density_floor(I, R), 0.02),
-        "min_entropy_from_shannon.py": (
-            r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
-            I.MIN_ENTROPY_DENSITY, 0.0005),
+        "min_entropy_from_shannon.py": [
+            (r"min-entropy, same fitted model\s+[\d.]+\s+([\d.]+)",
+             I.MIN_ENTROPY_DENSITY, 0.0005),
+            # W-INTL-245: the distribution-free floor, and the count of convexity
+            # violations that makes it a theorem rather than a reading. Zero is the
+            # figure; a nonzero one would mean Jensen does not apply and the floor is
+            # not a floor.
+            (r"distribution-free floor\s+([\d.]+)", 0.6404, 0.0005),
+            (r"intervals, (\d+) violations", 0, 0),
+        ],
         # W-INTL-235. The free-headroom figure, recomputed here rather than obtained from
         # the model, because a tripwire calling its own subject is what W-INTL-234 caught.
         "environmental_margin.py": [
@@ -239,12 +271,29 @@ def _expected():
             (r"accounting stops being sound at (\d+) blocks", 10, 0),
         ],
         # W-INTL-240. Both extrapolations, because they straddle the claim and the whole
-        # content of the file is that they disagree - binding one would report a settled
-        # answer where there is a range.
+        # content of that file is that they disagree. Kept bound after W-INTL-241 settled
+        # the question exactly: the Monte Carlo is superseded and its figures still have
+        # to be the figures it produced, or the record of why it was superseded rots.
         "ordering_achievable.py": [
             (r"carried at constant ratio\s+([\d.]+)", 199.8, 1.0),
             (r"carried at constant deficit\s+([\d.]+)", 217.7, 1.0),
         ],
+        # W-INTL-241. The exact figure and the crossing, which is the number that moved -
+        # four blocks against the ceiling, two against what the ordering achieves.
+        "ordering_exact.py": [
+            (r"stops being sound at (\d+) blocks", 8, 0),
+            (r"so the margin runs [\d.]+ to (\d+\.\d+)\.", 1.069, 0.003),
+        ],
+        # W-INTL-244. The two-witness argument: the chain's own Monte Carlo against the
+        # binomial model it is supposed to corroborate. Both figures at the same operating
+        # point, and the model column recomputed here from the recommendation rather than
+        # read from the model that prints it.
+        "key_generator_e2e.py": [
+            (r"\n\s+0\.06\s+\d+\s+([\d.]+)\s", 0.403, 0.02),
+            (r"\n\s+0\.06\s+\d+\s+[\d.]+\s+([\d.]+)", _word_failure_at(0.06), 0.002),
+        ],
+        "sllc_key_generator.py": (
+            r"\n\s+0\.04\s+\d+\s+\d+/\d+\s+([\d.e-]+)", _word_failure_at(0.04), 0.002),
         "nand_ring.py": (
             r"nand2_1 / inv_1 = ([\d.]+)", 1.0, 0.001),
         "selection_with_bch.py": (
@@ -268,6 +317,14 @@ def main():
     only = None
     if "--only" in sys.argv:
         only = sys.argv[sys.argv.index("--only") + 1]
+    # Discovery, not enumeration - W-INTL-243 is this check's sibling learning the same
+    # lesson one loop earlier. Every model with a main block must pin a figure or be
+    # listed in UNPINNED with the reason.
+    with_main = {p.name for p in MODELS.glob("*.py")
+                 if not p.name.startswith("_") and "__main__" in p.read_text()}
+    unlisted = sorted(with_main - set(_expected()) - set(UNPINNED) - set(HEAVY))
+    stale_unpinned = sorted(set(UNPINNED) - with_main)
+
     files = sorted(p for p in MODELS.glob("*.py")
                    if not p.name.startswith("_") and p.name not in HEAVY
                    and (only is None or p.name == only))
@@ -310,6 +367,11 @@ def main():
                     f"{path.name}: prints {got:g} where inputs give {want:.4g} "
                     f"(tolerance {tol})")
 
+    for name in unlisted:
+        failures.append(f"{name} runs and pins no figure, and UNPINNED does not say why")
+    for name in stale_unpinned:
+        failures.append(f"UNPINNED names {name}, which research/ no longer defines")
+
     for f in failures:
         print(f"FAIL: {f}")
     if failures:
@@ -320,6 +382,9 @@ def main():
         print(f"FAIL: {checked} of {len(expected)} declared model figures were checked")
         return 1
     skipped = ", ".join(f"{n} ({why})" for n, why in sorted(HEAVY.items()))
+    if only is None:
+        for name, why in sorted(UNPINNED.items()):
+            print(f"  runs and pins nothing: {name} - {why}")
     print(f"check_models_run: OK ({len(files)} models run, {checked} figures verified"
           + (f"; not run: {skipped})" if skipped else ")"))
     return 0
