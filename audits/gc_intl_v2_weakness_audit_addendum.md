@@ -6489,6 +6489,64 @@ rather than a budget.
 Both extrapolations are bound as figures, because binding one would report a settled answer where
 there is a range, and the range is the finding.
 
+## W-INTL-276  A rule applied outside its domain, in the file that warns against it
+
+Severity: medium as a defect, high as a method finding. The catalog check failed on every pull
+request opened since 2026-08-13, twenty-one of them, and every one of those failures was the
+checker being wrong about the catalog rather than the catalog being wrong about itself.
+
+Two causes, and the first hid the second. The status page went stale at loop 88 and the status step
+runs ninth of thirty-two, so the catalog step was skipped rather than reported from that point on.
+Regenerating the status page would have turned the failure into a different failure, which is worth
+knowing before treating a stale page as the whole of it.
+
+### What the catalog check got wrong
+
+`EXPECTED_FORMATS = 83` compared a live source of truth against a published preprint. The count was
+83 in arXiv:2606.09686v2 of 2026-06-22 and is 109 now: three families arrived - gft4 to gft1024,
+bnf8 to bnf1024, tnf4 to tnf1024, twenty-six entries, 83 + 26 = 109. The documents of this
+repository were already correct about this. The E19 row moved to a dated observation of 109 on
+2026-09-04 and the checker was not moved with it, so for six days the project held both numbers and
+a reader could have taken either as current.
+
+Eighteen of the twenty failures were bias failures on gft and tnf entries, and the field rule was
+asking the wrong question. Those exponents are counted in trits, which the catalog states in the
+field provided for stating it: "e is 7 balanced-ternary TRITS not bits (11.09 bits equivalent)". A
+field of Et trits takes 3^Et values, so the offset that centres it is (3^Et - 1)/2. Every one of the
+eighteen satisfies that exactly - 1093 = (3^7-1)/2 for tnf64, 3280 = (3^8-1)/2 for tnf128, 364 =
+(3^6-1)/2 for gft16 and tnf32, 265720 = (3^12-1)/2 for gft32. The binary offset 2^(e-1)-1 is not
+defined for a trit field, and the entries were never claiming it.
+
+The twentieth failure was the metadata-observation count, declared as 1 while the new entries brought
+it to 6.
+
+### Why the guard against exactly this did not hold
+
+The file carries the lesson already, from a first version that flagged thirty-six correct entries:
+apply the field rule by whitelist, not by exception, because a rule applied outside its domain
+produces noise and noise trains a reader to ignore the checker. The whitelist selects on cluster.
+The eighteen ternary entries are in the GoldenFloat cluster, which is on the whitelist, and the
+cluster grew from 22 entries to 48 to hold them. A cluster is not a layout. The guard was written
+against new clusters and the next case arrived inside an old one.
+
+That is the transferable part. A whitelist admits a category, and a category can change what it
+contains after the whitelist was justified.
+
+### What changed
+
+The field rule now reads the radix the entry declares its exponent in and checks the offset that
+centres a field of that radix. The count declaration is an observation with a date and a commit
+rather than a constant, and `check_count_declaration` fails when it and the E19 row disagree, which
+is the first thing in this file that compares the project against itself. The metadata observations
+are declared as the set of entries rather than as how many, because a count passes when one entry
+stops asserting a measurement and another starts. A fourth control breaks the ternary offset of
+tnf16 and proves the new rule notices; the older three still fire, and the metadata control now
+fires for its own reason instead of on a stale count.
+
+Not claimed: that the catalog is correct. Six entries still assert measurements in metadata fields,
+which is W-INTL-41 and still open, and the check reports them as notes because they live in a
+repository this one cannot edit.
+
 ## Priority order
 
 2. W-INTL-29  settled: a projection was published as a measurement
@@ -6716,3 +6774,4 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-168 | closed; the burn-in differential-scaling assumption swept, and the conclusion holds at both arms |
 | W-INTL-166 | open as a method finding; the same convenient-units error twice in three loops, with the rule against it already in the skill file |
 | W-INTL-164 | closed; a fetched summary asserted a source had no aging content and it has twenty-one mentions - the first time a summary was wrong by asserting absence |
+| W-INTL-276 | closed; the catalog check compared a live count against a published one and applied a binary bias rule to trit exponents, so it failed on twenty-one pull requests for defects that were its own |
