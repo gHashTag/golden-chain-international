@@ -37,14 +37,32 @@ import sys
 DEFAULT_REPO = "gHashTag/t27"
 DEFAULT_PATH = "specs/numeric/formats_catalog.t27"
 
-EXPECTED_FORMATS = 83
+# The catalog size is not a constant. It was 83 when arXiv:2606.09686v2 was published
+# on 2026-06-22 and the SSOT has grown since; the documents of this repository were
+# moved to a dated-observation wording on 2026-09-04, and this file was not moved with
+# them, so the check went on comparing a living number against a published one and
+# failed for twenty-six formats that are simply new. W-INTL-276.
+#
+# What is worth checking is therefore not the size but whether the size still matches
+# the last count somebody recorded. The declaration below is an observation with a date
+# and a commit behind it, not a quotation from a preprint, and check_count_declaration
+# refuses to let it drift away from the E19 row of the evidence ledger - which is the
+# defect this replaces: a document and its checker were updated separately.
+CATALOG_COUNT = 109
+CATALOG_COUNT_DATE = "2026-09-05"
+CATALOG_COUNT_COMMIT = "10889fc7"
+LEDGER = "paper/evidence_ledger.md"
 
 # The metadata-measurement check observes an artefact in another repository, which this
 # project cannot edit. That is a real reason for a note rather than a failure - and a note
 # nobody counts is the pattern this project has now promoted away four times. So the
-# number of outstanding observations is declared instead: the check passes while it
-# matches and fails when it moves, which is the part that needs a human either way.
-EXPECTED_METADATA_OBSERVATIONS = 1
+# outstanding observations are declared instead: the check passes while they match and
+# fails when they move, which is the part that needs a human either way.
+#
+# Declared as the set of entries rather than as how many there are. A count alone passes
+# when one entry stops asserting a measurement and another starts, which is two changes
+# a reader would want to see and no signal at all.
+EXPECTED_METADATA_OBSERVATIONS = {"gf16", "tnf4", "tnf8", "tnf16", "tnf32", "tnf64"}
 EXPECTED_CLUSTERS = 13
 
 # A metadata field is for identifying a format, not for reporting a measurement.
@@ -109,6 +127,26 @@ FIXED_LAYOUT_CLUSTERS = {
     "Microscaling",
 }
 
+# And the same mistake returned through a cluster already on the whitelist. The
+# GoldenFloat cluster grew from 22 entries to 48, and eighteen of the new ones carry an
+# exponent counted in trits rather than in bits: the catalog says so in the field it
+# provides for saying so - "e is 7 balanced-ternary TRITS not bits". A field of Et trits
+# takes 3^Et values, so the offset that centres it is (3^Et - 1)/2, which is exactly what
+# those entries store; 2^(e-1)-1 is not defined for a trit field. The whitelist let them
+# through because it selects on cluster, and a cluster is not a layout. W-INTL-276.
+TRIT_EXPONENT = re.compile(r"\btrits?\b", re.I)
+
+
+def exponent_radix(e):
+    """2 for a bit exponent, 3 for one the catalog declares in trits."""
+    return 3 if TRIT_EXPONENT.search(e.get("standard", "")) else 2
+
+
+def expected_bias(radix, ndigits):
+    if radix == 3:
+        return (3 ** ndigits - 1) // 2, f"(3^{ndigits}-1)/2"
+    return 2 ** (ndigits - 1) - 1, f"2^({ndigits}-1)-1"
+
 
 def uses_fixed_fields(e):
     if e.get("cluster") not in FIXED_LAYOUT_CLUSTERS:
@@ -128,24 +166,32 @@ def parse_bias(raw):
     m = re.fullmatch(r"2\^(\d+)-1", raw)
     if m:
         return 2 ** int(m.group(1)) - 1
+    # The ternary offset has the same problem at width: (3^391-1)/2 does not fit either.
+    # Accepted in the form the generator would write it, before any entry needs it.
+    m = re.fullmatch(r"\(?3\^(\d+)-1\)?/2", raw)
+    if m:
+        return (3 ** int(m.group(1)) - 1) // 2
     return int(raw)
 
 
 def check_field_rule(entries):
-    """bias must equal 2^(e-1) - 1 for entries that use a fixed field layout."""
+    """The bias must be the offset that centres the exponent field, in the radix the
+    entry declares that field in: 2^(e-1)-1 for bits, (3^e-1)/2 for trits."""
     for e in entries:
         if not uses_fixed_fields(e):
             continue
         try:
-            ebits, bias = int(e["e"]), parse_bias(e["bias"])
+            ndigits, bias = int(e["e"]), parse_bias(e["bias"])
         except (KeyError, ValueError):
             continue
-        expected = 2 ** (ebits - 1) - 1
+        radix = exponent_radix(e)
+        expected, rule = expected_bias(radix, ndigits)
         if bias != expected:
-            shown = expected if expected < 10 ** 12 else f"2^{ebits - 1}-1"
+            shown = expected if expected < 10 ** 12 else rule
+            unit = "trits" if radix == 3 else "bits"
             failures.append(
                 f"{e.get('id', '?')}: bias {bias} does not satisfy the field rule "
-                f"2^(e-1)-1 for e={ebits}; expected {shown}"
+                f"{rule} for an exponent of {ndigits} {unit}; expected {shown}"
             )
 
 
@@ -169,21 +215,36 @@ def check_no_measurements_in_metadata(entries):
 
     This is W-INTL-41: an entry marked verified carried an FPGA frequency in its
     standard field, and the archive it cited contained no hardware data."""
+    seen = set()
     for e in entries:
         blob = " ".join(e.get(k, "") for k in ("standard", "use_case", "name"))
         hit = MEASUREMENT_IN_METADATA.search(blob)
         if hit:
+            seen.add(e.get("id", "?"))
             notes.append(
                 f"{e.get('id', '?')}: metadata asserts a measurement "
                 f"({hit.group(0)!r}); a result belongs in a document with an "
                 f"artefact, not in a catalog field"
             )
+    appeared = sorted(seen - EXPECTED_METADATA_OBSERVATIONS)
+    gone = sorted(EXPECTED_METADATA_OBSERVATIONS - seen)
+    if appeared or gone:
+        failures.append(
+            "catalog: the entries asserting a measurement in metadata have moved"
+            + (f"; newly asserting: {appeared}" if appeared else "")
+            + (f"; no longer asserting: {gone}" if gone else "")
+            + " - decide what the change means and declare the new set in this script"
+        )
 
 
 def check_counts(entries):
-    if len(entries) != EXPECTED_FORMATS:
+    if len(entries) != CATALOG_COUNT:
         failures.append(
-            f"catalog holds {len(entries)} formats, external documents quote {EXPECTED_FORMATS}"
+            f"catalog holds {len(entries)} formats; the last count recorded here is "
+            f"{CATALOG_COUNT}, taken on {CATALOG_COUNT_DATE} at {DEFAULT_REPO} "
+            f"{CATALOG_COUNT_COMMIT}. The size is a live invariant of the source of "
+            f"truth, so this is not a defect in the catalog: count it, then record the "
+            f"number, the date and the commit here and in the E19 row of {LEDGER}"
         )
     clusters = collections.Counter(e.get("cluster", "?") for e in entries)
     if len(clusters) != EXPECTED_CLUSTERS:
@@ -193,6 +254,36 @@ def check_counts(entries):
     dupes = [i for i, c in collections.Counter(e.get("id") for e in entries).items() if c > 1]
     if dupes:
         failures.append(f"duplicate catalog ids: {dupes}")
+
+
+def check_count_declaration():
+    """The declaration above and the E19 row of the ledger have to name the same count.
+
+    Both were correct and disagreed with each other for six days: the ledger moved to a
+    dated observation of 109 on 2026-09-04 and this file kept the published 83, so a
+    reader could have read either number as current. Nothing else in this file compares
+    the project against itself, which is how that survived. W-INTL-276."""
+    path = pathlib.Path(__file__).resolve().parent.parent / LEDGER
+    try:
+        text = path.read_text()
+    except OSError:
+        notes.append(
+            f"{LEDGER} not readable from here, so the count declaration was not "
+            f"cross-checked against it"
+        )
+        return
+    row = [ln for ln in text.splitlines() if ln.startswith("| E19 ")]
+    if not row:
+        failures.append(f"{LEDGER}: no E19 row, so the catalog count has no ledger entry")
+        return
+    line = row[0]
+    missing = [s for s in (str(CATALOG_COUNT), CATALOG_COUNT_DATE) if s not in line]
+    if missing:
+        failures.append(
+            f"{LEDGER} E19 does not carry {missing} while this script declares a count of "
+            f"{CATALOG_COUNT} taken on {CATALOG_COUNT_DATE} - one of the two was updated "
+            f"without the other"
+        )
 
 
 def main():
@@ -218,11 +309,7 @@ def main():
     check_field_rule(entries)
     check_width_rule(entries)
     check_no_measurements_in_metadata(entries)
-    if len(notes) != EXPECTED_METADATA_OBSERVATIONS:
-        failures.append(
-            f"catalog: {len(notes)} metadata-measurement observations, "
-            f"{EXPECTED_METADATA_OBSERVATIONS} declared in this script - if the upstream "
-            f"catalog changed, decide what the new number means and declare it")
+    check_count_declaration()
 
     for n in notes:
         print(f"note: {n}")
