@@ -167,15 +167,23 @@ def aged_selected_ber(sigma_noise, sigma_age, fraction, reads, steps=4000):
     sd_v = math.sqrt(var_v)
     cond_var = tau2 / var_v
     denom = math.sqrt(cond_var + sig2)
-    thr = ND.inv_cdf(1 - fraction / 2) * sd_v
-    total, kept = 0.0, 0
+    # Integrate over the kept tail directly, rather than over the whole axis while
+    # skipping the middle and dividing by however many samples happened to survive.
+    # W-INTL-242: that arrangement makes the denominator an integer approximation of the
+    # kept mass, so one sample - a six-hundredth of the mass at the resolution five call
+    # sites use - lands on the answer. It moved the aged figure by 0.2 percent between
+    # 600 steps and 4,000, non-monotonically, which is the signature of a hard domain
+    # boundary that the grid does not align to.
+    #
+    # By symmetry the two tails contribute the same, so sampling the upper one at
+    # equiprobable points within it is exact at any resolution.
+    half = fraction / 2.0
+    total = 0.0
     for i in range(steps):
-        v = ND.inv_cdf((i + 0.5) / steps) * sd_v
-        if abs(v) < thr:
-            continue
-        total += ND.cdf(-(abs(v) / var_v) / denom)
-        kept += 1
-    return total / kept if kept else 0.0
+        u = 1.0 - half * (i + 0.5) / steps
+        v = ND.inv_cdf(u) * sd_v
+        total += ND.cdf(-(v / var_v) / denom)
+    return total / steps
 
 
 def selected_ber_counts_exact(sigma, fraction, reads, steps=4000):

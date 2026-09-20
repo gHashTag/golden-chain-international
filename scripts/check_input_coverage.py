@@ -31,11 +31,14 @@ env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
 # there were three, and five more have been added since without anyone touching it.
 # W-INTL-217 - the rule from W-INTL-216, applied to the file that motivated it.
 _SKIP = {
-    "check_input_coverage.py": "this file",
+    "check_input_coverage.py": "this file - perturbing an input and then running the "
+                               "sweep that perturbs inputs recurses",
     "check_consistency.py": "reads documents, not inputs",
     "check_catalog.py": "reads a catalog in another repository",
-    "check_commit_claims.py": "reads a commit message",
-    "check_control_anchors.py": "reads the workflow",
+    "check_commit_claims.py": "reads a commit message and a diff range, neither of "
+                              "which any declared input reaches",
+    "check_control_anchors.py": "reads the workflow file for control anchors and "
+                                "touches no declared input",
     "check_generated_rtl.py": "reads generated Verilog against its generator",
     "check_models_run.py": "four minutes a pass. Its stated second reason - that its "
                            "figures reach inputs through check_figures_reproduce anyway - "
@@ -60,7 +63,13 @@ def run():
 # RAW_BUDGET feeds only the vestigial cheapest() guard, which is kept for the utilisation
 # check and is no longer the source of any recommended figure. Declared so the guard keeps
 # its provenance; perturbing it legitimately changes nothing.
-ALLOWED = {"RAW_BUDGET"}
+# A mapping rather than a set since W-INTL-249: the reason lived in the comment above
+# and a comment is where a reason goes to stop being checkable.
+ALLOWED = {
+    "RAW_BUDGET": "feeds only the vestigial cheapest() guard, which is kept for the "
+                  "utilisation check and is no longer the source of any recommended "
+                  "figure; perturbing it legitimately changes nothing",
+}
 
 # The driver runs under a main guard: a module that computes on import cannot be
 # cross-checked against, which this project recorded in W-INTL-169 and this file has
