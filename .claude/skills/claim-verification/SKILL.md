@@ -175,6 +175,239 @@ When binding a rounded number in a document to the model that produces it, deriv
 how many decimals the document printed - half a unit in the last place - rather than picking one that
 happens to accommodate the current gap. The second kind widens silently every time it fails.
 
+## A mitigation demonstrated in a self-test may not be applied on the real path
+
+A harness carried a `--self-test` reproducing the exact hazard it existed to prevent — a stale
+bytecode cache making an equal-length mutation invisible — and the self-test cleared the cache
+directory to demonstrate it. **The production path never cleared anything.** It set the environment
+variable that stops *writing* a cache and did nothing about *reading* one already on disk, for ninety
+iterations.
+
+The gap survived because the self-test passed, and a passing self-test reads as a working mitigation.
+When a file demonstrates a hazard, diff the demonstration against the real path line by line: the
+demonstration is written to make the failure happen and the real path to make it not, and they drift
+apart in exactly the step nobody re-reads.
+
+Corollary for mutation testing anywhere: **if your mutation preserves the file's length, assume the
+interpreter may not notice it.** Caches keyed on size and mtime are common. Prefer length-changing
+mutations, or clear the cache yourself.
+
+## Run the survey twice before believing it
+
+A tool that restores past defects and reports which checks catch them gave different answers on
+consecutive runs — and the disagreement, not the result, was the finding. Non-determinism in a
+verification tool is a defect in the tool, and it presents as a plausible table.
+
+Before reporting a survey, run it twice and diff. If the two disagree, stop and find out why; that
+question led here to a flaw affecting every control in the repository.
+
+## A wrong control is a finding, not a failed experiment
+
+Replaying an old defect to test a check, the mutation did something adjacent instead — removed an
+exclusion rather than emptying its reason — and the check passed. The instinct is to record "the
+check is weak". The truth was that the control was wrong, for the third time in three iterations.
+
+Then writing the *correct* mutation raised the question that mattered: does anything require an
+exclusion's reason to exist? Nothing did, across ten registries in nine files, and four checks were
+printing "with reasons" as a claim nobody verified.
+
+When a control does not fire, the first suspect is the control. Fix it — and notice that the act of
+writing the precise mutation is what forces you to state the property precisely, which is where the
+real gap turns up.
+
+## An exemption's reason belongs in the data, not the comment above it
+
+One exclusion registry was a set, with its single entry's reason in a comment above the declaration.
+Every other was a mapping. The set passed every check, because a comment is where a reason goes to
+stop being checkable.
+
+Make exemption lists mappings from the item to the reason, and check the reason exists and has
+substance — a threshold on length is crude and catches labels masquerading as explanations. If a
+check's output claims "with reasons", something must verify that.
+
+## Make every control name the defect it replays, and make the name resolve
+
+Auditing fifty-seven controls found eighteen that named nothing — mutations chosen to make something
+red, which proves the wiring and says nothing about whether the check catches what it exists for.
+Requiring each to cite the recorded finding it restores, and requiring that citation to *resolve
+against the record*, found three further things in one pass: a status row that had stopped being
+true, a rule of mine that was too strict, and two attributions I had written from memory that named
+entries which do not exist.
+
+A citation nobody resolves is a comment. Make the check look the finding up.
+
+## Count coverage the narrow way, not the alarming way
+
+Thirty-two of 213 recorded findings had a control replaying them. Read carelessly that is "181
+defects unprotected" — and it is wrong, because most were corrections to figures that a generic
+binding catches. I tested two at random by restoring them; both went red with no control naming them.
+
+When a coverage number looks alarming, find out what the uncovered cases actually do before reporting
+it. The honest statement here was narrower and worse than the loud one: not that defects could
+recur, but that for eighteen guards nobody could say what they were guarding.
+
+## Make the control a defect you actually had
+
+A cross-check's control was an artificial break, sized large enough to fire — which is a control that
+proves the wiring works and nothing about whether the check is any good. Replaying the *real*
+historical defect instead turned it into a statement worth having: this check would have caught the
+last bug of its kind, at nine standard errors.
+
+Keep your corrected defects as a corpus. When you build a check in response to one, the first control
+should be that defect restored verbatim. If it does not fire, the check does not do what you built it
+for — which was true here on the first attempt.
+
+## Replace the last coin toss with its expectation
+
+A sampling cross-check could not resolve differences smaller than ten percent, against a defect
+history of eight. Nearly all the noise came from one Bernoulli draw at the end: at a rate near
+0.0037, tossing the coin puts a standard deviation of 0.061 on a quantity of 0.0037.
+
+Accumulating the *conditional probability* of the outcome instead of a zero or a one halved the
+standard error at identical cost, and four times the samples halved it again — 2.5% resolution in
+under three seconds.
+
+The line to hold: condition only on the last step. Everything the other derivation *assumes* must
+still be simulated, or the two stop being independent and the comparison becomes vacuous. Condition
+on too much and you have re-derived the closed form; condition on nothing and the noise buries the
+signal.
+
+## A register that asserts goes stale; make it compute
+
+A list recording which quantities had two derivations, and where their agreement was checked, was
+wrong within one iteration of being written — it named a quantity as having no second path when the
+second path had existed for two iterations, built by the same author.
+
+The error ran the harmless way, claiming less coverage than existed. A list that can be wrong one way
+can be wrong the other, and the version that matters is the one asserting an agreement that is not
+there. So don't record *that* two derivations agree — **compute both and compare, every run**. The
+register then cannot lie about the half it covers, and the hand-written half shrinks to the
+quantities it admits it does not.
+
+## State what a comparison can resolve, or it reads as coverage it does not have
+
+Three cross-checks were computed and agreed. Printing only "they agree" would have implied far more
+than was true: the sampling comparison for one of them **cannot resolve the eight-percent modelling
+error that had been corrected two iterations earlier** — that break is 1.4 standard errors at the
+sample size used, and the check passes it. The control that fires had to break the derivation by
+twenty-two.
+
+Every comparison has a detection threshold: sampling noise, quadrature error, tolerance. Compute it,
+print it beside the result, and check it against the size of the defects you have historically found.
+A check that would not have caught your last bug is worth knowing about before the next one.
+
+## Keep the register of what has one derivation, and read the second column
+
+Comparing a figure against itself computed a different way found four defects in five iterations —
+each time by hand, because nothing recorded which quantities had two derivations and which had one.
+A quantity with two paths is checked; a quantity with one is **where the next defect is**, and that
+list is the one nobody keeps.
+
+Write both columns. The single-path column is the roadmap: its largest entry names the quantity most
+likely to be wrong next, and here that entry had already been corrected twice, both times by reading
+rather than by comparison.
+
+## A hedge may be a theorem you have not tried to prove
+
+A conversion offered two readings — a fitted model and a "pessimistic end", presented as a bracket
+whose ends were both guesses. The pessimistic end turned out to be a **distribution-free lower
+bound**: the quantity was convex in the one that was published, so Jensen makes the equal-split case
+the minimum over every distribution consistent with the data.
+
+When you find yourself writing "this is the conservative reading", ask whether it is the conservative
+*possible* reading. Convexity, monotonicity and rearrangement arguments turn a hedge into a bound
+surprisingly often, and a bound is worth far more: it removes the assumption from the load path
+instead of documenting it.
+
+And check the property the bound rests on numerically, every run, with the violation count bound as a
+figure. A convexity nobody re-evaluates is exactly the kind of claim that quietly stops being true.
+
+## A control must break the claim, not perturb the computation
+
+The obvious control for a Monte Carlo that corroborates an analytic model is to change its seed. It
+does not fire — one standard error at the sample size used was wider than the check's tolerance, so a
+reseed lands inside it as often as not. Worse, it tests the wrong thing: the claim is that the two
+methods *agree*, and a reseed preserves the agreement.
+
+The control that works breaks the claim: point the simulation at a different construction from the
+one the model describes. Ask what sentence the check is defending, then write the mutation that makes
+that sentence false — not the one that makes the numbers move.
+
+## Keep the list of what is NOT covered, not the list of what is
+
+A checker held a list of models that pin a figure. Nothing held the list of models that pin nothing,
+so a model producing no checkable output was indistinguishable from one nobody had got to yet. Four
+were in that state, and two of them were the project's headline evidence.
+
+Invert it: discover the population, and maintain the *exclusions* with reasons. A positive list grows
+when someone adds coverage; a negative list grows when someone adds a subject, which is exactly when
+you want to be asked.
+
+## Writing down the rule about enumerations does not stop you enumerating
+
+One iteration recorded that a rule which enumerates is silent about what it did not enumerate. The
+next wrote a new check with six hand-listed cases, against fourteen functions that qualified. The
+lesson was in the skill file the whole time.
+
+Recording a rule is not applying it. When you build a check, the first question is what *discovers*
+its subjects — a signature, a naming convention, a directory — and the hand-written list is only for
+the exceptions, each with a reason. Then add the control that a newly-qualifying subject makes it
+fail, because the enumeration failure is silent by construction and nothing else will catch it.
+
+## Exemptions are where the thinking is
+
+The discovery above produced eight exemptions, and they carry more information than the nine live
+cases: primitives exercised through their callers, diagnostics that reach no document, and sampling
+estimators where a coarse-against-fine comparison would test luck rather than convergence.
+
+Write the reason for each, print them on every run, and fail when an exemption names something that
+no longer exists. An exemption list that nobody re-reads becomes the place defects go to be quiet.
+
+## A resolution parameter is a way for one quantity to have several values
+
+A numerical routine took a `steps` argument. Five call sites passed 600, one used the default 4,000,
+and the answers were 0.2% apart — non-monotonically, because the integration domain had a hard
+boundary the grid did not align to and the denominator was a *count of surviving samples* rather than
+the analytic mass.
+
+Every check stayed green the whole time, because each compared a document against whichever value its
+own call produced. **Nothing compared the figure against itself computed differently.**
+
+Two rules. Integrate over the region you mean, rather than over everything and discarding — a
+discarded-sample count is an integer approximation of a continuous mass, and it lands on the answer.
+And add one check that calls every resolution-taking routine at a coarse and a fine setting and
+requires agreement: it is not a tolerance on accuracy, it is the assertion that the answer belongs to
+the question and not to the caller.
+
+## Copy the corrected neighbour, not the first thing that works
+
+The routine with the defect sat three lines above one that did it correctly — and that neighbour's
+comment recorded its own earlier version of a related fault. The new function was written from
+scratch instead of from the fixed pattern next to it.
+
+When you add a function beside an existing one that solves the same shape of problem, read it first,
+especially its comments about what went wrong before. A corrected implementation in the same file is
+the cheapest specification available and the easiest to walk past.
+
+## "More samples would not help" is a fact about the method, not the problem
+
+An estimator failed at the scale that mattered, its own validity test caught it, and the finding was
+written up as a range with the note that the failure was structural and more trials would not fix it.
+All true — and the next iteration solved the same problem *exactly*, in under a second, because the
+constraints formed a chain and a chain collapses a high-dimensional integral to a one-dimensional
+recursion.
+
+Diagnosing why your method cannot answer a question is not the same as establishing that the question
+is unanswerable. Before you publish a range, spend one pass asking what structure the problem has
+that the method ignores — independence, a chain, a recursion, a symmetry, a closed form for a special
+case. The honest range was worth publishing; it was also two hours from being unnecessary.
+
+## Keep superseded models running and bound
+
+When an exact method replaced an estimator, the estimator stayed in the repository with its figures
+still checked. A superseded model whose numbers quietly drift stops being a record of *why* it was
+superseded — and the comparison between the two is the evidence that the replacement was needed.
+
 ## Give an estimator a test it must pass, and discard the rows that fail it
 
 A sequential estimator for a very small probability produced clean-looking numbers at every scale.
