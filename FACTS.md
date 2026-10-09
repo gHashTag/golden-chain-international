@@ -41,6 +41,13 @@ the new fact comes from. Only after that may other texts change.
 
 Team size: one founder and no employees, as recorded in audit entry W-INTL-25.
 
+**Two people named Dmitrii.** The founder and the business angel share a first
+name. Always write the full name, **Dmitrii Vasilev** or **Dmitrii Fedorov**;
+never "Dmitrii" or "Dima" alone, in any document, email or message. The arXiv
+author "D. Vasilev" of arXiv:2607.09485 (hep-th, Ievlev / Vasilev / Yung) is an
+unrelated namesake: Dmitrii Vasilev's own papers are the ones listed under
+ORCID 0009-0008-4294-6159.
+
 ## 2. Legal form
 
 | Item | State as of 2026-10-09 | Source |
