@@ -3,6 +3,32 @@
 Rules for any agent working in this repository. Each section below is the short
 form; the long form of a rule lives in exactly one place, named in its section.
 
+## Company facts: one source of truth
+
+Owner's rule, 2026-10-09: agents must not write things about the company that
+are not true. **`FACTS.md` is the single source of truth** for people and
+roles, ownership and investment, legal form, funding, programme outcomes and
+token policy.
+
+- Before writing any of those facts anywhere - a document here, an application,
+  a deck, an email draft, a post, another repository - read `FACTS.md` and use
+  its wording.
+- A fact that is not in `FACTS.md` is "not established". Do not infer it, and do
+  not carry it over from an older document; several older documents here are
+  historical records that are now wrong.
+- To change a fact, change `FACTS.md` first, in a pull request that names the
+  source, and only then the texts that repeat it.
+- Never put private terms in this public repository: investment amounts,
+  valuation caps, tax numbers, addresses, phone numbers, citizenship.
+- Section 7 of `FACTS.md` lists statements already made in error ("co-founder"
+  Fedorov, "founder from Brazil", an ADGM entity). Never repeat them.
+- The plan built on those facts lives in `FINANCE_AND_COMPLIANCE.md`: how the company is
+  formed, what it costs, how the investment is executed, and the token
+  compliance position with its red lines. Any outward text about money, a
+  deal, the legal form or the token must agree with it. Agreement by each
+  stakeholder is recorded in its section 6, by pull request; silence is not
+  agreement.
+
 ## Own language first
 
 When this project publishes something about itself, it publishes in **this

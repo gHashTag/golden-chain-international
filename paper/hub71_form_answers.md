@@ -1,4 +1,7 @@
 # Hub71 Cohort 20 - form answers
+# OUTCOME: not selected, notified 2026-08-24. Kept as a historical record of
+# the answers. Statements below about an ADGM vessel and relocating to Abu Dhabi
+# are not current; company facts live in FACTS.md at the repository root.
 # Golden Chain / Trinity - ASCII-only, hard-rules compliant
 # Rules honoured: ASCII only (R1), no state rhetoric (R2), ADGM vessel (R3),
 # naive vs honest paired (R7), no hype words (R9), [Open conjecture] tagged (R10).

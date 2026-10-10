@@ -1,5 +1,9 @@
 # Submission Checklist
 
+Outcome: the Hub71 Cohort 20 application was not selected (2026-08-24). This
+checklist is kept as a historical record; current company facts live in
+FACTS.md at the repository root.
+
 Status: current as of 2026-07-29. Supersedes any earlier schedule built on a
 2 August deadline.
 
