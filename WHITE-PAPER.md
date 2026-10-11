@@ -227,9 +227,8 @@ asks which external anchor to add first.
 Nothing in this paper is legal advice, and no regulator has seen it.
 
 Facts: no legal entity exists; a Delaware C-corporation is planned. The
-founder is in Thailand; one business angel holds 0.5 percent equity under
-a SAFE with no control and no token rights. No token trades; none may be
-offered; nothing here is an offer. The token exists on a public testnet
+founder is in Thailand. There are no investors; the founder holds 100
+percent. No token trades; none may be offered; nothing here is an offer. The token exists on a public testnet
 where it can carry no value.
 
 Position: compliance by design, country by country, starting from the
@@ -306,6 +305,7 @@ shortened:
 | Version | Date | Change |
 |---|---|---|
 | 0.9 | 2026-10-10 | First full draft for internal review; consultation answers pending |
+| 0.9 erratum | 2026-10-11 | Section 7: there are no investors; the founder holds 100 percent (FACTS.md section 3, founder, 2026-10-11) |
 | 1.0 | planned 2027-01-01 | Incorporates GREEN-PAPER consultation; anchor coverage extended |
 
 ---

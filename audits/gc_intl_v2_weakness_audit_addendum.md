@@ -6498,16 +6498,15 @@ Found by reading outbound correspondence against this repository on 2026-10-09, 
 repository alone. The same facts about the company had been written in at least four places, and
 they did not agree:
 
-- One email called the business angel Dmitrii Fedorov a "co-founder". He is an investor, and the
-  company has one founder.
+- One email called another person a "co-founder". The company has one founder.
 - One investor introduction described the founder as "from Brazil". The founder is based in
   Thailand.
 - The README, the repository description and the Hub71 application named an ADGM / DIFC foundation
   as the legal vessel, and the application spoke of relocating to Abu Dhabi. No such entity exists.
   The Hub71 application was not selected on 2026-08-24, and the ADGM amendments of 2026-05-01 bar
   foundations used for non-profit purposes.
-- An agreed investment of "0.5" was recorded only verbally. That figure can be misread as fifty
-  percent.
+- A verbal equity arrangement of "0.5" was recorded. That figure can be misread as fifty percent.
+  The founder withdrew the arrangement on 2026-10-11; there are no investors (`FACTS.md` section 3).
 
 This is the hand-copied-list defect again, in company facts rather than in figures. One fact lived
 in several homes, and none of them was the one the others deferred to. A checker cannot catch it,
@@ -6526,9 +6525,9 @@ Action, taken in this entry:
    section 7 of that file lists the wrong statements already sent, so that no one repeats them.
 4. The Hub71 answers and the submission checklist carry an outcome banner and are kept as
    historical records rather than rewritten.
-5. The 0.5 percent is recorded as company equity under a post-money SAFE with no control rights
-   and no token rights. That keeps it consistent with ledger row E22, under which the deployed
-   token has no investor allocation.
+5. The arrangement was recorded as company equity with no control rights and no token rights,
+   consistent with ledger row E22. Superseded 2026-10-11: the founder withdrew it, and the founder
+   holds 100 percent of the equity (`FACTS.md` section 3).
 
 What would reopen it: any outbound text that states a company fact absent from `FACTS.md`, or one
 that contradicts it.
