@@ -143,8 +143,13 @@ jobs:
           # 'bias=15' alone matches three formats - binary16, fp8_e5m2 and gf14 - so it
           # names no site and control.py now refuses it. Qualified by the format it is
           # meant to break. W-INTL-230.
+          # The fourth breaks the ternary offset of tnf16, whose exponent is four trits
+          # and whose bias is therefore (3^4-1)/2 = 40. Before W-INTL-276 the field rule
+          # applied the binary offset to every GoldenFloat entry, so eighteen correct
+          # ternary entries failed and no control could have told that apart from the
+          # rule working: it was firing on all of them already.
           for m in 'm=10 bias=15:m=10 bias=16' 'bits=16 s=1 e=5 m=10:bits=17 s=1 e=5 m=10' \
-                   'id=binary16:id=binary32'; do
+                   'id=binary16:id=binary32' 'm=11 bias=40:m=11 bias=41'; do
             python3 scripts/control.py /tmp/catalog.t27 "${m%%:*}" "${m##*:}" \
               -- python3 scripts/check_catalog.py /tmp/catalog.t27
           done
