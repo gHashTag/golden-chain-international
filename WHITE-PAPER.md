@@ -56,7 +56,7 @@ record, -1 you never.
 | # | Trit | Principle |
 |---|---|---|
 | D1 | +1 | Work is the only faucet. Supply enters the system only as rewards for verified work. |
-| D2 | +1 | Publish the rules of emission before the first unit moves. Halving, not discretion; a schedule, not a decision. |
+| D2 | +1 | Issuance is by the founder alone, never discretionary in amount: every mint is bounded by the published schedule (cap and halving) and paid only for verified work (bounties and fees), on TON, the single chain of record. Validation stays with the protocol: k-of-n independent operators, one vote per operator. |
 | D3 | +1 | Keep the books open. Every reward, every proof, every gate state is public data by default. |
 | D4 | 0 | Code is a commons, value is a regulated river. Source obeys no one; flows obey each jurisdiction. |
 | D5 | 0 | Many stalls. No exclusive vendor, cloud, or market; concentration is measured and published. |
@@ -145,14 +145,19 @@ binding (the receipt proves which chip ran the work) is research. The
 honest line: software-signed receipts are acceptable while nothing of value
 moves; the moment value moves, they are not (GREEN-PAPER question D2).
 
-**Reward ledger - exists as design, on testnet only.** TriToken on Base
-Sepolia: 100 percent of supply minted to a mining-pool contract, contract
-ownership renounced, no allocation to any person, rewards only for verified
-compute proofs, four-year halving. No mainnet token exists. Three gates
-stand before any mainnet move: explorer-verified contract sources; a fixed
-key-acceptance registry (today the registry accepts any key - a known
-defect with an open issue); and written legal opinions for the United
-States and Thailand.
+**Reward ledger - exists as design only.** $TRI has one chain of record,
+TON (gHashTag/t27 specs/trinet/tri-bridge.t27, a design: no contract,
+vault, key or bridged token exists yet). The founder, Dmitrii Vasilev,
+alone issues $TRI, and only within the published schedule (cap and
+halving) and only as payment for verified work (D2). How the cap and the
+halving bind the mint key on chain is not established. The TriToken
+contract on Base Sepolia (100 percent of supply minted to a mining-pool
+contract, ownership renounced) is a retired testnet experiment: it is not
+$TRI, and its supply is not $TRI supply. No mainnet token exists. Three
+gates stand before any mainnet move: explorer-verified contract sources;
+a fixed key-acceptance registry (today the registry accepts any key - a
+known defect with an open issue); and written legal opinions for the
+United States and Thailand.
 
 **The GOLDEN CHAIN - lands with this paper (M0, in flight at
 publication).** The hub repository (golden-chain-international) is to carry
@@ -167,8 +172,9 @@ can be defeated; S5 forbids pretending otherwise.
 ## 5. Economics
 
 The economic constitution is four sentences: no allocation (D7); work is
-the only faucet (D1); emission follows a published halving schedule that
-nobody can accelerate (D2); the books are open (D3). Everything else -
+the only faucet (D1); issuance is by the founder alone, bounded by the
+published schedule of cap and halving and paid only for verified work
+(D2); the books are open (D3). Everything else -
 what work counts, how receipts price, what bootstraps supply before
 rewards exist - is explicitly open (GREEN-PAPER questions D1-D9).
 
@@ -201,10 +207,13 @@ constraint, and it starts by admitting the paradox:
 What replaces a chief validator is not another person; it is the
 combination of:
 
-1. **Protocol rules fixed in advance** - emission schedule, reward gates,
-   red lines - that no participant, including the founder, can change
-   unilaterally (contract ownership is renounced where possible; D2/D9
-   forbid the discretionary paths).
+1. **Protocol rules fixed in advance** - the issuance schedule (cap and
+   halving), reward gates, red lines - published before the first unit
+   moves. Issuance has one authority, the founder, and no discretion in
+   amount: every mint is bounded by the schedule and paid only for
+   verified work (D2), and D9 forbids the sale and listing paths.
+   Validation stays with the protocol: k-of-n independent operators, one
+   vote per operator.
 2. **Two-direction verification** - the hub checks the spokes, the spokes
    check the hub; anyone can rerun both checks from public artefacts (S4).
 3. **Recorded agreement** - every human decision that matters is written
@@ -215,12 +224,13 @@ combination of:
 
 The known failure modes are published, not hidden: a blockchain halt with
 a coordinator's key (Bittensor, 2023) is what a kill switch looks like
-when it is called decentralization; a renounced treasury cannot fix its
-own defects (D9 question); and a manifest anchored inside the system it
-describes is circular until an external anchor - timestamping, mirrors, a
-transparency log - breaks the circle. Those are section 9 items
-RT-5, RT-3 and RT-4 in the internal red-team audit, and the consultation
-asks which external anchor to add first.
+when it is called decentralization; a single issuer is a human point of
+control, bounded only as far as the schedule binds the mint key on chain,
+which is not yet established (D9 question); and a manifest anchored
+inside the system it describes is circular until an external anchor -
+timestamping, mirrors, a transparency log - breaks the circle. Those are
+section 9 items RT-5, RT-3 and RT-4 in the internal red-team audit, and
+the consultation asks which external anchor to add first.
 
 ## 7. Legal posture
 
@@ -306,6 +316,7 @@ shortened:
 |---|---|---|
 | 0.9 | 2026-10-10 | First full draft for internal review; consultation answers pending |
 | 0.9 erratum | 2026-10-11 | Section 7: there are no investors; the founder holds 100 percent (FACTS.md section 3, founder, 2026-10-11) |
+| 0.9 erratum | 2026-10-11 | Principle D2 rewritten, sections 4, 5 and 6 to match: issuance is by the founder alone, bounded by the published schedule and paid only for verified work, on TON; the TriToken contract on Base Sepolia is a retired testnet experiment, not $TRI (FACTS.md sections 3.1 and 6, founder, 2026-10-11). D2 previously read "Publish the rules of emission before the first unit moves. Halving, not discretion; a schedule, not a decision." |
 | 1.0 | planned 2027-01-01 | Incorporates GREEN-PAPER consultation; anchor coverage extended |
 
 ---

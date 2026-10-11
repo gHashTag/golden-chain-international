@@ -46,7 +46,8 @@ different starting point:
 - a token, TriToken, that exists today only on a public testnet, with 100
   percent of supply minted to a mining-pool contract, contract ownership
   renounced, no allocation to any person, and rewards only for verified
-  compute proofs on a four-year halving schedule;
+  compute proofs on a four-year halving schedule - now a retired testnet
+  experiment, which is not $TRI;
 - no legal entity, one maintainer, and a growing list of external
   collaborators who showed up because the artefacts are public and checkable.
 
@@ -67,7 +68,9 @@ paper/evidence_ledger.md, is filed with the M0 batch):
   and is counted live on every check - never quoted from memory.
 - Board-level verification of ternary arithmetic on Artix-7 hardware exists
   and is reproduced by an external collaborator from public artefacts.
-- TriToken exists on Base Sepolia (testnet) only. No mainnet token exists.
+- TriToken exists on Base Sepolia (testnet) only, as a retired testnet
+  experiment: it is not $TRI. $TRI has one issuing authority, the founder,
+  and one chain of record, TON. No mainnet token exists.
   Three gates stand before any mainnet move: explorer-verified contract
   sources, a fixed key-acceptance registry, and legal opinions for the United
   States and Thailand.
@@ -104,10 +107,12 @@ The **TERNARY NETWORK WEB** is the ambition under consultation: a network in
 which operators keep their own boards, execute work described in one spec
 language that compiles to FPGA bitstreams and to CPU/NPU code, and earn
 rewards against receipts. What is real today is the numeric stack, the
-compiler, the board proofs, and a testnet token whose properties (no
-allocation, renounced ownership, scheduled emission) are the proposed
-economic constitution. What is not real today is the network itself, and this
-paper does not pretend otherwise.
+compiler and the board proofs. The proposed economic constitution is no
+allocation, scheduled emission, and issuance by the founder alone, bounded
+by the published schedule and paid only for verified work; the testnet
+token on Base Sepolia, whose ownership is renounced, is a retired
+experiment and is not $TRI. What is not real today is the network
+itself, and this paper does not pretend otherwise.
 
 ## 4. The 27 questions
 
@@ -163,8 +168,10 @@ one or answer all; disagreement is as welcome as agreement.
     regulate flows, not source. Where does this doctrine break?
 17. D8. How should a network treat an operator who lawfully participates in
     one jurisdiction and is sanctioned by another?
-18. D9. If nobody holds the treasury (ownership renounced), what happens
-    when the contracts need fixing? Is immutability a duty or a hazard?
+18. D9. Issuance has one authority, the founder, bounded by a published
+    schedule (cap and halving) and paid only for verified work. What should
+    bind that authority to the schedule on chain, and how does a single
+    issuer square with "no chief validators" (S1)?
 
 **Trust strand - about how the system survives without people:**
 
@@ -233,6 +240,7 @@ is:
 |---|---|---|
 | 0.1 | 2026-10-10 | First consultation draft |
 | 0.1 erratum | 2026-10-11 | Sections 2 and 5: there are no investors; the founder holds 100 percent of the equity (FACTS.md section 3, founder, 2026-10-11) |
+| 0.1 erratum | 2026-10-11 | Sections 1, 2 and 3 and question D9: the TriToken contract on Base Sepolia is a retired testnet experiment, not $TRI; issuance is by the founder alone, bounded by the published schedule and paid only for verified work, on TON (FACTS.md sections 3.1 and 6, founder, 2026-10-11). D9 previously asked what happens when contracts whose ownership is renounced need fixing |
 
 Errata will be recorded in this table and never silently edited; the
 repository history is part of the record.
