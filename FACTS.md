@@ -1,6 +1,7 @@
 # Company facts - the single source of truth
 
-Status: authoritative. Last verified: 2026-10-09. Maintained by the founder.
+Status: authoritative. Last verified: 2026-10-09; sections 1, 3, 6, 7 and History
+updated 2026-10-11. Maintained by the founder.
 
 This file is the one place where facts about the company itself are recorded:
 who the people are and what roles they hold, who owns what, the legal form, the
@@ -36,16 +37,14 @@ the new fact comes from. Only after that may other texts change.
 | Person | Role | Is not | Source |
 |---|---|---|---|
 | Dmitrii Vasilev | Sole founder. Author of TRI-27 / t27, GoldenFloat and the Golden Ruler numeric format catalog. The only decision-maker. Based in Thailand. ORCID 0009-0008-4294-6159, admin@t27.ai | - | Founder, 2026-10-09 |
-| Dmitrii Fedorov | Business angel: an investor in the company (section 3). Makes introductions to investors and partners | Not a co-founder. Not an employee. Not a director. Holds no control rights | Founder, 2026-10-09 |
 | Scott Olsen | External collaborator. Principal Investigator on the 2026 DARPA proposal (section 5), submitted through his own company, Wisdom Traditions Center, LLC (Florida) | Not a shareholder. Not a funder: he said he is not in a position to fund the process (2026-09-09) | Correspondence, 2026-04-17 to 2026-09-17 |
 
 Team size: one founder and no employees, as recorded in audit entry W-INTL-25.
 
-**Two people named Dmitrii.** The founder and the business angel share a first
-name. Always write the full name, **Dmitrii Vasilev** or **Dmitrii Fedorov**;
-never "Dmitrii" or "Dima" alone, in any document, email or message. The arXiv
-author "D. Vasilev" of arXiv:2607.09485 (hep-th, Ievlev / Vasilev / Yung) is an
-unrelated namesake: Dmitrii Vasilev's own papers are the ones listed under
+**Full names only.** Always write a person's full name, for the founder
+**Dmitrii Vasilev**; never "Dmitrii" or "Dima" alone, in any document, email or
+message. The arXiv author "D. Vasilev" of arXiv:2607.09485 (hep-th, Ievlev /
+Vasilev / Yung) is an unrelated namesake: Dmitrii Vasilev's own papers are the ones listed under
 ORCID 0009-0008-4294-6159.
 
 ## 2. Legal form
@@ -64,16 +63,32 @@ Do not write "ADGM-registered", "UAE entity", "Abu Dhabi company" or
 
 | Item | Fact | Source |
 |---|---|---|
-| Founder | 100% of the equity before investment | Founder, 2026-10-09 |
-| Dmitrii Fedorov | **0.5% (one half of one percent)** of the company's equity, in exchange for a cash investment. Agreed verbally and confirmed by the founder on 2026-10-09. "0.5" always means 0.5 percent, never 50 percent | Founder, 2026-10-09 |
-| Instrument | YC **post-money SAFE**, valuation cap only. Signed once the company exists. The cap is set so that the investment converts to exactly 0.5%: cap = investment / 0.005. The amount and the cap are held off-repo | Founder, 2026-10-09 |
-| Control | **None.** No board seat. No votes before conversion. No veto. No rights beyond the standard form. The founder's principle: investor control over a solo founder hinders development | Founder, 2026-10-09 |
-| Token rights | **None.** The SAFE covers equity only. Tokens are a separate incentive and are not part of the investment | Founder, 2026-10-09 |
-| Payment | Paid into the company's own bank account, never to the founder personally | Founder, 2026-10-09 |
-| Paperwork status | Agreed; not yet signed, because no company exists yet | Founder, 2026-10-09 |
+| Equity | **No investors.** The founder, Dmitrii Vasilev, holds 100% of the equity | Founder, 2026-10-11 |
 
 If an investor or adviser also does work for the company, that work goes in a
 separate advisor agreement. It is never added to the investment terms.
+
+### 3.1 Equity is not the token
+
+Each row is a fact with its source. Where something is not yet a fact, the row
+says "not established".
+
+| Item | Fact | Source |
+|---|---|---|
+| Who holds equity | Nobody but the founder, Dmitrii Vasilev. There are no investors | Founder, 2026-10-11 (the row above) |
+| What equity carries | Equity carries no tokens and no token rights: no right to emission, to a pool, or to network payouts. Tokens are a separate incentive | Section 6, "Relation to equity" (Founder, 2026-10-09); `WHITE-PAPER.md` v0.9, section 7, legal posture (2026-10-10) |
+| Money and the token | No investment money buys, supports or lists the token. There are no investors (above), no token sale is planned or authorised (section 6), and the project initiates no listing | Founder, 2026-10-11; section 6, "Token sale" (Founder, 2026-10-09); `WHITE-PAPER.md` v0.9, principle D9 (2026-10-10) |
+| How anyone else gets $TRI | The token is not sold. Contributors and developers earn $TRI only as payment for verified work, through bounties and fees designed by the founder, never by minting | Founder, 2026-10-11; section 6, "Token sale" (Founder, 2026-10-09) |
+| The five kinds of payment | BOUNTY, EXECUTOR_FEE, PROVIDER_FEE, VERIFIER_FEE and AUTHOR_ROYALTY. Each is payment for work, never a share of company profit, and each is tied to a verified receipt. A disagreeing receipt is slashed | Owner decision, 2026-10-10, on gHashTag/t27 issue 8613 (https://github.com/gHashTag/t27/issues/8613#issuecomment-6098242581); gHashTag/t27 `specs/verified/payout.t27` (a72281956, 2026-10-10) and `specs/network/pool.t27` (49461b70e, 2026-10-10) |
+| Credits are non-transferable | Network credits are non-transferable until written counsel review opens a value gate, and are minted only on the chain of record | gHashTag/t27 issue 8613, the same comment; `specs/network/pool.t27` (49461b70e, 2026-10-10) |
+| No token allocation | Neither the company nor the founder holds a token allocation: no founder pool, no investor pool, no insider reserve, no airdrop | `WHITE-PAPER.md` v0.9, principle D7 (2026-10-10); section 6, "Deployed token" (ledger row E22) |
+| Who may mint | The founder alone (section 6, "Issuing authority"). No investor, equity holder, contributor or company may mint | Founder, 2026-10-11 |
+| Chain of record | gHashTag/t27 `specs/trinet/tri-bridge.t27` makes TON the chain of record and the only minter; other chains hold TRI only by lock-and-mint. Its claim status is DESIGN: no contract, vault, key or bridged token exists yet | `specs/trinet/tri-bridge.t27` (5fc049a2c, 2026-10-10), owner decision of 2026-10-09 |
+| How the mint authority is bound on chain | Which key mints, and how the cap and the halving schedule bind it on TON: **not established** | - |
+| The Base Sepolia testnet token | How the TriToken in section 6, whose ownership is renounced, relates to TON as the only minter and to the founder's issuing authority: **not established**. Tracked as gHashTag/t27 issue 8618 | gHashTag/t27 issue 8618 (opened 2026-10-10) |
+| Value gates | Every value gate needs written counsel review first: a sale, a listing, transferable credits, a mainnet deployment. No counsel is engaged yet, so no value gate is open | Section 6; `FINANCE_AND_COMPLIANCE.md` sections 3 and 6 (2026-10-09); `WHITE-PAPER.md` v0.9, principle D6 (2026-10-10) |
+| Counsel review of a single issuer | **Not established.** No counsel has reviewed the founder's sole issuing authority | - |
+| Price of one unit of work | **Not established.** Pricing by measured work units is open as gHashTag/t27 issue 8619 | gHashTag/t27 issue 8619 |
 
 ## 4. Funding and revenue
 
@@ -104,6 +119,7 @@ type "All Awards", not "Federal Assistance".
 | Superseded token | TrinityToken on Ethereum Sepolia, from February 2026, carried a founder and treasury split. It is superseded and must not be cited as current | Audit addendum |
 | Token sale | **None planned or authorised.** A public sale requires legal review first, and then a row in this file | Founder, 2026-10-09 |
 | Relation to equity | Tokens are a separate incentive. Holding equity, or a SAFE, gives no right to tokens | Founder, 2026-10-09 |
+| Issuing authority | **The sole authority to issue (mint) $TRI is Dmitrii Vasilev (GitHub gHashTag).** No other person, company or investor may mint. Contributors and developers earn $TRI only as payment for verified work, through bounties and fees designed by the founder, never by minting. The rows above describe the testnet contract on Base Sepolia; how it relates to this authority is not established (section 3.1) | Founder, 2026-10-11 |
 
 Some token configurations in other repositories carry a founder allocation or a
 sale. They are not adopted, and they must not be cited.
@@ -112,11 +128,11 @@ sale. They are not adopted, and they must not be cited.
 
 | Wrong statement | Where it appeared | Correct statement |
 |---|---|---|
-| "my co-founder Dmitrii Fedorov" | Outbound email, 2026-09-03 | Fedorov is a business angel. The sole founder is Dmitrii Vasilev |
-| "founder from Brazil" | Investor introduction, 2026-10-08 | The founder is based in Thailand |
+| "my co-founder" | Outbound email, 2026-09-03 | There is no co-founder. The sole founder is Dmitrii Vasilev |
+| "founder from Brazil" | An introduction email, 2026-10-08 | The founder is based in Thailand |
 | "establishing the legal vessel at ADGM and relocating to Abu Dhabi" | `paper/hub71_form_answers.md`, an application that was not selected | No ADGM entity exists. The text is a historical record |
 | "UAE ADGM / DIFC Foundation" as the planned legal vessel | This repository's README and description, until 2026-10-09 | See section 2 |
-| "0.5" read as 50 percent | Risk of misreading | 0.5 percent |
+| That a business angel holds 0.5 percent of the equity under a SAFE, or that the company has any investor | This file until 2026-10-11; `README.md`, `GREEN-PAPER.md` v0.1, `WHITE-PAPER.md` v0.9 and `FINANCE_AND_COMPLIANCE.md` until the same date | There are no investors. The founder, Dmitrii Vasilev, holds 100% of the equity (Founder, 2026-10-11) |
 
 ## History
 
@@ -124,3 +140,4 @@ sale. They are not adopted, and they must not be cited.
 |---|---|---|
 | 2026-07-02 to 2026-10-09 | Planned legal vessel: UAE ADGM / DIFC Foundation, with Armenia as backup | Section 2, 2026-10-09 |
 | 2026-07-29 to 2026-08-24 | Hub71 Cohort 20 application in preparation, closing 21 August 2026 | Section 5: not selected |
+| 2026-10-09 to 2026-10-11 | A verbal equity arrangement was recorded in section 3 | Withdrawn by the founder on 2026-10-11; section 3 (Founder, 2026-10-11) |
