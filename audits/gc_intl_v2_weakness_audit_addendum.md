@@ -1352,6 +1352,35 @@ Action.
 
 Closes when the frequency is either evidenced or gone from both.
 
+Correction, recorded 2026-10-11 from gHashTag/golden-chain-international#75.
+
+The conclusion that the figure has no artefact anywhere was a false negative. The
+four-way search queried a code-search index rather than a checkout. In a clone,
+the bare string `323` finds the figure as a nextpnr post-route static timing
+estimate: `Max frequency for clock 'chain[19]': 323.31 MHz (PASS at 100.00 MHz)`.
+
+That artefact is an estimate, not a measurement.
+
+1. `chain[19]` is the last stage of a 20-stage ring oscillator used as the clock.
+   No `create_clock` exists in any gf16 constraint file, and the 100 MHz is a
+   `--freq 100` argument on the command line.
+2. The same clock net has returned 302.76, 322, 323.31 and 643.92 MHz across
+   recorded runs.
+3. The 35 of 35 is an Icarus Verilog run, which executes at no clock rate.
+
+The same issue records a second problem with the sentence that carries the
+figure. The abstract of arXiv:2606.05017 (v1 and v3) names an Artix-7 XC7A35T.
+The pairing of 35 of 35 with 323 MHz identifies the 4x4 matrix multiplier of
+`docs/arxiv-trinity-gf16-draft.md` section 4.2 in gHashTag/t27, at 40,350 LUTs
+and 64 DSP48E1. DS180 v2.6.1, Table 4, gives the XC7A35T 20,800 LUTs, so the
+design needs 194 percent of that part. Every artefact in the flow names a larger
+part: the chipdb, the per-design build commands and the preprint's Appendix D name
+an XC7A100T (63,400 LUTs, 64 percent), and the loader profile an XC7A200T.
+
+The entry stays open. Action 1 now reads: label the frequency as a post-route
+estimate with its spread, and correct or remove the device. Only the submitting
+author can post that as v4 of arXiv:2606.05017.
+
 ## W-INTL-44  The format's field layout is IBM's DLFloat, and our own benchmark file says so
 
 Severity: high for any novelty claim, low for everything else. Found by reading
@@ -6575,7 +6604,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-40 | measured; the gap is the implementation, and W-INTL-36 is retracted |
 | W-INTL-41 | open, high; a verified catalog entry cites an archive without the result |
 | W-INTL-42 | retracted; the catalog is correct and the check was too narrow |
-| W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |
+| W-INTL-43 | open, high; corrected 2026-10-11 - the 323 MHz figure has an artefact, a nextpnr post-route estimate and not a measurement, and the abstract's XC7A35T cannot hold the design |
 | W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |
 | W-INTL-45 | corrected; ownership is renounced everywhere, freezing a known defect |
 | W-INTL-46 | open, critical; the identity scheme needs hardware neither part has - superseded in part by W-INTL-47 on how far away the fix is |

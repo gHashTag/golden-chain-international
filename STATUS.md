@@ -29,7 +29,7 @@ Of those, 2 name a later entry in their own text and may have been answered by i
 | W-INTL-38 | open, medium; deployment is real and has never been exercised |  |
 | W-INTL-39 | open, high with an RF reviewer; the radio figure is not an SNR |  |
 | W-INTL-41 | open, high; a verified catalog entry cites an archive without the result |  |
-| W-INTL-43 | open, high; the 323 MHz claim has no artefact and its cited file is missing |  |
+| W-INTL-43 | open, high; corrected 2026-10-11 - the 323 MHz figure has an artefact, a nextpnr post-route estimate and not a measurement, and the abstract's XC7A35T cannot hold the design |  |
 | W-INTL-44 | open, high for novelty; the 16-bit layout is IBM DLFloat |  |
 | W-INTL-46 | open, critical; the identity scheme needs hardware neither part has - superseded in part by W-INTL-47 on how far away the fix is | W-INTL-47 |
 | W-INTL-48 | open, high; the Solution section asserts GPS that is not on the boards |  |
