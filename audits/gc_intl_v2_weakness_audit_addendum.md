@@ -6489,6 +6489,50 @@ rather than a budget.
 Both extrapolations are bound as figures, because binding one would report a settled answer where
 there is a range, and the range is the finding.
 
+## W-INTL-241  Company facts were stated three ways, and none of the three homes was authoritative
+
+Severity: high before any investor or grant reviewer. Due diligence compares what different
+documents say about the same company, and here they disagreed.
+
+Found by reading outbound correspondence against this repository on 2026-10-09, not by reading the
+repository alone. The same facts about the company had been written in at least four places, and
+they did not agree:
+
+- One email called the business angel Dmitrii Fedorov a "co-founder". He is an investor, and the
+  company has one founder.
+- One investor introduction described the founder as "from Brazil". The founder is based in
+  Thailand.
+- The README, the repository description and the Hub71 application named an ADGM / DIFC foundation
+  as the legal vessel, and the application spoke of relocating to Abu Dhabi. No such entity exists.
+  The Hub71 application was not selected on 2026-08-24, and the ADGM amendments of 2026-05-01 bar
+  foundations used for non-profit purposes.
+- An agreed investment of "0.5" was recorded only verbally. That figure can be misread as fifty
+  percent.
+
+This is the hand-copied-list defect again, in company facts rather than in figures. One fact lived
+in several homes, and none of them was the one the others deferred to. A checker cannot catch it,
+because no document here was internally inconsistent; the disagreement was between this repository
+and texts outside it.
+
+Action, taken in this entry:
+
+1. `FACTS.md` at the repository root is now the single source of truth for people and roles,
+   ownership and investment, legal form, funding, programme outcomes and token policy. Each row
+   carries a source and a date. Private terms - amounts, caps, personal identifiers - are kept out
+   of it by rule.
+2. The README states that `FACTS.md` is that source, and hard rule 3 now points at it in place of
+   the ADGM vessel.
+3. The repository's agent rules require reading `FACTS.md` before writing about the company, and
+   section 7 of that file lists the wrong statements already sent, so that no one repeats them.
+4. The Hub71 answers and the submission checklist carry an outcome banner and are kept as
+   historical records rather than rewritten.
+5. The 0.5 percent is recorded as company equity under a post-money SAFE with no control rights
+   and no token rights. That keeps it consistent with ledger row E22, under which the deployed
+   token has no investor allocation.
+
+What would reopen it: any outbound text that states a company fact absent from `FACTS.md`, or one
+that contradicts it.
+
 ## W-INTL-276  A rule applied outside its domain, in the file that warns against it
 
 Severity: medium as a defect, high as a method finding. The catalog check failed on every pull
@@ -6723,6 +6767,7 @@ W-INTL-16 was third in the previous order and is now closed; see its entry above
 | W-INTL-212 | closed; the characterisation readout was costed at 272 oscillators where the design uses 38, and is now measured and verified at both |
 | W-INTL-219 | closed clean; two rules swept, eight and two hits read, all legitimate, and neither check shipped because the detector is not precise enough |
 | W-INTL-240 | OPEN, and the largest question in the work; log2(R!) is an upper bound and the orderings are not equiprobable - carried to 54 oscillators the achievable entropy is 199.8 or 217.7 depending on how the deficit scales, against 201.4 claimed, so the tightest margin is between 0.99 and 1.08 |
+| W-INTL-241 | closed; company facts lived in four homes that disagreed - co-founder, country, legal vessel, and a verbal 0.5 - and FACTS.md is now the one they defer to |
 | W-INTL-239 | closed; the per-bit entropy accounting was never compared against the log2(R!) ordering ceiling, only the key size was - it fits at 1.177, the tightest margin in the design and absent from the margin table because it is structural rather than borrowed, and it stops fitting four blocks out |
 | W-INTL-238 | closed; the post-selection density derived a second time from a two-level source model agrees with the single-bias derivation to half a percent and the single-bias one is conservative - and the first attempt at the second implementation was itself wrong by 0.116, which is now the control |
 | W-INTL-237 | closed as an option; the register's 'at the operating temperature' was a lever nobody pulled - enrolling at a second temperature takes the worst chip from 0.024 to 0.006 at the declared fraction for no area at all, against 0.25 of a tile for the alternative, and the Monte Carlo agrees with the closed-form model to 1.1 sigma |
