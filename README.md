@@ -32,10 +32,8 @@ As of 2026-10-09. The details and their sources are in [`FACTS.md`](FACTS.md).
 
 - **Legal entity:** none incorporated yet. The planned vehicle is a Delaware
   C-corporation in the founder's name. No ADGM or other UAE entity exists.
-- **Ownership:** the founder holds 100%. One business angel, Dmitrii Fedorov,
-  has agreed to invest for 0.5% of equity.
-  - The instrument is a YC post-money SAFE.
-  - It carries no control rights and no token rights.
+- **Ownership:** the founder holds 100%. There are no investors (founder,
+  2026-10-11).
 - **Hub71 Access Programme, Cohort 20:** not selected (2026-08-24).
 - **DARPA CLARA proposal FP-067:** returned as non-conforming on 2026-08-08,
   because two administrative forms were missing.

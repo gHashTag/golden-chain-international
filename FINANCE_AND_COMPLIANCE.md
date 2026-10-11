@@ -1,10 +1,9 @@
 # Finance and compliance plan - for agreement by every stakeholder
 
-Status: **draft v1, open for agreement.** Dated 2026-10-09. Owner: Dmitrii Vasilev, sole founder.
+Status: **draft v1, open for agreement.** Dated 2026-10-09; sections 2, 3, 5 and 6 revised 2026-10-11. Owner: Dmitrii Vasilev, sole founder.
 
-This document is the plan: how the company is formed, how the agreed investment
-is executed, what it costs, and the position the company takes on token
-compliance. Section 6 records who has agreed to it.
+This document is the plan: how the company is formed, what it costs, and the
+position the company takes on token compliance. Section 6 records who has agreed to it.
 
 The facts it builds on are not repeated here. They live in [`FACTS.md`](FACTS.md):
 
@@ -62,35 +61,16 @@ page before paying:
 Estimated total: about USD 500 at formation, then roughly USD 1,500-3,000 a
 year before any legal work.
 
-## 2. Executing the investment
+## 2. Investment
 
-The terms are recorded in `FACTS.md` section 3:
-- 0.5% for cash;
-- a post-money SAFE with a cap only;
-- no control rights;
-- no token rights.
+There are no investors. The founder holds 100% of the equity (`FACTS.md`
+section 3, founder, 2026-10-11). The investment plan this section carried from
+2026-10-09 was withdrawn on 2026-10-11; the repository history keeps it. Any
+future investment needs a row in `FACTS.md` first.
 
-The steps:
-
-1. Form the company and open its bank account (section 1).
-2. Fill in the standard YC post-money SAFE, valuation cap only. No discount, no
-   MFN, no side letter. Cap = investment / 0.005, so the investment converts to
-   exactly 0.5%. The amount and the cap are kept off this repository.
-3. Sign electronically.
-4. The investor wires the amount from an account in their own name into the
-   **company's** account. The bank will ask for the source of funds. Confirm in
-   advance that the sending bank is one the receiving bank accepts; transfers
-   from sanctioned banks or countries will not clear.
-5. Record the signing date in `FACTS.md` section 3 by pull request.
-6. The SAFE converts at the first priced equity round. Until then the investor
-   holds no shares and no votes.
-
-Work an investor does for the company is not part of the investment. That
-includes introductions, outreach and drafting. If it is formalised, it goes in a
-separate advisor agreement that covers assignment of work product and
+Work anyone does for the company is not equity. If it is formalised, it goes in
+a separate advisor agreement that covers assignment of work product and
 confidentiality.
-
-Each party handles its own taxes in its own country of residence.
 
 ## 3. Token compliance position
 
@@ -100,6 +80,11 @@ The design is recorded in `FACTS.md` section 6 and ledger rows E22-E23:
 - there is no allocation;
 - there is no sale;
 - tokens are released only as rewards for verified compute.
+
+On 2026-10-11 the founder decided that the sole authority to issue (mint) $TRI
+is his (`FACTS.md` section 6). How that fits the renounced testnet contract and
+TON as the chain of record is not established (`FACTS.md` section 3.1). No
+counsel has reviewed the positions below against it.
 
 The design was chosen to keep the token outside securities-offering rules. The
 position in each jurisdiction:
@@ -148,10 +133,10 @@ in `FACTS.md`.
 | D1 | Formation provider (Stripe Atlas proposed) | Founder | Open |
 | D2 | Bank and fallback bank | Founder | Open |
 | D3 | Accountant for Form 1120 / 5472 | Founder | Open |
-| D4 | US counsel for the token opinion and for reviewing the SAFE | Founder | Open, quote to obtain |
+| D4 | US counsel for the token opinion | Founder | Open, quote to obtain |
 | D5 | Thai counsel for section 3 (Thailand) and section 4 | Founder | Open, quote to obtain |
-| D6 | Whether to put investor-side work under an advisor agreement | Founder with the investor | Open |
-| D7 | Whether the investor is named in this public repository | The investor | Asked 2026-10-09 |
+| D6 | Withdrawn 2026-10-11: there are no investors (`FACTS.md` section 3) | Founder | Closed |
+| D7 | Withdrawn 2026-10-11, as D6 | Founder | Closed |
 
 ## 6. Agreement record
 
@@ -162,7 +147,6 @@ agreement.
 | Stakeholder | Role (see `FACTS.md`) | Scope to agree | State |
 |---|---|---|---|
 | Dmitrii Vasilev | Sole founder | All sections | Author |
-| Dmitrii Fedorov | Business angel | Sections 2, 3 and D6-D7 | Sent by email 2026-10-09; awaiting reply |
 | US counsel | To be engaged | Sections 1-3 | Not engaged |
 | Thai counsel | To be engaged | Sections 3 and 4 | Not engaged |
 | Accountant | To be engaged | Section 1, recurring filings | Not engaged |

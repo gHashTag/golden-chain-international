@@ -20,10 +20,10 @@ token policy.
   source, and only then the texts that repeat it.
 - Never put private terms in this public repository: investment amounts,
   valuation caps, tax numbers, addresses, phone numbers, citizenship.
-- Section 7 of `FACTS.md` lists statements already made in error ("co-founder"
-  Fedorov, "founder from Brazil", an ADGM entity). Never repeat them.
+- Section 7 of `FACTS.md` lists statements already made in error ("co-founder",
+  "founder from Brazil", an ADGM entity, an investor). Never repeat them.
 - The plan built on those facts lives in `FINANCE_AND_COMPLIANCE.md`: how the company is
-  formed, what it costs, how the investment is executed, and the token
+  formed, what it costs, and the token
   compliance position with its red lines. Any outward text about money, a
   deal, the legal form or the token must agree with it. Agreement by each
   stakeholder is recorded in its section 6, by pull request; silence is not

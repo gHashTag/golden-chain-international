@@ -61,9 +61,8 @@ Established (see FACTS.md in this repository; the evidence ledger,
 paper/evidence_ledger.md, is filed with the M0 batch):
 
 - One founder, Dmitrii Vasilev, based in Thailand. No legal entity exists
-  yet; a Delaware C-corporation is planned. Dmitrii Fedorov is a business
-  angel holding 0.5 percent of equity under a SAFE, with no control rights
-  and no token rights.
+  yet; a Delaware C-corporation is planned. There are no investors; the
+  founder holds 100 percent of the equity.
 - The numeric catalogue of the t27 language holds 109 formats in 13 clusters
   and is counted live on every check - never quoted from memory.
 - Board-level verification of ternary arithmetic on Artix-7 hardware exists
@@ -201,9 +200,8 @@ one or answer all; disagreement is as welcome as agreement.
 - Not a claim of compliance anywhere. No regulator has been consulted on
   this text.
 - Not a prediction that the TERNARY NETWORK WEB will exist.
-- Not a document agreed by any stakeholder other than its authors. In
-  particular, nothing here has been agreed by Dmitrii Fedorov or any other
-  investor; agreement is recorded, never assumed (FACTS.md section 6).
+- Not a document agreed by any stakeholder other than its authors.
+  Agreement is recorded, never assumed (FINANCE_AND_COMPLIANCE.md section 6).
 
 ## 6. On "compliance in all countries"
 
@@ -234,6 +232,7 @@ is:
 | Version | Date | Change |
 |---|---|---|
 | 0.1 | 2026-10-10 | First consultation draft |
+| 0.1 erratum | 2026-10-11 | Sections 2 and 5: there are no investors; the founder holds 100 percent of the equity (FACTS.md section 3, founder, 2026-10-11) |
 
 Errata will be recorded in this table and never silently edited; the
 repository history is part of the record.
