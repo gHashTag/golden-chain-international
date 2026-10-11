@@ -37,10 +37,11 @@ As of 2026-10-09. The details and their sources are in [`FACTS.md`](FACTS.md).
 - **Hub71 Access Programme, Cohort 20:** not selected (2026-08-24).
 - **DARPA CLARA proposal FP-067:** returned as non-conforming on 2026-08-08,
   because two administrative forms were missing.
-- **Token:** testnet only. 100% of the supply is locked in MiningPool, with
-  ownership renounced; tokens leave it only as rewards for verified compute.
-  There is no founder, investor or treasury allocation (ledger rows E22, E23),
-  and no sale is planned.
+- **Token:** $TRI has one issuing authority, the founder, Dmitrii Vasilev,
+  and one chain of record, TON; no mainnet token exists, and no sale is
+  planned. The TriToken contract on Base Sepolia (100% of its supply locked in
+  MiningPool, ownership renounced; ledger rows E22, E23) is a retired testnet
+  experiment and is not $TRI (`FACTS.md` section 6).
 
 ## Scope
 

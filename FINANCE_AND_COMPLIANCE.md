@@ -82,9 +82,10 @@ The design is recorded in `FACTS.md` section 6 and ledger rows E22-E23:
 - tokens are released only as rewards for verified compute.
 
 On 2026-10-11 the founder decided that the sole authority to issue (mint) $TRI
-is his (`FACTS.md` section 6). How that fits the renounced testnet contract and
-TON as the chain of record is not established (`FACTS.md` section 3.1). No
-counsel has reviewed the positions below against it.
+is his, that TON is its only chain of record, and that the TriToken contract on
+Base Sepolia is a retired testnet experiment: it is not $TRI, and its supply is
+not $TRI supply (`FACTS.md` sections 3.1 and 6). The design listed above is that
+retired contract's. No counsel has reviewed the positions below against it.
 
 The design was chosen to keep the token outside securities-offering rules. The
 position in each jurisdiction:
